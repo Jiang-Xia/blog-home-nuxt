@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { onBeforeMount } from "vue";
+import { useRouter } from "vue-router";
+const router = useRouter();
+// 该组件对应着 / 路径
+onBeforeMount(() => {
+  router.replace("/home");
+});
 </script>
-<template>
-  <div>
-    <div>index page</div>
-    <!--跳转链接-->
-    <NuxtLink to="/detail">Detail Page</NuxtLink>
-    <br/>
-    <NuxtLink to="/home">Home Page</NuxtLink>
-  </div>
-</template>
-<style lang="scss" scoped></style>
+<template></template>
+<style lang="less" scoped></style>

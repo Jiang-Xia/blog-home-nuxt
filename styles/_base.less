@@ -1,0 +1,197 @@
+// 自定义字体
+// @font-face {
+//   font-family: Ubuntu;
+//   src: url(@/assets/font/UbuntuMono-R-12.ttf);
+// }
+// @font-face {
+//   font-family: FiraCode;
+//   src: url(@/assets/font/FiraCode-Regular.woff2);
+// }
+
+body {
+  min-height: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: -apple-system, Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB,
+    Microsoft YaHei, Arial, sans-serif;
+}
+// 选中背景和文字颜色
+::selection {
+  background: var(--main-color);
+  color: #fff;
+}
+// 去除a标签默认下划线
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+
+.no-padding {
+  padding: 0px !important;
+}
+
+.padding-content {
+  padding: 4px 0;
+}
+.padding {
+  padding: 10px;
+}
+
+.fr {
+  float: right;
+}
+
+.fl {
+  float: left;
+}
+
+.pr-5 {
+  padding-right: 5px;
+}
+
+.pl-5 {
+  padding-left: 5px;
+}
+.pr-10 {
+  padding-right: 10px;
+}
+
+.pl-10 {
+  padding-left: 10px;
+}
+.pr-20 {
+  padding-right: 20px;
+}
+
+.pl-20 {
+  padding-left: 20px;
+}
+
+.mg-t-5 {
+  margin-top: 5px;
+}
+.mg-b-5 {
+  margin-bottom: 5px;
+}
+.mg-t-10 {
+  margin-top: 10px;
+}
+.mg-b-10 {
+  margin-bottom: 10px;
+}
+.mg-l-10 {
+  margin-left: 10px;
+}
+.mg-r-10 {
+  margin-right: 10px;
+}
+.main-color {
+  color: var(--main-color);
+}
+.block {
+  display: block;
+}
+.flex-block {
+  display: flex;
+}
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pointer {
+  cursor: pointer;
+}
+
+.inline-block {
+  display: inline-block;
+}
+.transparent {
+  opacity: 0;
+}
+.pointer {
+  cursor: pointer;
+}
+.help {
+  cursor: help;
+}
+.between {
+  justify-content: space-between;
+}
+// 单行省略 ...
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+// 双行省略 ...
+.overflow-hidden-container {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.clearfix {
+  &:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: ' ';
+    clear: both;
+    height: 0;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
+}
+
+/* 滚动槽 */
+::-webkit-scrollbar-track {
+  border-radius: 0;
+  // background: transparent;
+  background: var(--main-bgc);
+}
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+  border-radius: 0;
+  border-radius: 0.5rem;
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+:hover::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-bgc);
+}
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-corner {
+  // background: transparent;
+  background: var(--main-bgc);
+}
+
+// ::-webkit-scrollbar {
+//   width: 4px;
+//   height: 8px;
+// }
+
+// /* 滚动槽 */
+// ::-webkit-scrollbar-track {
+//   -webkit-box-shadow: inset 0 0 0.5rem rgba(0, 0, 0, 0) !important;
+//   border-radius: 0;
+//   background: #f1f1f1;
+// }
+// /* 滚动条滑块 */
+// ::-webkit-scrollbar-thumb {
+//   background: #fbfbfb;
+//   border-radius: 4px;
+//   -webkit-box-shadow: inset 0 0 0.5rem rgba(0, 0, 0, 0.2);
+// }
+// ::-webkit-scrollbar-thumb:window-inactive {
+//   background: rgba(144, 147, 153, 0.3);
+// }
