@@ -6,10 +6,9 @@ import { reactive, ref } from "vue";
 // });
 </script>
 <template>
-  <!-- <NuxtLayout name="custom"> -->
+  <NuxtLayout name="custom">
     <el-button type="primary">detail</el-button><br />
     <NuxtLink to="/home">Home Page</NuxtLink>
-
-  <!-- </NuxtLayout> -->
+  </NuxtLayout>
 </template>
 <style lang="less" scoped></style>

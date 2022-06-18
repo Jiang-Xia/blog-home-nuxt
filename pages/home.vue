@@ -9,10 +9,9 @@ import axios from "axios";
 // })
 </script>
 <template>
-   <!-- <NuxtLayout name="custom"> -->
+  <NuxtLayout name="custom">
     <el-button type="primary">home</el-button><br />
     <NuxtLink to="/detail">Detail Page</NuxtLink>
-
-  <!-- </NuxtLayout> -->
+  </NuxtLayout>
 </template>
 <style lang="less" scoped></style>
