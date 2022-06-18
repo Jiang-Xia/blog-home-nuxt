@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- <NuxtWelcome /> -->
-    江
+    <NuxtPage></NuxtPage>
   </div>
 </template>
