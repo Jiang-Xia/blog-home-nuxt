@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-06-18 19:32:59
+ * @LastEditTime: 2022-06-19 16:16:02
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -12,7 +12,6 @@ import { ref, computed, reactive, onMounted } from 'vue'
 import Login from './login.vue'
 import { useRoute, useRouter } from 'vue-router'
 // import { getArticleList } from '@/api/article'
-// import XIcon from '@/components/icons'
 import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
 const navList = ref([
@@ -22,20 +21,20 @@ const navList = ref([
     icon: ''
   },
   {
-    path: '/detail',
+    path: '/archives',
     title: '归档',
     icon: ''
   },
-  // {
-  //   path: '/msgboard',
-  //   title: '留言板',
-  //   icon: ''
-  // },
-  // {
-  //   path: '/about',
-  //   title: '关于',
-  //   icon: ''
-  // }
+  {
+    path: '/msgboard',
+    title: '留言板',
+    icon: ''
+  },
+  {
+    path: '/about',
+    title: '关于',
+    icon: ''
+  }
 ])
 </script>
 <template>
@@ -69,6 +68,7 @@ const navList = ref([
  */
 .nav-container {
   height: 100%;
+  color: #fff;
   @media (max-width: 768px) {
     .nav {
       display: none;

@@ -5,5 +5,7 @@ export default defineNuxtConfig({
     css:[
         'element-plus/dist/index.css',
         // 'vant/lib/index.css'
+        '@/assets/font/iconfont.css',
+        '@/assets/css/atom-one-dark.css'
     ]
 })

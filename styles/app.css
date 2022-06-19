@@ -5,6 +5,7 @@
   cursor: pointer;
   transition: all 0.3s;
   margin-bottom: 8px;
+  color: #fff;
 }
 .custom-tag.active {
   background-color: var(--main-color) !important;
@@ -19,4 +20,5 @@
 }
 body {
   color: #000;
+  font-size: 14px;
 }

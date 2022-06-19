@@ -473,22 +473,3 @@ template {
 [hidden] {
   display: none;
 }
-.editor .w-e-text-container {
-  background-color: transparent;
-}
-.custom-tag {
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-bottom: 8px;
-}
-.custom-tag.active {
-  background-color: var(--main-color) !important;
-  border-color: var(--main-color);
-  color: #fff !important;
-  transform: scale(1.1);
-}
-.flex-between {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
