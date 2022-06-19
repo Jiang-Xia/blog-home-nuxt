@@ -77,7 +77,7 @@ onMounted(() => {
       display: block;
       width: 100%;
       height: 30px;
-      background-image: url(@/assets/img/icons/code-btn.png);
+      background-image: url(@/assets/icons/code-btn.png);
       background-position: 10px 10px;
       background-size: 55px;
       background-repeat: no-repeat;
