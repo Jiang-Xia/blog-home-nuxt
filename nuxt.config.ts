@@ -8,10 +8,11 @@ export default defineNuxtConfig({
     // 'vant/lib/index.css'
     "@/assets/font/iconfont.css",
     "@/assets/css/atom-one-dark.css",
+    "@arco-design/web-vue/dist/arco.css"
   ],
   build: {
     // Babel 转译特定的依赖关系（解决element-plus vue版本不一致打包报错问题）
     transpile:
-      lifecycle === "build" || lifecycle === "generate" ? ["element-plus"] : [],
+      lifecycle === "build" || lifecycle === "generate" ? ["element-plus"] : ["compute-scroll-into-view"],
   },
 });
