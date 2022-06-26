@@ -1,76 +1,73 @@
 <script setup lang="ts">
-import { delArticle, getArticleInfo, getComment } from '@/api/article'
-import { onMounted, ref, reactive, UnwrapRef, watch } from 'vue'
-import { updateViews } from '@/utils/common'
-import { computed, onBeforeUnmount } from 'vue'
-import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
+import { delArticle, getArticleInfo, getComment } from "@/api/article";
+import { onMounted, ref, reactive, UnwrapRef, watch } from "vue";
+import { updateViews } from "@/utils/common";
+import { computed, onBeforeUnmount } from "vue";
+import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
 // import XMarkdownReader from '@/components/x-markdown-reader'
-import { updateLikesHandle } from '@/utils/common'
+import { updateLikesHandle } from "@/utils/common";
 
-import defaultImg from '@/assets/images/create.webp'
-import { makeToc, tocInter, isTrueCoverLink } from '@/utils'
+import defaultImg from "@/assets/images/create.webp";
+import { makeToc, tocInter, isTrueCoverLink } from "@/utils";
 
 interface FormState {
-  [propName: string]: any
+  [propName: string]: any;
 }
 const defaultForm: FormState = {
-  id: '',
-  title: '',
-  description: '',
-  content: '',
-  contentHtml: '',
-  cover: '',
+  id: "",
+  title: "",
+  description: "",
+  content: "",
+  contentHtml: "",
+  cover: "",
   category: {
-    label: ''
+    label: "",
   },
   tags: [],
   views: 0,
   checked: 0,
   likes: 0,
-  uid: 0
-}
-const route = reactive(useRoute())
+  uid: 0,
+};
+const route = reactive(useRoute());
 // 获取到的html内容
-const html = ref('')
-const isEditorShow = ref(false)
+const html = ref("");
+const isEditorShow = ref(false);
 // 先定义默认数组类型
-const topicsDefault: tocInter[] = []
-const topics = ref(topicsDefault)
-let ArticleInfo = reactive({ ...defaultForm })
+const topicsDefault: tocInter[] = [];
+const topics = ref(topicsDefault);
+let ArticleInfo = reactive({ ...defaultForm });
 const getArticleInfoHandle = async (to?: any) => {
-  let query = route.query
+  let query = route.query;
   if (to) {
-    query = to.query
+    query = to.query;
   }
-  isEditorShow.value = false
-  const res = await getArticleInfo(query)
+  isEditorShow.value = false;
+  const res = await getArticleInfo(query);
   Object.keys(defaultForm).forEach((v: string) => {
     if (res.info[v]) {
-      ArticleInfo[v] = res.info[v]
+      ArticleInfo[v] = res.info[v];
     }
-  })
-  topics.value = makeToc(ArticleInfo.contentHtml)
+  });
+  topics.value = makeToc(ArticleInfo.contentHtml);
   // console.log(JSON.parse(ArticleInfo.content))
-  isEditorShow.value = true
-  updateViews(route.query.id)
-}
+  isEditorShow.value = true;
+  updateViews(route.query.id);
+};
 const getTagLabel = (arr: any): string => {
-  let text = arr.map((v: any) => v.label).join()
-  return text
-}
-onMounted(() => {
-  getArticleInfoHandle()
-})
+  let text = arr.map((v: any) => v.label).join();
+  return text;
+};
+getArticleInfoHandle();
 // 路由变化钩子
-onBeforeRouteUpdate((to) => {
-  getArticleInfoHandle(to)
-})
+// onBeforeRouteUpdate((to) => {
+//   getArticleInfoHandle(to);
+// });
 const tagLabel = computed(() => {
-  return getTagLabel(ArticleInfo.tags)
-})
+  return getTagLabel(ArticleInfo.tags);
+});
 
-const router = useRouter()
-
+const router = useRouter();
 </script>
 <template>
   <div>
@@ -82,7 +79,7 @@ const router = useRouter()
           <p class="title">{{ ArticleInfo.title }}</p>
           <p class="detail">
             <x-icon icon="blog-category"></x-icon>
-            {{ ArticleInfo['category']['label'] }}
+            {{ ArticleInfo["category"]["label"] }}
             <x-icon class="mg-l-10" icon="blog-tag"></x-icon>
             {{ tagLabel }}
           </p>
@@ -90,19 +87,27 @@ const router = useRouter()
             <!-- 阅读量 -->
             <span class="mg-r-10 pointer">
               <x-icon icon="blog-view"></x-icon>
-              {{ ArticleInfo['views'] }}
+              {{ ArticleInfo["views"] }}
             </span>
             <!-- 点赞数 -->
-            <span class="mg-r-10 pointer blog-like" @click.stop="updateLikesHandle(ArticleInfo)">
-              <x-icon :icon="ArticleInfo['checked'] ? 'blog-like-solid' : 'blog-like'"></x-icon>
-              {{ ArticleInfo['likes'] }}
+            <span
+              class="mg-r-10 pointer blog-like"
+              @click.stop="updateLikesHandle(ArticleInfo)"
+            >
+              <x-icon
+                :icon="ArticleInfo['checked'] ? 'blog-like-solid' : 'blog-like'"
+              ></x-icon>
+              {{ ArticleInfo["likes"] }}
             </span>
           </p>
         </div>
       </div>
     </section>
     <section class="module-wrap__detail article-info">
-      <x-markdown-reader v-if="isEditorShow" :content="ArticleInfo.contentHtml" />
+      <x-markdown-reader
+        v-if="isEditorShow"
+        :content="ArticleInfo.contentHtml"
+      />
       <!-- 目录 -->
       <Catalogue :topics="topics" />
     </section>

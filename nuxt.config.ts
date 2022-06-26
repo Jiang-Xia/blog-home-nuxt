@@ -15,4 +15,9 @@ export default defineNuxtConfig({
     transpile:
       lifecycle === "build" || lifecycle === "generate" ? ["element-plus"] : ["compute-scroll-into-view"],
   },
+  router: {
+    scrollBehavior (to, from, savedPosition) {
+      return { x: 0, y: 0 }
+    }
+  }
 });

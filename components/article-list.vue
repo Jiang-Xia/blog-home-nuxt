@@ -6,7 +6,7 @@ import {
   getOptions,
   updateLikesHandle,
 } from "@/utils/common";
-import { onMounted, ref, reactive, unref, UnwrapRef, toRefs } from "vue";
+import { ref, reactive, unref, UnwrapRef, toRefs } from "vue";
 import defaultCover from "@/assets/images/create.webp";
 import { isTrueCoverLink } from "@/utils";
 // interface FormState {
@@ -36,10 +36,7 @@ const articleListDefault: any[] = [];
 const articleList = ref(articleListDefault);
 getOptions("标签");
 getOptions("分类");
-onMounted(async () => {
-  console.log("========");
-  getArticleListHandle();
-});
+
 const queryPrams: queryState = reactive({
   page: 1,
   category: "",
@@ -57,6 +54,7 @@ const getArticleListHandle = async (val = 1) => {
   articleList.value = res.list;
   queryPrams.total = res.pagination.total;
 };
+getArticleListHandle();
 // 获取标签名(暂时没有用)
 const getTagLabel = (arr: []): string => {
   // 如果是js的话，这个方法会写得很简单
