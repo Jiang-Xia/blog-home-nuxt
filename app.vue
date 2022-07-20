@@ -9,18 +9,18 @@ const scrollTop = ref(0);
 const scrollHandle = (e: any) => {
   scrollTop.value = document.documentElement.scrollTop;
 };
-onMounted(() => {
-  /* 
-    之所以绑定window的滚动事件 是为了元素样式为固定定位（相对于window定位的）时会覆盖document子元素的滚动条
-    造成错位不好看。这里的滚动对象是 document.documentElement
-  */
-  window.addEventListener("scroll", throttle(scrollHandle, 100), true);
-  // 写入一个cookie，用于判断用户是否点过赞
-  if (!Cookies.get("browserId")) {
-    // 存个当前时间戳
-    Cookies.set("browserId", dayjs().valueOf().toString(), { expires: 7 });
-  }
-});
+// onMounted(() => {
+//   /* 
+//     之所以绑定window的滚动事件 是为了元素样式为固定定位（相对于window定位的）时会覆盖document子元素的滚动条
+//     造成错位不好看。这里的滚动对象是 document.documentElement
+//   */
+//   window.addEventListener("scroll", throttle(scrollHandle, 100), true);
+//   // 写入一个cookie，用于判断用户是否点过赞
+//   if (!Cookies.get("browserId")) {
+//     // 存个当前时间戳
+//     Cookies.set("browserId", dayjs().valueOf().toString(), { expires: 7 });
+//   }
+// });
 
 </script>
 <template>

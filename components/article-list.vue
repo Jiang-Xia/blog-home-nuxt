@@ -9,6 +9,12 @@ import {
 import { ref, reactive, unref, UnwrapRef, toRefs } from "vue";
 import defaultCover from "@/assets/images/create.webp";
 import { isTrueCoverLink } from "@/utils";
+import { baseUrl } from "~~/config";
+// const { data:articlelist } = await useFetch('https://jiang-xia.top/x-api/blog-server/article/list',{method: 'POST'})
+// console.log("article list:", articlelist.value);
+
+// const {data:tags} = useAsyncData('hello world', () => $fetch('https://jiang-xia.top/x-api/blog-server/tag'), {})
+// console.log('data:', tags.value)
 // interface FormState {
 //   id: number
 //   title: string

@@ -2,13 +2,13 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-06-19 16:16:02
+ * @LastEditTime: 2022-07-20 23:24:21
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import Login from './login.vue'
 import { useRoute, useRouter } from 'vue-router'
 // import { getArticleList } from '@/api/article'

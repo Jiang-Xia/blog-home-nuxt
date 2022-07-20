@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { delArticle, getArticleInfo, getComment } from "@/api/article";
-import { onMounted, ref, reactive, UnwrapRef, watch } from "vue";
+import { ref, reactive, UnwrapRef, watch } from "vue";
 import { updateViews } from "@/utils/common";
 import { computed, onBeforeUnmount } from "vue";
 import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
-// import XMarkdownReader from '@/components/x-markdown-reader'
 import { updateLikesHandle } from "@/utils/common";
 
 import defaultImg from "@/assets/images/create.webp";
 import { makeToc, tocInter, isTrueCoverLink } from "@/utils";
-
+import MdEditor from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
 interface FormState {
   [propName: string]: any;
 }
@@ -49,7 +49,6 @@ const getArticleInfoHandle = async (to?: any) => {
       ArticleInfo[v] = res.info[v];
     }
   });
-  topics.value = makeToc(ArticleInfo.contentHtml);
   // console.log(JSON.parse(ArticleInfo.content))
   isEditorShow.value = true;
   updateViews(route.query.id);
@@ -68,6 +67,14 @@ const tagLabel = computed(() => {
 });
 
 const router = useRouter();
+
+// 获取文章目录
+const onGetCatalogHandle = (list: any) => {
+  topics.value = list.map((v: any) => {
+    v.id = v.text
+    return v
+  })
+}
 </script>
 <template>
   <div>
@@ -104,9 +111,17 @@ const router = useRouter();
       </div>
     </section>
     <section class="module-wrap__detail article-info">
-      <x-markdown-reader
+      <!-- <x-markdown-reader
         v-if="isEditorShow"
         :content="ArticleInfo.contentHtml"
+      /> -->
+      <md-editor
+        v-if="isEditorShow"
+        v-model="ArticleInfo.contentHtml"
+        class="x-md-editor"
+        preview-only
+        theme="light"
+        @onGetCatalog="onGetCatalogHandle"
       />
       <!-- 目录 -->
       <Catalogue :topics="topics" />
