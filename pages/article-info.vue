@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { delArticle, getArticleInfo, getComment } from "@/api/article";
+import { getArticleInfo } from "@/api/article";
 import { ref, reactive, UnwrapRef, watch } from "vue";
 import { updateViews } from "@/utils/common";
 import { computed, onBeforeUnmount } from "vue";
@@ -8,8 +8,8 @@ import { updateLikesHandle } from "@/utils/common";
 
 import defaultImg from "@/assets/images/create.webp";
 import { makeToc, tocInter, isTrueCoverLink } from "@/utils";
-import MdEditor from 'md-editor-v3'
-import 'md-editor-v3/lib/style.css'
+import MdEditor from "md-editor-v3";
+import "md-editor-v3/lib/style.css";
 interface FormState {
   [propName: string]: any;
 }
@@ -32,36 +32,30 @@ const defaultForm: FormState = {
 const route = reactive(useRoute());
 // 获取到的html内容
 const html = ref("");
-const isEditorShow = ref(false);
 // 先定义默认数组类型
 const topicsDefault: tocInter[] = [];
 const topics = ref(topicsDefault);
 let ArticleInfo = reactive({ ...defaultForm });
-const getArticleInfoHandle = async (to?: any) => {
-  let query = route.query;
-  if (to) {
-    query = to.query;
-  }
-  isEditorShow.value = false;
-  const res = await getArticleInfo(query);
+let query = route.query;
+
+// 响应式声明
+const { data: ArticleData } = await useAsyncData("detail_GetInfo", () =>
+  getArticleInfo(query)
+);
+if (ArticleData) {
   Object.keys(defaultForm).forEach((v: string) => {
-    if (res.info[v]) {
-      ArticleInfo[v] = res.info[v];
+    if (ArticleData.value.info[v]) {
+      ArticleInfo[v] = ArticleData.value.info[v];
     }
   });
-  // console.log(JSON.parse(ArticleInfo.content))
-  isEditorShow.value = true;
-  updateViews(route.query.id);
-};
+}
+updateViews(query.id);
+
 const getTagLabel = (arr: any): string => {
   let text = arr.map((v: any) => v.label).join();
   return text;
 };
-getArticleInfoHandle();
-// 路由变化钩子
-// onBeforeRouteUpdate((to) => {
-//   getArticleInfoHandle(to);
-// });
+
 const tagLabel = computed(() => {
   return getTagLabel(ArticleInfo.tags);
 });
@@ -71,10 +65,10 @@ const router = useRouter();
 // 获取文章目录
 const onGetCatalogHandle = (list: any) => {
   topics.value = list.map((v: any) => {
-    v.id = v.text
-    return v
-  })
-}
+    v.id = v.text;
+    return v;
+  });
+};
 </script>
 <template>
   <div>
@@ -111,12 +105,7 @@ const onGetCatalogHandle = (list: any) => {
       </div>
     </section>
     <section class="module-wrap__detail article-info">
-      <!-- <x-markdown-reader
-        v-if="isEditorShow"
-        :content="ArticleInfo.contentHtml"
-      /> -->
       <md-editor
-        v-if="isEditorShow"
         v-model="ArticleInfo.contentHtml"
         class="x-md-editor"
         preview-only
@@ -172,7 +161,7 @@ const onGetCatalogHandle = (list: any) => {
   }
 }
 .module-wrap__detail {
-  box-sizing:border-box;
+  box-sizing: border-box;
   position: relative;
   margin: 20px auto 0;
   min-height: 40vh;

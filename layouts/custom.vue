@@ -2,47 +2,32 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-06-19 17:06:24
+ * @LastEditTime: 2022-07-21 15:35:21
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\custom.vue
 -->
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import Cookies from 'js-cookie'
+import { ref } from "vue";
 import { dailyImage } from "~~/api/article";
-const showFooter = computed(() => {
-  return true;
-});
 
 const images = ref([]);
-dailyImage(3).then((res) => {
-  images.value = res.images.map((v: any) => "https://cn.bing.com" + v.url);
-});
-const showBanner = computed(() => {
-  const route = useRoute();
-  return route.path.includes("home");
-});
+const { data: images2 } = await useAsyncData("index_GetIMG", () =>
+  dailyImage(3)
+);
+images.value = images2.value.images.map(
+  (v: any) => "https://cn.bing.com" + v.url
+);
+// const showBanner = computed(() => {
+//   const route = useRoute();
+//   return route.path.includes("home");
+// });
 </script>
 <template>
   <div class="app-layout-contaier paper-feeling">
     <!-- 全局共享布局 -->
     <section class="banner-container">
       <div class="banner-content">
-        <img
-          :src="images[0]"
-          :style="{
-            width: '100%',
-          }"
-        />
-        <!-- <el-carousel
-          :initial-index="0"
-          indicator-position="none"
-          height="100%"
-          :style="{
-            width: '100%',
-            height: '100%',
-          }"
-        >
+        <el-carousel :initial-index="0" indicator-position="none" height="100%" :interval="60000">
           <el-carousel-item v-for="(image, index) in images" :key="index">
             <img
               :src="image"
@@ -51,7 +36,7 @@ const showBanner = computed(() => {
               }"
             />
           </el-carousel-item>
-        </el-carousel> -->
+        </el-carousel>
       </div>
     </section>
     <!-- 主显示区 -->
@@ -63,16 +48,10 @@ const showBanner = computed(() => {
 
 <style lang="less" scoped>
 .banner-container {
-  position: relative;
-  top: 0;
-  left: 0;
-  width: 100%;
-  // height: calc(100vh + 100px);
-  // height: 60vh;
-  z-index: 0;
-  // @media screen and (max-width: 768px) {
-  //   height: 60vh;
-  // }
+  height: calc(100vh + 100px);
+  @media screen and (max-width: 768px) {
+    height: 60vh;
+  }
 
   .banner-content {
     position: relative;
@@ -97,6 +76,9 @@ const showBanner = computed(() => {
         font-weight: 500;
       }
     }
+  }
+  .el-carousel{
+    height: 100%;
   }
 }
 .app-layout-contaier {

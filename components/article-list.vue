@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getArticleInfo, getArticleList } from "@/api/article";
+import { getArticleList } from "@/api/article";
 import {
   categoryOptions,
   tagsOptions,
@@ -9,17 +9,8 @@ import {
 import { ref, reactive, unref, UnwrapRef, toRefs } from "vue";
 import defaultCover from "@/assets/images/create.webp";
 import { isTrueCoverLink } from "@/utils";
-import { baseUrl } from "~~/config";
-// const { data:articlelist } = await useFetch('https://jiang-xia.top/x-api/blog-server/article/list',{method: 'POST'})
-// console.log("article list:", articlelist.value);
+import { Search } from "@element-plus/icons-vue";
 
-// const {data:tags} = useAsyncData('hello world', () => $fetch('https://jiang-xia.top/x-api/blog-server/tag'), {})
-// console.log('data:', tags.value)
-// interface FormState {
-//   id: number
-//   title: string
-//   description: string
-// }
 interface queryState {
   page: number;
   category: string;
@@ -40,8 +31,6 @@ const router = useRouter();
 // 文章列表中的每一项item都为any
 const articleListDefault: any[] = [];
 const articleList = ref(articleListDefault);
-getOptions("标签");
-getOptions("分类");
 
 const queryPrams: queryState = reactive({
   page: 1,
@@ -54,13 +43,37 @@ const queryPrams: queryState = reactive({
   content: "",
   uid: 1,
 });
+
+/*
+ * 第一个参数为唯一key
+ * ！注意：如果有使用useAsyncData时，会最先执行此函数，也是是如此，
+ * 分类和标签才会在服务渲染(useAsyncData后执行的函数)
+ */
+
+const {
+  // 这样生命的变量时响应式的，不这样声明请求回来复制不然渲染到模板上
+  data: articleData,
+  pending,
+  refresh,
+  error,
+} = await useAsyncData("index_GetList", () => getArticleList(queryPrams));
+if (articleData.value) {
+  articleList.value = articleData.value.list;
+  queryPrams.total = articleData.value.pagination.total;
+}
+// 此测试印证上面描述
+// const { data: articleData } = await useAsyncData("index_GetList", () =>
+//   Promise.resolve()
+// );
+getOptions("标签");
+getOptions("分类");
+// 下一页
 const getArticleListHandle = async (val = 1) => {
   queryPrams.page = val;
   const res = await getArticleList(queryPrams);
   articleList.value = res.list;
   queryPrams.total = res.pagination.total;
 };
-getArticleListHandle();
 // 获取标签名(暂时没有用)
 const getTagLabel = (arr: []): string => {
   // 如果是js的话，这个方法会写得很简单
@@ -105,11 +118,11 @@ const currentChangeHandle = (val: number) => {
 const searchText = ref("");
 const onSearchHandle = () => {
   queryPrams.page = 1;
-  // queryPrams.category = ''
-  // queryPrams.tags = []
+  queryPrams.category = "";
+  queryPrams.tags = [];
   queryPrams.title = searchText.value;
   queryPrams.description = searchText.value;
-  // queryPrams.content = searchText.value
+  queryPrams.content = searchText.value;
   getArticleListHandle(1);
 };
 // 文章详情
@@ -207,15 +220,11 @@ const gotoDetail = (item: any) => {
           <x-icon icon="blog-filter" />
           关键字
         </h4>
-        <!-- <el-input-search
-          v-model:value="searchText"
-          placeholder="输入标签或者摘要"
-          @search="onSearchHandle"
-        >
-          <template #enterButton>
-            <el-button><x-icon  icon="blog-search" /></el-button>
+        <el-input v-model="searchText" placeholder="输入标题或者摘要">
+          <template #append>
+            <el-button :icon="Search" @click="onSearchHandle" />
           </template>
-        </el-input-search> -->
+        </el-input>
       </div>
       <div class="card-wrap category-wrap">
         <h4>
