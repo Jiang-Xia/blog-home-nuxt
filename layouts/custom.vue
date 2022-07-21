@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-07-21 15:35:21
+ * @LastEditTime: 2022-07-21 16:44:06
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\custom.vue
 -->
@@ -11,12 +11,12 @@ import { ref } from "vue";
 import { dailyImage } from "~~/api/article";
 
 const images = ref([]);
-const { data: images2 } = await useAsyncData("index_GetIMG", () =>
-  dailyImage(3)
-);
-images.value = images2.value.images.map(
-  (v: any) => "https://cn.bing.com" + v.url
-);
+// const { data: images2 } = await useAsyncData("index_GetIMG", () =>
+//   dailyImage(3)
+// );
+// images.value = images2.value.images.map(
+//   (v: any) => "https://cn.bing.com" + v.url
+// );
 // const showBanner = computed(() => {
 //   const route = useRoute();
 //   return route.path.includes("home");

@@ -127,7 +127,7 @@ const onSearchHandle = () => {
 };
 // 文章详情
 const gotoDetail = (item: any) => {
-  router.replace("/article-info?id=" + item.id);
+  router.replace("/home/detail/" + item.id);
 };
 </script>
 

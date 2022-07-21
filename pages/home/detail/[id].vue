@@ -29,27 +29,39 @@ const defaultForm: FormState = {
   likes: 0,
   uid: 0,
 };
-const route = reactive(useRoute());
+const route = useRoute();
 // 获取到的html内容
 const html = ref("");
 // 先定义默认数组类型
 const topicsDefault: tocInter[] = [];
 const topics = ref(topicsDefault);
 let ArticleInfo = reactive({ ...defaultForm });
-let query = route.query;
+let params = route.params;
 
 // 响应式声明
-const { data: ArticleData } = await useAsyncData("detail_GetInfo", () =>
-  getArticleInfo(query)
-);
-if (ArticleData) {
-  Object.keys(defaultForm).forEach((v: string) => {
-    if (ArticleData.value.info[v]) {
-      ArticleInfo[v] = ArticleData.value.info[v];
-    }
-  });
-}
-updateViews(query.id);
+const {
+  data: articleData,
+  pending,
+  refresh,
+  error,
+} = await useAsyncData("detail_GetInfo", () => getArticleInfo(params));
+const setArticleData = () => {
+  if (articleData) {
+    Object.keys(defaultForm).forEach((v: string) => {
+      if (articleData.value.info[v]) {
+        ArticleInfo[v] = articleData.value.info[v];
+      }
+    });
+  }
+};
+setArticleData();
+
+onBeforeMount(async () => {
+  await refresh();
+  setArticleData();
+});
+
+updateViews(params.id);
 
 const getTagLabel = (arr: any): string => {
   let text = arr.map((v: any) => v.label).join();

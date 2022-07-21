@@ -34,7 +34,9 @@ onMounted(() => {
       <Nav></Nav>
     </el-header>
     <!-- 路由显示区域 -->
-    <NuxtPage></NuxtPage>
+    <div>
+      <NuxtPage></NuxtPage>
+    </div>
 
     <!-- 页脚 -->
     <el-footer>
@@ -42,7 +44,6 @@ onMounted(() => {
       <p>
         Powered By Typescript & Vue3 & Vite & Arco-design & Node.js & NestJS
       </p>
-      <!-- <a-button type="primary">111</a-button> -->
     </el-footer>
 
     <!-- 回到顶部 -->
