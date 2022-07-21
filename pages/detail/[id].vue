@@ -60,7 +60,13 @@ onBeforeMount(async () => {
   await refresh();
   setArticleData();
 });
-
+onMounted(async () => {
+  window.scroll({
+    top: 0,
+    left: 0,
+    behavior: "smooth",
+  });
+});
 updateViews(params.id);
 
 const getTagLabel = (arr: any): string => {

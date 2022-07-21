@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
-import axios from "axios";
+
 </script>
 <template>
   <NuxtLayout name="custom">

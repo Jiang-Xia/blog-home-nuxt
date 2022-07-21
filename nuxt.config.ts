@@ -1,5 +1,5 @@
 import { defineNuxtConfig } from "nuxt";
-const lifecycle = process.env.npm_lifecycle_event
+const lifecycle = process.env.npm_lifecycle_event;
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
@@ -8,16 +8,19 @@ export default defineNuxtConfig({
     // 'vant/lib/index.css'
     "@/assets/font/iconfont.css",
     "@/assets/css/atom-one-dark.css",
-    "@arco-design/web-vue/dist/arco.css"
+    "@arco-design/web-vue/dist/arco.css",
   ],
   build: {
     // Babel 转译特定的依赖关系（解决element-plus vue版本不一致打包报错问题）
     transpile:
-      lifecycle === "build" || lifecycle === "generate" ? ["element-plus"] : ["compute-scroll-into-view"],
+      lifecycle === "build" || lifecycle === "generate"
+        ? ["element-plus"]
+        : ["compute-scroll-into-view"],
   },
   router: {
-    scrollBehavior (to, from, savedPosition) {
-      return { x: 0, y: 0 }
-    }
-  }
+    // 改配置无效
+    // scrollBehavior(to, from, savedPosition) {
+    //   return { top: 0, left: 0, behavior: "smooth" };
+    // },
+  },
 });
