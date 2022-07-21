@@ -1,38 +1,13 @@
-import request from '@/utils/request'
+import request from '~~/api/request'
 export const getTagById = async (id: number) => {
-  const res = await request({
-    url: '/tag/' + id,
-    method: 'get'
-  })
+  const res = await request.get('/tag/' + id)
   return res.data
 }
 export const getAllTag = async () => {
-  const res = await request({
-    url: '/tag',
-    method: 'get'
-  })
+  const res = await request.get('/tag')
   return res.data
 }
 export const createTag = async (data: any) => {
-  const res = await request({
-    url: '/tag',
-    method: 'post',
-    data
-  })
-  return res.data
-}
-export const updateTag = async (data: any) => {
-  const res = await request({
-    url: '/tag',
-    method: 'patch',
-    data
-  })
-  return res.data
-}
-export const delTag = async (id: number) => {
-  const res = await request({
-    url: '/tag/' + id,
-    method: 'delete'
-  })
+  const res = await request.post('/tag',data)
   return res.data
 }

@@ -172,6 +172,7 @@ const onGetCatalogHandle = (list: any) => {
   }
 }
 .module-wrap__detail {
+  box-sizing:border-box;
   position: relative;
   margin: 20px auto 0;
   min-height: 40vh;

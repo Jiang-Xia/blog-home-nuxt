@@ -671,6 +671,11 @@
   "resolved" "https://registry.npmmirror.com/@types/lodash/-/lodash-4.14.182.tgz"
   "version" "4.14.182"
 
+"@types/marked@^4.0.3":
+  "integrity" "sha512-HnMWQkLJEf/PnxZIfbm0yGJRRZYYMhb++O9M36UCTA9z53uPvVoSlAwJr3XOpDEryb7Hwl1qAx/MV6YIW1RXxg=="
+  "resolved" "https://registry.npmmirror.com/@types/marked/-/marked-4.0.3.tgz"
+  "version" "4.0.3"
+
 "@types/node@*":
   "integrity" "sha512-cHlGmko4gWLVI27cGJntjs/Sj8th9aYwplmZFwmmgYQQvL5NUsgVJG7OddLvNfLqYS31KFN0s3qlaD9qCaxACA=="
   "resolved" "https://registry.npmmirror.com/@types/node/-/node-18.0.0.tgz"
@@ -2777,6 +2782,13 @@
   "version" "3.1.0"
   dependencies:
     "semver" "^6.0.0"
+
+"md-editor-v3@^2.2.1":
+  "integrity" "sha512-nOd8mlEhvC99l9Y8pDMwEi6EdCAeBp88Ffl24We+2uz3/Iympctm92L1qyNicONJRhtZJacQ4oWTQGMYKGAxVg=="
+  "resolved" "https://registry.npmmirror.com/md-editor-v3/-/md-editor-v3-2.2.1.tgz"
+  "version" "2.2.1"
+  dependencies:
+    "@types/marked" "^4.0.3"
 
 "mdn-data@2.0.14":
   "integrity" "sha512-dn6wd0uw5GsdswPFfsgMp5NSB0/aDe6fK94YJV/AJDYXL6HVLWBsxeq7js7Ad+mU2K9LAlwpk6kN2D5mwCPVow=="

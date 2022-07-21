@@ -338,8 +338,8 @@ const gotoDetail = (item: any) => {
     .cover-wrap {
       height: 100%;
       & > img {
-        max-height: 100px;
-        max-width: 150px;
+        height: 100px;
+        width: 150px;
         border-radius: var(--border-radius);
       }
     }
