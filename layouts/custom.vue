@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-07-21 17:53:17
+ * @LastEditTime: 2022-07-22 17:00:10
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\custom.vue
 -->
@@ -20,14 +20,6 @@ images.value = imagesData.value.images.map(
 const showBanner = computed(() => {
   const route = useRoute();
   return route.path.includes("home");
-});
-
-onMounted(async () => {
-  window.scroll({
-    top: 0,
-    left: 0,
-    behavior: "smooth",
-  });
 });
 </script>
 <template>

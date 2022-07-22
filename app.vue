@@ -34,10 +34,9 @@ onMounted(() => {
       <Nav></Nav>
     </el-header>
     <!-- 路由显示区域 -->
-    <div>
+    <div class="app-main">
       <NuxtPage></NuxtPage>
     </div>
-
     <!-- 页脚 -->
     <el-footer>
       <p>桂ICP备2022001119号-1</p>
@@ -54,6 +53,10 @@ onMounted(() => {
 .app{
   background-color: var(--main-bgc) !important;
   color: var(--text-color) !important;
+  min-height: 100vh;
+}
+.app-main{
+  min-height: 60vh;
 }
 .el-header {
   height: 58px;

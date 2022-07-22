@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
-import axios from "axios";
 definePageMeta({
   layout: false,
 });

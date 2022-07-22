@@ -135,11 +135,11 @@ const gotoDetail = (item: any) => {
   <div class="article-list-container">
     <section class="main-article-wrap">
       <transition-group name="list">
-        <div
+        <nuxt-link
           v-for="(item, index) in articleList"
           :key="index"
           class="card-wrap article-item pointer"
-          @click="gotoDetail(item)"
+          :to="'/detail/' + item.id"
         >
           <div class="card-content">
             <h1 class="line-1">
@@ -194,7 +194,7 @@ const gotoDetail = (item: any) => {
               :src="isTrueCoverLink(item.cover) || defaultCover"
             />
           </div>
-        </div>
+        </nuxt-link>
       </transition-group>
 
       <el-empty

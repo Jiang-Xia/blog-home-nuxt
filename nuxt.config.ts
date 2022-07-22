@@ -18,9 +18,5 @@ export default defineNuxtConfig({
         : ["compute-scroll-into-view"],
   },
   router: {
-    // 改配置无效
-    // scrollBehavior(to, from, savedPosition) {
-    //   return { top: 0, left: 0, behavior: "smooth" };
-    // },
   },
 });
