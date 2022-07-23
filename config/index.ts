@@ -16,7 +16,7 @@ if (mode === 'production') {
 } else {
   baseUrl = 'http://localhost:5000'
   // baseUrl = 'http://42.192.145.236:5000'
-  baseUrl = 'https://jiang-xia.top/x-api/blog-server'
+  // baseUrl = 'https://jiang-xia.top/x-api/blog-server'
 }
 console.log('baseUrl: ', baseUrl)
 export default config

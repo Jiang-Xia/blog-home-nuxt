@@ -4,7 +4,12 @@ import { ref, watch } from "vue";
 import Cookies from "js-cookie";
 import { throttle } from "@/utils";
 import dayjs from "dayjs";
-
+import { ID_INJECTION_KEY } from "element-plus";
+// 解决 ElementPlusError
+provide(ID_INJECTION_KEY, {
+  prefix: Math.floor(Math.random() * 10000),
+  current: 0,
+});
 const scrollTop = ref(0);
 const scrollHandle = (e: any) => {
   scrollTop.value = document.documentElement.scrollTop;
@@ -25,12 +30,11 @@ onMounted(() => {
     Cookies.set("browserId", dayjs().valueOf().toString(), { expires: 7 });
   }
 });
-
 </script>
 <template>
   <div class="app">
     <!-- 导航栏 -->
-    <el-header :class="{ 'arco-layout-header__active': scrollTop > 58 }">
+    <el-header :class="{ 'app-layout-header__active': scrollTop > 58 }">
       <Nav></Nav>
     </el-header>
     <!-- 路由显示区域 -->
@@ -41,7 +45,8 @@ onMounted(() => {
     <el-footer>
       <p>桂ICP备2022001119号-1</p>
       <p>
-        Powered By Typescript & Vue3 & Vite3 & Nuxt3 & ELement-Plus & Node.js & NestJS
+        Powered By Typescript & Vue3 & Vite3 & Nuxt3 & ELement-Plus & Node.js &
+        NestJS
       </p>
     </el-footer>
 
@@ -49,13 +54,13 @@ onMounted(() => {
     <el-backtop> </el-backtop>
   </div>
 </template>
-<style lang="less" >
-.app{
+<style lang="less">
+.app {
   background-color: var(--main-bgc) !important;
   color: var(--text-color) !important;
   min-height: 100vh;
 }
-.app-main{
+.app-main {
   min-height: 60vh;
 }
 .el-header {
@@ -71,7 +76,7 @@ onMounted(() => {
   background: transparent !important;
   padding: 0 1.5vw;
 }
-.arco-layout-header__active {
+.app-layout-header__active {
   background-color: var(--nav-color) !important;
   border-color: var(--nav-color) !important;
 }

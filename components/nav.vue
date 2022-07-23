@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-23 16:36:30
+ * @LastEditTime: 2022-07-23 23:46:59
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -15,15 +15,8 @@ import { useRoute, useRouter } from "vue-router";
 import dayjs from "dayjs";
 import { Sunny, Moon } from "@element-plus/icons-vue";
 import XIcon from "@/components/icons/index";
-let theme: any;
-if (process.client) {
-  theme = useCookie("theme"); // dar light auto
-}
 const usetheme = useTheme();
-// 不存在时需赋值个初始值
-// if (!theme.value) {
-//   theme.value = "light";
-// }
+
 const navList = ref([
   {
     path: "/home",
@@ -41,30 +34,42 @@ const navList = ref([
     icon: "",
   },
   {
+    path: "/links",
+    title: "友链",
+    icon: "",
+  },
+  {
     path: "/about",
     title: "关于",
     icon: "",
   },
 ]);
-// console.log(theme);
 onMounted(() => {
-  if (theme.value) {
-    if (theme.value === "auto") {
+  init();
+});
+const init = () => {
+  const themeType = localStorage.getItem("theme");
+  console.log(themeType);
+  if (themeType) {
+    if (themeType === "auto") {
       getHour();
     } else {
-      setTheme(theme.value);
+      setTheme(themeType);
     }
-    iconClass.value = "blog-" + theme.value;
+    // 都有设置icon和选中
+    theme.value = themeType;
+    iconClass.value = "blog-" + themeType;
   } else {
     getHour();
   }
-});
-
+};
+// init()
 /* 切换主题 开始 */
-// const theme = ref<string>('light')
+const theme = ref<string>('light')
 const iconClass = ref("blog-light");
 const setTheme = (type: string) => {
   usetheme.value = type;
+  iconClass.value = "blog-" + type;
   document.documentElement.className = type;
 };
 // 是否自动设置
@@ -77,11 +82,21 @@ const getHour = () => {
     setTheme("dark");
   }
 };
+// 当用户没有设置过时 不存在时需赋值个初始值
+if (!theme.value) {
+  const time = dayjs().hour();
+  if (6 < time && time < 18) {
+    theme.value = "light";
+  } else {
+    theme.value = "dark";
+  }
+}
 // 下拉切换回调
 const changeTheme = (type: string) => {
   // console.log('切换主题回调')
   theme.value = type;
   iconClass.value = "blog-" + type;
+  localStorage.setItem("theme", type);
   if (type === "light") {
     setTheme(type);
   } else if (type === "dark") {
@@ -105,7 +120,7 @@ const clickIcon = () => {
     <div class="logo flex-between" @click="$router.push('/')">
       <!-- <img src="@/assets/img/logo/favicon-32x32.png" alt="logo" /> -->
     </div>
-    <nav class="nav" >
+    <nav class="nav">
       <NuxtLink
         v-for="(item, index) in navList"
         :key="index"
@@ -115,7 +130,7 @@ const clickIcon = () => {
         <span>{{ item.title }}</span>
       </NuxtLink>
     </nav>
-    <div class="tool-bar" >
+    <div class="tool-bar">
       <!-- 主题模式 开始 -->
       <el-dropdown trigger="hover" class="mg-l-10">
         <span class="el-dropdown-link">

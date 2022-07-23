@@ -10,7 +10,7 @@ import defaultImg from "@/assets/images/create.webp";
 import { makeToc, tocInter, isTrueCoverLink } from "@/utils";
 import MdEditor from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
-const theme = useCookie("theme");
+const theme:any = useTheme()
 interface FormState {
   [propName: string]: any;
 }
