@@ -41,7 +41,7 @@ onMounted(() => {
     <el-footer>
       <p>桂ICP备2022001119号-1</p>
       <p>
-        Powered By Typescript & Vue3 & Vite & Arco-design & Node.js & NestJS
+        Powered By Typescript & Vue3 & Vite3 & Nuxt3 & ELement-Plus & Node.js & NestJS
       </p>
     </el-footer>
 

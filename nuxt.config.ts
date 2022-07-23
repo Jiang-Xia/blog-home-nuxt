@@ -12,8 +12,6 @@ export default defineNuxtConfig({
     "element-plus/theme-chalk/dark/css-vars.css",
     // 'vant/lib/index.css'
     "@/assets/font/iconfont.css",
-    "@/assets/css/atom-one-dark.css",
-    "@arco-design/web-vue/dist/arco.css",
   ],
   build: {
     // Babel 转译特定的依赖关系（解决element-plus vue版本不一致打包报错问题）

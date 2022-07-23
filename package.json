@@ -9,7 +9,6 @@
     "pm2:dev": "pm2 start ecosystem.config.js --env development"
   },
   "devDependencies": {
-    "@arco-design/web-vue": "^2.31.0",
     "nuxt": "^3.0.0-rc.4",
     "sitemap": "^7.1.1"
   },
