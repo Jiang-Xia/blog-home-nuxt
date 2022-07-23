@@ -11,7 +11,7 @@ useHead({
     { name: "Keywords", content: "江夏的个人博客" },
     {
       name: "description",
-      content: "江夏的个人博客，用于工作学习生活点滴的私密空间。",
+      content: "江夏的个人博客，用于记录工作生活学习中的点滴~",
     },
   ],
 });
