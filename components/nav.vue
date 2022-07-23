@@ -2,40 +2,55 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-22 18:22:09
+ * @LastEditTime: 2022-07-23 13:43:14
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
-import Login from './login.vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, reactive } from "vue";
+import Login from "./login.vue";
+import { useRoute, useRouter } from "vue-router";
 // import { getArticleList } from '@/api/article'
-import dayjs from 'dayjs'
-import { ElMessage } from 'element-plus'
+import dayjs from "dayjs";
+import { Sunny, Moon } from "@element-plus/icons-vue";
+import  XIcon  from "@/components/icons/index";
+const theme = useCookie("theme");
+// 不存在时需赋值个初始值
+if (!theme.value) {
+  theme.value = "light";
+}
 const navList = ref([
   {
-    path: '/home',
-    title: '首页',
-    icon: ''
+    path: "/home",
+    title: "首页",
+    icon: "",
   },
   {
-    path: '/archives',
-    title: '归档',
-    icon: ''
+    path: "/archives",
+    title: "归档",
+    icon: "",
   },
   {
-    path: '/msgboard',
-    title: '留言板',
-    icon: ''
+    path: "/msgboard",
+    title: "留言板",
+    icon: "",
   },
   {
-    path: '/about',
-    title: '关于',
-    icon: ''
-  }
-])
+    path: "/about",
+    title: "关于",
+    icon: "",
+  },
+]);
+// console.log(theme);
+onMounted(() => {
+  document.documentElement.className = theme.value;
+});
+const themeChange = (value) => {
+  theme.value = value;
+  document.documentElement.className = value;
+  // console.log(document.documentElement.className)
+};
 </script>
 <template>
   <div class="nav-container">
@@ -53,6 +68,18 @@ const navList = ref([
       </NuxtLink>
     </nav>
     <div class="tool-bar">
+      <el-switch
+        class="switch"
+        v-model="theme"
+        style="margin-left: 24px"
+        inline-prompt
+        :active-icon="Sunny"
+        :inactive-icon="Moon"
+        active-value="light"
+        inactive-value="dark"
+        active-color="#ccc"
+        @change="themeChange"
+      />
     </div>
   </div>
 </template>
@@ -102,5 +129,8 @@ const navList = ref([
     align-items: center;
     justify-content: flex-start;
   }
+
+  // :deep(.switch) {
+  // }
 }
 </style>

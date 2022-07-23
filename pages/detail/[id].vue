@@ -10,6 +10,7 @@ import defaultImg from "@/assets/images/create.webp";
 import { makeToc, tocInter, isTrueCoverLink } from "@/utils";
 import MdEditor from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
+const theme = useCookie("theme");
 interface FormState {
   [propName: string]: any;
 }
@@ -120,7 +121,7 @@ const onGetCatalogHandle = (list: any) => {
         v-model="ArticleInfo.contentHtml"
         class="x-md-editor"
         preview-only
-        theme="light"
+        :theme="theme"
         @onGetCatalog="onGetCatalogHandle"
       />
       <!-- 目录 -->
