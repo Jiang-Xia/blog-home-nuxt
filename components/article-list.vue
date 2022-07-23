@@ -252,7 +252,7 @@ const gotoDetail = (item: any) => {
               :color="item['color']"
               size="small"
               :style="{
-                bordercolor: item['color'],
+                borderColor: item['color'],
               }"
               >{{ item["articleCount"] }}</el-tag
             >
@@ -270,7 +270,7 @@ const gotoDetail = (item: any) => {
             :class="item['checked'] ? 'active' : ''"
             size="small"
             :style="{
-              bordercolor: item['color'],
+              borderColor: item['color'],
             }"
             @click="clickTagHandle(item, '标签')"
             >{{ item["label"] }}({{ item["articleCount"] }})</el-tag
@@ -393,6 +393,7 @@ const gotoDetail = (item: any) => {
       line-height: 1;
       height: 14px;
       color: #fff;
+      padding: 0 9px;
     }
     .category__inner {
       cursor: pointer;

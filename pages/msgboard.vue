@@ -1,5 +1,18 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
+useHead({
+  title: "留言板",
+  titleTemplate: (title) => `${title} - 江夏的个人博客`,
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+  charset: "utf-8",
+  meta: [
+    { name: "Keywords", content: "江夏的个人博客" },
+    {
+      name: "description",
+      content: "江夏的个人博客，用于工作学习生活点滴的私密空间。",
+    },
+  ],
+});
 </script>
 <template>
   <NuxtLayout name="custom">

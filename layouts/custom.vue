@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-07-22 17:00:10
+ * @LastEditTime: 2022-07-23 17:12:27
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\custom.vue
 -->
@@ -25,7 +25,9 @@ const showBanner = computed(() => {
 <template>
   <div class="app-layout-contaier paper-feeling">
     <!-- 全局共享布局 -->
-    <section class="banner-container">
+    <section class="banner-container" :style="{
+      height:showBanner?'height: calc(100vh + 100px)':'40vh'
+    }">
       <div class="banner-content">
         <el-carousel :initial-index="0" indicator-position="none" height="100%" :interval="60000">
           <el-carousel-item v-for="(image, index) in images" :key="index">
