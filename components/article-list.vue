@@ -220,7 +220,16 @@ const gotoDetail = (item: any) => {
           <x-icon icon="blog-filter" />
           关键字
         </h4>
-        <input class="focus:border-light-blue-500 focus:ring-1 focus:ring-light-blue-500 focus:outline-none w-full text-sm text-black placeholder-gray-500 border border-gray-200 rounded-md py-2 pl-10" v-model="searchText" placeholder="输入标题或者摘要" @blur="onSearchHandle" />
+        <div class="flex justify-between items-center relative mt-2">
+          <x-icon icon="blog-searchlist" class="absolute left-1" />
+          <input
+            class="focus:border-light-blue-500 focus:ring-1 focus:ring-light-blue-500 focus:outline-none w-full text-xs text-black placeholder-gray-500 border border-gray-200 rounded-md py-1.5 pl-6"
+            v-model="searchText"
+            placeholder="输入标题或者摘要"
+            @blur="onSearchHandle"
+            @keyup.enter="onSearchHandle"
+          />
+        </div>
       </div>
       <div class="card-wrap category-wrap">
         <h4>
@@ -258,19 +267,19 @@ const gotoDetail = (item: any) => {
       </div>
       <div class="card-wrap tag-wrap">
         <h4><x-icon icon="blog-tag" /> 标签</h4>
-          <div
-            v-for="(item, index) of tagsOptions"
-            :key="index"
-            class="custom-tag"
-            :class="item['checked'] ? 'active' : ''"
-            size="small"
-            :style="{
-              backgroundColor: item['color'],
-            }"
-            @click="clickTagHandle(item, '标签')"
-          >
-            <span>{{ item["label"] }}({{ item["articleCount"] }})</span>
-          </div>
+        <div
+          v-for="(item, index) of tagsOptions"
+          :key="index"
+          class="custom-tag"
+          :class="item['checked'] ? 'active' : ''"
+          size="small"
+          :style="{
+            backgroundColor: item['color'],
+          }"
+          @click="clickTagHandle(item, '标签')"
+        >
+          <span>{{ item["label"] }}({{ item["articleCount"] }})</span>
+        </div>
       </div>
     </section>
   </div>
