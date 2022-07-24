@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-23 23:46:59
+ * @LastEditTime: 2022-07-24 15:31:25
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -15,8 +15,7 @@ import { useRoute, useRouter } from "vue-router";
 import dayjs from "dayjs";
 import { Sunny, Moon } from "@element-plus/icons-vue";
 import XIcon from "@/components/icons/index";
-const usetheme = useTheme();
-
+const { $store } = useNuxtApp();
 const navList = ref([
   {
     path: "/home",
@@ -44,73 +43,40 @@ const navList = ref([
     icon: "",
   },
 ]);
-onMounted(() => {
-  init();
-});
-const init = () => {
-  const themeType = localStorage.getItem("theme");
-  console.log(themeType);
-  if (themeType) {
-    if (themeType === "auto") {
-      getHour();
-    } else {
-      setTheme(themeType);
-    }
-    // 都有设置icon和选中
-    theme.value = themeType;
-    iconClass.value = "blog-" + themeType;
-  } else {
-    getHour();
-  }
-};
 // init()
 /* 切换主题 开始 */
-const theme = ref<string>('light')
+const theme = useTheme();
 const iconClass = ref("blog-light");
 const setTheme = (type: string) => {
-  usetheme.value = type;
   iconClass.value = "blog-" + type;
   document.documentElement.className = type;
+  localStorage.setItem("theme", type);
+  theme.value = type
 };
-// 是否自动设置
 const getHour = () => {
   const time = dayjs().hour();
   // 白天
-  if (6 < time && time < 18) {
-    setTheme("light");
-  } else {
-    setTheme("dark");
-  }
-};
-// 当用户没有设置过时 不存在时需赋值个初始值
-if (!theme.value) {
-  const time = dayjs().hour();
   if (6 < time && time < 18) {
     theme.value = "light";
   } else {
     theme.value = "dark";
   }
-}
-// 下拉切换回调
-const changeTheme = (type: string) => {
-  // console.log('切换主题回调')
-  theme.value = type;
-  iconClass.value = "blog-" + type;
-  localStorage.setItem("theme", type);
-  if (type === "light") {
-    setTheme(type);
-  } else if (type === "dark") {
-    setTheme(type);
-  } else if (type === "auto") {
+};
+onMounted(() => {
+  const themeType = localStorage.getItem("theme");
+  if (themeType) {
+    // 都有设置icon和选中
+    setTheme(themeType);
+  } else {
     getHour();
   }
-};
+});
 // 点击icon直接切换
 const clickIcon = () => {
   if (theme.value === "light") {
-    changeTheme("dark");
+    setTheme("dark");
   } else {
-    changeTheme("light");
+    setTheme("light");
   }
 };
 /* 切换主题 结束 */
@@ -132,35 +98,12 @@ const clickIcon = () => {
     </nav>
     <div class="tool-bar">
       <!-- 主题模式 开始 -->
-      <el-dropdown trigger="hover" class="mg-l-10">
-        <span class="el-dropdown-link">
-          <x-icon
-            class="pointer"
-            style="color: #fff"
-            :icon="iconClass"
-            @click="clickIcon"
-          />
-        </span>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item
-              :class="theme === 'light' ? 'active' : ''"
-              @click="changeTheme('light')"
-              >light</el-dropdown-item
-            >
-            <el-dropdown-item
-              :class="theme === 'dark' ? 'active' : ''"
-              @click="changeTheme('dark')"
-              >dark</el-dropdown-item
-            >
-            <el-dropdown-item
-              :class="theme === 'auto' ? 'active' : ''"
-              @click="changeTheme('auto')"
-              >auto</el-dropdown-item
-            >
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
+      <x-icon
+        class="pointer"
+        style="color: #fff"
+        :icon="iconClass"
+        @click="clickIcon"
+      />
     </div>
   </div>
 </template>
