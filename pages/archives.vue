@@ -32,7 +32,7 @@ useHead({
   <NuxtLayout name="custom">
     <div class="archives-container">
       <section class="archives-info">
-        <el-empty
+        <!-- <el-empty
           v-if="!Object.keys(archivesInfo).length"
           description="归档页面 暂时没有东西哦！"
         />
@@ -46,7 +46,6 @@ useHead({
             <div v-for="(value2, key2) in value" :key="key2">
               <h4 class="month">{{ key2 }}</h4>
               <el-timeline >
-                <!-- placement="top" -->
                 <el-timeline-item
                   v-for="(item, index) in value2"
                   :key="index"
@@ -60,7 +59,7 @@ useHead({
               </el-timeline>
             </div>
           </el-collapse-item>
-        </el-collapse>
+        </el-collapse> -->
       </section>
     </div>
   </NuxtLayout>

@@ -32,61 +32,69 @@ onMounted(() => {
 });
 </script>
 <template>
-  <div class="app">
+  <div class="app-layout">
     <!-- 导航栏 -->
-    <el-header :class="{ 'app-layout-header__active': scrollTop > 58 }">
+    <header
+      class="app-layout-header"
+      :class="{ 'app-layout-header__active': scrollTop > 58 }"
+    >
       <Nav></Nav>
-    </el-header>
+    </header>
     <!-- 路由显示区域 -->
-    <div class="app-main">
+    <div class="app-layout-body">
       <NuxtPage></NuxtPage>
     </div>
     <!-- 页脚 -->
-    <el-footer>
+    <footer class="app-layout-footer">
       <p>桂ICP备2022001119号-1</p>
       <p>
         Powered By Typescript & Vue3 & Vite3 & Nuxt3 & ELement-Plus & Node.js &
         NestJS
       </p>
-    </el-footer>
+    </footer>
 
     <!-- 回到顶部 -->
-    <el-backtop> </el-backtop>
+    <!-- <el-backtop> </el-backtop> -->
   </div>
 </template>
 <style lang="less">
-.app {
+/* 这样写法好像也怎么只管看到类名，也不利于根据类名搜索 */
+.app-layout {
   background-color: var(--main-bgc) !important;
   color: var(--text-color) !important;
   min-height: 100vh;
-}
-.app-main {
-  min-height: 60vh;
-}
-.el-header {
-  height: 58px;
-  line-height: 58px;
-  width: 100%;
-  z-index: 2;
-  top: 0px;
-  left: 0px;
-  position: fixed;
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
-  transition: all 1s;
-  background: transparent !important;
-  padding: 0 1.5vw;
-}
-.app-layout-header__active {
-  background-color: var(--nav-color) !important;
-  border-color: var(--nav-color) !important;
-}
+  // 会编译成和 & 同级类名即 app-layout-header
+  &-header {
+    box-sizing: border-box;
+    height: 58px;
+    line-height: 58px;
+    width: 100%;
+    z-index: 2;
+    top: 0px;
+    left: 0px;
+    position: fixed;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16),
+      0 2px 10px 0 rgba(0, 0, 0, 0.12);
+    transition: all 1s;
+    background: transparent !important;
+    padding: 0 1.5vw;
+    // 会编译成和 & 同级类名即 app-layout-header__active
+    &__active {
+      background-color: var(--nav-color) !important;
+      border-color: var(--nav-color) !important;
+    }
+  }
+  &-body {
+    min-height: 60vh;
+  }
 
-.el-footer {
-  background-color: var(--main-bgc);
-  padding: 24px 1.5vw;
-  text-align: center;
-  line-height: 1.7;
-  color: var(--text-color2);
-  height: auto;
+  &-footer {
+    background-color: var(--main-bgc);
+    padding: 24px 1.5vw;
+    text-align: center;
+    line-height: 1.7;
+    color: var(--text-color2);
+    height: auto;
+  }
 }
 </style>

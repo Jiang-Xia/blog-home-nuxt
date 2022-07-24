@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-24 15:31:25
+ * @LastEditTime: 2022-07-24 19:54:32
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -27,11 +27,11 @@ const navList = ref([
     title: "归档",
     icon: "",
   },
-  {
-    path: "/msgboard",
-    title: "留言板",
-    icon: "",
-  },
+  // {
+  //   path: "/msgboard",
+  //   title: "留言板",
+  //   icon: "",
+  // },
   {
     path: "/links",
     title: "友链",
@@ -51,7 +51,7 @@ const setTheme = (type: string) => {
   iconClass.value = "blog-" + type;
   document.documentElement.className = type;
   localStorage.setItem("theme", type);
-  theme.value = type
+  theme.value = type;
 };
 const getHour = () => {
   const time = dayjs().hour();
@@ -121,7 +121,7 @@ const clickIcon = () => {
   height: 100%;
   color: #fff;
   @media (max-width: 768px) {
-    .nav {
+    .logo,.nav {
       display: none;
     }
   }
@@ -129,7 +129,7 @@ const clickIcon = () => {
   justify-content: space-between;
   transition: all 0.3s;
   .logo {
-    min-width: 50px;
+    width: 50px;
   }
   .nav {
     flex: 1;
@@ -137,7 +137,7 @@ const clickIcon = () => {
     align-items: center;
   }
   .router-link-item {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
     padding: 0 12px;
     // color: #fff;
@@ -152,17 +152,13 @@ const clickIcon = () => {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    line-height: 1;
+    width: 2em;
   }
-
-  // :deep(.el-dropdown) {
-  //   line-height: inherit;
-  // }
 }
 
 // #app 容器外样式
-:global(.el-dropdown-menu__item.active) {
-  background-color: var(--main-color);
-  color: #fff;
-}
+// :global(.dropdown-menu__item.active) {
+//   background-color: var(--main-color);
+//   color: #fff;
+// }
 </style>

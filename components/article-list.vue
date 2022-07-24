@@ -197,13 +197,13 @@ const gotoDetail = (item: any) => {
         </nuxt-link>
       </transition-group>
 
-      <el-empty
+      <!-- <el-empty
         v-show="!articleList.length"
         :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
         description="找不到文章..."
-      />
+      /> -->
       <!-- 分页 -->
-      <el-pagination
+      <!-- <el-pagination
         small
         background
         layout="prev, pager, next"
@@ -212,7 +212,7 @@ const gotoDetail = (item: any) => {
         :total="queryPrams.total"
         @current-change="currentChangeHandle"
         class="mt-4"
-      />
+      /> -->
     </section>
     <section class="info-tool">
       <div class="card-wrap auth-info">
@@ -220,11 +220,7 @@ const gotoDetail = (item: any) => {
           <x-icon icon="blog-filter" />
           关键字
         </h4>
-        <el-input v-model="searchText" placeholder="输入标题或者摘要">
-          <template #append>
-            <el-button :icon="Search" @click="onSearchHandle" />
-          </template>
-        </el-input>
+        <input class="focus:border-light-blue-500 focus:ring-1 focus:ring-light-blue-500 focus:outline-none w-full text-sm text-black placeholder-gray-500 border border-gray-200 rounded-md py-2 pl-10" v-model="searchText" placeholder="输入标题或者摘要" @blur="onSearchHandle" />
       </div>
       <div class="card-wrap category-wrap">
         <h4>
@@ -247,35 +243,34 @@ const gotoDetail = (item: any) => {
             }"
           >
             <span class="category__text">{{ item["label"] }}</span>
-            <el-tag
+            <div
               class="category__tag"
               :color="item['color']"
               size="small"
               :style="{
-                borderColor: item['color'],
+                backgroundColor: item['color'],
               }"
-              >{{ item["articleCount"] }}</el-tag
             >
+              <span>{{ item["articleCount"] }}</span>
+            </div>
           </div>
         </div>
       </div>
       <div class="card-wrap tag-wrap">
         <h4><x-icon icon="blog-tag" /> 标签</h4>
-        <el-space :wrap="true">
-          <el-tag
+          <div
             v-for="(item, index) of tagsOptions"
             :key="index"
             class="custom-tag"
-            :color="item['color']"
             :class="item['checked'] ? 'active' : ''"
             size="small"
             :style="{
-              borderColor: item['color'],
+              backgroundColor: item['color'],
             }"
             @click="clickTagHandle(item, '标签')"
-            >{{ item["label"] }}({{ item["articleCount"] }})</el-tag
           >
-        </el-space>
+            <span>{{ item["label"] }}({{ item["articleCount"] }})</span>
+          </div>
       </div>
     </section>
   </div>

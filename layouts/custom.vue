@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-07-23 17:12:27
+ * @LastEditTime: 2022-07-24 19:46:20
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\custom.vue
 -->
@@ -12,7 +12,7 @@ import { dailyImage } from "~~/api/article";
 
 const images = ref([]);
 const { data: imagesData } = await useAsyncData("index_GetIMG", () =>
-  dailyImage(3)
+  dailyImage(1)
 );
 images.value = imagesData.value.images.map(
   (v: any) => "https://cn.bing.com" + v.url
@@ -23,13 +23,22 @@ const showBanner = computed(() => {
 });
 </script>
 <template>
-  <div class="app-layout-contaier paper-feeling">
+  <div class="custom-layout-contaier paper-feeling">
     <!-- 全局共享布局 -->
-    <section class="banner-container" :style="{
-      height:showBanner?'height: calc(100vh + 100px)':'40vh'
-    }">
+    <section
+      class="banner-container"
+      :style="{
+        height: showBanner ? 'calc(100vh + 100px)' : '40vh',
+      }"
+    >
       <div class="banner-content">
-        <el-carousel :initial-index="0" indicator-position="none" height="100%" :interval="60000">
+        <img
+          :src="images[0]"
+          :style="{
+            width: '100%',
+          }"
+        />
+        <!-- <el-carousel :initial-index="0" indicator-position="none" height="100%" :interval="60000">
           <el-carousel-item v-for="(image, index) in images" :key="index">
             <img
               :src="image"
@@ -38,13 +47,13 @@ const showBanner = computed(() => {
               }"
             />
           </el-carousel-item>
-        </el-carousel>
+        </el-carousel> -->
       </div>
     </section>
     <!-- 主显示区 -->
-    <el-main>
+    <div class="custom-main">
       <slot />
-    </el-main>
+    </div>
   </div>
 </template>
 
@@ -79,11 +88,11 @@ const showBanner = computed(() => {
       }
     }
   }
-  .el-carousel{
+  .el-carousel {
     height: 100%;
   }
 }
-.app-layout-contaier {
+.custom-layout-contaier {
   position: relative;
   // min-height: 100vh;
   // noise 遮罩层
@@ -102,13 +111,12 @@ const showBanner = computed(() => {
   background-color: var(--main-bgc) !important;
   color: var(--text-color) !important;
 }
-
+.custom-main {
+  min-height: calc(50vh);
+}
 .paper-feeling {
   &::after {
     display: block;
   }
-}
-.el-main {
-  min-height: calc(50vh);
 }
 </style>
