@@ -152,7 +152,7 @@ const gotoDetail = (item: any) => {
             <div class="line-4">
               <!-- 分类 -->
               <span
-                class="mg-r-10"
+                class="mr-2"
                 :style="{ color: item['category']['color'] }"
               >
                 <x-icon icon="blog-category"></x-icon>
@@ -160,19 +160,19 @@ const gotoDetail = (item: any) => {
               </span>
               <!-- 标签 -->
               <span
-                class="mg-r-10"
+                class="mr-2"
                 :style="{ color: item['tags'][0]['color'] }"
               >
                 <x-icon icon="blog-tag"></x-icon>
                 {{ getTagLabel(item["tags"]) }}
               </span>
               <!-- 阅读量 -->
-              <span class="mg-r-10 pointer"
+              <span class="mr-2 pointer"
                 ><x-icon icon="blog-view"></x-icon>{{ item["views"] }}</span
               >
               <!-- 点赞数 -->
               <span
-                class="mg-r-10 pointer blog-like"
+                class="mr-2 pointer"
                 @click.stop="updateLikesHandle(item)"
               >
                 <x-icon
@@ -197,13 +197,13 @@ const gotoDetail = (item: any) => {
         </nuxt-link>
       </transition-group>
 
-      <!-- <el-empty
+      <el-empty
         v-show="!articleList.length"
         :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
         description="找不到文章..."
-      /> -->
+      />
       <!-- 分页 -->
-      <!-- <el-pagination
+      <el-pagination
         small
         background
         layout="prev, pager, next"
@@ -212,7 +212,7 @@ const gotoDetail = (item: any) => {
         :total="queryPrams.total"
         @current-change="currentChangeHandle"
         class="mt-4"
-      /> -->
+      />
     </section>
     <section class="info-tool">
       <div class="card-wrap auth-info">

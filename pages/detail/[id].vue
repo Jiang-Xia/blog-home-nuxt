@@ -112,13 +112,13 @@ useHead({
           </p>
           <p class="detail">
             <!-- 阅读量 -->
-            <span class="mg-r-10 pointer">
+            <span class="mr-2 pointer">
               <x-icon icon="blog-view"></x-icon>
               {{ ArticleInfo["views"] }}
             </span>
             <!-- 点赞数 -->
             <span
-              class="mg-r-10 pointer blog-like"
+              class="mr-2 pointer blog-like"
               @click.stop="updateLikesHandle(ArticleInfo)"
             >
               <x-icon

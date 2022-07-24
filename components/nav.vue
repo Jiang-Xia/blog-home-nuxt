@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-24 19:54:32
+ * @LastEditTime: 2022-07-24 22:27:26
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -18,7 +18,7 @@ import XIcon from "@/components/icons/index";
 const { $store } = useNuxtApp();
 const navList = ref([
   {
-    path: "/home",
+    path: "/",
     title: "首页",
     icon: "",
   },

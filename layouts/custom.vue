@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-07-24 19:46:20
+ * @LastEditTime: 2022-07-24 23:01:46
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\custom.vue
 -->
@@ -21,9 +21,10 @@ const showBanner = computed(() => {
   const route = useRoute();
   return route.path.includes("home");
 });
+const key = new Date().getTime();
 </script>
 <template>
-  <div class="custom-layout-contaier paper-feeling">
+  <div class="custom-layout-contaier paper-feeling" :key="key">
     <!-- 全局共享布局 -->
     <section
       class="banner-container"
