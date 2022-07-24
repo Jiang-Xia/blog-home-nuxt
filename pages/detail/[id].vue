@@ -10,7 +10,7 @@ import defaultImg from "@/assets/images/create.webp";
 import { makeToc, tocInter, isTrueCoverLink } from "@/utils";
 import MdEditor from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
-const theme:any = useTheme()
+const theme: any = useTheme();
 interface FormState {
   [propName: string]: any;
 }
@@ -83,7 +83,7 @@ const onGetCatalogHandle = (list: any) => {
 };
 
 useHead({
-  title: "文章详情",
+  title: ArticleInfo.title + " - 文章详情",
   titleTemplate: (title) => `${title} - 江夏的个人博客`,
   viewport: "width=device-width, initial-scale=1, maximum-scale=1",
   charset: "utf-8",
