@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-27 00:10:49
+ * @LastEditTime: 2022-07-26 22:43:24
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -50,7 +50,7 @@ const iconClass = ref("blog-light");
 const setTheme = (type: string) => {
   iconClass.value = "blog-" + type;
   document.documentElement.className = type;
-  document.documentElement.setAttribute("data-theme", type);
+  document.documentElement.setAttribute('data-theme',type)
   localStorage.setItem("theme", type);
   theme.value = type;
 };
@@ -83,50 +83,24 @@ const clickIcon = () => {
 /* 切换主题 结束 */
 </script>
 <template>
-  <div class="navbar bg-base-100 bg-transparent text-white">
-    <div class="navbar-start">
-      <div class="dropdown">
-        <label tabindex="0" class="btn btn-ghost lg:hidden">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h8m-8 6h16"
-            />
-          </svg>
-        </label>
-        <ul
-          tabindex="0"
-          class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52 text-zinc-500"
-        >
-          <li v-for="(item, index) in navList" :key="index">
-            <NuxtLink :to="item.path">
-              <span>{{ item.title }}</span>
-            </NuxtLink>
-          </li>
-        </ul>
-      </div>
-      <a class="btn btn-ghost normal-case text-xl">Xia</a>
+  <div class="nav-container">
+    <div class="logo flex-between" @click="$router.push('/')">
+      <!-- <img src="@/assets/img/logo/favicon-32x32.png" alt="logo" /> -->
     </div>
-    <div class="navbar-center hidden lg:flex">
-      <ul class="menu menu-horizontal p-0">
-        <li v-for="(item, index) in navList" :key="index" class="mr-2">
-          <NuxtLink :to="item.path" class="router-link-item">
-            <span>{{ item.title }}</span>
-          </NuxtLink>
-        </li>
-      </ul>
-    </div>
-    <div class="navbar-end">
+    <nav class="nav">
+      <NuxtLink
+        v-for="(item, index) in navList"
+        :key="index"
+        class="router-link-item"
+        :to="item.path"
+      >
+        <span>{{ item.title }}</span>
+      </NuxtLink>
+    </nav>
+    <div class="tool-bar">
+      <!-- 主题模式 开始 -->
       <x-icon
-        class="pointer px-3"
+        class="pointer"
         style="color: #fff"
         :icon="iconClass"
         @click="clickIcon"
@@ -148,8 +122,7 @@ const clickIcon = () => {
   height: 100%;
   color: #fff;
   @media (max-width: 768px) {
-    .logo,
-    .nav {
+    .logo,.nav {
       display: none;
     }
   }
@@ -171,7 +144,7 @@ const clickIcon = () => {
     // color: #fff;
   }
   .router-link-active {
-    color: var(--main-color) !important;
+    color: var(--main-color);
   }
   .router-link-item > span:hover {
     color: var(--main-color);
@@ -181,14 +154,6 @@ const clickIcon = () => {
     align-items: center;
     justify-content: flex-start;
     width: 2em;
-  }
-}
-.navbar{
-  .router-link-active {
-    // color: var(--main-color) !important;
-    border-radius: var(--rounded-btn, 0.5rem);
-    background-color: hsl(var(--b1)/var(--tw-bg-opacity));
-    --tw-bg-opacity: 0.1;
   }
 }
 // #app 容器外样式

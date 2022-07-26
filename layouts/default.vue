@@ -67,8 +67,8 @@ onMounted(() => {
   // 会编译成和 & 同级类名即 app-layout-header
   &-header {
     box-sizing: border-box;
-    height: 58px;
-    line-height: 58px;
+    height: 64px;
+    // line-height: 58px;
     width: 100%;
     z-index: 2;
     top: 0px;
@@ -78,11 +78,13 @@ onMounted(() => {
       0 2px 10px 0 rgba(0, 0, 0, 0.12);
     transition: all 1s;
     background: transparent !important;
-    padding: 0 1.5vw;
+    // padding: 0 1.5vw;
     // 会编译成和 & 同级类名即 app-layout-header__active
     &__active {
-      background-color: var(--nav-color) !important;
-      border-color: var(--nav-color) !important;
+      // background-color: var(--nav-color) !important;
+      // border-color: var(--nav-color) !important;
+      background-color:#2a303c !important;
+      
     }
   }
   &-body {

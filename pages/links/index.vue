@@ -2,13 +2,37 @@
 import { computed, ref } from "vue";
 import request from "~~/api/request";
 const { data: linkList } = await useAsyncData("link_Get", () =>
-  request.get("/link").then((res) => res.data)
+  request.get("/link",{client:true}).then((res) => res.data)
 );
-console.log(linkList.value);
+// console.log(linkList.value);
 const openModal = () => {
   isOpen.value = true;
 };
 const closeModal = () => (isOpen.value = false);
+const isSuccess = ref(false);
+const okHandle = async () => {
+  if (Object.keys(linkState.value).every((v) => !v)) {
+    return;
+  }
+  const res = await request.post("/link", linkState.value);
+  isSuccess.value = true;
+  setTimeout(() => {
+    isSuccess.value = false;
+  }, 1000);
+  isOpen.value = false;
+  linkState.value = {
+    icon: "",
+    url: "",
+    title: "",
+    desp: "",
+  };
+};
+const linkState = ref({
+  icon: "",
+  url: "",
+  title: "",
+  desp: "",
+});
 const isOpen = ref(false);
 useHead({
   title: "友链",
@@ -26,13 +50,18 @@ useHead({
 </script>
 <template>
   <NuxtLayout name="main-content">
-    <div class="links-container">
+    <div class="links-container pt-3">
       <!-- <el-empty description="友链页面 暂时没有东西哦！" /> -->
-      <div class="h-10 flex justify-end text-xs"></div>
-      <!-- The button to open modal -->
-      <label for="link-add-modal" class="btn modal-button">+ 申请外链</label>
+      <div class="flex justify-end">
+        <div class="alert alert-success w-auto mr-6" v-show="isSuccess">
+          <div>
+            <span>申请成功</span>
+          </div>
+        </div>
+        <label for="link-add-modal" class="btn modal-button">+ 申请外链</label>
+      </div>
 
-      <!-- Put this part before </body> tag -->
+      <!-- 新增弹框 -->
       <input type="checkbox" id="link-add-modal" class="modal-toggle" />
       <div class="modal">
         <div class="modal-box relative">
@@ -41,19 +70,75 @@ useHead({
             class="btn btn-sm btn-circle absolute right-2 top-2"
             >✕</label
           >
-          <h3 class="text-lg font-bold">申请外链!</h3>
-
-          <div class="py-4">
-            <div class="form-control">
-              <label class="input-group input-group-sm">
-                <span>SM</span>
-                <input
-                  type="text"
-                  placeholder="Type here"
-                  class="input input-bordered input-sm"
-                />
-              </label>
+          <h3 class="text-lg font-bold">申请外链</h3>
+          <div class="pl-8 pt-4">
+            <div class="flex items-center mb-4">
+              <span class="w-16">网站名</span>
+              <input
+                type="text"
+                v-model="linkState.title"
+                placeholder="网站名"
+                class="input input-bordered input-sm max-w-xs w-5/6"
+              />
             </div>
+            <div class="flex items-center mb-4">
+              <span class="w-16">网址</span>
+              <input
+                type="text"
+                v-model="linkState.url"
+                placeholder="网址"
+                class="input input-bordered input-sm max-w-xs w-5/6"
+              />
+            </div>
+            <div class="flex items-center mb-4">
+              <span class="w-16">图标</span>
+              <input
+                type="text"
+                v-model="linkState.icon"
+                placeholder="图标"
+                class="input input-bordered input-sm max-w-xs w-5/6"
+              />
+            </div>
+            <div class="flex items-center">
+              <span class="w-16">摘要</span>
+              <input
+                type="text"
+                v-model="linkState.desp"
+                placeholder="摘要"
+                class="input input-bordered input-sm max-w-xs w-5/6"
+              />
+            </div>
+            <div class="modal-action">
+              <label for="link-add-modal" class="btn" @click="okHandle"
+                >确 认</label
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 友链列表 -->
+      <div class="flex justify-around flex-wrap mt-12" >
+        <div
+          class="card w-96 bg-base-100 shadow-xl mb-6  transition duration-700 ease-in-out hover:scale-110"
+          v-for="(item, index) in linkList"
+        >
+          <div class="card-body p-5 sm:p-8">
+            <h2 class="card-title">
+              <a target="_blank" :href="item.url">{{ item.title }}</a>
+            </h2>
+            <a
+              class="flex items-center"
+              target="_blank"
+              :href="item.url"
+            >
+              <div class="avatar">
+                <div class="w-10 rounded-full">
+                  <img :src="item.icon" />
+                </div>
+              </div>
+              <div class="pl-2">{{ item.desp }}</div>
+            </a>
           </div>
         </div>
       </div>
