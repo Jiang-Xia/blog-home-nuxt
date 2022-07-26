@@ -2,9 +2,9 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-07-24 23:01:46
+ * @LastEditTime: 2022-07-26 10:19:11
  * @Description: 
- * @FilePath: \blog-home-nuxt\layouts\custom.vue
+ * @FilePath: \blog-home-nuxt\layouts\main-content.vue
 -->
 <script setup lang="ts">
 import { ref } from "vue";
@@ -17,29 +17,19 @@ const { data: imagesData } = await useAsyncData("index_GetIMG", () =>
 images.value = imagesData.value.images.map(
   (v: any) => "https://cn.bing.com" + v.url
 );
-const showBanner = computed(() => {
-  const route = useRoute();
-  return route.path.includes("home");
-});
 const key = new Date().getTime();
 </script>
 <template>
   <div class="custom-layout-contaier paper-feeling" :key="key">
     <!-- 全局共享布局 -->
-    <section
-      class="banner-container"
-      :style="{
-        height: showBanner ? 'calc(100vh + 100px)' : '40vh',
-      }"
-    >
+    <section class="banner-container">
       <div class="banner-content">
-        <!-- <img
-          :src="images[0]"
-          :style="{
-            width: '100%',
-          }"
-        /> -->
-        <el-carousel :initial-index="0" indicator-position="none" height="100%" :interval="60000">
+        <el-carousel
+          :initial-index="0"
+          indicator-position="none"
+          height="100%"
+          :interval="60000"
+        >
           <el-carousel-item v-for="(image, index) in images" :key="index">
             <img
               :src="image"
@@ -52,7 +42,7 @@ const key = new Date().getTime();
       </div>
     </section>
     <!-- 主显示区 -->
-    <div class="custom-main">
+    <div class="custom-main w-11/12 md:w-9/12">
       <slot />
     </div>
   </div>
@@ -60,11 +50,7 @@ const key = new Date().getTime();
 
 <style lang="less" scoped>
 .banner-container {
-  height: calc(100vh + 100px);
-  @media screen and (max-width: 768px) {
-    height: 60vh;
-  }
-
+  height: 50vh;
   .banner-content {
     position: relative;
     height: 100%;
@@ -113,7 +99,11 @@ const key = new Date().getTime();
   color: var(--text-color) !important;
 }
 .custom-main {
-  min-height: calc(50vh);
+  margin: 20px auto 0;
+  padding: 10px 20px 20px 20px;
+  min-height: 50vh;
+  border-radius: var(--layout-border-radius);
+  background-color: var(--minor-bgc);
 }
 .paper-feeling {
   &::after {

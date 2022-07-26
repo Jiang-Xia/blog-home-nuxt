@@ -28,17 +28,23 @@
 }
 
 .app-layout-content {
-
 }
 
-
-// 常用类名
-.flex-between {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-body{
+body {
   color: #000;
   font-size: 14px;
+}
+
+.common-content {
+  position: relative;
+  margin: 20px auto 0;
+  width: 70vw;
+  min-height: 150vh;
+  min-width: 40%;
+  overflow: hidden;
+  z-index: 0;
+  padding: 0 0 20px 0;
+  @media screen and (max-width: 768px) {
+    width: 90%;
+  }
 }

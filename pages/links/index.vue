@@ -15,7 +15,7 @@ useHead({
 });
 </script>
 <template>
-  <NuxtLayout name="custom">
+  <NuxtLayout name="main-content">
     <div class="links-container">
       <el-empty description="友链页面 暂时没有东西哦！" />
     </div>

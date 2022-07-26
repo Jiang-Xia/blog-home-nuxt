@@ -21,30 +21,18 @@ useHead({
 });
 </script>
 <template>
-  <NuxtLayout name="custom">
+  <NuxtLayout name="main-content">
     <div class="about-container">
-      <div class="my-info">
-        <md-editor
-          v-model="content"
-          class="x-md-editor"
-          preview-only
-          :theme="theme"
-        />
-      </div>
+      <md-editor
+        v-model="content"
+        class="x-md-editor"
+        preview-only
+        :theme="theme"
+      />
     </div>
   </NuxtLayout>
 </template>
 <style lang="less" scoped>
 .about-container {
-  min-height: 100%;
-  .my-info {
-    margin: 0 auto 0;
-    min-height: 100vh;
-    min-width: 40%;
-    width: 70%;
-    border-radius: var(--layout-border-radius);
-    background-color: var(--minor-bgc);
-    padding: 10px 20px 20px 20px;
-  }
 }
 </style>

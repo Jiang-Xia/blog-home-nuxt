@@ -30,54 +30,43 @@ useHead({
 
 <template>
   <!-- default布局和custom布局只能二选一 -->
-  <NuxtLayout name="custom">
+  <NuxtLayout name="main-content">
     <div class="archives-container">
-      <section class="archives-info">
-        <el-empty
-          v-if="!Object.keys(archivesInfo).length"
-          description="归档页面 暂时没有东西哦！"
-        />
-        <el-collapse v-else v-model="defaultActiveKey">
-          <el-collapse-item
-            v-for="(value, key) in archivesInfo"
-            :key="String(key)"
-            :name="String(key)"
-            :title="String(key)"
-          >
-            <div v-for="(value2, key2) in value" :key="key2">
-              <h4 class="month">{{ key2 }}</h4>
-              <el-timeline >
-                <el-timeline-item
-                  v-for="(item, index) in value2"
-                  :key="index"
-                  :timestamp="item.uTime"
-                  color="#00adb5"
-                >
-                  <nuxt-link  :to="'/detail/' + item.id">
-                    <div class="link-title">{{ item["title"] }}</div>
-                  </nuxt-link>
-                </el-timeline-item>
-              </el-timeline>
-            </div>
-          </el-collapse-item>
-        </el-collapse>
-      </section>
+      <el-empty
+        v-if="!Object.keys(archivesInfo).length"
+        description="归档页面 暂时没有东西哦！"
+      />
+      <el-collapse v-else v-model="defaultActiveKey">
+        <el-collapse-item
+          v-for="(value, key) in archivesInfo"
+          :key="String(key)"
+          :name="String(key)"
+          :title="String(key)"
+        >
+          <div v-for="(value2, key2) in value" :key="key2">
+            <h4 class="month">{{ key2 }}</h4>
+            <el-timeline>
+              <el-timeline-item
+                v-for="(item, index) in value2"
+                :key="index"
+                :timestamp="item.uTime"
+                color="#00adb5"
+              >
+                <nuxt-link :to="'/detail/' + item.id">
+                  <div class="link-title">{{ item["title"] }}</div>
+                </nuxt-link>
+              </el-timeline-item>
+            </el-timeline>
+          </div>
+        </el-collapse-item>
+      </el-collapse>
     </div>
   </NuxtLayout>
 </template>
 <style lang="less" scoped>
 .archives-container {
   min-height: 100%;
-  .archives-info {
-    margin: 20px auto 0;
-    min-height: 100vh;
-    min-width: 40%;
-    width: 70%;
-    z-index: 10;
-    border-radius: var(--layout-border-radius);
-    background-color: var(--minor-bgc);
-    padding: 10px 20px 20px 20px;
-  }
+
   .month {
     color: var(--text-color);
     font-weight: normal;
@@ -90,6 +79,9 @@ useHead({
   .link-title:hover {
     color: var(--main-color);
     text-decoration: underline;
+  }
+  .el-timeline {
+    padding-left: 2em;
   }
 }
 </style>

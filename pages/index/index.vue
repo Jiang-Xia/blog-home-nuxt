@@ -2,7 +2,7 @@
 import { dailyImage } from "~~/api/article";
 const images = ref([]);
 const { data: imagesData } = await useAsyncData("index_GetIMG", () =>
-  dailyImage(1)
+  dailyImage(3)
 );
 images.value = imagesData.value.images.map(
   (v: any) => "https://cn.bing.com" + v.url
@@ -31,15 +31,25 @@ useHead({
       }"
     >
       <div class="banner-content">
-        <img
+        <!-- <img
           :src="images[0]"
           :style="{
             width: '100%',
           }"
-        />
+        /> -->
+        <el-carousel :initial-index="0" indicator-position="none" height="100%" :interval="60000">
+          <el-carousel-item v-for="(image, index) in images" :key="index">
+            <img
+              :src="image"
+              :style="{
+                width: '100%',
+              }"
+            />
+          </el-carousel-item>
+        </el-carousel>
       </div>
     </section>
-    <section class="home-content">
+    <section class="home-content w-11/12 md:w-9/12">
       <ArticleList />
     </section>
   </div>
@@ -48,16 +58,10 @@ useHead({
 .home-content {
   position: relative;
   margin: 20px auto 0;
-  width: 70vw;
   min-height: 150vh;
   min-width: 40%;
   overflow: hidden;
-  @media screen and (max-width: 768px) {
-    width: 90%;
-  }
   z-index: 0;
-  // background-color: #f4f4f4;
-  // background-color: #252d38;
   padding: 0 0 20px 0;
 }
   .banner-container {

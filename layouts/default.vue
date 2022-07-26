@@ -55,7 +55,7 @@ onMounted(() => {
       </p>
     </footer>
     <!-- 回到顶部 -->
-    <!-- <el-backtop> </el-backtop> -->
+    <el-backtop> </el-backtop>
   </div>
 </template>
 <style lang="less">

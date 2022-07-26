@@ -133,7 +133,7 @@ const gotoDetail = (item: any) => {
 
 <template>
   <div class="article-list-container">
-    <section class="main-article-wrap">
+    <section class="main-article-wrap md:px-2 md:m-0">
       <transition-group name="list">
         <nuxt-link
           v-for="(item, index) in articleList"
@@ -245,7 +245,7 @@ const gotoDetail = (item: any) => {
           @click="clickTagHandle(item, '分类')"
         >
           <div
-            class="category__inner flex-between"
+            class="category__inner flex justify-between items-center"
             :style="{
               borderColor:
                 item['id'] === queryPrams.category ? item['color'] : '',
@@ -300,7 +300,6 @@ const gotoDetail = (item: any) => {
   .main-article-wrap {
     margin-right: 340px;
     transition: all 0.5s;
-    padding: 0 20px;
     // 文章列表
     .card-wrap {
       min-height: 110px;
@@ -423,7 +422,6 @@ const gotoDetail = (item: any) => {
   @media screen and (max-width: 992px) {
     .main-article-wrap {
       margin-right: 0;
-      padding-right: 20px;
     }
     .info-tool {
       transform: translate(300%);
