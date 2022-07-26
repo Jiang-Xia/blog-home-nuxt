@@ -50,7 +50,7 @@ onMounted(() => {
     <footer class="app-layout-footer">
       <p>桂ICP备2022001119号-1</p>
       <p>
-        Powered By Typescript & Vue3 & Vite3 & Nuxt3 & ELement-Plus & Node.js &
+        Powered By Typescript & Vue3 & Vite3 & Nuxt3 & ELement-Plus & Tailwindcss & Node.js &
         NestJS
       </p>
     </footer>

@@ -221,7 +221,7 @@ const gotoDetail = (item: any) => {
           关键字
         </h4>
         <div class="flex justify-between items-center relative mt-2">
-          <x-icon icon="blog-searchlist" class="absolute left-1" />
+          <x-icon icon="blog-search" class="absolute left-1" />
           <input
             class="focus:border-light-blue-500 focus:ring-1 focus:ring-light-blue-500 focus:outline-none w-full text-xs text-black placeholder-gray-500 border border-gray-200 rounded-md py-1.5 pl-6"
             v-model="searchText"

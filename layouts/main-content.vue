@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-07-26 10:19:11
+ * @LastEditTime: 2022-07-26 14:38:18
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\main-content.vue
 -->
@@ -24,6 +24,10 @@ const key = new Date().getTime();
     <!-- 全局共享布局 -->
     <section class="banner-container">
       <div class="banner-content">
+        <!-- <div class="text-wrap">
+          <h3 class="animate-pulse">
+          </h3>
+        </div> -->
         <el-carousel
           :initial-index="0"
           indicator-position="none"
@@ -68,7 +72,7 @@ const key = new Date().getTime();
       z-index: 2;
       h1 {
         color: #fff;
-        font-size: 56px;
+        font-size: 38px;
         text-shadow: 3px 3px #000;
         text-align: center;
         font-weight: 500;

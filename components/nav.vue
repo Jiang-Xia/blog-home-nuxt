@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-24 22:27:26
+ * @LastEditTime: 2022-07-26 11:15:03
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -155,7 +155,6 @@ const clickIcon = () => {
     width: 2em;
   }
 }
-
 // #app 容器外样式
 // :global(.dropdown-menu__item.active) {
 //   background-color: var(--main-color);
