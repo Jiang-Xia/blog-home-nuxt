@@ -10,6 +10,7 @@ import { ref, reactive, unref, UnwrapRef, toRefs } from "vue";
 import defaultCover from "@/assets/images/create.webp";
 import { isTrueCoverLink } from "@/utils";
 import { Search } from "@element-plus/icons-vue";
+import { colorRgb } from "~~/utils/color";
 
 interface queryState {
   page: number;
@@ -129,6 +130,13 @@ const onSearchHandle = () => {
 const gotoDetail = (item: any) => {
   router.replace("/detail/" + item.id);
 };
+
+// 颜色转换
+const toRgb = (color) => {
+  color = colorRgb(color);
+  color = color.replace(")", ",0.24)");
+  return color;
+};
 </script>
 
 <template>
@@ -145,7 +153,7 @@ const gotoDetail = (item: any) => {
             <h1 class="line-1">
               {{ item.title }}
             </h1>
-            <div class="line-2 truncate ">
+            <div class="line-2 truncate">
               {{ item.description }}
             </div>
             <div class="line-3">更新于 {{ item["uTime"] }}</div>
@@ -167,7 +175,7 @@ const gotoDetail = (item: any) => {
               <!-- 点赞数 -->
               <span class="mr-2 pointer" @click.stop="updateLikesHandle(item)">
                 <x-icon
-                  :icon="item['checked'] ? 'blog-like-solid' : 'blog-like'"
+                  :icon="item.checked ? 'blog-like-solid' : 'blog-like'"
                 >
                 </x-icon
                 >{{ item["likes"] }}
@@ -248,24 +256,24 @@ const gotoDetail = (item: any) => {
           v-for="(item, index) of categoryOptions"
           :key="index"
           class="category-item"
-          :color="item['color']"
-          :class="item['id'] === queryPrams.category ? 'active' : ''"
+          :color="item.color"
+          :class="item.id === queryPrams.category ? 'active' : ''"
           @click="clickTagHandle(item, '分类')"
         >
           <div
             class="category__inner flex justify-between items-center"
             :style="{
               borderColor:
-                item['id'] === queryPrams.category ? item['color'] : '',
+                item.id === queryPrams.category ? item.color : '',
             }"
           >
             <span class="category__text">{{ item["label"] }}</span>
             <div
               class="category__tag"
-              :color="item['color']"
+              :color="item.color"
               size="small"
               :style="{
-                backgroundColor: item['color'],
+                backgroundColor: item.color,
               }"
             >
               <span>{{ item["articleCount"] }}</span>
@@ -279,14 +287,15 @@ const gotoDetail = (item: any) => {
           v-for="(item, index) of tagsOptions"
           :key="index"
           class="custom-tag"
-          :class="item['checked'] ? 'active' : ''"
+          :class="item.checked ? 'active' : ''"
           size="small"
           :style="{
-            backgroundColor: item['color'],
+            backgroundColor: item.checked?item.color:toRgb(item.color),
+            color: item.checked?'#fff':item.color,
           }"
           @click="clickTagHandle(item, '标签')"
         >
-          <span>{{ item["label"] }}({{ item["articleCount"] }})</span>
+          <span>{{ item["label"] }} ({{ item["articleCount"] }})</span>
         </div>
       </div>
     </section>
@@ -401,8 +410,9 @@ const gotoDetail = (item: any) => {
       padding: 5px 0;
     }
     .category__tag {
-      border-radius: 11px;
-      line-height: 1;
+      border-radius: 7px;
+      line-height: 14px;
+      font-size: 12px;
       height: 14px;
       color: #fff;
       padding: 0 9px;
