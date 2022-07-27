@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-27 09:34:57
+ * @LastEditTime: 2022-07-27 12:42:10
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -13,7 +13,6 @@ import Login from "./login.vue";
 import { useRoute, useRouter } from "vue-router";
 // import { getArticleList } from '@/api/article'
 import dayjs from "dayjs";
-import { Sunny, Moon } from "@element-plus/icons-vue";
 import XIcon from "@/components/icons/index";
 const { $store } = useNuxtApp();
 const navList = ref([
@@ -83,7 +82,7 @@ const clickIcon = () => {
 /* 切换主题 结束 */
 </script>
 <template>
-  <div class="navbar bg-base-100 rounded-box shadow-xl">
+  <div class="navbar bg-transparent text-white">
     <div class="navbar-start">
       <div class="dropdown">
         <label tabindex="0" class="btn btn-ghost lg:hidden">

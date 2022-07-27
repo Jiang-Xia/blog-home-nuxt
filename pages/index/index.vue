@@ -24,25 +24,24 @@ useHead({
 <template>
   <div class="home-contaier">
     <!-- 全局共享布局 -->
-    <!-- <section
-      class="banner-container"
-      :style="{
-        height: 'calc(100vh + 100px)'
-      }"
-    >
+    <section class="banner-container">
       <div class="banner-content">
-        <el-carousel :initial-index="0" indicator-position="none" height="100%" :interval="60000">
-          <el-carousel-item v-for="(image, index) in images" :key="index">
+        <div class="carousel w-full h-full">
+          <div
+            class="carousel-item w-full"
+            v-for="(image, index) in images"
+            :key="index"
+          >
             <img
               :src="image"
               :style="{
                 width: '100%',
               }"
             />
-          </el-carousel-item>
-        </el-carousel>
+          </div>
+        </div>
       </div>
-    </section> -->
+    </section>
     <section class="home-content w-11/12 md:w-9/12">
       <ArticleList />
     </section>
@@ -58,40 +57,41 @@ useHead({
   z-index: 0;
   padding: 0 0 20px 0;
 }
-  .banner-container {
-    height: calc(100vh + 100px);
-    @media screen and (max-width: 768px) {
-      height: 60vh;
-    }
+.banner-container {
+  height: calc(100vh + 100px);
+  @media screen and (max-width: 768px) {
+    height: 60vh;
+  }
 
-    .banner-content {
-      position: relative;
+  .banner-content {
+    position: relative;
+    height: 100%;
+    img {
+      color: #fff;
       height: 100%;
-      img {
-        color: #fff;
-        height: 100%;
-        width: 100%;
-      }
-      .text-wrap {
-        position: absolute;
-        width: 100%;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 2;
-        h1 {
-          color: #fff;
-          font-size: 56px;
-          text-shadow: 3px 3px #000;
-          text-align: center;
-          font-weight: 500;
-        }
-      }
+      width: 100%;
     }
-    .el-carousel {
-      height: 100%;
+    .text-wrap {
+      position: absolute;
+      width: 100%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      h1 {
+        color: #fff;
+        font-size: 56px;
+        text-shadow: 3px 3px #000;
+        text-align: center;
+        font-weight: 500;
+      }
     }
   }
+  .carousel {
+    height: 100%;
+    border-radius: 0 0 8px 8px;
+  }
+}
 // .common-layout-contaier {
 //   position: relative;
 //   // min-height: 100vh;

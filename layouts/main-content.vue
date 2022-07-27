@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-07-27 10:01:01
+ * @LastEditTime: 2022-07-27 12:47:06
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\main-content.vue
 -->
@@ -28,21 +28,20 @@ const key = new Date().getTime();
           <h3 class="animate-pulse">
           </h3>
         </div> -->
-        <!-- <el-carousel
-          :initial-index="0"
-          indicator-position="none"
-          height="100%"
-          :interval="60000"
-        >
-          <el-carousel-item v-for="(image, index) in images" :key="index">
+        <div class="carousel w-full h-full">
+          <div
+            class="carousel-item w-full"
+            v-for="(image, index) in images"
+            :key="index"
+          >
             <img
               :src="image"
               :style="{
                 width: '100%',
               }"
             />
-          </el-carousel-item>
-        </el-carousel> -->
+          </div>
+        </div>
       </div>
     </section>
     <!-- 主显示区 -->

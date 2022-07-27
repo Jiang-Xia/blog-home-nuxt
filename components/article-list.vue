@@ -151,18 +151,12 @@ const gotoDetail = (item: any) => {
             <div class="line-3">更新于 {{ item["uTime"] }}</div>
             <div class="line-4">
               <!-- 分类 -->
-              <span
-                class="mr-2"
-                :style="{ color: item['category']['color'] }"
-              >
+              <span class="mr-2" :style="{ color: item['category']['color'] }">
                 <x-icon icon="blog-category"></x-icon>
                 {{ item["category"]["label"] }}
               </span>
               <!-- 标签 -->
-              <span
-                class="mr-2"
-                :style="{ color: item['tags'][0]['color'] }"
-              >
+              <span class="mr-2" :style="{ color: item['tags'][0]['color'] }">
                 <x-icon icon="blog-tag"></x-icon>
                 {{ getTagLabel(item["tags"]) }}
               </span>
@@ -171,10 +165,7 @@ const gotoDetail = (item: any) => {
                 ><x-icon icon="blog-view"></x-icon>{{ item["views"] }}</span
               >
               <!-- 点赞数 -->
-              <span
-                class="mr-2 pointer"
-                @click.stop="updateLikesHandle(item)"
-              >
+              <span class="mr-2 pointer" @click.stop="updateLikesHandle(item)">
                 <x-icon
                   :icon="item['checked'] ? 'blog-like-solid' : 'blog-like'"
                 >
@@ -221,14 +212,32 @@ const gotoDetail = (item: any) => {
           关键字
         </h4>
         <div class="flex justify-between items-center relative mt-2">
-          <x-icon icon="blog-search" class="absolute left-1" />
-          <input
-            class="focus:border-light-blue-500 focus:ring-1 focus:ring-light-blue-500 focus:outline-none w-full text-xs text-black placeholder-gray-500 border border-gray-200 rounded-md py-1.5 pl-6"
-            v-model="searchText"
-            placeholder="输入标题或者摘要"
-            @blur="onSearchHandle"
-            @keyup.enter="onSearchHandle"
-          />
+          <div class="input-group input-group-sm">
+            <input
+              type="text"
+              v-model="searchText"
+              placeholder="输入标题或者摘要"
+              @blur="onSearchHandle"
+              @keyup.enter="onSearchHandle"
+              class="input input-bordered input-sm"
+            />
+            <button class="btn btn-square btn-sm">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
       <div class="card-wrap category-wrap">
@@ -245,7 +254,7 @@ const gotoDetail = (item: any) => {
           @click="clickTagHandle(item, '分类')"
         >
           <div
-            class="category__inner flex justify-between items-center"
+            class="category__inner flex justify-between items-center "
             :style="{
               borderColor:
                 item['id'] === queryPrams.category ? item['color'] : '',
@@ -400,7 +409,7 @@ const gotoDetail = (item: any) => {
     }
     .category__inner {
       cursor: pointer;
-      border-bottom: 2px solid #eee;
+      border-bottom: 2px solid var(--border-color);
       transition: all 0.5s;
     }
     .category-item:hover {

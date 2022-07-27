@@ -1,6 +1,5 @@
 <script setup lang="ts">
 /* / 路径显示的默认页面 */
-// import "@/styles/index.less";
 import { ref, watch } from "vue";
 import Cookies from "js-cookie";
 import { throttle } from "@/utils";
@@ -29,8 +28,10 @@ onMounted(() => {
 <template>
   <div class="app-layout">
     <!-- 导航栏 -->
-    <!-- :class="{ 'app-layout-header__active': scrollTop > 58 }" -->
-    <header class="app-layout-header">
+    <header
+      class="app-layout-header"
+      :class="{ 'app-layout-header__active': scrollTop > 58 }"
+    >
       <Nav></Nav>
     </header>
     <!-- 路由显示区域 -->
@@ -88,9 +89,10 @@ onMounted(() => {
 }
 /* 这样写法好像也怎么只管看到类名，也不利于根据类名搜索 */
 .app-layout {
-  background-color: hsl(var(--b2));
-  // color: var(--text-color);
+  background-color: var(--main-bgc);
+  color: var(--text-color);
   min-height: 100vh;
+  // padding-top: 64px;
   // 会编译成和 & 同级类名即 app-layout-header
   &-header {
     box-sizing: border-box;
@@ -101,16 +103,15 @@ onMounted(() => {
     top: 0px;
     left: 0px;
     position: fixed;
-    // box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16),
-    //   0 2px 10px 0 rgba(0, 0, 0, 0.12);
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16),
+      0 2px 10px 0 rgba(0, 0, 0, 0.12);
     transition: all 1s;
     background: transparent !important;
-    padding: 20px 1.5vw 0;
+    // padding: 0 1.5vw 0;
     // 会编译成和 & 同级类名即 app-layout-header__active
     &__active {
-      // background-color: var(--nav-color) !important;
-      // border-color: var(--nav-color) !important;
-      // background-color:#2a303c !important;
+      background-color: var(--nav-color) !important;
+      border-color: var(--nav-color) !important;
     }
   }
   &-body {
