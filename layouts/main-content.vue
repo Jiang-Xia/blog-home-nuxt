@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-07-27 12:47:06
+ * @LastEditTime: 2022-07-27 15:32:16
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\main-content.vue
 -->
@@ -103,10 +103,10 @@ const key = new Date().getTime();
 }
 .custom-main {
   margin: 20px auto 0;
-  padding: 10px 20px 20px 20px;
+  // padding: 10px 20px 20px 20px;
   min-height: 50vh;
-  border-radius: var(--layout-border-radius);
-  background-color: var(--minor-bgc);
+  // border-radius: var(--layout-border-radius);
+  // background-color: var(--minor-bgc);
 }
 .paper-feeling {
   &::after {

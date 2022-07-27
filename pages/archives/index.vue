@@ -32,56 +32,51 @@ useHead({
   <!-- default布局和custom布局只能二选一 -->
   <NuxtLayout name="main-content">
     <div class="archives-container">
-      <!-- <el-empty
-        v-if="!Object.keys(archivesInfo).length"
-        description="归档页面 暂时没有东西哦！"
-      />
-      <el-collapse v-else v-model="defaultActiveKey">
-        <el-collapse-item
-          v-for="(value, key) in archivesInfo"
-          :key="String(key)"
-          :name="String(key)"
-          :title="String(key)"
-        >
+      <div
+        tabindex="0"
+        class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box"
+        v-for="(value, key) in archivesInfo"
+        :key="String(key)"
+      >
+        <!-- 设置选择就勾选了 -->
+        <input type="checkbox" checked />
+        <div class="collapse-title text-xl font-medium">
+          {{ key }}
+        </div>
+        <div class="collapse-content">
           <div v-for="(value2, key2) in value" :key="key2">
             <h4 class="month">{{ key2 }}</h4>
-            <el-timeline>
-              <el-timeline-item
+            <ul
+              class="menu menu-compact lg:menu-normal lg:w-4/5 bg-base-100  p-2 rounded-box"
+            >
+              <li
                 v-for="(item, index) in value2"
                 :key="index"
-                :timestamp="item.uTime"
-                color="#00adb5"
+                class="font-semibold"
               >
-                <nuxt-link :to="'/detail/' + item.id">
-                  <div class="link-title">{{ item["title"] }}</div>
+                <nuxt-link :to="'/detail/' + item.id" class="flex">
+                  <span class="badge badge-md">{{
+                    item.uTime.slice(5, 11)
+                  }}</span>
+                  <div class="hover:text-green-700 hover:underline">
+                    {{ item["title"] }}
+                  </div>
                 </nuxt-link>
-              </el-timeline-item>
-            </el-timeline>
+              </li>
+            </ul>
           </div>
-        </el-collapse-item>
-      </el-collapse> -->
+        </div>
+      </div>
     </div>
   </NuxtLayout>
 </template>
 <style lang="less" scoped>
 .archives-container {
   min-height: 100%;
-
   .month {
     color: var(--text-color);
     font-weight: normal;
     font-size: 16px;
-  }
-  .link-title {
-    cursor: pointer;
-    font-weight: 600;
-  }
-  .link-title:hover {
-    color: var(--main-color);
-    text-decoration: underline;
-  }
-  .el-timeline {
-    padding-left: 2em;
   }
 }
 </style>

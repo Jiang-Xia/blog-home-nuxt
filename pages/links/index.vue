@@ -2,7 +2,7 @@
 import { computed, ref } from "vue";
 import request from "~~/api/request";
 const { data: linkList } = await useAsyncData("link_Get", () =>
-  request.get("/link",{client:true}).then((res) => res.data)
+  request.get("/link", { client: true }).then((res) => res.data)
 );
 // console.log(linkList.value);
 const openModal = () => {
@@ -26,6 +26,8 @@ const okHandle = async () => {
     title: "",
     desp: "",
   };
+  linkList.value = await request.get("/link", { client: true }).then((res) => res.data)
+  console.log(linkList.value)
 };
 const linkState = ref({
   icon: "",
@@ -50,15 +52,14 @@ useHead({
 </script>
 <template>
   <NuxtLayout name="main-content">
-    <div class="links-container pt-3">
-      <!-- <el-empty description="友链页面 暂时没有东西哦！" /> -->
+    <div class="links-container pt-3 rounded-box p-4">
       <div class="flex justify-end">
         <div class="alert alert-success w-auto mr-6" v-show="isSuccess">
           <div>
             <span>申请成功</span>
           </div>
         </div>
-        <label for="link-add-modal" class="btn modal-button">+ 申请外链</label>
+        <label for="link-add-modal" class="btn modal-button link-btn">+ 申请外链</label>
       </div>
 
       <!-- 新增弹框 -->
@@ -100,11 +101,11 @@ useHead({
               />
             </div>
             <div class="flex items-center">
-              <span class="w-16">摘要</span>
+              <span class="w-16">个签</span>
               <input
                 type="text"
                 v-model="linkState.desp"
-                placeholder="摘要"
+                placeholder="个签"
                 class="input input-bordered input-sm max-w-xs w-5/6"
               />
             </div>
@@ -118,12 +119,12 @@ useHead({
       </div>
 
       <!-- 友链列表 -->
-      <div class="flex justify-around flex-wrap mt-12" >
+      <div class="flex flex-wrap justify-around mt-6" >
         <div
-          class="card w-96 bg-base-100 shadow-xl mb-6  transition duration-700 ease-in-out hover:scale-110"
+          class="card w-full lg:w-80 shadow-xl bg-base-100 mb-6  transition duration-700 ease-in-out hover:scale-105"
           v-for="(item, index) in linkList"
         >
-          <div class="card-body p-5 sm:p-8">
+          <div class="card-body p-2 sm:p-4">
             <h2 class="card-title">
               <a target="_blank" :href="item.url">{{ item.title }}</a>
             </h2>
@@ -133,11 +134,11 @@ useHead({
               :href="item.url"
             >
               <div class="avatar">
-                <div class="w-10 rounded-full">
-                  <img :src="item.icon" />
+                <div class="w-10 rounded-full bg-base-100 ">
+                  <img :src="item.icon" v-show="item.icon"/>
                 </div>
               </div>
-              <div class="pl-2">{{ item.desp }}</div>
+              <div class="pl-2 text-sm">{{ item.desp }}</div>
             </a>
           </div>
         </div>
@@ -147,7 +148,7 @@ useHead({
 </template>
 <style lang="less" scoped>
 .links-container {
-  min-height: 100%;
+  min-height: 40vh;
   .link-btn:hover {
     animation: jump ease 1.5s 1;
   }

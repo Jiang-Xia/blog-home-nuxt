@@ -25,7 +25,7 @@ useHead({
     <div class="about-container">
       <md-editor
         v-model="content"
-        class="x-md-editor"
+        class="x-md-editor bg-transparent p-4 rounded-box"
         preview-only
         :theme="theme"
       />
@@ -34,5 +34,6 @@ useHead({
 </template>
 <style lang="less" scoped>
 .about-container {
+  // background-color: var(--minor-bgc);
 }
 </style>

@@ -99,7 +99,7 @@ onMounted(() => {
     height: 64px;
     // line-height: 58px;
     width: 100%;
-    z-index: 2;
+    z-index: 20;
     top: 0px;
     left: 0px;
     position: fixed;

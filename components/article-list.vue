@@ -211,17 +211,16 @@ const gotoDetail = (item: any) => {
           <x-icon icon="blog-filter" />
           关键字
         </h4>
-        <div class="flex justify-between items-center relative mt-2">
-          <div class="input-group input-group-sm">
+          <div class="input-group input-group-sm w-full mt-2 flex">
             <input
               type="text"
               v-model="searchText"
               placeholder="输入标题或者摘要"
               @blur="onSearchHandle"
               @keyup.enter="onSearchHandle"
-              class="input input-bordered input-sm"
+              class="input input-bordered input-sm flex-1"
             />
-            <button class="btn btn-square btn-sm">
+            <button class="btn btn-square btn-sm w-12">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-6 w-6"
@@ -238,7 +237,6 @@ const gotoDetail = (item: any) => {
               </svg>
             </button>
           </div>
-        </div>
       </div>
       <div class="card-wrap category-wrap">
         <h4>
