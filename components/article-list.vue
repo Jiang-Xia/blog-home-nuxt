@@ -197,13 +197,13 @@ const gotoDetail = (item: any) => {
         </nuxt-link>
       </transition-group>
 
-      <el-empty
+      <!-- <el-empty
         v-show="!articleList.length"
         :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
         description="找不到文章..."
-      />
+      /> -->
       <!-- 分页 -->
-      <el-pagination
+      <!-- <el-pagination
         small
         background
         layout="prev, pager, next"
@@ -212,7 +212,7 @@ const gotoDetail = (item: any) => {
         :total="queryPrams.total"
         @current-change="currentChangeHandle"
         class="mt-4"
-      />
+      /> -->
     </section>
     <section class="info-tool">
       <div class="card-wrap auth-info">

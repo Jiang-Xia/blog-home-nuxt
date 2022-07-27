@@ -1,6 +1,6 @@
 import { numberLiteral } from "@babel/types";
 import _copy from "copy-to-clipboard";
-import { ElMessage } from "element-plus";
+// import { ElMessage } from "element-plus";
 // 节流
 export function throttle(
   fn: { apply: (arg0: any, arg1: any[]) => void },
@@ -41,7 +41,7 @@ export function debounce(
 }
 
 export function copy(text: string) {
-  ElMessage.success("copy!");
+  // ElMessage.success("copy!");
   return _copy(text);
 }
 

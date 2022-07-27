@@ -8,8 +8,6 @@ export default defineNuxtConfig({
     hostname: 'https://jiang-xia.top',
   },
   css: [
-    "element-plus/dist/index.css",
-    "element-plus/theme-chalk/dark/css-vars.css",
     // 'vant/lib/index.css'
     "@/assets/font/iconfont.css",
   ],

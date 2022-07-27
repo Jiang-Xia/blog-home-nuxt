@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-07-26 14:38:18
+ * @LastEditTime: 2022-07-27 10:01:01
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\main-content.vue
 -->
@@ -28,7 +28,7 @@ const key = new Date().getTime();
           <h3 class="animate-pulse">
           </h3>
         </div> -->
-        <el-carousel
+        <!-- <el-carousel
           :initial-index="0"
           indicator-position="none"
           height="100%"
@@ -42,7 +42,7 @@ const key = new Date().getTime();
               }"
             />
           </el-carousel-item>
-        </el-carousel>
+        </el-carousel> -->
       </div>
     </section>
     <!-- 主显示区 -->
@@ -79,9 +79,9 @@ const key = new Date().getTime();
       }
     }
   }
-  .el-carousel {
-    height: 100%;
-  }
+  // .el-carousel {
+  //   height: 100%;
+  // }
 }
 .custom-layout-contaier {
   position: relative;

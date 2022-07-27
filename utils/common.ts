@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import api from '@/api/index'
 import { LocationQueryValue } from 'vue-router'
-import { ElMessage } from 'element-plus'
+// import { ElMessage } from 'element-plus'
 
 // 分类
 const categoryOptions = ref([])

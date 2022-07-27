@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-07-24 23:01:46
+ * @LastEditTime: 2022-07-27 10:00:45
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\custom.vue
 -->
@@ -39,7 +39,7 @@ const key = new Date().getTime();
             width: '100%',
           }"
         /> -->
-        <el-carousel :initial-index="0" indicator-position="none" height="100%" :interval="60000">
+        <!-- <el-carousel :initial-index="0" indicator-position="none" height="100%" :interval="60000">
           <el-carousel-item v-for="(image, index) in images" :key="index">
             <img
               :src="image"
@@ -48,7 +48,7 @@ const key = new Date().getTime();
               }"
             />
           </el-carousel-item>
-        </el-carousel>
+        </el-carousel> -->
       </div>
     </section>
     <!-- 主显示区 -->

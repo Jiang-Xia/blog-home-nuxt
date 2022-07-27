@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-const colors = require('tailwindcss/colors')
+const colors = require("tailwindcss/colors");
 module.exports = {
   purge: [
     "./components/**/*.{vue,js}",
@@ -13,16 +13,26 @@ module.exports = {
     extend: {},
     theme: {
       colors: {
-        transparent: 'transparent',
-        current: 'currentColor',
+        transparent: "transparent",
+        current: "currentColor",
         black: colors.black,
         white: colors.white,
         gray: colors.trueGray,
         indigo: colors.indigo,
         red: colors.rose,
         yellow: colors.amber,
-      }
-    }
+      },
+    },
   },
   plugins: [require("daisyui")],
+  daisyui: {
+    styled: true,
+    themes: true,
+    base: true,
+    utils: true,
+    logs: true,
+    rtl: false,
+    prefix: "",
+    darkTheme: "dark",
+  },
 };

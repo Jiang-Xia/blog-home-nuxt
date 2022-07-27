@@ -32,7 +32,7 @@ useHead({
   <!-- default布局和custom布局只能二选一 -->
   <NuxtLayout name="main-content">
     <div class="archives-container">
-      <el-empty
+      <!-- <el-empty
         v-if="!Object.keys(archivesInfo).length"
         description="归档页面 暂时没有东西哦！"
       />
@@ -59,7 +59,7 @@ useHead({
             </el-timeline>
           </div>
         </el-collapse-item>
-      </el-collapse>
+      </el-collapse> -->
     </div>
   </NuxtLayout>
 </template>

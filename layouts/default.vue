@@ -1,16 +1,10 @@
 <script setup lang="ts">
 /* / 路径显示的默认页面 */
-import "@/styles/index.less";
+// import "@/styles/index.less";
 import { ref, watch } from "vue";
 import Cookies from "js-cookie";
 import { throttle } from "@/utils";
 import dayjs from "dayjs";
-import { ID_INJECTION_KEY } from "element-plus";
-// 解决 ElementPlusError
-provide(ID_INJECTION_KEY, {
-  prefix: Math.floor(Math.random() * 10000),
-  current: 0,
-});
 const scrollTop = ref(0);
 const scrollHandle = (e: any) => {
   scrollTop.value = document.documentElement.scrollTop;
@@ -31,15 +25,12 @@ onMounted(() => {
     Cookies.set("browserId", dayjs().valueOf().toString(), { expires: 7 });
   }
 });
-
 </script>
 <template>
   <div class="app-layout">
     <!-- 导航栏 -->
-    <header
-      class="app-layout-header"
-      :class="{ 'app-layout-header__active': scrollTop > 58 }"
-    >
+    <!-- :class="{ 'app-layout-header__active': scrollTop > 58 }" -->
+    <header class="app-layout-header">
       <Nav></Nav>
     </header>
     <!-- 路由显示区域 -->
@@ -50,19 +41,55 @@ onMounted(() => {
     <footer class="app-layout-footer">
       <p>桂ICP备2022001119号-1</p>
       <p>
-        Powered By Typescript & Vue3 & Vite3 & Nuxt3 & ELement-Plus & Tailwindcss & Node.js &
-        NestJS
+        Powered By Typescript & Vue3 & Vite3 & Nuxt3 & ELement-Plus &
+        Tailwindcss & Node.js & NestJS
       </p>
     </footer>
     <!-- 回到顶部 -->
-    <el-backtop> </el-backtop>
+    <!-- <el-backtop> </el-backtop> -->
   </div>
 </template>
 <style lang="less">
+.remark-var {
+  --p: 259 94% 51%;
+  --pf: 259 94% 41%;
+  --sf: 314 100% 38%;
+  --af: 174 60% 41%;
+  --nf: 219 14% 22%;
+  --in: 198 93% 60%;
+  --su: 158 64% 52%;
+  --wa: 43 96% 56%;
+  --er: 0 91% 71%;
+  --inc: 198 100% 12%;
+  --suc: 158 100% 10%;
+  --wac: 43 100% 11%;
+  --erc: 0 100% 14%;
+  --rounded-box: 1rem;
+  --rounded-btn: 0.5rem;
+  --rounded-badge: 1.9rem;
+  --animation-btn: 0.25s;
+  --animation-input: 0.2s;
+  --btn-text-case: uppercase;
+  --btn-focus-scale: 0.95;
+  --border-btn: 1px;
+  --tab-border: 1px;
+  --tab-radius: 0.5rem;
+  --pc: 0 0% 100%;
+  --s: 314 100% 47%;
+  --sc: 0 0% 100%;
+  --a: 174 60% 51%;
+  --ac: 175 44% 15%;
+  --n: 219 14% 28%;
+  --nc: 0 0% 100%;
+  --b1: 0 0% 100%;
+  --b2: 0 0% 95%;
+  --b3: 180 2% 90%;
+  --bc: 215 28% 17%;
+}
 /* 这样写法好像也怎么只管看到类名，也不利于根据类名搜索 */
 .app-layout {
-  background-color: var(--main-bgc) !important;
-  color: var(--text-color) !important;
+  background-color: hsl(var(--b2));
+  // color: var(--text-color);
   min-height: 100vh;
   // 会编译成和 & 同级类名即 app-layout-header
   &-header {
@@ -74,17 +101,16 @@ onMounted(() => {
     top: 0px;
     left: 0px;
     position: fixed;
-    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16),
-      0 2px 10px 0 rgba(0, 0, 0, 0.12);
+    // box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16),
+    //   0 2px 10px 0 rgba(0, 0, 0, 0.12);
     transition: all 1s;
     background: transparent !important;
-    // padding: 0 1.5vw;
+    padding: 20px 1.5vw 0;
     // 会编译成和 & 同级类名即 app-layout-header__active
     &__active {
       // background-color: var(--nav-color) !important;
       // border-color: var(--nav-color) !important;
-      background-color:#2a303c !important;
-      
+      // background-color:#2a303c !important;
     }
   }
   &-body {

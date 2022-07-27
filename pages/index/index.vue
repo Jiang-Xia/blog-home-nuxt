@@ -24,19 +24,13 @@ useHead({
 <template>
   <div class="home-contaier">
     <!-- 全局共享布局 -->
-    <section
+    <!-- <section
       class="banner-container"
       :style="{
         height: 'calc(100vh + 100px)'
       }"
     >
       <div class="banner-content">
-        <!-- <img
-          :src="images[0]"
-          :style="{
-            width: '100%',
-          }"
-        /> -->
         <el-carousel :initial-index="0" indicator-position="none" height="100%" :interval="60000">
           <el-carousel-item v-for="(image, index) in images" :key="index">
             <img
@@ -48,7 +42,7 @@ useHead({
           </el-carousel-item>
         </el-carousel>
       </div>
-    </section>
+    </section> -->
     <section class="home-content w-11/12 md:w-9/12">
       <ArticleList />
     </section>

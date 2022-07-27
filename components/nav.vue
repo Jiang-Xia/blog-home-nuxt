@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-27 00:10:49
+ * @LastEditTime: 2022-07-27 09:34:57
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -83,7 +83,7 @@ const clickIcon = () => {
 /* 切换主题 结束 */
 </script>
 <template>
-  <div class="navbar bg-base-100 bg-transparent text-white">
+  <div class="navbar bg-base-100 rounded-box shadow-xl">
     <div class="navbar-start">
       <div class="dropdown">
         <label tabindex="0" class="btn btn-ghost lg:hidden">
@@ -127,7 +127,6 @@ const clickIcon = () => {
     <div class="navbar-end">
       <x-icon
         class="pointer px-3"
-        style="color: #fff"
         :icon="iconClass"
         @click="clickIcon"
       />
