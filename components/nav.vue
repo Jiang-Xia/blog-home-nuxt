@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-27 12:42:10
+ * @LastEditTime: 2022-07-27 22:50:02
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -124,11 +124,7 @@ const clickIcon = () => {
       </ul>
     </div>
     <div class="navbar-end">
-      <x-icon
-        class="pointer px-3"
-        :icon="iconClass"
-        @click="clickIcon"
-      />
+      <x-icon class="cursor-pointer px-3 " :icon="iconClass" @click="clickIcon" />
     </div>
   </div>
 </template>
@@ -181,11 +177,11 @@ const clickIcon = () => {
     width: 2em;
   }
 }
-.navbar{
+.navbar {
   .router-link-active {
     // color: var(--main-color) !important;
     border-radius: var(--rounded-btn, 0.5rem);
-    background-color: hsl(var(--b1)/var(--tw-bg-opacity));
+    background-color: hsl(var(--b1) / var(--tw-bg-opacity));
     --tw-bg-opacity: 0.1;
   }
 }

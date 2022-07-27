@@ -26,8 +26,10 @@ const okHandle = async () => {
     title: "",
     desp: "",
   };
-  linkList.value = await request.get("/link", { client: true }).then((res) => res.data)
-  console.log(linkList.value)
+  linkList.value = await request
+    .get("/link", { client: true })
+    .then((res) => res.data);
+  console.log(linkList.value);
 };
 const linkState = ref({
   icon: "",
@@ -59,7 +61,9 @@ useHead({
             <span>申请成功</span>
           </div>
         </div>
-        <label for="link-add-modal" class="btn modal-button link-btn">+ 申请外链</label>
+        <label for="link-add-modal" class="btn modal-button link-btn btn-ghost"
+          >+ 申请外链</label
+        >
       </div>
 
       <!-- 新增弹框 -->
@@ -119,23 +123,19 @@ useHead({
       </div>
 
       <!-- 友链列表 -->
-      <div class="flex flex-wrap justify-around mt-6" >
+      <div class="flex flex-wrap justify-around mt-6">
         <div
-          class="card w-full lg:w-80 shadow-xl bg-base-100 mb-6  transition duration-700 ease-in-out hover:scale-105"
+          class="card w-full lg:w-80 shadow-xl bg-base-100 mb-6 transition duration-700 ease-in-out hover:scale-105"
           v-for="(item, index) in linkList"
         >
           <div class="card-body p-2 sm:p-4">
             <h2 class="card-title">
               <a target="_blank" :href="item.url">{{ item.title }}</a>
             </h2>
-            <a
-              class="flex items-center"
-              target="_blank"
-              :href="item.url"
-            >
+            <a class="flex items-center" target="_blank" :href="item.url">
               <div class="avatar">
-                <div class="w-10 rounded-full bg-base-100 ">
-                  <img :src="item.icon" v-show="item.icon"/>
+                <div class="w-10 rounded-full bg-base-100">
+                  <img :src="item.icon" v-show="item.icon" />
                 </div>
               </div>
               <div class="pl-2 text-sm">{{ item.desp }}</div>
@@ -149,6 +149,9 @@ useHead({
 <style lang="less" scoped>
 .links-container {
   min-height: 40vh;
+  .link-btn {
+    background-color: var(--minor-bgc);
+  }
   .link-btn:hover {
     animation: jump ease 1.5s 1;
   }

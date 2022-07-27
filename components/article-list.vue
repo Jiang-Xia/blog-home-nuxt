@@ -141,11 +141,11 @@ const gotoDetail = (item: any) => {
           class="card-wrap article-item pointer"
           :to="'/detail/' + item.id"
         >
-          <div class="card-content">
+          <div class="card-content flex-1">
             <h1 class="line-1">
               {{ item.title }}
             </h1>
-            <div class="line-2 ellipsis">
+            <div class="line-2 truncate ">
               {{ item.description }}
             </div>
             <div class="line-3">更新于 {{ item["uTime"] }}</div>
@@ -179,6 +179,7 @@ const gotoDetail = (item: any) => {
               </span>
             </div>
           </div>
+
           <div class="cover-wrap">
             <img
               alt="封面"
@@ -211,32 +212,32 @@ const gotoDetail = (item: any) => {
           <x-icon icon="blog-filter" />
           关键字
         </h4>
-          <div class="input-group input-group-sm w-full mt-2 flex">
-            <input
-              type="text"
-              v-model="searchText"
-              placeholder="输入标题或者摘要"
-              @blur="onSearchHandle"
-              @keyup.enter="onSearchHandle"
-              class="input input-bordered input-sm flex-1"
-            />
-            <button class="btn btn-square btn-sm w-12">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </button>
-          </div>
+        <div class="input-group input-group-sm w-full mt-2 flex">
+          <input
+            type="text"
+            v-model="searchText"
+            placeholder="输入标题或者摘要"
+            @blur="onSearchHandle"
+            @keyup.enter="onSearchHandle"
+            class="input input-bordered input-sm flex-1"
+          />
+          <button class="btn btn-square btn-sm w-12">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
       <div class="card-wrap category-wrap">
         <h4>
@@ -252,7 +253,7 @@ const gotoDetail = (item: any) => {
           @click="clickTagHandle(item, '分类')"
         >
           <div
-            class="category__inner flex justify-between items-center "
+            class="category__inner flex justify-between items-center"
             :style="{
               borderColor:
                 item['id'] === queryPrams.category ? item['color'] : '',
@@ -355,10 +356,11 @@ const gotoDetail = (item: any) => {
       min-width: 60%;
     }
     .cover-wrap {
-      height: 100%;
+      height: 100px;
+      width: 150px;
       & > img {
-        height: 100px;
-        width: 150px;
+        height: 100%;
+        width: 100%;
         border-radius: var(--border-radius);
       }
     }

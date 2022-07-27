@@ -1,3 +1,32 @@
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
+}
+
+/* 滚动槽 */
+::-webkit-scrollbar-track {
+  border-radius: 0;
+  // background: transparent;
+  background: var(--main-bgc);
+}
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+  border-radius: 0;
+  border-radius: 0.5rem;
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+:hover::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-bgc);
+}
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-corner {
+  // background: transparent;
+  background: var(--main-bgc);
+}
+
 // 富文本编辑器全局样式
 .editor {
   .w-e-text-container {
@@ -47,3 +76,4 @@
     width: 90%;
   }
 }
+
