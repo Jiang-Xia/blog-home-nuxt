@@ -195,6 +195,7 @@ useHead({
 }
 
 .module-wrap__detail {
+  overflow: hidden;
   box-sizing: border-box;
   position: relative;
   margin: 20px auto 0;

@@ -194,11 +194,11 @@ const toRgb = (color) => {
         </nuxt-link>
       </transition-group>
 
-      <!-- <el-empty
+      <xia-empty
         v-show="!articleList.length"
         :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
         description="找不到文章..."
-      /> -->
+      />
       <!-- 分页 -->
       <!-- <el-pagination
         small

@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 const colors = require("tailwindcss/colors");
 module.exports = {
+  darkMode: 'class',// 启动暗黑模式 class支持手动切换 media跟随操作系统
   purge: [
     "./components/**/*.{vue,js}",
     "./layouts/**/*.vue",
@@ -24,6 +25,8 @@ module.exports = {
       },
     },
   },
+
+  /* daisyui */
   plugins: [require("daisyui")],
   daisyui: {
     styled: true,
