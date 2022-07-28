@@ -9,7 +9,6 @@ import {
 import { ref, reactive, unref, UnwrapRef, toRefs } from "vue";
 import defaultCover from "@/assets/images/create.webp";
 import { isTrueCoverLink } from "@/utils";
-import { Search } from "@element-plus/icons-vue";
 import { colorRgb } from "~~/utils/color";
 
 interface queryState {
@@ -174,9 +173,7 @@ const toRgb = (color) => {
               >
               <!-- 点赞数 -->
               <span class="mr-2 pointer" @click.stop="updateLikesHandle(item)">
-                <x-icon
-                  :icon="item.checked ? 'blog-like-solid' : 'blog-like'"
-                >
+                <x-icon :icon="item.checked ? 'blog-like-solid' : 'blog-like'">
                 </x-icon
                 >{{ item["likes"] }}
               </span>
@@ -213,6 +210,13 @@ const toRgb = (color) => {
         @current-change="currentChangeHandle"
         class="mt-4"
       /> -->
+      <xia-pagination
+        :current-page="current"
+        :page-size="queryPrams.pageSize"
+        :total="queryPrams.total"
+        @change="currentChangeHandle"
+        :max="5"
+      ></xia-pagination>
     </section>
     <section class="info-tool">
       <div class="card-wrap auth-info">
@@ -263,8 +267,7 @@ const toRgb = (color) => {
           <div
             class="category__inner flex justify-between items-center"
             :style="{
-              borderColor:
-                item.id === queryPrams.category ? item.color : '',
+              borderColor: item.id === queryPrams.category ? item.color : '',
             }"
           >
             <span class="category__text">{{ item["label"] }}</span>
@@ -290,8 +293,8 @@ const toRgb = (color) => {
           :class="item.checked ? 'active' : ''"
           size="small"
           :style="{
-            backgroundColor: item.checked?item.color:toRgb(item.color),
-            color: item.checked?'#fff':item.color,
+            backgroundColor: item.checked ? item.color : toRgb(item.color),
+            color: item.checked ? '#fff' : item.color,
           }"
           @click="clickTagHandle(item, '标签')"
         >

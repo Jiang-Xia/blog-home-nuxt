@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-27 22:50:02
+ * @LastEditTime: 2022-07-28 15:56:39
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -112,7 +112,7 @@ const clickIcon = () => {
           </li>
         </ul>
       </div>
-      <a class="btn btn-ghost normal-case text-xl">Xia</a>
+      <a class="btn btn-ghost normal-case text-xl site-name" href="/">Xia</a>
     </div>
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal p-0">
@@ -124,7 +124,11 @@ const clickIcon = () => {
       </ul>
     </div>
     <div class="navbar-end">
-      <x-icon class="cursor-pointer px-3 " :icon="iconClass" @click="clickIcon" />
+      <x-icon
+        class="cursor-pointer px-3"
+        :icon="iconClass"
+        @click="clickIcon"
+      />
     </div>
   </div>
 </template>
@@ -183,6 +187,12 @@ const clickIcon = () => {
     border-radius: var(--rounded-btn, 0.5rem);
     background-color: hsl(var(--b1) / var(--tw-bg-opacity));
     --tw-bg-opacity: 0.1;
+  }
+  .site-name {
+    background: linear-gradient(-70deg, #db469f 0%, #2188ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }
 // #app 容器外样式

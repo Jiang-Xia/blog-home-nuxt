@@ -102,23 +102,23 @@ useHead({
       <div class="banner-content">
         <img :src="isTrueCoverLink(ArticleInfo.cover) || defaultImg" alt="" />
         <!-- <div>文章详情</div> -->
-        <div class="article-header">
-          <p class="title">{{ ArticleInfo.title }}</p>
+        <div class="article-header text-gray-200">
+          <div class="title">{{ ArticleInfo.title }}</div>
           <p class="detail">
             <x-icon icon="blog-category"></x-icon>
             {{ ArticleInfo["category"]["label"] }}
-            <x-icon class="mg-l-10" icon="blog-tag"></x-icon>
+            <x-icon class="ml-3" icon="blog-tag"></x-icon>
             {{ tagLabel }}
           </p>
           <p class="detail">
             <!-- 阅读量 -->
-            <span class="mr-2 pointer">
+            <span class="mr-2 cursor-pointer">
               <x-icon icon="blog-view"></x-icon>
               {{ ArticleInfo["views"] }}
             </span>
             <!-- 点赞数 -->
             <span
-              class="mr-2 pointer blog-like"
+              class="mr-2 cursor-pointer"
               @click.stop="updateLikesHandle(ArticleInfo)"
             >
               <x-icon
@@ -154,13 +154,14 @@ useHead({
     & > img {
       width: 100%;
       height: 100%;
-      filter: blur(8px) brightness(0.95);
+      filter: blur(28px) brightness(0.95);
       transform: scale(1.1);
       background-color: var(--nav-color);
     }
   }
 }
 .article-header {
+  width: 80%;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -168,14 +169,20 @@ useHead({
   z-index: 2;
   font-size: 13px;
   text-align: center;
+  // padding: 1rem;
+  // backdrop-filter: blur(20px);
+  // border-radius: 0.8rem;
+  // box-shadow: 0 2px 15px rgb(0 0 0 / 30%);
+  // background-color: rgba(255, 255, 255, 0.4);
   .title {
-    color: #fff;
-    backdrop-filter: blur(2px);
     font-size: 32px;
-    text-shadow: 3px 3px steelblue;
-    letter-spacing: 8px;
+    font-weight: 600;
     text-align: center;
     line-height: 1.1;
+    // backdrop-filter: blur(10px);
+    // box-shadow: 0 0px 15px rgb(0 0 0 / 30%);
+    // border-radius: 8px;
+    // padding: 8px 18px;
   }
   .detail {
     font-size: 12px;
@@ -186,6 +193,7 @@ useHead({
     font-size: 16px;
   }
 }
+
 .module-wrap__detail {
   box-sizing: border-box;
   position: relative;
