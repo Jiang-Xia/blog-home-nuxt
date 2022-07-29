@@ -200,16 +200,6 @@ const toRgb = (color) => {
         description="找不到文章..."
       />
       <!-- 分页 -->
-      <!-- <el-pagination
-        small
-        background
-        layout="prev, pager, next"
-        :current-page="current"
-        :page-size="queryPrams.pageSize"
-        :total="queryPrams.total"
-        @current-change="currentChangeHandle"
-        class="mt-4"
-      /> -->
       <xia-pagination
         :current-page="current"
         :page-size="queryPrams.pageSize"
@@ -229,11 +219,10 @@ const toRgb = (color) => {
             type="text"
             v-model="searchText"
             placeholder="输入标题或者摘要"
-            @blur="onSearchHandle"
             @keyup.enter="onSearchHandle"
             class="input input-bordered input-sm flex-1"
           />
-          <button class="btn btn-square btn-sm w-12">
+          <button class="btn btn-square btn-sm w-12" @click="onSearchHandle">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
@@ -251,35 +240,37 @@ const toRgb = (color) => {
           </button>
         </div>
       </div>
-      <div class="card-wrap category-wrap">
-        <h4>
+      <div class="card-wrap category-wrap relative">
+        <h4 class="category-title">
           <x-icon icon="blog-category" />
           分类
         </h4>
-        <div
-          v-for="(item, index) of categoryOptions"
-          :key="index"
-          class="category-item"
-          :color="item.color"
-          :class="item.id === queryPrams.category ? 'active' : ''"
-          @click="clickTagHandle(item, '分类')"
-        >
+        <div class="category-item-wrap">
           <div
-            class="category__inner flex justify-between items-center"
-            :style="{
-              borderColor: item.id === queryPrams.category ? item.color : '',
-            }"
+            v-for="(item, index) of categoryOptions"
+            :key="index"
+            class="category-item"
+            :color="item.color"
+            :class="item.id === queryPrams.category ? 'active' : ''"
+            @click="clickTagHandle(item, '分类')"
           >
-            <span class="category__text">{{ item["label"] }}</span>
             <div
-              class="category__tag"
-              :color="item.color"
-              size="small"
+              class="category__inner flex justify-between items-center"
               :style="{
-                backgroundColor: item.color,
+                borderColor: item.id === queryPrams.category ? item.color : '',
               }"
             >
-              <span>{{ item["articleCount"] }}</span>
+              <span class="category__text">{{ item["label"] }}</span>
+              <div
+                class="category__tag"
+                :color="item.color"
+                size="small"
+                :style="{
+                  backgroundColor: item.color,
+                }"
+              >
+                <span>{{ item["articleCount"] }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -407,7 +398,19 @@ const toRgb = (color) => {
     // 分类
     .category-wrap {
       min-height: 270px;
-      max-height: 60vh;
+      padding: 0;
+    }
+    .category-title{
+      border-radius: 8px 8px 0 0;
+      height: 60px;
+      padding: 18px 20px;
+      box-sizing: border-box;
+      background-color: var(--minor-bgc);
+    }
+    .category-item-wrap {
+      max-height: 100vh;
+      overflow: auto;
+      padding: 0px 20px 18px;
     }
     .category-item {
       padding: 5px 0;
