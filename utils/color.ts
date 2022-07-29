@@ -31,6 +31,7 @@ export const colorHex = function (color) {
   }
   return color;
 };
+
 // 十六进制转为rgb
 export const colorRgb = function (color) {
   let sColor = color.toLowerCase();
