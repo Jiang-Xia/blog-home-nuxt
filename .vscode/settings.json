@@ -1,0 +1,4 @@
+{
+    "css.lint.unknownAtRules": "ignore",
+    "less.validate": false
+}

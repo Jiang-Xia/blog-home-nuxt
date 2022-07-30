@@ -200,16 +200,6 @@ const toRgb = (color) => {
         description="找不到文章..."
       />
       <!-- 分页 -->
-      <!-- <el-pagination
-        small
-        background
-        layout="prev, pager, next"
-        :current-page="current"
-        :page-size="queryPrams.pageSize"
-        :total="queryPrams.total"
-        @current-change="currentChangeHandle"
-        class="mt-4"
-      /> -->
       <xia-pagination
         :current-page="current"
         :page-size="queryPrams.pageSize"
@@ -361,7 +351,7 @@ const toRgb = (color) => {
       transition: all 0.5s;
     }
     .article-item:hover {
-      transform: scale(1.02) translateY(-3px);
+      transform: scale(1.01,1.02) translateY(-3px);
       box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
     }
     .card-content {

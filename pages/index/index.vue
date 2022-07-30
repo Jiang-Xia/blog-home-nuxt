@@ -42,7 +42,7 @@ useHead({
         </div>
       </div>
     </section>
-    <section class="home-content w-11/12 md:w-9/12">
+    <section class="home-content w-11/12 md:w-10/12">
       <ArticleList />
     </section>
   </div>

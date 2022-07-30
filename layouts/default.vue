@@ -46,7 +46,7 @@ onMounted(() => {
       </p>
     </footer>
     <!-- 回到顶部 -->
-    <!-- <el-backtop> </el-backtop> -->
+    <xia-backtop></xia-backtop>
   </div>
 </template>
 <style lang="less">
