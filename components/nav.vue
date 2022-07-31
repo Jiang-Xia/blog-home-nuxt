@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-28 15:56:39
+ * @LastEditTime: 2022-07-31 19:35:28
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -26,14 +26,14 @@ const navList = ref([
     title: "归档",
     icon: "",
   },
-  // {
-  //   path: "/msgboard",
-  //   title: "留言板",
-  //   icon: "",
-  // },
   {
     path: "/links",
     title: "友链",
+    icon: "",
+  },
+  {
+    path: "/msgboard",
+    title: "留言板",
     icon: "",
   },
   {
@@ -185,7 +185,7 @@ const clickIcon = () => {
   .router-link-active {
     // color: var(--main-color) !important;
     border-radius: var(--rounded-btn, 0.5rem);
-    background-color: hsl(var(--b1) / var(--tw-bg-opacity));
+    background-color: hsl(0 0% 100% / var(--tw-bg-opacity));
     --tw-bg-opacity: 0.1;
   }
   .site-name {

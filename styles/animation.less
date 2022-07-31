@@ -1,37 +1,77 @@
 @keyframes jump {
-    0% {
-        transform: translate(0)
-    }
+  0% {
+    transform: translate(0);
+  }
 
-    10% {
-        transform: translateY(5px) scaleX(1.2) scaleY(.8)
-    }
+  10% {
+    transform: translateY(5px) scaleX(1.2) scaleY(0.8);
+  }
 
-    30% {
-        transform: translateY(-13px) scaleX(1) scaleY(1) rotateZ(5deg)
-    }
+  30% {
+    transform: translateY(-13px) scaleX(1) scaleY(1) rotateZ(5deg);
+  }
 
-    50% {
-        transform: translateY(0) scale(1) rotateZ(0)
-    }
+  50% {
+    transform: translateY(0) scale(1) rotateZ(0);
+  }
 
-    55% {
-        transform: translateY(0) scaleX(1.1) scaleY(.9) rotateZ(0)
-    }
+  55% {
+    transform: translateY(0) scaleX(1.1) scaleY(0.9) rotateZ(0);
+  }
 
-    70% {
-        transform: translateY(-4px) scaleX(1) scaleY(1) rotateZ(-2deg)
-    }
+  70% {
+    transform: translateY(-4px) scaleX(1) scaleY(1) rotateZ(-2deg);
+  }
 
-    80% {
-        transform: translateY(0) scaleX(1) scaleY(1) rotateZ(0)
-    }
+  80% {
+    transform: translateY(0) scaleX(1) scaleY(1) rotateZ(0);
+  }
 
-    85% {
-        transform: translateY(0) scaleX(1.05) scaleY(.95) rotateZ(0)
-    }
+  85% {
+    transform: translateY(0) scaleX(1.05) scaleY(0.95) rotateZ(0);
+  }
 
-    100% {
-        transform: translateY(0) scaleX(1) scaleY(1)
-    }
+  100% {
+    transform: translateY(0) scaleX(1) scaleY(1);
+  }
+}
+
+// 振动
+.vibrate {
+  animation: vibrate 0.3s linear infinite both;
+}
+@keyframes vibrate {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+.rotate-scale-up {
+  animation: rotate-scale-up 0.65s linear both;
+}
+@keyframes rotate-scale-up {
+  0% {
+    transform: scale(1) rotateZ(0);
+  }
+  50% {
+    transform: scale(1.5) rotateZ(180deg);
+  }
+  100% {
+    transform: scale(1) rotateZ(360deg);
+  }
 }
