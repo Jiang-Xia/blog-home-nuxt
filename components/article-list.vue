@@ -198,7 +198,7 @@ const toRgb = (color) => {
         v-show="!articleList.length"
         :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
         description="找不到文章..."
-      />
+      ></xia-empty>
       <!-- 分页 -->
       <xia-pagination
         :current-page="current"

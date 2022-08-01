@@ -10,6 +10,7 @@ interface propsState {
  * tsx中使用ref响应式变量需要加 .value
  * tsx 中的data method devtools工具无法调试 20220730
  * tsx setup函数 需要返回一个渲染函数
+ * context.slots["default"] 是个渲染函数需要执行
  */
 
 // 创建 XIcon组件
@@ -31,13 +32,13 @@ export default defineComponent({
     };
 
     const goTop = () => {
-        window.scroll({ top: 0, left: 0, behavior: "smooth" });
+      window.scroll({ top: 0, left: 0, behavior: "smooth" });
     };
 
     onMounted(() => {
       window.addEventListener("scroll", throttle(scrollHandle, 100), true);
     });
-    // tsx时需要返回一个渲染函数
+    const slot = context.slots["default"]?.();
     return () => (
       <div
         class="xia-backtop"
@@ -45,20 +46,25 @@ export default defineComponent({
         {...context.attrs}
         onClick={goTop}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className=" h-6 w-6 text-sm backtop-icon"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M7 11l5-5m0 0l5 5m-5-5v12"
-          />
-        </svg>
+        {/* 有插槽内容渲染插槽，没有使用默认内容 */}
+        {slot ? (
+          slot
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className=" h-6 w-6 text-sm backtop-icon"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M7 11l5-5m0 0l5 5m-5-5v12"
+            />
+          </svg>
+        )}
       </div>
     );
   },
