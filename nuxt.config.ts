@@ -19,5 +19,6 @@ export default defineNuxtConfig({
         : ["compute-scroll-into-view"],
   },
   router: {
+    
   },
 });
