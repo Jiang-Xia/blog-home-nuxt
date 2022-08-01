@@ -177,7 +177,7 @@ useHead({
             <div class="card lg:card-side bg-base-100 shadow-xl">
               <figure>
                 <div class="avatar h-16 w-16 ml-3 mt-3 sm:mt-0">
-                  <div class="w-24 rounded-full" title="点击跳转他的主页！">
+                  <div class="w-24 rounded-full bg-base-300" title="点击跳转他的主页！">
                     <a :href="item.address" target="_blank">
                       <img :src="item.avatar" />
                     </a>

@@ -36,12 +36,12 @@ const queryPrams: queryState = reactive({
   page: 1,
   category: "",
   tags: [],
-  pageSize: 20,
+  pageSize: 10,
   total: 0,
   title: "",
   description: "",
   content: "",
-  uid: 1,
+  client:true,
 });
 
 /*
