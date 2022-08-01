@@ -20,6 +20,7 @@ interface queryState {
   title?: string;
   description?: string;
   content?: string;
+  sort: string;
 }
 interface itemState {
   id: string;
@@ -41,7 +42,8 @@ const queryPrams: queryState = reactive({
   title: "",
   description: "",
   content: "",
-  client:true,
+  client: true,
+  sort: "DESC", // 降序
 });
 
 /*
@@ -125,6 +127,12 @@ const onSearchHandle = () => {
   queryPrams.content = searchText.value;
   getArticleListHandle(1);
 };
+const changeSort = () => {
+  queryPrams.sort === "ASC"
+    ? (queryPrams.sort = "DESC")
+    : (queryPrams.sort = "ASC");
+  getArticleListHandle();
+};
 // 文章详情
 const gotoDetail = (item: any) => {
   router.replace("/detail/" + item.id);
@@ -149,33 +157,34 @@ const toRgb = (color) => {
           :to="'/detail/' + item.id"
         >
           <div class="card-content flex-1">
-            <h1 class="line-1">
+            <h1 class="line-1 indicator">
+              <span v-if="item.topping" class="indicator-item indicator-middle badge indicator-end badge-accent text-xs op">顶</span>
               {{ item.title }}
             </h1>
             <div class="line-2 truncate">
               {{ item.description }}
             </div>
-            <div class="line-3">更新于 {{ item["uTime"] }}</div>
+            <div class="line-3">更新于 {{ item.uTime }}</div>
             <div class="line-4">
               <!-- 分类 -->
-              <span class="mr-2" :style="{ color: item['category']['color'] }">
+              <span class="mr-2" :style="{ color: item.category.color }">
                 <x-icon icon="blog-category"></x-icon>
-                {{ item["category"]["label"] }}
+                {{ item.category.label }}
               </span>
               <!-- 标签 -->
-              <span class="mr-2" :style="{ color: item['tags'][0]['color'] }">
+              <span class="mr-2" :style="{ color: item.tags[0]?.color }">
                 <x-icon icon="blog-tag"></x-icon>
-                {{ getTagLabel(item["tags"]) }}
+                {{ getTagLabel(item.tags) }}
               </span>
               <!-- 阅读量 -->
               <span class="mr-2 pointer"
-                ><x-icon icon="blog-view"></x-icon>{{ item["views"] }}</span
+                ><x-icon icon="blog-view"></x-icon>{{ item.views }}</span
               >
               <!-- 点赞数 -->
               <span class="mr-2 pointer" @click.stop="updateLikesHandle(item)">
                 <x-icon :icon="item.checked ? 'blog-like-solid' : 'blog-like'">
                 </x-icon
-                >{{ item["likes"] }}
+                >{{ item.likes }}
               </span>
               <!-- 评论数 -->
               <span class="">
@@ -214,15 +223,43 @@ const toRgb = (color) => {
           <x-icon icon="blog-filter" />
           关键字
         </h4>
-        <div class="input-group input-group-sm w-full mt-2 flex">
+        <div class="input-group input-group-sm w-full mt-2">
+          <button
+            :title="queryPrams.sort === 'ASC' ? '升序' : '降序'"
+            class="btn btn-square w-10 btn-sm text-xs"
+            @click="changeSort"
+          >
+            <svg
+              v-if="queryPrams.sort === 'ASC'"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z"
+              />
+            </svg>
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h7a1 1 0 100-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z"
+              />
+            </svg>
+          </button>
           <input
             type="text"
             v-model="searchText"
             placeholder="输入标题或者摘要"
             @keyup.enter="onSearchHandle"
-            class="input input-bordered input-sm flex-1"
+            class="input input-bordered input-sm"
           />
-          <button class="btn btn-square btn-sm w-12" @click="onSearchHandle">
+          <button class="btn btn-square w-10 btn-sm" @click="onSearchHandle">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
@@ -352,7 +389,7 @@ const toRgb = (color) => {
       transition: all 0.5s;
     }
     .article-item:hover {
-      transform: scale(1.01,1.02) translateY(-3px);
+      transform: scale(1.01, 1.02) translateY(-3px);
       box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
     }
     .card-content {
@@ -400,7 +437,7 @@ const toRgb = (color) => {
       min-height: 270px;
       padding: 0;
     }
-    .category-title{
+    .category-title {
       border-radius: 8px 8px 0 0;
       height: 60px;
       padding: 18px 20px;
