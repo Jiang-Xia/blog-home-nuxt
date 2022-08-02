@@ -24,6 +24,26 @@ onMounted(() => {
     Cookies.set("browserId", dayjs().valueOf().toString(), { expires: 7 });
   }
 });
+
+/* 用于搜狗和百度网站校验 */
+
+useHead({
+  charset: "utf-8",
+  meta: [
+    {
+      name: "sogou_site_verification",
+      content: "wlGpCfHqms",
+    },
+    {
+      name: "baidu-site-verification",
+      content: "code-2z8gzm5xfP",
+    },
+    {
+      name: "msvalidate.01",
+      content: "AB624FA682D2615512411976A22082DB",
+    },
+  ],
+});
 </script>
 <template>
   <div class="app-layout">
