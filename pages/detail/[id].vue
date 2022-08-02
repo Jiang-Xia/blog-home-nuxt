@@ -84,29 +84,20 @@ const onGetCatalogHandle = (list: any) => {
 
 useHead({
   title: ArticleInfo.title + " - 文章详情",
-  titleTemplate: (title) => `${title} - 江夏的个人博客`,
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-  charset: "utf-8",
-  meta: [
-    { name: "Keywords", content: "江夏的个人博客" },
-    {
-      name: "description",
-      content: "江夏的个人博客，用于记录工作生活学习中的点滴~",
-    },
-  ],
+  titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`
 });
 </script>
 <template>
   <div>
     <section class="banner-container">
       <div class="banner-content">
-        <img :src="isTrueCoverLink(ArticleInfo.cover) || defaultImg" alt="" />
+        <img :alt="ArticleInfo.category.label" :src="isTrueCoverLink(ArticleInfo.cover) || defaultImg" alt="" />
         <!-- <div>文章详情</div> -->
         <div class="article-header text-gray-200">
-          <div class="title">{{ ArticleInfo.title }}</div>
+          <h1 class="title">{{ ArticleInfo.title }}</h1>
           <p class="detail">
             <x-icon icon="blog-category"></x-icon>
-            {{ ArticleInfo["category"]["label"] }}
+            {{ ArticleInfo.category.label }}
             <x-icon class="ml-3" icon="blog-tag"></x-icon>
             {{ tagLabel }}
           </p>

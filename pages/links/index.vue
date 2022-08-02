@@ -40,21 +40,13 @@ const linkState = ref({
 const isOpen = ref(false);
 useHead({
   title: "友链",
-  titleTemplate: (title) => `${title} - 江夏的个人博客`,
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-  charset: "utf-8",
-  meta: [
-    { name: "Keywords", content: "江夏的个人博客" },
-    {
-      name: "description",
-      content: "江夏的个人博客，用于记录工作生活学习中的点滴~",
-    },
-  ],
+  titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`
 });
 </script>
 <template>
   <NuxtLayout name="main-content">
     <div class="links-container pt-3 rounded-box p-4">
+      <h1 class="hidden">友情链接 - 江夏的个人博客 - 记录生活记录你~</h1>
       <div class="flex justify-end">
         <div class="alert alert-success w-auto mr-6" v-show="isSuccess">
           <div>
@@ -135,7 +127,7 @@ useHead({
             <a class="flex items-center" target="_blank" :href="item.url">
               <div class="avatar">
                 <div class="w-10 rounded-full bg-base-100">
-                  <img :src="item.icon" v-show="item.icon" />
+                  <img :alt="item.title" :src="item.icon" v-show="item.icon" />
                 </div>
               </div>
               <div class="pl-2 text-sm">{{ item.desp }}</div>

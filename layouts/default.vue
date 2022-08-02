@@ -28,8 +28,18 @@ onMounted(() => {
 /* 用于搜狗和百度网站校验 */
 
 useHead({
-  charset: "utf-8",
+  charset: "utf-8", // 网站语言
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
   meta: [
+    {
+      name: "Keywords",
+      content: "前端技术分享，工作心得分享，生活情感分享，个人的一片小天地！",
+    },
+    {
+      name: "description",
+      content:
+        "本站可以检索查看文章，网站留言，注册登录之后可以在本站自己发表文章评论文章等操作；个人博客，用于个人学习、工作、生活上的记录和分享。分享学习上难题与心得；分享工作上的技巧和困难；分享生活的各种点滴。记录生活记录你，互联网的记忆在这里。",
+    },
     {
       name: "sogou_site_verification",
       content: "wlGpCfHqms",
@@ -41,6 +51,10 @@ useHead({
     {
       name: "msvalidate.01",
       content: "AB624FA682D2615512411976A22082DB",
+    },
+    {
+      name: "author",
+      content: "江夏, 963798512@qq.com",
     },
   ],
 });
@@ -62,7 +76,8 @@ useHead({
     <footer class="app-layout-footer">
       <p>桂ICP备2022001119号-1</p>
       <p>
-        Powered By Typescript & Vue3 & Vite3 & Nuxt3 & Tailwindcss & DaisyUI & Node.js & NestJS
+        Powered By Typescript & Vue3 & Vite3 & Nuxt3 & Tailwindcss & DaisyUI &
+        Node.js & NestJS
       </p>
     </footer>
     <!-- 回到顶部 -->

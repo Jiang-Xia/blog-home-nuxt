@@ -51,20 +51,12 @@ const confirmHandle = async () => {
 
 useHead({
   title: "留言板",
-  titleTemplate: (title) => `${title} - 江夏的个人博客`,
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-  charset: "utf-8",
-  meta: [
-    { name: "Keywords", content: "江夏的个人博客" },
-    {
-      name: "description",
-      content: "江夏的个人博客，用于记录工作生活学习中的点滴~",
-    },
-  ],
+  titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`
 });
 </script>
 <template>
   <NuxtLayout name="main-content">
+    <h1 class="hidden">网站留言板 - 江夏的个人博客 - 记录生活记录你~</h1>
     <div class="msgboard-container flex flex-wrap sm:flex-nowrap">
       <div
         class="card flex-shrink-0 w-full sm:max-w-sm shadow-2xl bg-base-100 form-wrap relative"
@@ -179,7 +171,7 @@ useHead({
                 <div class="avatar h-16 w-16 ml-3 mt-3 sm:mt-0">
                   <div class="w-24 rounded-full bg-base-300" title="点击跳转他的主页！">
                     <a :href="item.address" target="_blank">
-                      <img :src="item.avatar" />
+                      <img :alt="item.name " :src="item.avatar" />
                     </a>
                   </div>
                 </div>

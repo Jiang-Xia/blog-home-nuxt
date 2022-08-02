@@ -157,10 +157,10 @@ const toRgb = (color) => {
           :to="'/detail/' + item.id"
         >
           <div class="card-content flex-1">
-            <h1 class="line-1 indicator">
+            <h2 class="line-1 indicator">
               <span v-if="item.topping" class="indicator-item indicator-middle badge indicator-end badge-accent text-xs op">顶</span>
               {{ item.title }}
-            </h1>
+            </h2>
             <div class="line-2 truncate">
               {{ item.description }}
             </div>
@@ -196,7 +196,7 @@ const toRgb = (color) => {
 
           <div class="cover-wrap">
             <img
-              alt="封面"
+              :alt="item.category.label"
               :src="isTrueCoverLink(item.cover) || defaultCover"
             />
           </div>

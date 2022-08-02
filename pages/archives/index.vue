@@ -15,16 +15,7 @@ defaultActiveKey.value = Object.keys(archivesInfo.value);
 
 useHead({
   title: "归档",
-  titleTemplate: (title) => `${title} - 江夏的个人博客`,
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-  charset: "utf-8",
-  meta: [
-    { name: "Keywords", content: "江夏的个人博客" },
-    {
-      name: "description",
-      content: "江夏的个人博客，用于记录工作生活学习中的点滴~",
-    },
-  ],
+  titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`,
 });
 </script>
 
@@ -32,6 +23,7 @@ useHead({
   <!-- default布局和custom布局只能二选一 -->
   <NuxtLayout name="main-content">
     <div class="archives-container">
+      <h1 class="hidden">文章归档 - 江夏的个人博客 - 记录生活记录你~</h1>
       <div
         tabindex="0"
         class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box"
@@ -47,7 +39,7 @@ useHead({
           <div v-for="(value2, key2) in value" :key="key2">
             <h4 class="month">{{ key2 }}</h4>
             <ul
-              class="menu menu-compact lg:menu-normal lg:w-4/5 bg-base-100  p-2 rounded-box"
+              class="menu menu-compact lg:menu-normal lg:w-4/5 bg-base-100 p-2 rounded-box"
             >
               <li
                 v-for="(item, index) in value2"
