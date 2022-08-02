@@ -28,9 +28,14 @@ onMounted(() => {
 /* 用于搜狗和百度网站校验 */
 
 useHead({
-  charset: "utf-8", // 网站语言
+  charset: "utf-8", // 字符
   viewport: "width=device-width, initial-scale=1, maximum-scale=1",
   meta: [
+    // Meta Language 
+    {
+      "http-equiv": "Content-Type",
+      content: "text/html",
+    },
     {
       name: "Keywords",
       content: "前端技术分享，工作心得分享，生活情感分享，个人的一片小天地！",
