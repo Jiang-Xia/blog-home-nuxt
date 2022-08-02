@@ -148,84 +148,78 @@ const toRgb = (color) => {
 
 <template>
   <div class="article-list-container">
-    <section
-      class="main-article-wrap flex justify-around flex-wrap md:px-2 md:m-0"
-    >
-      <!-- lg:w-5/12 -->
+    <section class="main-article-wrap md:px-2 md:m-0">
       <transition-group name="list">
-        <div
-          class="card w-full bg-base-100 shadow-xl mb-5 lg:w-96 hover:drop-shadow-lg"
+        <nuxt-link
           v-for="(item, index) in articleList"
           :key="index"
+          class="card-wrap article-item pointer"
+          :to="'/detail/' + item.id"
         >
-          <figure>
-            <img class="h-52 w-full" :alt="item.title" :src="item.cover" />
-          </figure>
-          <div class="card-body">
-            <h2 class="card-title">
+          <div class="card-content flex-1">
+            <h2 class="line-1 indicator">
+              <span
+                v-if="item.topping"
+                class="indicator-item indicator-middle badge indicator-end badge-accent text-xs op"
+                >顶</span
+              >
               {{ item.title }}
-              <div v-if="item.topping" class="badge badge-secondary">TOP</div>
             </h2>
-            <p>{{ item.description }}</p>
-            <div class="card-actions justify-start text-xs flex-wrap">
-              <div>
-                <!-- 分类 -->
-                <span class="mr-2" :style="{ color: item.category.color }">
-                  <x-icon icon="blog-category"></x-icon>
-                  {{ item.category.label }}
-                </span>
-                <!-- 标签 -->
-                <span class="mr-2" :style="{ color: item.tags[0]?.color }">
-                  <x-icon icon="blog-tag"></x-icon>
-                  {{ getTagLabel(item.tags) }}
-                </span>
-                <!-- 阅读量 -->
-                <span class="mr-2 pointer"
-                  ><x-icon icon="blog-view"></x-icon>{{ item.views }}</span
-                >
-                <!-- 点赞数 -->
-                <span
-                  class="mr-2 pointer"
-                  @click.stop="updateLikesHandle(item)"
-                >
-                  <x-icon
-                    :icon="item.checked ? 'blog-like-solid' : 'blog-like'"
-                  >
-                  </x-icon
-                  >{{ item.likes }}
-                </span>
-                <!-- 评论数 -->
-                <span class="">
-                  <x-icon icon="blog-pinglun"></x-icon>
-                  {{ item.commentCount }}
-                </span>
-              </div>
-              <div class="flex justify-between w-full items-center">
-                <span>更新于 {{ item.uTime }}</span>
-                <nuxt-link :to="'/detail/' + item.id">
-                  <button class="btn btn-xs">Read</button>
-                </nuxt-link>
-              </div>
+            <div class="line-2 truncate">
+              {{ item.description }}
+            </div>
+            <div class="line-3">更新于 {{ item.uTime }}</div>
+            <div class="line-4">
+              <!-- 分类 -->
+              <span class="mr-2" :style="{ color: item.category.color }">
+                <x-icon icon="blog-category"></x-icon>
+                {{ item.category.label }}
+              </span>
+              <!-- 标签 -->
+              <span class="mr-2" :style="{ color: item.tags[0]?.color }">
+                <x-icon icon="blog-tag"></x-icon>
+                {{ getTagLabel(item.tags) }}
+              </span>
+              <!-- 阅读量 -->
+              <span class="mr-2 pointer"
+                ><x-icon icon="blog-view"></x-icon>{{ item.views }}</span
+              >
+              <!-- 点赞数 -->
+              <span class="mr-2 pointer" @click.stop="updateLikesHandle(item)">
+                <x-icon :icon="item.checked ? 'blog-like-solid' : 'blog-like'">
+                </x-icon
+                >{{ item.likes }}
+              </span>
+              <!-- 评论数 -->
+              <span class="">
+                <x-icon icon="blog-pinglun"></x-icon>
+                {{ item.commentCount }}
+              </span>
             </div>
           </div>
-        </div>
+
+          <div class="cover-wrap">
+            <img
+              :alt="item.category.label"
+              :src="isTrueCoverLink(item.cover) || defaultCover"
+            />
+          </div>
+        </nuxt-link>
       </transition-group>
 
-      <div class="w-full">
-        <xia-empty
-          v-show="!articleList.length"
-          :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
-          description="找不到文章..."
-        ></xia-empty>
-        <!-- 分页 -->
-        <xia-pagination
-          :current-page="current"
-          :page-size="queryPrams.pageSize"
-          :total="queryPrams.total"
-          @change="currentChangeHandle"
-          :max="5"
-        ></xia-pagination>
-      </div>
+      <xia-empty
+        v-show="!articleList.length"
+        :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
+        description="找不到文章..."
+      ></xia-empty>
+      <!-- 分页 -->
+      <xia-pagination
+        :current-page="current"
+        :page-size="queryPrams.pageSize"
+        :total="queryPrams.total"
+        @change="currentChangeHandle"
+        :max="5"
+      ></xia-pagination>
     </section>
     <section class="info-tool">
       <div class="card-wrap auth-info">
