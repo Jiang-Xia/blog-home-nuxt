@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-08-02 15:37:50
+ * @LastEditTime: 2022-08-03 16:47:51
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\custom.vue
 -->
@@ -33,22 +33,6 @@ const key = new Date().getTime();
       }"
     >
       <div class="banner-content">
-        <!-- <img
-          :src="images[0]"
-          :style="{
-            width: '100%',
-          }"
-        /> -->
-        <!-- <el-carousel :initial-index="0" indicator-position="none" height="100%" :interval="60000">
-          <el-carousel-item v-for="(image, index) in images" :key="index">
-            <img
-              :src="image"
-              :style="{
-                width: '100%',
-              }"
-            />
-          </el-carousel-item>
-        </el-carousel> -->
       </div>
     </section>
     <!-- 主显示区 -->

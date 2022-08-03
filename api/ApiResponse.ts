@@ -1,6 +1,6 @@
 type ApiResponse = {
-    success: boolean
-    code: number,
-    message: string,
-    data: any
-}
+  success: boolean;
+  code: number;
+  message: string;
+  data: any;
+};

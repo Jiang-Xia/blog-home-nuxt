@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import { dailyImage } from "~~/api/article";
-const images = ref([]);
-const { data: imagesData } = await useAsyncData("index_GetIMG", () =>
-  dailyImage(3)
-);
-images.value = imagesData.value.images.map(
-  (v: any) => "https://cn.bing.com" + v.url
-);
+const banners = useBanners();
+// console.log(imagesData);
 useHead({
   title: "文章列表",
-  titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`
+  titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`,
 });
 </script>
 <template>
@@ -18,20 +13,11 @@ useHead({
     <!-- 全局共享布局 -->
     <section class="banner-container">
       <div class="banner-content">
-        <div class="carousel w-full h-full">
-          <div
-            class="carousel-item w-full"
-            v-for="(image, index) in images"
-            :key="index"
-          >
-            <img
-              :src="image"
-              :style="{
-                width: '100%',
-              }"
-            />
-          </div>
-        </div>
+        <xia-carousel
+          :images="banners"
+          :duration="6000"
+          interval
+        ></xia-carousel>
       </div>
     </section>
     <section class="home-content w-11/12">
@@ -79,28 +65,5 @@ useHead({
       }
     }
   }
-  .carousel {
-    height: 100%;
-    border-radius: 0 0 8px 8px;
-  }
 }
-// .common-layout-contaier {
-//   position: relative;
-//   // min-height: 100vh;
-//   // noise 遮罩层
-//   &::after {
-//     position: absolute;
-//     left: 0;
-//     top: 0;
-//     width: 100%;
-//     height: 100%;
-//     content: "";
-//     pointer-events: none;
-//     display: none;
-//     z-index: 0;
-//     // background-image: url(@/assets/img/background/noise.png);
-//   }
-//   background-color: var(--main-bgc) !important;
-//   color: var(--text-color) !important;
-// }
 </style>

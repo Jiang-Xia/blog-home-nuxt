@@ -126,7 +126,7 @@ useHead({
             </h2>
             <a class="flex items-center" target="_blank" :href="item.url">
               <div class="avatar">
-                <div class="w-10 rounded-full bg-base-100">
+                <div class="w-10 rounded-full bg-base-300">
                   <img :alt="item.title" :src="item.icon" v-show="item.icon" />
                 </div>
               </div>

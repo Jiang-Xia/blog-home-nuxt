@@ -2,21 +2,13 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-08-02 15:38:00
+ * @LastEditTime: 2022-08-03 16:56:45
  * @Description: 
  * @FilePath: \blog-home-nuxt\layouts\main-content.vue
 -->
 <script setup lang="ts">
 import { ref } from "vue";
-import { dailyImage } from "~~/api/article";
-
-const images = ref([]);
-const { data: imagesData } = await useAsyncData("index_GetIMG", () =>
-  dailyImage(3)
-);
-images.value = imagesData.value.images.map(
-  (v: any) => "https://cn.bing.com" + v.url
-);
+const banners = useBanners();
 const key = new Date().getTime();
 </script>
 <template>
@@ -24,24 +16,7 @@ const key = new Date().getTime();
     <!-- 全局共享布局 -->
     <section class="banner-container">
       <div class="banner-content">
-        <!-- <div class="text-wrap">
-          <h3 class="animate-pulse">
-          </h3>
-        </div> -->
-        <div class="carousel w-full h-full">
-          <div
-            class="carousel-item w-full"
-            v-for="(image, index) in images"
-            :key="index"
-          >
-            <img
-              :src="image"
-              :style="{
-                width: '100%',
-              }"
-            />
-          </div>
-        </div>
+        <xia-carousel :images="banners"></xia-carousel>
       </div>
     </section>
     <!-- 主显示区 -->

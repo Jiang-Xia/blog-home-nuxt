@@ -27,7 +27,6 @@ interface itemState {
   checked: boolean;
   [x: string]: string | boolean;
 }
-const router = useRouter();
 // const store = useStore()
 // 文章列表中的每一项item都为any
 const articleListDefault: any[] = [];
@@ -133,10 +132,7 @@ const changeSort = () => {
     : (queryPrams.sort = "ASC");
   getArticleListHandle();
 };
-// 文章详情
-const gotoDetail = (item: any) => {
-  router.replace("/detail/" + item.id);
-};
+
 
 // 颜色转换
 const toRgb = (color) => {

@@ -4,6 +4,23 @@ import { ref, watch } from "vue";
 import Cookies from "js-cookie";
 import { throttle } from "@/utils";
 import dayjs from "dayjs";
+import { dailyImage } from "~~/api/article.js";
+
+/* 获取全局banner数据 */
+const banners = useBanners();
+const { data: imagesData } = await useAsyncData("index_GetIMG", () =>
+  dailyImage(3)
+);
+banners.value = imagesData.value.images.map((v: any) => {
+  const { copyright, copyrightlink, title } = v;
+  return {
+    copyright,
+    copyrightlink,
+    title,
+    url: "https://cn.bing.com" + v.url,
+  };
+});
+
 const scrollTop = ref(0);
 const scrollHandle = (e: any) => {
   scrollTop.value = document.documentElement.scrollTop;
@@ -31,7 +48,7 @@ useHead({
   charset: "utf-8", // 字符
   viewport: "width=device-width, initial-scale=1, maximum-scale=1",
   meta: [
-    // Meta Language 
+    // Meta Language
     {
       "http-equiv": "Content-Type",
       content: "text/html",
