@@ -144,7 +144,7 @@ const toRgb = (color) => {
 
 <template>
   <div class="article-list-container">
-    <section class="main-article-wrap">
+    <section class="main-article-wrap" key="main-article-wrap">
       <!-- lg:w-5/12 -->
       <transition-group name="list">
         <div

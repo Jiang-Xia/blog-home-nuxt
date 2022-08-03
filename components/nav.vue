@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-08-03 18:51:04
+ * @LastEditTime: 2022-08-03 23:43:16
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -161,24 +161,40 @@ const onSearchHandle = throttle(() => {
     </div>
 
     <div class="navbar-end">
-      <div class="dropdown">
+      <div class="dropdown relative">
         <label tabindex="0">
           <input
             type="text"
             placeholder="搜索"
-            class="input input-ghost input-md"
+            class="input input-bordered input-ghost input-md"
             v-model="searchText"
             @input="onSearchHandle"
+            @keyup.enter="onSearchHandle"
           />
+          <!-- <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 absolute top-4 right-1 stroke-gray-300"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg> -->
         </label>
         <ul
+          v-if="articleList.length"
           tabindex="0"
-          class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52 max-h-96"
+          class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52 max-h-72 text-gray-500 text-xs overflow-auto"
         >
-          <li v-for="(item, index) in articleList">
-            <NuxtLink :to="'/detail/' + item.id">{{ item.title }}</NuxtLink>
+          <li class="" v-for="(item, index) in articleList">
+            <NuxtLink :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
           </li>
-          <li v-if="!articleList.length">无数据</li>
+          <!-- <li v-if="!articleList.length">无数据</li> -->
         </ul>
       </div>
       <x-icon

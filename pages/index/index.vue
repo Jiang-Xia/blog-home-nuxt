@@ -17,6 +17,7 @@ useHead({
           :images="banners"
           :duration="60000"
           interval
+          arrow
         ></xia-carousel>
       </div>
     </section>

@@ -13,8 +13,12 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  arrow: {
+    type: Boolean,
+    default: false,
+  },
 });
-let timer = null;// 清楚定时器
+let timer = null; // 清楚定时器
 let isHover = false; // hover时不轮播
 onMounted(() => {
   // console.log(carouselRef);
@@ -77,6 +81,7 @@ const prev = () => {
       @mouseleave="startTimer"
     >
       <div
+        v-if="arrow"
         class="absolute flex justify-between transform -translate-y-1/2 left-0 right-0 top-1/2"
       >
         <span @click="prev" class="arrow-btn rounded-tr-md rounded-br-md"

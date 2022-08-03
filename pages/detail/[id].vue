@@ -88,7 +88,7 @@ useHead({
 });
 </script>
 <template>
-  <div>
+  <div class="article-detail">
     <section class="banner-container">
       <div class="banner-content">
         <img :alt="ArticleInfo.category.label" :src="isTrueCoverLink(ArticleInfo.cover) || defaultImg" alt="" />
@@ -186,7 +186,7 @@ useHead({
 }
 
 .module-wrap__detail {
-  overflow: hidden;
+  // overflow: hidden;
   box-sizing: border-box;
   position: relative;
   margin: 20px auto 0;
