@@ -15,7 +15,7 @@ useHead({
       <div class="banner-content">
         <xia-carousel
           :images="banners"
-          :duration="6000"
+          :duration="60000"
           interval
         ></xia-carousel>
       </div>

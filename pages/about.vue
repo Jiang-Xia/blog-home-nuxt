@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import MdEditor from "md-editor-v3";
+import "md-editor-v3/lib/style.css";
 const theme = useTheme();
 const content = ref<string>(
   '<h2>江夏</h2><blockquote><p><font size="2">一位来自广州的前端程序员 喜欢看电影，玩游戏，学技术。</font><br/></p></blockquote'

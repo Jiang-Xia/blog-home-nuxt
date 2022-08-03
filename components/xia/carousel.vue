@@ -96,7 +96,7 @@ const prev = () => {
 .xia-carousel {
   height: 100px;
   border-radius: 0 0 8px 8px;
-  @apply carousel w-full h-full from-accent bg-gradient-to-br relative;
+  @apply carousel w-full h-full from-black bg-gradient-to-r to-gray-700 relative;
 }
 .xia-carousel-item {
   background-size: cover;
