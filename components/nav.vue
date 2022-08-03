@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-07-31 19:35:28
+ * @LastEditTime: 2022-08-03 18:51:04
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -11,9 +11,10 @@
 import { ref, computed, reactive } from "vue";
 import Login from "./login.vue";
 import { useRoute, useRouter } from "vue-router";
-// import { getArticleList } from '@/api/article'
+import { getArticleList } from "@/api/article";
 import dayjs from "dayjs";
 import XIcon from "@/components/icons/index";
+import { throttle } from "~~/utils";
 const { $store } = useNuxtApp();
 const navList = ref([
   {
@@ -80,6 +81,41 @@ const clickIcon = () => {
   }
 };
 /* 切换主题 结束 */
+
+/* 搜索文章 */
+
+// 搜索文章
+const queryPrams = reactive<queryState>({
+  page: 1,
+  pageSize: 20,
+  title: "",
+  description: "",
+  content: "",
+});
+const searchText = ref("");
+const articleList = ref([]);
+const getArticleListHandle = async () => {
+  const res = await getArticleList(queryPrams);
+  articleList.value = res.list.map((v: any) => {
+    return {
+      value: v.title,
+      label: v.title,
+      id: v.id,
+    };
+  });
+};
+
+const onSearchHandle = throttle(() => {
+  if (searchText.value) {
+    queryPrams.page = 1;
+    queryPrams.title = searchText.value;
+    queryPrams.description = searchText.value;
+    queryPrams.content = searchText.value;
+    getArticleListHandle();
+  } else {
+    articleList.value = [];
+  }
+}, 500);
 </script>
 <template>
   <div class="navbar bg-transparent text-white">
@@ -123,7 +159,28 @@ const clickIcon = () => {
         </li>
       </ul>
     </div>
+
     <div class="navbar-end">
+      <div class="dropdown">
+        <label tabindex="0">
+          <input
+            type="text"
+            placeholder="搜索"
+            class="input input-ghost input-md"
+            v-model="searchText"
+            @input="onSearchHandle"
+          />
+        </label>
+        <ul
+          tabindex="0"
+          class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52 max-h-96"
+        >
+          <li v-for="(item, index) in articleList">
+            <NuxtLink :to="'/detail/' + item.id">{{ item.title }}</NuxtLink>
+          </li>
+          <li v-if="!articleList.length">无数据</li>
+        </ul>
+      </div>
       <x-icon
         class="cursor-pointer px-3"
         :icon="iconClass"

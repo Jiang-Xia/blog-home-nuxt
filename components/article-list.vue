@@ -160,7 +160,7 @@ const toRgb = (color) => {
               {{ item.title }}
               <div v-if="item.topping" class="badge badge-secondary">TOP</div>
             </h2>
-            <p>{{ item.description }}</p>
+            <p class="" >{{ item.description }}</p>
             <div class="card-actions justify-start text-xs flex-wrap">
               <div>
                 <!-- 分类 -->
@@ -195,7 +195,7 @@ const toRgb = (color) => {
                 </span>
               </div>
               <div class="flex justify-between w-full items-center">
-                <span>更新于 {{ item.uTime }}</span>
+                <span class="">更新于 {{ item.uTime }}</span>
                 <nuxt-link :to="'/detail/' + item.id">
                   <button class="btn btn-xs">Read</button>
                 </nuxt-link>
@@ -428,7 +428,12 @@ const toRgb = (color) => {
   .info-tool {
     min-height: 50vh;
   }
-
+  .card-title{
+    color: var(--text-color);
+  }
+  .card-body{
+    color: var(--text-color2);
+  }
   .main-article-wrap {
     margin-right: 0;
     transition: all 0.5s;

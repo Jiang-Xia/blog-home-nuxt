@@ -4,3 +4,11 @@ type BannerState = {
   title: string;
   url: string;
 };
+
+interface queryState {
+  page: number
+  pageSize: number
+  title: string
+  description: string
+  content: string
+}
