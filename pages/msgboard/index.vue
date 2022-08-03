@@ -51,15 +51,15 @@ const confirmHandle = async () => {
 
 useHead({
   title: "留言板",
-  titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`
+  titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`,
 });
 </script>
 <template>
   <NuxtLayout name="main-content">
     <h1 class="hidden">网站留言板 - 江夏的个人博客 - 记录生活记录你~</h1>
-    <div class="msgboard-container flex flex-wrap sm:flex-nowrap">
+    <div class="msgboard-container flex flex-wrap md:flex-nowrap">
       <div
-        class="card flex-shrink-0 w-full sm:max-w-sm shadow-2xl bg-base-100 form-wrap relative"
+        class="card card-compact flex-shrink-0 w-full md:max-w-sm shadow-2xl bg-base-100 form-wrap relative"
       >
         <div class="alert alert-info absolute top-0 left-0" v-show="showToast">
           <div>
@@ -163,24 +163,32 @@ useHead({
 
       <!-- 留言内容列表 -->
       <!-- 正常是移动样式 大于sm宽度时变成pc样式 -->
-      <div class="mt-3 ml-0 sm:ml-4 sm:mt-0 sm:flex-1 w-full card shadow-2xl">
-        <div class="card-body p-0 sm:p-8">
-          <div v-for="(item, index) in msgboardList">
-            <div class="card lg:card-side bg-base-100 shadow-xl">
-              <figure>
-                <div class="avatar h-16 w-16 ml-3 mt-3 sm:mt-0">
-                  <div class="w-24 rounded-full bg-base-300" title="点击跳转他的主页！">
-                    <a :href="item.address" target="_blank">
-                      <img :alt="item.name " :src="item.avatar" />
-                    </a>
-                  </div>
+      <div
+        class="card card-compact mt-3 ml-0 md:ml-4 md:mt-0 md:flex-1 w-full shadow-2xl"
+      >
+        <div class="card-body">
+          <div
+            v-for="(item, index) in msgboardList"
+            class="card card-compact card-side bg-base-100 shadow-xl mb-3"
+          >
+            <figure>
+              <div class="avatar h-16 w-16 ml-3">
+                <div
+                  class="w-24 rounded-full bg-base-300"
+                  title="点击跳转他的主页！"
+                >
+                  <a :href="item.address" target="_blank">
+                    <img :alt="item.name" :src="item.avatar" />
+                  </a>
                 </div>
-              </figure>
-              <div class="card-body p-4">
-                <h2 class="card-title">{{ item.name }}</h2>
-                <p>{{ item.comment }}</p>
-                <div class="card-actions justify-end">
-                  <div class="text-xs">{{ item.createAt }}</div>
+              </div>
+            </figure>
+            <div class="card-body">
+              <h2 class="card-title">{{ item.name }}</h2>
+              <p>{{ item.comment }}</p>
+              <div class="card-actions justify-end">
+                <div class="text-xs text-gray-400">
+                  发表于 {{ item.createAt }}
                 </div>
               </div>
             </div>

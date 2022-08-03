@@ -148,13 +148,11 @@ const toRgb = (color) => {
 
 <template>
   <div class="article-list-container">
-    <section
-      class="main-article-wrap flex justify-around flex-wrap md:px-2 md:m-0"
-    >
+    <section class="main-article-wrap">
       <!-- lg:w-5/12 -->
       <transition-group name="list">
         <div
-          class="card w-full bg-base-100 shadow-xl mb-5 lg:w-96 hover:drop-shadow-lg"
+          class="article-item"
           v-for="(item, index) in articleList"
           :key="index"
         >
@@ -227,6 +225,7 @@ const toRgb = (color) => {
         ></xia-pagination>
       </div>
     </section>
+    <!-- 右边筛选卡片 -->
     <section class="info-tool">
       <div class="card-wrap auth-info">
         <h4>
@@ -355,66 +354,67 @@ const toRgb = (color) => {
   .el-pagination {
     margin-top: 8vh;
   }
-  .main-article-wrap {
-    margin-right: 340px;
-    transition: all 0.5s;
-    // 文章列表
-    .card-wrap {
-      min-height: 110px;
-      margin-bottom: 20px;
-      padding: 6px 16px;
-      background-color: var(--minor-bgc);
-      // box-shadow: 0 2px 6px rgba($color: #000000, $alpha: 0.26);
-      border-radius: 8px;
-      .line-1 {
-        font-size: 20px;
-        line-height: 1.2;
-        margin: 0;
-      }
-      .line-2,
-      .line-3 {
-        font-size: 14px;
-        line-height: 1.7;
-        color: var(--text-color2);
-      }
-      .line-3 {
-        margin-bottom: 2px;
-        font-size: 12px;
-      }
-      .line-4 {
-        font-size: 12px;
-        .x-icon {
-          font-size: 14px;
-          margin-right: 3px;
-        }
-        .blog-like:hover {
-          color: var(--main-color);
-        }
-      }
-    }
-    .article-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.5s;
-    }
-    .article-item:hover {
-      transform: scale(1.01, 1.02) translateY(-3px);
-      box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-    }
-    .card-content {
-      min-width: 60%;
-    }
-    .cover-wrap {
-      height: 100px;
-      width: 150px;
-      & > img {
-        height: 100%;
-        width: 100%;
-        border-radius: var(--border-radius);
-      }
-    }
-  }
+  // .main-article-wrap {
+  //   margin-right: 340px;
+  //   transition: all 0.5s;
+  //   // 文章列表
+  //   .card-wrap {
+  //     min-height: 110px;
+  //     margin-bottom: 20px;
+  //     padding: 6px 16px;
+  //     background-color: var(--minor-bgc);
+  //     // box-shadow: 0 2px 6px rgba($color: #000000, $alpha: 0.26);
+  //     border-radius: 8px;
+  //     .line-1 {
+  //       font-size: 20px;
+  //       line-height: 1.2;
+  //       margin: 0;
+  //     }
+  //     .line-2,
+  //     .line-3 {
+  //       font-size: 14px;
+  //       line-height: 1.7;
+  //       color: var(--text-color2);
+  //     }
+  //     .line-3 {
+  //       margin-bottom: 2px;
+  //       font-size: 12px;
+  //     }
+  //     .line-4 {
+  //       font-size: 12px;
+  //       .x-icon {
+  //         font-size: 14px;
+  //         margin-right: 3px;
+  //       }
+  //       .blog-like:hover {
+  //         color: var(--main-color);
+  //       }
+  //     }
+  //   }
+  //   .article-item {
+  //     display: flex;
+  //     justify-content: space-between;
+  //     align-items: center;
+  //     transition: all 0.5s;
+  //   }
+  //   .article-item:hover {
+  //     transform: scale(1.01, 1.02) translateY(-3px);
+  //     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  //   }
+  //   .card-content {
+  //     min-width: 60%;
+  //   }
+  //   .cover-wrap {
+  //     height: 100px;
+  //     width: 150px;
+  //     & > img {
+  //       height: 100%;
+  //       width: 100%;
+  //       border-radius: var(--border-radius);
+  //     }
+  //   }
+  // }
+
   // 右边卡片
   .info-tool {
     position: absolute;
@@ -422,6 +422,7 @@ const toRgb = (color) => {
     top: 20px;
     width: 340px;
     transition: all 0.5s;
+    transform: translateX(300%);
     // 作者信息
     .card-wrap {
       margin-bottom: 20px;
@@ -491,19 +492,22 @@ const toRgb = (color) => {
   .info-tool {
     min-height: 50vh;
   }
-  @media screen and (max-width: 992px) {
+
+  .main-article-wrap {
+    margin-right: 0;
+    transition: all 0.5s;
+    @apply flex justify-around flex-wrap md:px-2;
+  }
+  .article-item {
+    @apply card card-compact w-full bg-base-100 mb-5 lg:w-4/5 xl:w-96 hover:drop-shadow-lg hover:scale-y-105 transition-all;
+  }
+
+  @media (min-width: 768px) {
     .main-article-wrap {
-      margin-right: 0;
+      margin-right: 340px;
     }
     .info-tool {
-      transform: translate(300%);
-    }
-  }
-  @media screen and (max-width: 992px) {
-    .main-article-wrap {
-      .cover-wrap {
-        display: none;
-      }
+      transform: translateX(0%);
     }
   }
 }
