@@ -23,7 +23,7 @@ const goTopicItem = (item: tocInter) => {
 // window.addEventListener('scroll', throttle(scrollHandle, 100), true)
 </script>
 <template>
-  <transition-group name="fade">
+  <transition-group name="fade" key="catalogue-wrap">
     <aside class="aisde-wrap" key="aisde-wrap">
       <div class="catalogue-wrap">
         <p class="heading">目录</p>

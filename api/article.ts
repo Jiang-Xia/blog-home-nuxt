@@ -1,7 +1,7 @@
 import request from "~~/api/request";
 export const getArticleList = async (data: any) => {
   const res = await request.post("/article/list", data);
-  // console.log('/article/list:  ', res)
+  console.log('/article/list:  ', res)
   return res.data;
 };
 export const getArticleInfo = async (params: any) => {

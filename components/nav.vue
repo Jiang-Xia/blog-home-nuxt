@@ -2,124 +2,145 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-08-03 23:43:16
+ * @LastEditTime: 2022-08-06 22:40:52
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
 
 <script setup lang="ts">
-import { ref, computed, reactive } from "vue";
-import Login from "./login.vue";
-import { useRoute, useRouter } from "vue-router";
-import { getArticleList } from "@/api/article";
-import dayjs from "dayjs";
-import XIcon from "@/components/icons/index";
-import { throttle } from "~~/utils";
-const { $store } = useNuxtApp();
-const navList = ref([
-  {
-    path: "/",
-    title: "首页",
-    icon: "",
-  },
-  {
-    path: "/archives",
-    title: "归档",
-    icon: "",
-  },
-  {
-    path: "/links",
-    title: "友链",
-    icon: "",
-  },
-  {
-    path: "/msgboard",
-    title: "留言板",
-    icon: "",
-  },
-  {
-    path: "/about",
-    title: "关于",
-    icon: "",
-  },
-]);
-// init()
-/* 切换主题 开始 */
-const theme = useTheme();
-const iconClass = ref("blog-light");
-const setTheme = (type: string) => {
-  iconClass.value = "blog-" + type;
-  document.documentElement.className = type;
-  document.documentElement.setAttribute("data-theme", type);
-  localStorage.setItem("theme", type);
-  theme.value = type;
-};
-const getHour = () => {
-  const time = dayjs().hour();
-  // 白天
-  if (6 < time && time < 18) {
-    theme.value = "light";
-  } else {
-    theme.value = "dark";
-  }
-};
-onMounted(() => {
-  const themeType = localStorage.getItem("theme");
-  if (themeType) {
-    // 都有设置icon和选中
-    setTheme(themeType);
-  } else {
-    getHour();
-  }
-});
-// 点击icon直接切换
-const clickIcon = () => {
-  if (theme.value === "light") {
-    setTheme("dark");
-  } else {
-    setTheme("light");
-  }
-};
-/* 切换主题 结束 */
+  import { ref, computed, reactive } from "vue";
+  import Login from "./login.vue";
+  import { useRoute, useRouter } from "vue-router";
+  import { getArticleList } from "@/api/article";
+  import dayjs from "dayjs";
+  import XIcon from "@/components/icons/index";
+  import { throttle } from "~~/utils";
+  import request from "~~/api/request";
+  import api from "@/api";
 
-/* 搜索文章 */
+  const navList = ref([
+    {
+      path: "/",
+      title: "首页",
+      icon: "",
+    },
+    {
+      path: "/archives",
+      title: "归档",
+      icon: "",
+    },
+    {
+      path: "/links",
+      title: "友链",
+      icon: "",
+    },
+    {
+      path: "/msgboard",
+      title: "留言板",
+      icon: "",
+    },
+    {
+      path: "/about",
+      title: "关于",
+      icon: "",
+    },
+  ]);
 
-// 搜索文章
-const queryPrams = reactive<queryState>({
-  page: 1,
-  pageSize: 20,
-  title: "",
-  description: "",
-  content: "",
-});
-const searchText = ref("");
-const articleList = ref([]);
-const getArticleListHandle = async () => {
-  const res = await getArticleList(queryPrams);
-  articleList.value = res.list.map((v: any) => {
-    return {
-      value: v.title,
-      label: v.title,
-      id: v.id,
-    };
+  const token = useToken();
+  const userInfo = useUserInfo();
+  // init()
+  /* 切换主题 开始 */
+  const theme = useTheme();
+
+  const iconClass = ref("blog-light");
+  const setTheme = (type: string) => {
+    iconClass.value = "blog-" + type;
+    document.documentElement.className = type;
+    document.documentElement.setAttribute("data-theme", type);
+    localStorage.setItem("theme", type);
+    theme.value = type;
+  };
+  const getHour = () => {
+    const time = dayjs().hour();
+    // 白天
+    if (6 < time && time < 18) {
+      theme.value = "light";
+    } else {
+      theme.value = "dark";
+    }
+  };
+  onMounted(() => {
+    const themeType = localStorage.getItem("theme");
+    if (themeType) {
+      // 都有设置icon和选中
+      setTheme(themeType);
+    } else {
+      getHour();
+    }
   });
-};
+  // 点击icon直接切换
+  const clickIcon = () => {
+    if (theme.value === "light") {
+      setTheme("dark");
+    } else {
+      setTheme("light");
+    }
+  };
+  /* 切换主题 结束 */
 
-const onSearchHandle = throttle(() => {
-  if (searchText.value) {
-    queryPrams.page = 1;
-    queryPrams.title = searchText.value;
-    queryPrams.description = searchText.value;
-    queryPrams.content = searchText.value;
-    getArticleListHandle();
-  } else {
-    articleList.value = [];
+  /* 搜索文章 */
+
+  // 搜索文章
+  const queryPrams = reactive<queryState>({
+    page: 1,
+    pageSize: 20,
+    title: "",
+    description: "",
+    content: "",
+  });
+  const searchText = ref("");
+  const articleList: any = ref([]);
+  const getArticleListHandle = async () => {
+    const res = await getArticleList(queryPrams);
+    articleList.value = res.list.map((v: any) => {
+      return {
+        value: v.title,
+        label: v.title,
+        id: v.id,
+      };
+    });
+  };
+
+  const onSearchHandle = throttle(() => {
+    if (searchText.value) {
+      queryPrams.page = 1;
+      queryPrams.title = searchText.value;
+      queryPrams.description = searchText.value;
+      queryPrams.content = searchText.value;
+      getArticleListHandle();
+    } else {
+      articleList.value = [];
+    }
+  }, 500);
+
+  const clear = () => {
+    token.value = "";
+    localStorage.setItem("x-token", "");
+  };
+  if (process.client) {
+    token.value = localStorage.getItem("x-token") || ("" as string);
+    if (token.value) {
+      api.getUserInfo().then((res: any) => {
+        userInfo.value = res;
+      });
+    } else {
+      clear();
+    }
   }
-}, 500);
 </script>
 <template>
-  <div class="navbar bg-transparent text-white">
-    <div class="navbar-start">
+  <div class="navbar bg-transparent text-gray-100 dark:text-gray-300">
+    <div class="navbar-start w-fit">
       <div class="dropdown">
         <label tabindex="0" class="btn btn-ghost lg:hidden">
           <svg
@@ -148,7 +169,7 @@ const onSearchHandle = throttle(() => {
           </li>
         </ul>
       </div>
-      <a class="btn btn-ghost normal-case text-xl site-name" href="/">Xia</a>
+      <a class="hidden sm:inline-flex btn btn-ghost normal-case text-xl site-name" href="/">Xia</a>
     </div>
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal p-0">
@@ -160,16 +181,18 @@ const onSearchHandle = throttle(() => {
       </ul>
     </div>
 
-    <div class="navbar-end">
+    <div class="navbar-end flex-1">
+      <!-- 搜索 -->
       <div class="dropdown relative">
         <label tabindex="0">
           <input
             type="text"
             placeholder="搜索"
-            class="input input-bordered input-ghost input-md"
+            class="input w-full input-bordered input-ghost input-md"
             v-model="searchText"
             @input="onSearchHandle"
             @keyup.enter="onSearchHandle"
+            autocomplete="off"
           />
           <!-- <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -197,17 +220,54 @@ const onSearchHandle = throttle(() => {
           <!-- <li v-if="!articleList.length">无数据</li> -->
         </ul>
       </div>
-      <x-icon
-        class="cursor-pointer px-3"
-        :icon="iconClass"
-        @click="clickIcon"
-      />
+      <!-- 主题 -->
+      <x-icon class="cursor-pointer px-3" :icon="iconClass" @click="clickIcon" />
+      <!-- 登录 退出-->
+      <div>
+        <NuxtLink to="/login" title="登录" v-if="!token">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+            />
+          </svg>
+        </NuxtLink>
+      </div>
+
+      <div class="dropdown dropdown-end" v-if="token">
+        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+          <div class="w-10 rounded-full">
+            <img src="https://placeimg.com/80/80/people" />
+          </div>
+        </label>
+        <ul
+          tabindex="0"
+          class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-24 text-gray-500 text-xs"
+        >
+          <!-- <li>
+            <a class="justify-between">
+              Profile
+              <span class="badge">New</span>
+            </a>
+          </li> -->
+          <!-- <li><a>Settings</a></li> -->
+          <li @click="clear"><a>Logout</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="less" scoped>
-/*
+  /*
   xs: '480px',
   sm: '576px',
   md: '768px',
@@ -215,62 +275,61 @@ const onSearchHandle = throttle(() => {
   xl: '1200px',
   xxl: '1600px',
  */
-.nav-container {
-  height: 100%;
-  color: #fff;
-  @media (max-width: 768px) {
-    .logo,
+  .nav-container {
+    height: 100%;
+    @media (max-width: 768px) {
+      .logo,
+      .nav {
+        display: none;
+      }
+    }
+    display: flex;
+    justify-content: space-between;
+    transition: all 0.3s;
+    .logo {
+      width: 50px;
+    }
     .nav {
-      display: none;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+    .router-link-item {
+      font-size: 14px;
+      font-weight: 500;
+      padding: 0 12px;
+      // color: #fff;
+    }
+    .router-link-active {
+      color: var(--main-color) !important;
+    }
+    .router-link-item > span:hover {
+      color: var(--main-color);
+    }
+    .tool-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 2em;
     }
   }
-  display: flex;
-  justify-content: space-between;
-  transition: all 0.3s;
-  .logo {
-    width: 50px;
+  .navbar {
+    .router-link-active {
+      // color: var(--main-color) !important;
+      border-radius: var(--rounded-btn, 0.5rem);
+      background-color: hsl(0 0% 100% / var(--tw-bg-opacity));
+      --tw-bg-opacity: 0.1;
+    }
+    .site-name {
+      background: linear-gradient(-70deg, #db469f 0%, #2188ff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
   }
-  .nav {
-    flex: 1;
-    display: flex;
-    align-items: center;
-  }
-  .router-link-item {
-    font-size: 14px;
-    font-weight: 500;
-    padding: 0 12px;
-    // color: #fff;
-  }
-  .router-link-active {
-    color: var(--main-color) !important;
-  }
-  .router-link-item > span:hover {
-    color: var(--main-color);
-  }
-  .tool-bar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    width: 2em;
-  }
-}
-.navbar {
-  .router-link-active {
-    // color: var(--main-color) !important;
-    border-radius: var(--rounded-btn, 0.5rem);
-    background-color: hsl(0 0% 100% / var(--tw-bg-opacity));
-    --tw-bg-opacity: 0.1;
-  }
-  .site-name {
-    background: linear-gradient(-70deg, #db469f 0%, #2188ff 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-}
-// #app 容器外样式
-// :global(.dropdown-menu__item.active) {
-//   background-color: var(--main-color);
-//   color: #fff;
-// }
+  // #app 容器外样式
+  // :global(.dropdown-menu__item.active) {
+  //   background-color: var(--main-color);
+  //   color: #fff;
+  // }
 </style>

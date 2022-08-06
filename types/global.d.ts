@@ -12,3 +12,14 @@ interface queryState {
   description: string
   content: string
 }
+
+interface StringKey {
+  [propName: string]: string | number;
+}
+
+interface userInfoState {
+  nickname: string;
+  homepage: string;
+  intro: string;
+  avatar: string;
+}

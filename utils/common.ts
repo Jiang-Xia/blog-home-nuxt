@@ -4,9 +4,9 @@ import { LocationQueryValue } from 'vue-router'
 // import { ElMessage } from 'element-plus'
 
 // 分类
-const categoryOptions = ref([])
+const categoryOptions:any = ref([])
 // 标签
-const tagsOptions = ref([])
+const tagsOptions:any = ref([])
 const getOptions = async (type: string) => {
   if (type === '分类') {
     const res = await api.getAllCategory()

@@ -1,144 +1,138 @@
 <script setup lang="ts">
-import { getArticleList } from "@/api/article";
-import {
-  categoryOptions,
-  tagsOptions,
-  getOptions,
-  updateLikesHandle,
-} from "@/utils/common";
-import { ref, reactive, unref, UnwrapRef, toRefs } from "vue";
-import defaultCover from "@/assets/images/create.webp";
-import { isTrueCoverLink } from "@/utils";
-import { colorRgb } from "~~/utils/color";
+  import { getArticleList } from "@/api/article";
+  import { categoryOptions, tagsOptions, getOptions, updateLikesHandle } from "@/utils/common";
+  import { ref, reactive, unref, UnwrapRef, toRefs } from "vue";
+  import defaultCover from "@/assets/images/create.webp";
+  import { isTrueCoverLink } from "@/utils";
+  import { colorRgb } from "~~/utils/color";
 
-interface queryState {
-  page: number;
-  category: string;
-  tags: string[];
-  pageSize: number;
-  total: number;
-  title?: string;
-  description?: string;
-  content?: string;
-  sort: string;
-}
-interface itemState {
-  id: string;
-  checked: boolean;
-  [x: string]: string | boolean;
-}
-// const store = useStore()
-// 文章列表中的每一项item都为any
-const articleListDefault: any[] = [];
-const articleList = ref(articleListDefault);
-
-const queryPrams: queryState = reactive({
-  page: 1,
-  category: "",
-  tags: [],
-  pageSize: 10,
-  total: 0,
-  title: "",
-  description: "",
-  content: "",
-  client: true,
-  sort: "DESC", // 降序
-});
-
-/*
- * 第一个参数为唯一key
- * ！注意：如果有使用useAsyncData时，会最先执行此函数，也是是如此，
- * 分类和标签才会在服务渲染(useAsyncData后执行的函数)
- */
-
-const {
-  // 这样生命的变量时响应式的，不这样声明请求回来复制不然渲染到模板上
-  data: articleData,
-  pending,
-  refresh,
-  error,
-} = await useAsyncData("index_GetList", () => getArticleList(queryPrams));
-if (articleData.value) {
-  articleList.value = articleData.value.list;
-  queryPrams.total = articleData.value.pagination.total;
-}
-// 此测试印证上面描述
-// const { data: articleData } = await useAsyncData("index_GetList", () =>
-//   Promise.resolve()
-// );
-getOptions("标签");
-getOptions("分类");
-// 下一页
-const getArticleListHandle = async (val = 1) => {
-  queryPrams.page = val;
-  const res = await getArticleList(queryPrams);
-  articleList.value = res.list;
-  queryPrams.total = res.pagination.total;
-};
-// 获取标签名(暂时没有用)
-const getTagLabel = (arr: []): string => {
-  // 如果是js的话，这个方法会写得很简单
-  //  ts的话，它会提前对各种值进行类型推导，避免了一些取值的错误（比如在undefined和null取属性值）
-  let text = arr.map((v: any) => v.label).join();
-  return text;
-};
-
-// 点击tag
-const clickTagHandle = (item: itemState, type: string) => {
-  if (type === "分类") {
-    if (queryPrams.category === item.id) {
-      // 清空选中
-      queryPrams.category = "";
-    } else {
-      queryPrams.category = item.id;
-    }
-  } else {
-    // 标签
-    item.checked = !item.checked;
-
-    const list: any = [...queryPrams.tags];
-    if (!item.checked) {
-      list.splice(list.indexOf(item.id), 1);
-    } else {
-      if (!list.includes(item.id)) {
-        list.push(item.id);
-      }
-    }
-    queryPrams.tags = list;
-    console.log(queryPrams.tags);
+  interface queryState {
+    page: number;
+    category: string;
+    tags: string[];
+    pageSize: number;
+    total: number;
+    title?: string;
+    description?: string;
+    content?: string;
+    sort: string;
   }
-  getArticleListHandle(1);
-};
-// 分页
-const current = ref(1);
-const currentChangeHandle = (val: number) => {
-  getArticleListHandle(val);
-};
+  interface itemState {
+    id: string;
+    checked: boolean;
+    [x: string]: string | boolean;
+  }
+  // const store = useStore()
+  // 文章列表中的每一项item都为any
+  const articleListDefault: any[] = [];
+  const articleList = ref(articleListDefault);
 
-// 模糊搜索
-const searchText = ref("");
-const onSearchHandle = () => {
-  queryPrams.page = 1;
-  queryPrams.category = "";
-  queryPrams.tags = [];
-  queryPrams.title = searchText.value;
-  queryPrams.description = searchText.value;
-  queryPrams.content = searchText.value;
-  getArticleListHandle(1);
-};
-const changeSort = () => {
-  queryPrams.sort === "ASC"
-    ? (queryPrams.sort = "DESC")
-    : (queryPrams.sort = "ASC");
-  getArticleListHandle();
-};
+  const queryPrams: queryState = reactive({
+    page: 1,
+    category: "",
+    tags: [],
+    pageSize: 10,
+    total: 0,
+    title: "",
+    description: "",
+    content: "",
+    client: true,
+    sort: "DESC", // 降序
+  });
 
-// 颜色转换
-const toRgb = (color) => {
-  color = colorRgb(color);
-  color = color.replace(")", ",0.24)");
-  return color;
-};
+  /*
+   * 第一个参数为唯一key
+   * ！注意：如果有使用useAsyncData时，会最先执行此函数，也是是如此，
+   * 分类和标签才会在服务渲染(useAsyncData后执行的函数)
+   */
+
+  const {
+    // 这样生命的变量时响应式的，不这样声明请求回来复制不然渲染到模板上
+    data: articleData,
+    pending,
+    refresh,
+    error,
+  } = await useAsyncData("index_GetList", () => getArticleList(queryPrams));
+  if (articleData.value) {
+    articleList.value = articleData.value.list;
+    queryPrams.total = articleData.value.pagination.total;
+  }
+  // console.log({articleData:articleData.value})
+  // 此测试印证上面描述
+  // const { data: articleData } = await useAsyncData("index_GetList", () =>
+  //   Promise.resolve()
+  // );
+  getOptions("标签");
+  getOptions("分类");
+  // 下一页
+  const getArticleListHandle = async (val = 1) => {
+    queryPrams.page = val;
+    const res = await getArticleList(queryPrams);
+    articleList.value = res.list;
+    queryPrams.total = res.pagination.total;
+  };
+  // 获取标签名(暂时没有用)
+  const getTagLabel = (arr: []): string => {
+    // 如果是js的话，这个方法会写得很简单
+    //  ts的话，它会提前对各种值进行类型推导，避免了一些取值的错误（比如在undefined和null取属性值）
+    let text = arr.map((v: any) => v.label).join();
+    return text;
+  };
+
+  // 点击tag
+  const clickTagHandle = (item: itemState, type: string) => {
+    if (type === "分类") {
+      if (queryPrams.category === item.id) {
+        // 清空选中
+        queryPrams.category = "";
+      } else {
+        queryPrams.category = item.id;
+      }
+    } else {
+      // 标签
+      item.checked = !item.checked;
+
+      const list: any = [...queryPrams.tags];
+      if (!item.checked) {
+        list.splice(list.indexOf(item.id), 1);
+      } else {
+        if (!list.includes(item.id)) {
+          list.push(item.id);
+        }
+      }
+      queryPrams.tags = list;
+      console.log(queryPrams.tags);
+    }
+    getArticleListHandle(1);
+  };
+  // 分页
+  const current = ref(1);
+  const currentChangeHandle = (val: number) => {
+    getArticleListHandle(val);
+  };
+
+  // 模糊搜索
+  const searchText = ref("");
+  const onSearchHandle = () => {
+    queryPrams.page = 1;
+    queryPrams.category = "";
+    queryPrams.tags = [];
+    queryPrams.title = searchText.value;
+    queryPrams.description = searchText.value;
+    queryPrams.content = searchText.value;
+    getArticleListHandle(1);
+  };
+  const changeSort = () => {
+    queryPrams.sort === "ASC" ? (queryPrams.sort = "DESC") : (queryPrams.sort = "ASC");
+    getArticleListHandle();
+  };
+
+  // 颜色转换
+  const toRgb = (color: string) => {
+    color = colorRgb(color);
+    color = color.replace(")", ",0.24)");
+    return color;
+  };
 </script>
 
 <template>
@@ -146,13 +140,9 @@ const toRgb = (color) => {
     <section class="main-article-wrap" key="main-article-wrap">
       <!-- lg:w-5/12 -->
       <transition-group name="list">
-        <div
-          class="article-item"
-          v-for="(item, index) in articleList"
-          :key="index"
-        >
+        <div class="article-item" v-for="(item, index) in articleList" :key="index">
           <figure>
-            <img class="h-52 w-full" :alt="item.title" :src="item.cover" />
+            <img class="h-52 w-full" :alt="item.category.label" :src="item.cover" />
           </figure>
           <div class="card-body">
             <h2 class="card-title">
@@ -173,18 +163,10 @@ const toRgb = (color) => {
                   {{ getTagLabel(item.tags) }}
                 </span>
                 <!-- 阅读量 -->
-                <span class="mr-2 pointer"
-                  ><x-icon icon="blog-view"></x-icon>{{ item.views }}</span
-                >
+                <span class="mr-2 pointer"><x-icon icon="blog-view"></x-icon>{{ item.views }}</span>
                 <!-- 点赞数 -->
-                <span
-                  class="mr-2 pointer"
-                  @click.stop="updateLikesHandle(item)"
-                >
-                  <x-icon
-                    :icon="item.checked ? 'blog-like-solid' : 'blog-like'"
-                  >
-                  </x-icon
+                <span class="mr-2 pointer" @click.stop="updateLikesHandle(item)">
+                  <x-icon :icon="item.checked ? 'blog-like-solid' : 'blog-like'"> </x-icon
                   >{{ item.likes }}
                 </span>
                 <!-- 评论数 -->
@@ -338,129 +320,129 @@ const toRgb = (color) => {
 </template>
 
 <style lang="less" scoped>
-.article-list-container {
-  position: relative;
-  padding-top: 20px;
-  :deep(.el-empty) {
-    margin-bottom: 10vh;
-    transition: all 1s;
-    transform: scale(0, 0);
-  }
-  .el-pagination {
-    margin-top: 8vh;
-  }
+  .article-list-container {
+    position: relative;
+    padding-top: 20px;
+    :deep(.el-empty) {
+      margin-bottom: 10vh;
+      transition: all 1s;
+      transform: scale(0, 0);
+    }
+    .el-pagination {
+      margin-top: 8vh;
+    }
 
-  // 右边卡片
-  .info-tool {
-    position: absolute;
-    right: 0;
-    top: 20px;
-    width: 340px;
-    transition: all 0.5s;
-    transform: translateX(300%);
-    // 作者信息
-    .card-wrap {
-      margin-bottom: 20px;
-      margin-right: 20px;
-      margin-left: 20px;
-      padding: 18px 20px;
-      background-color: var(--minor-bgc);
-      // box-shadow: $box-shadow;
-      border-radius: 8px;
-      min-height: 310px;
-      & > h4 {
-        line-height: 32px;
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--text-color);
+    // 右边卡片
+    .info-tool {
+      position: absolute;
+      right: 0;
+      top: 20px;
+      width: 340px;
+      transition: all 0.5s;
+      transform: translateX(300%);
+      // 作者信息
+      .card-wrap {
+        margin-bottom: 20px;
+        margin-right: 20px;
+        margin-left: 20px;
+        padding: 18px 20px;
+        background-color: var(--minor-bgc);
+        // box-shadow: $box-shadow;
+        border-radius: 8px;
+        min-height: 310px;
+        & > h4 {
+          line-height: 32px;
+          font-size: 15px;
+          font-weight: 600;
+          color: var(--text-color);
+        }
+      }
+      .auth-info {
+        min-height: 50px;
+      }
+      // 分类
+      .category-wrap {
+        min-height: 270px;
+        padding: 0;
+      }
+      .category-title {
+        border-radius: 8px 8px 0 0;
+        height: 60px;
+        padding: 18px 20px;
+        box-sizing: border-box;
+        background-color: var(--minor-bgc);
+      }
+      .category-item-wrap {
+        max-height: 100vh;
+        overflow: auto;
+        padding: 0px 20px 18px;
+      }
+      .category-item {
+        padding: 5px 0;
+      }
+      .category__tag {
+        border-radius: 7px;
+        line-height: 14px;
+        font-size: 12px;
+        height: 14px;
+        color: #fff;
+        padding: 0 9px;
+      }
+      .category__inner {
+        cursor: pointer;
+        border-bottom: 2px solid var(--border-color);
+        transition: all 0.5s;
+      }
+      .category-item:hover {
+        background-color: var(--hover-color);
+      }
+      .category__text {
+        line-height: 1.8;
+        flex: 1;
+      }
+      // 标签
+      .tag-wrap {
+        min-height: 470px;
       }
     }
-    .auth-info {
-      min-height: 50px;
-    }
-    // 分类
-    .category-wrap {
-      min-height: 270px;
-      padding: 0;
-    }
-    .category-title {
-      border-radius: 8px 8px 0 0;
-      height: 60px;
-      padding: 18px 20px;
-      box-sizing: border-box;
-      background-color: var(--minor-bgc);
-    }
-    .category-item-wrap {
-      max-height: 100vh;
-      overflow: auto;
-      padding: 0px 20px 18px;
-    }
-    .category-item {
-      padding: 5px 0;
-    }
-    .category__tag {
-      border-radius: 7px;
-      line-height: 14px;
-      font-size: 12px;
-      height: 14px;
-      color: #fff;
-      padding: 0 9px;
-    }
-    .category__inner {
-      cursor: pointer;
-      border-bottom: 2px solid var(--border-color);
-      transition: all 0.5s;
-    }
-    .category-item:hover {
-      background-color: var(--hover-color);
-    }
-    .category__text {
-      line-height: 1.8;
-      flex: 1;
-    }
-    // 标签
-    .tag-wrap {
-      min-height: 470px;
-    }
-  }
-  .main-article-wrap,
-  .info-tool {
-    min-height: 50vh;
-  }
-  .card-title {
-    color: var(--text-color);
-  }
-  .card-body {
-    color: var(--text-color2);
-  }
-  .main-article-wrap {
-    margin-right: 0;
-    transition: all 0.5s;
-    @apply flex justify-around flex-wrap md:px-2;
-  }
-  .article-item {
-    @apply card w-full bg-base-100 mb-5 lg:w-4/5 xl:w-96 hover:drop-shadow-lg transition-all;
-  }
-
-  @media (min-width: 768px) {
-    .main-article-wrap {
-      margin-right: 340px;
-    }
+    .main-article-wrap,
     .info-tool {
-      transform: translateX(0%);
+      min-height: 50vh;
+    }
+    .card-title {
+      color: var(--text-color);
+    }
+    .card-body {
+      color: var(--text-color2);
+    }
+    .main-article-wrap {
+      margin-right: 0;
+      transition: all 0.5s;
+      @apply flex justify-around flex-wrap md:px-2;
+    }
+    .article-item {
+      @apply card w-full bg-base-100 mb-5 lg:w-4/5 xl:w-96 hover:drop-shadow-lg transition-all;
+    }
+
+    @media (min-width: 768px) {
+      .main-article-wrap {
+        margin-right: 340px;
+      }
+      .info-tool {
+        transform: translateX(0%);
+      }
+    }
+
+    .xia-btn {
+      text-transform: uppercase;
+      background: linear-gradient(to right, #d926a9 50%, #3d4451 50%);
+      background-size: 200% 100%;
+      background-position: right bottom;
+      transition: all 2s ease;
+      border: none;
+    }
+    .xia-btn:hover {
+      background-position: left bottom;
     }
   }
-
-  .xia-btn {
-    text-transform: uppercase;
-    background: linear-gradient(to right, #d926a9 50%, #3d4451 50%);
-    background-size: 200% 100%;
-    background-position: right bottom;
-    transition: all 2s ease;
-    border: none;
-  }
-  .xia-btn:hover {
-    background-position: left bottom;
-  }
-}
 </style>
