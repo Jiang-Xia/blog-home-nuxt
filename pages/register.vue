@@ -1,66 +1,76 @@
 <script setup lang="ts">
   import { reactive, ref } from "vue";
   import request from "~~/api/request.js";
-  import api from "@/api";
-  const token = useToken();
   // const userInfo = useUserInfo();
   definePageMeta({
     layout: "custom", // 不使用default布局
   });
   useHead({
-    title: "登录",
+    title: "注册",
     titleTemplate: (title) => `${title} - 江夏的个人博客-记录生活记录你~`,
   });
-  interface loginState extends StringKey {
+  interface formState extends StringKey {
     mobile: string;
     password: string;
+    passwordRepeat: string;
+    nickname: string;
   }
-  const loginFrom: loginState = reactive({
-    mobile: "",
+  const form: formState = reactive({
     password: "",
+    passwordRepeat: "",
+    nickname: "",
+    mobile: "",
   });
   /* 登录 */
-  const loginHandle = async () => {
-    // console.log(res)
-  };
   const okHandle = async () => {
-    const msg: loginState = {
+    form.passwordRepeat = form.password
+    const msg: formState = {
       mobile: "填写手机号",
       password: "填写密码",
+      nickname: "填写昵称",
+      passwordRepeat: "再次填写密码",
     };
-    for (let key in loginFrom) {
-      if (!loginFrom[key]) {
+    for (let key in form) {
+      if (!form[key]) {
         console.log(msg[key]);
         return;
       }
     }
-    const loginData = await request.post("/user/login", loginFrom).then((res) => res.data.info);
-    token.value = loginData.token;
-    localStorage.setItem("x-token", token.value);
-    // const info:userInfoState = await api.getUserInfo();
-    // userInfo.value = info;
-    navigateTo("/");
+    await request.post("/user/register", form).then((res) => res.data.info);
+    setTimeout(() => {
+      navigateTo("/login");
+    }, 500);
   };
 </script>
 <template>
-  <div class="login">
+  <div class="form-container">
     <div class="w-10/12 md:w-96">
-      <div class="text-center text-white">
-        <h1 class="text-5xl font-bold">LOGIN</h1>
-        <p class="py-6 w-full"></p>
-      </div>
-      <div class="card max-w-sm shadow-2x bg-base-100">
+      <div class="card max-w-sm shadow-2x glass text-white">
+        <!-- <figure  class="h-full"><img src="@/assets/images/login/phone.jpg" alt="注 册" /></figure> -->
         <div class="card-body">
+          <h1 class="card-title">注 册</h1>
           <div class="form-control">
             <label class="label">
               <span class="label-text">手机号</span>
             </label>
             <input
               type="text"
-              class="input input-bordered"
-              v-model="loginFrom.mobile"
+              class="input"
+              v-model="form.mobile"
               maxlength="11"
               placeholder="手机号"
+            />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">昵称</span>
+            </label>
+            <input
+              type="text"
+              class="input"
+              v-model="form.nickname"
+              maxlength="16"
+              placeholder="昵称"
             />
           </div>
           <div class="form-control">
@@ -69,19 +79,17 @@
             </label>
             <input
               type="password"
-              class="input input-bordered"
-              v-model="loginFrom.password"
+              class="input"
+              v-model="form.password"
               maxlength="16"
               placeholder="密码"
             />
-            <!-- <label class="label">
-              <a href="#" class="label-text-alt link link-hover"
-                >Forgot password?</a
-              >
-            </label> -->
+            <label class="label">
+              <a href="/login" class="label-text-alt link link-hover">已有账号?快去登录吧！</a>
+            </label>
           </div>
           <div class="form-control mt-6">
-            <button class="btn btn-primary" @click="okHandle">Login</button>
+            <button class="btn btn-primary" @click.prevent="okHandle">注 册</button>
           </div>
         </div>
       </div>
@@ -89,13 +97,24 @@
   </div>
 </template>
 <style lang="less" scoped>
-  .login {
+  .form-container {
     height: 100vh;
     width: 100vw;
     @apply bg-base-200 flex justify-center items-center;
     background-image: url(@/assets/images/login/coding3.jpg);
     background-size: 100% 100%;
     background-repeat: no-repeat;
-    // color: var(--text-color);
+
+    // .card-body {
+    //   background-image: url(@/assets/images/login/coding3.jpg);
+    //   background-size: 100% 100%;
+    //   background-repeat: no-repeat;
+    // }
+    .label .label-text {
+      @apply text-gray-200;
+    }
+    .input {
+      @apply input-bordered bg-transparent text-gray-200;
+    }
   }
 </style>

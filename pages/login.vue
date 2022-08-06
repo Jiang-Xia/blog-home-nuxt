@@ -11,11 +11,11 @@
     title: "登录",
     titleTemplate: (title) => `${title} - 江夏的个人博客-记录生活记录你~`,
   });
-  interface loginState extends StringKey {
+  interface formState extends StringKey {
     mobile: string;
     password: string;
   }
-  const loginFrom: loginState = reactive({
+  const form: formState = reactive({
     mobile: "",
     password: "",
   });
@@ -24,17 +24,17 @@
     // console.log(res)
   };
   const okHandle = async () => {
-    const msg: loginState = {
+    const msg: formState = {
       mobile: "填写手机号",
       password: "填写密码",
     };
-    for (let key in loginFrom) {
-      if (!loginFrom[key]) {
+    for (let key in form) {
+      if (!form[key]) {
         console.log(msg[key]);
         return;
       }
     }
-    const loginData = await request.post("/user/login", loginFrom).then((res) => res.data.info);
+    const loginData = await request.post("/user/login", form).then((res) => res.data.info);
     token.value = loginData.token;
     localStorage.setItem("x-token", token.value);
     // const info:userInfoState = await api.getUserInfo();
@@ -43,22 +43,20 @@
   };
 </script>
 <template>
-  <div class="login">
+  <div class="form-container">
     <div class="w-10/12 md:w-96">
-      <div class="text-center text-white">
-        <h1 class="text-5xl font-bold">LOGIN</h1>
-        <p class="py-6 w-full"></p>
-      </div>
-      <div class="card max-w-sm shadow-2x bg-base-100">
-        <div class="card-body">
+      <div class="card max-w-sm shadow-2x glass text-white">
+        <!-- <figure><img src="https://placeimg.com/400/225/arch" alt="注 册" /></figure> -->
+        <div class="card-body" autocomplete="off">
+          <h1 class="card-title">登 录</h1>
           <div class="form-control">
             <label class="label">
               <span class="label-text">手机号</span>
             </label>
             <input
               type="text"
-              class="input input-bordered"
-              v-model="loginFrom.mobile"
+              class="input"
+              v-model="form.mobile"
               maxlength="11"
               placeholder="手机号"
             />
@@ -69,19 +67,17 @@
             </label>
             <input
               type="password"
-              class="input input-bordered"
-              v-model="loginFrom.password"
+              class="input"
+              v-model="form.password"
               maxlength="16"
               placeholder="密码"
             />
-            <!-- <label class="label">
-              <a href="#" class="label-text-alt link link-hover"
-                >Forgot password?</a
-              >
-            </label> -->
+            <label class="label">
+              <a href="/register" class="label-text-alt link link-hover">还没有账号?快去注册吧！</a>
+            </label>
           </div>
           <div class="form-control mt-6">
-            <button class="btn btn-primary" @click="okHandle">Login</button>
+            <button class="btn btn-primary" @click.prevent="okHandle">登 录</button>
           </div>
         </div>
       </div>
@@ -89,13 +85,19 @@
   </div>
 </template>
 <style lang="less" scoped>
-  .login {
+  .form-container {
     height: 100vh;
     width: 100vw;
-    @apply bg-base-200 flex justify-center items-center;
+    @apply flex justify-center items-center;
     background-image: url(@/assets/images/login/coding3.jpg);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     // color: var(--text-color);
+    .label .label-text {
+      @apply text-gray-200;
+    }
+    .input {
+      @apply input-bordered bg-transparent text-gray-200;
+    }
   }
 </style>

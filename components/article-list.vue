@@ -441,7 +441,7 @@
       transition: all 2s ease;
       border: none;
     }
-    .xia-btn:hover {
+    .article-item:hover .xia-btn {
       background-position: left bottom;
     }
   }

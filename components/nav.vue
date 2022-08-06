@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-08-06 22:40:52
+ * @LastEditTime: 2022-08-06 23:22:07
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -169,7 +169,7 @@
           </li>
         </ul>
       </div>
-      <a class="hidden sm:inline-flex btn btn-ghost normal-case text-xl site-name" href="/">Xia</a>
+      <a class="hidden sm:inline-flex btn btn-ghost normal-case text-xl gradient-text" href="/">Xia</a>
     </div>
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal p-0">
@@ -319,12 +319,6 @@
       border-radius: var(--rounded-btn, 0.5rem);
       background-color: hsl(0 0% 100% / var(--tw-bg-opacity));
       --tw-bg-opacity: 0.1;
-    }
-    .site-name {
-      background: linear-gradient(-70deg, #db469f 0%, #2188ff 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
   }
   // #app 容器外样式
