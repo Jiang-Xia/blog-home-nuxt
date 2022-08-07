@@ -23,7 +23,7 @@
   });
   /* 登录 */
   const okHandle = async () => {
-    form.passwordRepeat = form.password
+    form.passwordRepeat = form.password;
     const msg: formState = {
       mobile: "填写手机号",
       password: "填写密码",
@@ -45,7 +45,7 @@
 <template>
   <div class="form-container">
     <div class="w-10/12 md:w-96">
-      <div class="card max-w-sm shadow-2x glass text-white">
+      <div class="card max-w-sm shadow-2x text-white">
         <!-- <figure  class="h-full"><img src="@/assets/images/login/phone.jpg" alt="注 册" /></figure> -->
         <div class="card-body">
           <h1 class="card-title">注 册</h1>
@@ -84,10 +84,9 @@
               maxlength="16"
               placeholder="密码"
             />
-            <label class="label">
-              <a href="/login" class="label-text-alt link link-hover">已有账号?快去登录吧！</a>
-            </label>
           </div>
+          <a href="/login" class="link text-xs text-gray-600 hover:text-gray-500">已有账号?快去登录吧！</a>
+
           <div class="form-control mt-6">
             <button class="btn btn-primary" @click.prevent="okHandle">注 册</button>
           </div>
@@ -111,10 +110,15 @@
     //   background-repeat: no-repeat;
     // }
     .label .label-text {
-      @apply text-gray-200;
+      @apply text-gray-200 hover:text-gray-400;
     }
     .input {
-      @apply input-bordered bg-transparent text-gray-200;
+      @apply bg-transparent text-gray-200 border border-gray-700 focus:border-gray-600;
+    }
+    .card {
+      // filter: blur(28px) brightness(0.95);
+      // backdrop-filter: blur(20px);
+      backdrop-filter: blur(40px);
     }
   }
 </style>

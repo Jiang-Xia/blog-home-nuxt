@@ -45,8 +45,8 @@
 <template>
   <div class="form-container">
     <div class="w-10/12 md:w-96">
-      <div class="card max-w-sm shadow-2x glass text-white">
-        <!-- <figure><img src="https://placeimg.com/400/225/arch" alt="注 册" /></figure> -->
+      <div class="card max-w-sm shadow-2x text-white">
+        <!-- <figure><img src="@/assets/images/login/coding3.jpg " alt="注 册" /></figure> -->
         <div class="card-body" autocomplete="off">
           <h1 class="card-title">登 录</h1>
           <div class="form-control">
@@ -72,10 +72,9 @@
               maxlength="16"
               placeholder="密码"
             />
-            <label class="label">
-              <a href="/register" class="label-text-alt link link-hover">还没有账号?快去注册吧！</a>
-            </label>
           </div>
+          <a href="/register" class="link text-xs text-gray-600 hover:text-gray-500">还没有账号?快去注册吧！</a>
+
           <div class="form-control mt-6">
             <button class="btn btn-primary" @click.prevent="okHandle">登 录</button>
           </div>
@@ -97,7 +96,10 @@
       @apply text-gray-200;
     }
     .input {
-      @apply input-bordered bg-transparent text-gray-200;
+      @apply bg-transparent text-gray-200 border border-gray-700 focus:border-gray-600;
+    }
+    .card {
+      backdrop-filter: blur(40px);
     }
   }
 </style>

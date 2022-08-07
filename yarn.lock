@@ -684,6 +684,11 @@
   "resolved" "https://registry.npmmirror.com/@types/estree/-/estree-0.0.51.tgz"
   "version" "0.0.51"
 
+"@types/js-cookie@^3.0.2":
+  "integrity" "sha512-6+0ekgfusHftJNYpihfkMu8BWdeHs9EOJuGcSofErjstGPfPGEu9yTu4t460lTzzAMl2cM5zngQJqPMHbbnvYA=="
+  "resolved" "https://registry.npmmirror.com/@types/js-cookie/-/js-cookie-3.0.2.tgz"
+  "version" "3.0.2"
+
 "@types/jsdom@^16.2.14":
   "integrity" "sha512-nwF87yjBKuX/roqGYerZZM0Nv1pZDMAT5YhOHYeM/72Fic+VEqJh4nyoqoapzJnW3pUlfxPY5FhgsJtM+dRnQQ=="
   "resolved" "https://registry.npmmirror.com/@types/jsdom/-/jsdom-16.2.15.tgz"

@@ -9,7 +9,7 @@ import { dailyImage } from "~~/api/article.js";
 /* 获取全局banner数据 */
 const banners = useBanners();
 const { data: imagesData } = await useAsyncData("index_GetIMG", () =>
-  dailyImage(3)
+  dailyImage(7)
 );
 banners.value = imagesData.value.images.map((v: any) => {
   const { copyright, copyrightlink, title } = v;

@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-08-06 23:22:07
+ * @LastEditTime: 2022-08-07 14:56:10
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -17,7 +17,7 @@
   import { throttle } from "~~/utils";
   import request from "~~/api/request";
   import api from "@/api";
-
+  import { adminUrl } from "@/config";
   const navList = ref([
     {
       path: "/",
@@ -137,6 +137,7 @@
       clear();
     }
   }
+  const goUrl = `${adminUrl}?ticket=${token.value}`;
 </script>
 <template>
   <div class="navbar bg-transparent text-gray-100 dark:text-gray-300">
@@ -169,7 +170,9 @@
           </li>
         </ul>
       </div>
-      <a class="hidden sm:inline-flex btn btn-ghost normal-case text-xl gradient-text" href="/">Xia</a>
+      <a class="hidden sm:inline-flex btn btn-ghost normal-case text-xl gradient-text" href="/"
+        >Xia</a
+      >
     </div>
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal p-0">
@@ -250,7 +253,7 @@
         </label>
         <ul
           tabindex="0"
-          class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-24 text-gray-500 text-xs"
+          class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-36 text-gray-500 text-xs"
         >
           <!-- <li>
             <a class="justify-between">
@@ -258,8 +261,43 @@
               <span class="badge">New</span>
             </a>
           </li> -->
-          <!-- <li><a>Settings</a></li> -->
-          <li @click="clear"><a>Logout</a></li>
+          <li>
+            <a :href="goUrl" target="_blank">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+              写文章
+            </a>
+          </li>
+          <li @click="clear">
+            <a>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                /></svg
+              >退出
+            </a>
+          </li>
         </ul>
       </div>
     </div>

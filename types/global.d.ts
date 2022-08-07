@@ -23,3 +23,5 @@ interface userInfoState {
   intro: string;
   avatar: string;
 }
+
+declare module 'js-cookie';
