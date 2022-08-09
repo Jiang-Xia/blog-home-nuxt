@@ -79,6 +79,7 @@ useHead({
       content: "江夏, 963798512@qq.com",
     },
   ],
+  script:[{ src: "https://hm.baidu.com/hm.js?9c1165af167360b492031753308c3878" } /*引入百度统计的js*/]
 });
 </script>
 <template>
