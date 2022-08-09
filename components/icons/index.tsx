@@ -17,34 +17,21 @@ const createIconfont = () => {
   document.body.appendChild(script);
 };
 // 客户端才引入
-if(process.client){
+if (process.client) {
   createIconfont();
 }
 
 // 创建icon 函数式组件
 const createIcon = (props: propsState, context: SetupContext) => {
   const svg = (
-    <svg
-      width="1em"
-      height="1em"
-      fill="currentColor"
-      aria-hidden="true"
-      focusable="false"
-      class=""
-    >
+    <svg width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="">
       <use xlinkHref={"#" + props.icon}></use>
     </svg>
   );
-  let html = (
-    <span class="x-icon" {...context.attrs}>
-      {svg}
-    </span>
-  );
+  let html = <span class="x-icon">{svg}</span>;
   // 不使用svg
   if (props.classIcon) {
-    html = (
-      <span class={"iconfont x-icon " + props.classIcon} {...context.attrs}></span>
-    );
+    html = <span class={"iconfont x-icon " + props.classIcon}></span>;
   }
   return h(html, context.attrs, context.slots);
 };

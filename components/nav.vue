@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-08-07 14:56:10
+ * @LastEditTime: 2022-08-09 12:52:38
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -185,7 +185,6 @@
     </div>
 
     <div class="navbar-end flex-1">
-      <!-- 搜索 -->
       <div class="dropdown relative">
         <label tabindex="0">
           <input
@@ -197,20 +196,6 @@
             @keyup.enter="onSearchHandle"
             autocomplete="off"
           />
-          <!-- <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 absolute top-4 right-1 stroke-gray-300"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg> -->
         </label>
         <ul
           v-if="articleList.length"
@@ -220,14 +205,13 @@
           <li class="" v-for="(item, index) in articleList">
             <NuxtLink :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
           </li>
-          <!-- <li v-if="!articleList.length">无数据</li> -->
         </ul>
       </div>
-      <!-- 主题 -->
-      <x-icon class="cursor-pointer px-3" :icon="iconClass" @click="clickIcon" />
-      <!-- 登录 退出-->
+
+      <x-icon class="cursor-pointer w-6" :icon="iconClass" @click="clickIcon" />
+
       <div>
-        <NuxtLink to="/login" title="登录" v-if="!token">
+        <NuxtLink class="btn btn-ghost" to="/login" title="登录" v-if="!token">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="h-5 w-5"
@@ -255,12 +239,6 @@
           tabindex="0"
           class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-36 text-gray-500 text-xs"
         >
-          <!-- <li>
-            <a class="justify-between">
-              Profile
-              <span class="badge">New</span>
-            </a>
-          </li> -->
           <li>
             <a :href="goUrl" target="_blank">
               <svg
@@ -294,8 +272,9 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                /></svg
-              >退出
+                />
+              </svg>
+              退出
             </a>
           </li>
         </ul>
