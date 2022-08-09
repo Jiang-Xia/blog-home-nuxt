@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-08-09 16:20:47
+ * @LastEditTime: 2022-08-09 16:42:53
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -230,7 +230,7 @@
       <div class="dropdown dropdown-end" v-if="token">
         <label tabindex="0" class="btn btn-ghost btn-circle avatar">
           <div class="w-10 rounded-full">
-            <img src="https://placeimg.com/80/80/people" />
+            <img :src="userInfo.avatar"  :alt="userInfo.nickname"/>
           </div>
         </label>
         <ul
