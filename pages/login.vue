@@ -30,7 +30,7 @@
     };
     for (let key in form) {
       if (!form[key]) {
-        console.log(msg[key]);
+        // console.log(msg[key]);
         return;
       }
     }

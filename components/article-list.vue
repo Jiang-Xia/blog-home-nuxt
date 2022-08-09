@@ -101,7 +101,7 @@
         }
       }
       queryPrams.tags = list;
-      console.log(queryPrams.tags);
+      // console.log(queryPrams.tags);
     }
     getArticleListHandle(1);
   };

@@ -7,12 +7,12 @@ const errorResponse: ApiResponse = {
 };
 const $http = async (baseUrl: string, options: any): Promise<ApiResponse> => {
   const { method = "GET", params = {}, body = {} } = options;
-  console.log({
-    method,
-    params,
-    body,
-    bool: ["POST", "PUT", "PATCH"].includes(method.toUpperCase()),
-  });
+  // console.log({
+  //   method,
+  //   params,
+  //   body,
+  //   bool: ["POST", "PUT", "PATCH"].includes(method.toUpperCase()),
+  // });
 
   const res: any = await $fetch<ApiResponse>(baseUrl, {
     headers: {
