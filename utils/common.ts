@@ -1,8 +1,7 @@
 import { ref } from 'vue'
 import api from '@/api/index'
 import { LocationQueryValue } from 'vue-router'
-// import { ElMessage } from 'element-plus'
-
+import dayjs from "dayjs";
 // 分类
 const categoryOptions:any = ref([])
 // 标签
@@ -83,4 +82,9 @@ export const updateLikesHandle = async (item: any) => {
     item.likes = ++item.likes
     item.checked = 1
   }
+}
+
+
+export const formactDate = (str:string)=>{
+  return dayjs(str).format('YYYY-MM-DD HH:mm:ss')
 }

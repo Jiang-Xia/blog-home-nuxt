@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-08-09 16:42:53
+ * @LastEditTime: 2022-08-10 23:43:52
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -13,7 +13,6 @@
   import { useRoute, useRouter } from "vue-router";
   import { getArticleList } from "@/api/article";
   import dayjs from "dayjs";
-  import XIcon from "@/components/icons/index";
   import { throttle } from "~~/utils";
   import request from "~~/api/request";
   import api from "@/api";
@@ -208,7 +207,7 @@
         </ul>
       </div>
 
-      <x-icon class="cursor-pointer w-6" :icon="iconClass" @click="clickIcon" />
+      <xia-icon class="cursor-pointer px-3" :icon="iconClass" @click="clickIcon" />
 
       <NuxtLink class="btn btn-ghost inline-flex" to="/login" title="登录" v-if="!token">
         <svg
@@ -229,8 +228,8 @@
 
       <div class="dropdown dropdown-end" v-if="token">
         <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-          <div class="w-10 rounded-full">
-            <img :src="userInfo.avatar"  :alt="userInfo.nickname"/>
+          <div class="w-10 rounded-full text-center leading-loose ">
+            <img  :src="userInfo.avatar||'../assets/images/animal/yaya.svg'" :alt="userInfo.nickname" />
           </div>
         </label>
         <ul

@@ -85,9 +85,9 @@
               placeholder="密码"
             />
           </div>
-          <a href="/login" class="link text-xs text-gray-600 hover:text-gray-500">已有账号?快去登录吧！</a>
+          <a href="/login" class="link text-xs text-gray-600 hover:text-gray-500 mt-1">已有账号?快去登录吧！</a>
 
-          <div class="form-control mt-6">
+          <div class="form-control mt-4">
             <button class="btn btn-primary" @click.prevent="okHandle">注 册</button>
           </div>
         </div>

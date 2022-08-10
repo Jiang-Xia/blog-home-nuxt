@@ -6,4 +6,5 @@
 </template>
 <script setup lang="ts">
 import "@/styles/index.less";
+import "md-editor-v3/lib/style.css";
 </script>

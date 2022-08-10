@@ -73,9 +73,14 @@
               placeholder="密码"
             />
           </div>
-          <a href="/register" class="link text-xs text-gray-600 hover:text-gray-500">还没有账号?快去注册吧！</a>
+          <div class="flex justify-between mt-1">
+            <a href="/register" class="link text-xs text-gray-600 hover:text-gray-500"
+              >还没有账号?快去注册吧！</a
+            >
+            <a href="/" class="link text-xs text-gray-600 hover:text-gray-500">返回首页</a>
+          </div>
 
-          <div class="form-control mt-6">
+          <div class="form-control mt-4">
             <button class="btn btn-primary" @click.prevent="okHandle">登 录</button>
           </div>
         </div>

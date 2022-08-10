@@ -1,11 +1,16 @@
 <script setup lang="ts">
   import { getArticleList } from "@/api/article";
-  import { categoryOptions, tagsOptions, getOptions, updateLikesHandle } from "@/utils/common";
+  import {
+    categoryOptions,
+    tagsOptions,
+    getOptions,
+    updateLikesHandle,
+    formactDate,
+  } from "@/utils/common";
   import { ref, reactive, unref, UnwrapRef, toRefs } from "vue";
   import defaultCover from "@/assets/images/create.webp";
   import { isTrueCoverLink } from "@/utils";
   import { colorRgb } from "~~/utils/color";
-
   interface queryState {
     page: number;
     category: string;
@@ -151,32 +156,32 @@
             </h2>
             <p class="">{{ item.description }}</p>
             <div class="card-actions justify-start text-xs flex-wrap">
-              <div>
+              <div class="flex items-center">
                 <!-- 分类 -->
-                <span class="mr-2" :style="{ color: item.category.color }">
-                  <x-icon icon="blog-category"></x-icon>
-                  {{ item.category.label }}
+                <span class="text-icon" :style="{ color: item.category.color }">
+                  <xia-icon icon="blog-category" class="mr-1"/>
+                   {{ item.category.label }}
                 </span>
                 <!-- 标签 -->
-                <span class="mr-2" :style="{ color: item.tags[0]?.color }">
-                  <x-icon icon="blog-tag"></x-icon>
-                  {{ getTagLabel(item.tags) }}
+                <span class="text-icon" :style="{ color: item.tags[0]?.color }">
+                  <xia-icon icon="blog-tag" class="mr-1"/>
+                   {{ getTagLabel(item.tags) }}
                 </span>
                 <!-- 阅读量 -->
-                <span class="mr-2 pointer"><x-icon icon="blog-view"></x-icon>{{ item.views }}</span>
+                <span class="text-icon pointer"><xia-icon icon="blog-view" class="mr-1"/>{{ item.views }}</span>
                 <!-- 点赞数 -->
-                <span class="mr-2 pointer" @click.stop="updateLikesHandle(item)">
-                  <x-icon :icon="item.checked ? 'blog-like-solid' : 'blog-like'"> </x-icon
-                  >{{ item.likes }}
+                <span class="text-icon pointer" @click.stop="updateLikesHandle(item)">
+                  <xia-icon :icon="item.checked ? 'blog-like-solid' : 'blog-like'" class="mr-1"/>
+                   {{item.likes}}
                 </span>
                 <!-- 评论数 -->
-                <span class="">
-                  <x-icon icon="blog-pinglun"></x-icon>
-                  {{ item.commentCount }}
+                <span class="text-icon">
+                  <xia-icon icon="blog-pinglun" class="mr-1"/>
+                   {{ item.commentCount }}
                 </span>
               </div>
               <div class="flex justify-between w-full items-center">
-                <span class="">更新于 {{ item.uTime }}</span>
+                <span class=""> 时间 {{ formactDate(item.createTime) }}</span>
                 <nuxt-link :to="'/detail/' + item.id">
                   <button class="btn btn-xs xia-btn">Read</button>
                 </nuxt-link>
@@ -206,7 +211,7 @@
     <section class="info-tool">
       <div class="card-wrap auth-info">
         <h4>
-          <x-icon icon="blog-filter" />
+          <xia-icon icon="blog-filter" />
           关键字
         </h4>
         <div class="input-group input-group-sm w-full mt-2">
@@ -265,7 +270,7 @@
       </div>
       <div class="card-wrap category-wrap relative">
         <h4 class="category-title">
-          <x-icon icon="blog-category" />
+          <xia-icon icon="blog-category" />
           分类
         </h4>
         <div class="category-item-wrap">
@@ -299,7 +304,7 @@
         </div>
       </div>
       <div class="card-wrap tag-wrap">
-        <h4><x-icon icon="blog-tag" /> 标签</h4>
+        <h4><xia-icon icon="blog-tag" /> 标签</h4>
         <div
           v-for="(item, index) of tagsOptions"
           :key="index"
@@ -423,6 +428,15 @@
     .article-item {
       @apply card w-full bg-base-100 mb-5 lg:w-4/5 xl:w-96 hover:drop-shadow-lg transition-all;
     }
+
+    .text-icon {
+      @apply mr-2 flex items-center;
+    }
+    // .text-icon .x-icon svg{
+    //   height: 18px;
+    //   width: 18px;
+    //   margin-right: 4px;
+    // }
 
     @media (min-width: 768px) {
       .main-article-wrap {
