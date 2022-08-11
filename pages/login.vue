@@ -2,8 +2,20 @@
   import { reactive, ref } from "vue";
   import request from "~~/api/request.js";
   import api from "@/api";
-  const token = useToken();
   // const userInfo = useUserInfo();
+  import { dailyImage } from "~~/api/article";
+  import { onMounted } from "vue";
+  import { useToast, useModal } from "tailvue";
+  let $toast: any;
+  let $modal: any;
+  if (process.client) {
+    $toast = useToast();
+    $modal = useModal();
+  }
+  // console.log(imagesData);
+  onMounted(() => {});
+  const token = useToken();
+
   definePageMeta({
     layout: "custom", // 不使用default布局
   });
@@ -24,6 +36,29 @@
     // console.log(res)
   };
   const okHandle = async () => {
+    // console.log($toast);
+    // $toast.show({
+    //   type: "danger",
+    //   message: "single action toast",
+    //   timeout: 30,
+    // });
+    $modal.show({
+      type: "danger",
+      title: "This is the title property",
+      body: "This is the body property.",
+      primary: {
+        label: "Primary Action",
+        theme: "red",
+        action: () => $toast.show("Primary Button clicked"),
+      },
+      secondary: {
+        label: "Secondary Action",
+        theme: "white",
+        action: () => $toast.show("Clicked Secondary"),
+      },
+    });
+    // console.log($toast.show("this is a test"));
+    // $toast.show("this is a test");
     const msg: formState = {
       mobile: "填写手机号",
       password: "填写密码",
