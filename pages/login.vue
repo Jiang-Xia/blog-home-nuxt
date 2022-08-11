@@ -5,13 +5,7 @@
   // const userInfo = useUserInfo();
   import { dailyImage } from "~~/api/article";
   import { onMounted } from "vue";
-  import { useToast, useModal } from "tailvue";
-  let $toast: any;
-  let $modal: any;
-  if (process.client) {
-    $toast = useToast();
-    $modal = useModal();
-  }
+  import { messageDanger, messageSuccess } from "~~/utils/toast";
   // console.log(imagesData);
   onMounted(() => {});
   const token = useToken();
@@ -36,29 +30,6 @@
     // console.log(res)
   };
   const okHandle = async () => {
-    // console.log($toast);
-    // $toast.show({
-    //   type: "danger",
-    //   message: "single action toast",
-    //   timeout: 30,
-    // });
-    $modal.show({
-      type: "danger",
-      title: "This is the title property",
-      body: "This is the body property.",
-      primary: {
-        label: "Primary Action",
-        theme: "red",
-        action: () => $toast.show("Primary Button clicked"),
-      },
-      secondary: {
-        label: "Secondary Action",
-        theme: "white",
-        action: () => $toast.show("Clicked Secondary"),
-      },
-    });
-    // console.log($toast.show("this is a test"));
-    // $toast.show("this is a test");
     const msg: formState = {
       mobile: "填写手机号",
       password: "填写密码",
@@ -66,15 +37,18 @@
     for (let key in form) {
       if (!form[key]) {
         // console.log(msg[key]);
+        messageDanger(msg[key] as string);
         return;
       }
     }
-    const loginData = await request.post("/user/login", form).then((res) => res.data.info);
-    token.value = loginData.token;
-    localStorage.setItem("x-token", token.value);
-    // const info:userInfoState = await api.getUserInfo();
-    // userInfo.value = info;
-    navigateTo("/");
+    let res: any;
+    try {
+      res = await request.post("/user/login", form);
+      token.value = res.data.info.token;
+      navigateTo("/");
+      localStorage.setItem("x-token", token.value);
+      messageSuccess("登录成功");
+    } catch (err) {}
   };
 </script>
 <template>

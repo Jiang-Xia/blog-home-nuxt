@@ -1,6 +1,9 @@
 <script setup lang="ts">
+  import { useToast } from "tailvue";
   import { reactive, ref } from "vue";
   import request from "~~/api/request.js";
+  import { messageDanger, messageSuccess } from "~~/utils/toast";
+
   // const userInfo = useUserInfo();
   definePageMeta({
     layout: "custom", // 不使用default布局
@@ -32,11 +35,13 @@
     };
     for (let key in form) {
       if (!form[key]) {
-        console.log(msg[key]);
+        // console.log(msg[key]);
+        messageDanger(msg[key] as string);
         return;
       }
     }
     await request.post("/user/register", form).then((res) => res.data.info);
+    messageDanger("注册成功");
     setTimeout(() => {
       navigateTo("/login");
     }, 500);
@@ -85,7 +90,9 @@
               placeholder="密码"
             />
           </div>
-          <a href="/login" class="link text-xs text-gray-600 hover:text-gray-500 mt-1">已有账号?快去登录吧！</a>
+          <a href="/login" class="link text-xs text-gray-600 hover:text-gray-500 mt-1"
+            >已有账号?快去登录吧！</a
+          >
 
           <div class="form-control mt-4">
             <button class="btn btn-primary" @click.prevent="okHandle">注 册</button>

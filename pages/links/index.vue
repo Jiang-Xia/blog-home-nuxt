@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import request from "~~/api/request";
+import { messageSuccess } from "~~/utils/toast";
 const { data: linkList } = await useAsyncData("link_Get", () =>
   request.get("/link", { client: true }).then((res) => res.data)
 );
@@ -9,16 +10,12 @@ const openModal = () => {
   isOpen.value = true;
 };
 const closeModal = () => (isOpen.value = false);
-const isSuccess = ref(false);
 const okHandle = async () => {
   if (Object.keys(linkState.value).every((v) => !v)) {
     return;
   }
   const res = await request.post("/link", linkState.value);
-  isSuccess.value = true;
-  setTimeout(() => {
-    isSuccess.value = false;
-  }, 1000);
+  messageSuccess('申请成功')
   isOpen.value = false;
   linkState.value = {
     icon: "",
@@ -48,11 +45,6 @@ useHead({
     <div class="links-container pt-3 rounded-box p-4">
       <h1 class="hidden">友情链接 - 江夏的个人博客 - 记录生活记录你~</h1>
       <div class="flex justify-end">
-        <div class="alert alert-success w-auto mr-6" v-show="isSuccess">
-          <div>
-            <span>申请成功</span>
-          </div>
-        </div>
         <label for="link-add-modal" class="btn modal-button link-btn btn-ghost"
           >+ 申请外链</label
         >

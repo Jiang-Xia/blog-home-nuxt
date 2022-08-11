@@ -1,4 +1,6 @@
 import { baseUrl } from "~~/config";
+import { messageDanger } from "~~/utils/toast";
+
 const errorResponse: ApiResponse = {
   success: false,
   code: 0,
@@ -34,8 +36,10 @@ const $http = async (baseUrl: string, options: any): Promise<ApiResponse> => {
           localStorage.setItem("x-token", "");
           console.error(ctx.response._data.message);
         }
-        return Promise.reject(res.response);
+        messageDanger(ctx.response._data.message || "");
+        return Promise.reject(ctx.response._data);
       } catch (error) {
+        // console.log("onRequestError", error);
         return Promise.reject(error);
       }
     },
