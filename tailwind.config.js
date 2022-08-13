@@ -7,7 +7,7 @@ module.exports = {
     "./layouts/**/*.vue",
     "./pages/**/*.vue",
     "./plugins/**/*.{js,ts}",
-    "./nuxt.config.{js,ts}",
+    // "./nuxt.config.{js,ts}",
     "node_modules/tailvue/dist/tailvue.es.js"// tailvue 这里加上这个才不会所有css都被剔除
   ],
   // content: [ "node_modules/tailvue/dist/tailvue.es.js"],
