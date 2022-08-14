@@ -1,8 +1,7 @@
 <script setup lang="ts">
   import { getArticleInfo } from "@/api/article";
-  import { ref, reactive, UnwrapRef, watch } from "vue";
+  import { ref, reactive, computed } from "vue";
   import { updateViews } from "@/utils/common";
-  import { computed, onBeforeUnmount } from "vue";
   import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
   import { updateLikesHandle } from "@/utils/common";
 
@@ -80,6 +79,18 @@
       return v;
     });
   };
+  const scrollElement = ref(null);
+  const themeLocal: any = ref("");
+  onMounted(() => {
+    scrollElement.value = document.documentElement;
+    themeLocal.value = theme.value;
+  });
+  watch(
+    () => theme.value,
+    (n) => {
+      themeLocal.value = n;
+    }
+  );
 
   useHead({
     title: ArticleInfo.title + " - 文章详情",
@@ -127,7 +138,7 @@
         v-model="ArticleInfo.contentHtml"
         class="x-md-editor"
         preview-only
-        :theme="theme"
+        :theme="themeLocal"
         @onGetCatalog="onGetCatalogHandle"
       />
       <!-- 目录 -->
@@ -208,4 +219,7 @@
   .comment-module {
     min-height: 30vh;
   }
+  // .md-dark {
+  //   --md-bk-color: var(--minor-bgc);
+  // }
 </style>

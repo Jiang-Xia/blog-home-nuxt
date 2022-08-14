@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-08-13 20:02:19
+ * @LastEditTime: 2022-08-14 21:46:24
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -176,8 +176,8 @@
     </div>
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal p-0">
-        <li v-for="(item, index) in navList" :key="index" class="mr-2 leading-5 flex items-center">
-          <NuxtLink :to="item.path" class="router-link-item">
+        <li v-for="(item, index) in navList" :key="index" class="mr-2">
+          <NuxtLink :to="item.path" class="router-link-item leading-5 flex items-center">
             <span>{{ item.title }}</span>
           </NuxtLink>
         </li>
@@ -230,15 +230,15 @@
       <div class="dropdown dropdown-end" v-if="token">
         <label tabindex="0" class="btn btn-ghost btn-circle avatar">
           <div class="w-10 rounded-full text-center leading-loose">
-            <img :src="userInfo.avatar||Yaya" :alt="userInfo.nickname" />
+            <img :src="userInfo.avatar || Yaya" :alt="userInfo.nickname" />
           </div>
         </label>
         <ul
           tabindex="0"
           class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-36 text-gray-500 text-xs"
         >
-          <li class="flex items-center">
-            <a :href="goUrl" target="_blank" class="leading-5">
+          <li>
+            <a :href="goUrl" target="_blank" class="leading-5 flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-5 w-5"
@@ -257,7 +257,7 @@
             </a>
           </li>
           <li @click="clear">
-            <a>
+            <a class="leading-5 flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-5 w-5"
