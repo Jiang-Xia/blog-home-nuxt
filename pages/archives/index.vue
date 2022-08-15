@@ -26,7 +26,7 @@
       <h1 class="hidden">文章归档 - 江夏的个人博客 - 记录生活记录你~</h1>
       <div
         tabindex="0"
-        class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box"
+        class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box shadow-xl"
         v-for="(value, key) in archivesInfo"
         :key="String(key)"
       >

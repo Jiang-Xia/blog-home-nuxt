@@ -140,11 +140,11 @@ useHead({
   }
 
   &-footer {
-    background-color: var(--main-bgc);
+    // background-color: var(--main-bgc);
     padding: 24px 1.5vw;
     text-align: center;
     line-height: 1.7;
-    color: var(--text-color2);
+    // color: var(--text-color2);
     height: auto;
   }
 }

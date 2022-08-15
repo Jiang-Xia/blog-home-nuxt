@@ -1,8 +1,8 @@
 <!--
  * @Author: 酱
- * @LastEditors: 酱
+ * @LastEditors: jiangxia
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-08-15 16:12:10
+ * @LastEditTime: 2022-08-15 21:09:11
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -161,10 +161,10 @@
         </label>
         <ul
           tabindex="0"
-          class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52 text-zinc-500"
+          class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-zinc-500"
         >
-          <li class="py-2 px-4" v-for="(item, index) in navList" :key="index">
-            <NuxtLink :to="item.path">
+          <li v-for="(item, index) in navList" :key="index">
+            <NuxtLink class="py-2 px-4 flex" :to="item.path">
               <span>{{ item.title }}</span>
             </NuxtLink>
           </li>
@@ -177,7 +177,7 @@
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal p-0">
         <li v-for="(item, index) in navList" :key="index" class="mr-2">
-          <NuxtLink :to="item.path" class="router-link-item leading-5 flex items-center px-4 py-3">
+          <NuxtLink :to="item.path" class="router-link-item leading-6 flex items-center px-4 py-3">
             <span>{{ item.title }}</span>
           </NuxtLink>
         </li>
@@ -202,16 +202,22 @@
           tabindex="0"
           class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52 max-h-72 text-gray-500 text-xs overflow-auto"
         >
-          <li class="flex items-center px-4 py-3" v-for="(item, index) in articleList">
-            <NuxtLink :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
+          <li class="flex items-center" v-for="(item, index) in articleList">
+            <NuxtLink class="py-2 px-4" :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
           </li>
         </ul>
       </div>
 
       <xia-icon class="cursor-pointer px-3" :icon="iconClass" @click="clickIcon" />
 
-      <NuxtLink class="btn btn-ghost inline-flex" to="/login" title="登录" v-if="!token">
-        <svg
+      <NuxtLink
+        class="btn btn-ghost inline-flex tracking-wide"
+        to="/login"
+        title="登录"
+        v-if="!token"
+      >
+        登录
+        <!-- <svg
           xmlns="http://www.w3.org/2000/svg"
           class="h-5 w-5"
           fill="none"
@@ -224,7 +230,7 @@
             stroke-linejoin="round"
             d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
           />
-        </svg>
+        </svg> -->
       </NuxtLink>
 
       <div class="dropdown dropdown-end" v-if="token">
@@ -235,10 +241,10 @@
         </label>
         <ul
           tabindex="0"
-          class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-36 text-gray-500 text-xs"
+          class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-gray-500 text-xs"
         >
-          <li class="py-2 px-4">
-            <a :href="goUrl" target="_blank" class="leading-5 flex items-center">
+          <li>
+            <a :href="goUrl" target="_blank" class="leading-5 flex items-center py-2 px-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-5 w-5"
@@ -256,8 +262,8 @@
               写文章
             </a>
           </li>
-          <li class="py-2 px-4" @click="clear">
-            <a class="leading-5 flex items-center">
+          <li @click="clear">
+            <a class="leading-5 flex items-center py-2 px-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-5 w-5"

@@ -60,7 +60,7 @@
     <h1 class="hidden">网站留言板 - 江夏的个人博客 - 记录生活记录你~</h1>
     <div class="msgboard-container flex flex-wrap md:flex-nowrap">
       <div
-        class="card card-compact flex-shrink-0 w-full md:max-w-sm shadow-2xl bg-base-100 form-wrap relative"
+        class="card card-compact flex-shrink-0 w-full md:max-w-sm shadow-2xl bg-base-100 form-wrap relative shadow-xl"
       >
         <div class="alert alert-info absolute top-0 left-0" v-show="showToast">
           <div>

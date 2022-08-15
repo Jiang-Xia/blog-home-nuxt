@@ -36,7 +36,7 @@
   const topics = ref(topicsDefault);
   let ArticleInfo = reactive({ ...defaultForm });
   let params = route.params;
-
+  console.log({ params });
   // 响应式声明
   const {
     data: articleData,
@@ -56,6 +56,7 @@
   setArticleData();
 
   onBeforeMount(async () => {
+    console.log("onBeforeMount");
     await refresh();
     setArticleData();
   });
@@ -198,26 +199,23 @@
   }
 
   .module-wrap__detail {
-    // overflow: hidden;
-    // box-sizing: border-box;
-    // position: relative;
-    // margin: 20px auto 0;
-    // min-height: 40vh;
-    // min-width: 40%;
-    // max-width: 1200px;
-    // width: 70%;
-    // z-index: 0;
-    // border-radius: var(--layout-border-radius);
-    // background-color: var(--minor-bgc);
-    // padding: 10px 20px 20px 20px;
+    @apply rounded-lg shadow-xl;
+    box-sizing: border-box;
+    position: relative;
+    margin: 20px auto 100px;
+    min-height: 40vh;
+    min-width: 40%;
+    max-width: 1200px;
+    width: 70%;
+    z-index: 0;
+    background-color: var(--minor-bgc);
+    padding: 10px;
     @media screen and (max-width: 768px) {
       width: 95%;
     }
-    margin: 20px auto 0;
-    width: 1200px;
-    position: relative;
-    z-index: 0;
-    padding: 10px;
+  }
+  .x-md-editor {
+    @apply rounded-lg p-3;
   }
   .article-info {
   }
@@ -226,8 +224,5 @@
   }
   .md-dark {
     --md-bk-color: var(--main-bgc);
-  }
-  .light .article-detail {
-    background-color: #fff;
   }
 </style>

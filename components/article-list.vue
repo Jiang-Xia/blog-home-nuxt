@@ -328,7 +328,7 @@
   .article-list-container {
     position: relative;
     padding-top: 20px;
-    :deep(.el-empty) {
+    :deep(.xia-empty) {
       margin-bottom: 10vh;
       transition: all 1s;
       transform: scale(0, 0);
@@ -426,7 +426,7 @@
       @apply flex justify-around flex-wrap md:px-2;
     }
     .article-item {
-      @apply card w-full bg-base-100 mb-5 lg:w-4/5 xl:w-96 hover:drop-shadow-lg transition-all;
+      @apply card w-full bg-base-100 mb-5 lg:w-4/5 xl:w-96 hover:drop-shadow-lg transition-all shadow-xl;
     }
 
     .text-icon {
