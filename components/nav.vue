@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: 酱
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2022-08-14 21:46:24
+ * @LastEditTime: 2022-08-15 16:12:10
  * @Description: 
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -163,7 +163,7 @@
           tabindex="0"
           class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52 text-zinc-500"
         >
-          <li v-for="(item, index) in navList" :key="index">
+          <li class="py-2 px-4" v-for="(item, index) in navList" :key="index">
             <NuxtLink :to="item.path">
               <span>{{ item.title }}</span>
             </NuxtLink>
@@ -177,7 +177,7 @@
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal p-0">
         <li v-for="(item, index) in navList" :key="index" class="mr-2">
-          <NuxtLink :to="item.path" class="router-link-item leading-5 flex items-center">
+          <NuxtLink :to="item.path" class="router-link-item leading-5 flex items-center px-4 py-3">
             <span>{{ item.title }}</span>
           </NuxtLink>
         </li>
@@ -202,7 +202,7 @@
           tabindex="0"
           class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52 max-h-72 text-gray-500 text-xs overflow-auto"
         >
-          <li class="" v-for="(item, index) in articleList">
+          <li class="flex items-center px-4 py-3" v-for="(item, index) in articleList">
             <NuxtLink :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
           </li>
         </ul>
@@ -237,7 +237,7 @@
           tabindex="0"
           class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-36 text-gray-500 text-xs"
         >
-          <li>
+          <li class="py-2 px-4">
             <a :href="goUrl" target="_blank" class="leading-5 flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -256,7 +256,7 @@
               写文章
             </a>
           </li>
-          <li @click="clear">
+          <li class="py-2 px-4" @click="clear">
             <a class="leading-5 flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
