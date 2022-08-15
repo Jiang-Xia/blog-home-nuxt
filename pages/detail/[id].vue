@@ -211,7 +211,8 @@
     background-color: var(--minor-bgc);
     padding: 10px;
     @media screen and (max-width: 768px) {
-      width: 95%;
+      width: 98%;
+      padding: 0;
     }
   }
   .x-md-editor {
