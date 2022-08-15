@@ -36,7 +36,6 @@
   const topics = ref(topicsDefault);
   let ArticleInfo = reactive({ ...defaultForm });
   let params = route.params;
-  console.log({ params });
   // 响应式声明
   const {
     data: articleData,
@@ -80,8 +79,21 @@
       return v;
     });
   };
+  const previewTheme = ref("default");
+  const previewThemeChange = (e) => {
+    previewTheme.value = e;
+    // console.log(previewTheme.value);
+  };
   const scrollElement = ref(null);
   const themeLocal: any = ref("");
+  const themeList: any = ref([
+    "default",
+    "github",
+    "vuepress",
+    "mk-cute",
+    "smart-blue",
+    "cyanosis",
+  ]);
   onMounted(() => {
     scrollElement.value = document.documentElement;
     themeLocal.value = theme.value;
@@ -92,7 +104,6 @@
       themeLocal.value = n;
     }
   );
-
   useHead({
     title: ArticleInfo.title + " - 文章详情",
     titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`,
@@ -135,10 +146,24 @@
       </div>
     </section>
     <section class="module-wrap__detail article-info">
+      <div>
+        <!-- <select class="select w-56 bg-base-300" v-model="previewTheme" @change="previewThemeChange">
+          <option v-for="item of themeList">{{item}}</option>
+        </select> -->
+        <div class="dropdown">
+          <label tabindex="0" class="btn m-1">主 题</label>
+          <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+            <li v-for="item of themeList" @click="previewThemeChange(item)">
+              <a>{{ item }}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
       <md-editor
         v-model="ArticleInfo.contentHtml"
         class="x-md-editor"
         preview-only
+        :preview-theme="previewTheme"
         :theme="themeLocal"
         @onGetCatalog="onGetCatalogHandle"
       />
@@ -199,7 +224,7 @@
   }
 
   .module-wrap__detail {
-    @apply rounded-lg shadow-xl;
+    // @apply rounded-lg shadow-xl;
     box-sizing: border-box;
     position: relative;
     margin: 20px auto 100px;
@@ -208,8 +233,8 @@
     max-width: 1200px;
     width: 70%;
     z-index: 0;
-    background-color: var(--minor-bgc);
-    padding: 10px;
+    // background-color: var(--minor-bgc);
+    // padding: 10px;
     @media screen and (max-width: 768px) {
       width: 98%;
       padding: 0;

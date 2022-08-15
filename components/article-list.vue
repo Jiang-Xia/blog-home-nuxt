@@ -159,25 +159,27 @@
               <div class="flex items-center">
                 <!-- 分类 -->
                 <span class="text-icon" :style="{ color: item.category.color }">
-                  <xia-icon icon="blog-category" class="mr-1"/>
-                   {{ item.category.label }}
+                  <xia-icon icon="blog-category" class="mr-1" />
+                  {{ item.category.label }}
                 </span>
                 <!-- 标签 -->
                 <span class="text-icon" :style="{ color: item.tags[0]?.color }">
-                  <xia-icon icon="blog-tag" class="mr-1"/>
-                   {{ getTagLabel(item.tags) }}
+                  <xia-icon icon="blog-tag" class="mr-1" />
+                  {{ getTagLabel(item.tags) }}
                 </span>
                 <!-- 阅读量 -->
-                <span class="text-icon pointer"><xia-icon icon="blog-view" class="mr-1"/>{{ item.views }}</span>
+                <span class="text-icon pointer"
+                  ><xia-icon icon="blog-view" class="mr-1" />{{ item.views }}</span
+                >
                 <!-- 点赞数 -->
                 <span class="text-icon pointer" @click.stop="updateLikesHandle(item)">
-                  <xia-icon :icon="item.checked ? 'blog-like-solid' : 'blog-like'" class="mr-1"/>
-                   {{item.likes}}
+                  <xia-icon :icon="item.checked ? 'blog-like-solid' : 'blog-like'" class="mr-1" />
+                  {{ item.likes }}
                 </span>
                 <!-- 评论数 -->
                 <span class="text-icon">
-                  <xia-icon icon="blog-pinglun" class="mr-1"/>
-                   {{ item.commentCount }}
+                  <xia-icon icon="blog-pinglun" class="mr-1" />
+                  {{ item.commentCount }}
                 </span>
               </div>
               <div class="flex justify-between w-full items-center">
@@ -351,8 +353,9 @@
         margin-right: 20px;
         margin-left: 20px;
         padding: 18px 20px;
-        background-color: var(--minor-bgc);
-        // box-shadow: $box-shadow;
+        background-color: var(--main-bgc);
+        box-shadow: 0 0 4px #ddd;
+        border: 1px solid #eee;
         border-radius: 8px;
         min-height: 310px;
         & > h4 {
@@ -375,7 +378,7 @@
         height: 60px;
         padding: 18px 20px;
         box-sizing: border-box;
-        background-color: var(--minor-bgc);
+        background-color: var(--main-bgc);
       }
       .category-item-wrap {
         max-height: 100vh;

@@ -5,6 +5,10 @@ export const getArticleList = async (data: any) => {
   return res.data;
 };
 export const getArticleInfo = async (params: any) => {
+  console.log(params.id);
+
+  if (!params.id) return;
+
   const res = await request.get("/article/info", params);
   return res.data;
 };
