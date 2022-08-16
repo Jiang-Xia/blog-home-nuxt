@@ -109,7 +109,7 @@ useHead({
       <!-- 友链列表 -->
       <div class="flex flex-wrap justify-around mt-6">
         <div
-          class="card w-full lg:w-80 shadow-xl bg-base-100 mb-6 transition duration-700 ease-in-out hover:scale-105"
+          class="card w-full lg:w-80 shadow-xl bg-base-100 mb-6 transition duration-700 ease-in-out hover:scale-105 border border-base-300"
           v-for="(item, index) in linkList"
         >
           <div class="card-body p-2 sm:p-4">

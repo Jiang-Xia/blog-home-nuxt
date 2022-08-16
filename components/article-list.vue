@@ -349,13 +349,11 @@
       transform: translateX(300%);
       // 作者信息
       .card-wrap {
+        @apply  border border-base-300 shadow-lg bg-base-100;
         margin-bottom: 20px;
         margin-right: 20px;
         margin-left: 20px;
         padding: 18px 20px;
-        background-color: var(--main-bgc);
-        box-shadow: 0 0 4px #ddd;
-        border: 1px solid #eee;
         border-radius: 8px;
         min-height: 310px;
         & > h4 {
@@ -378,7 +376,7 @@
         height: 60px;
         padding: 18px 20px;
         box-sizing: border-box;
-        background-color: var(--main-bgc);
+        @apply bg-base-100;
       }
       .category-item-wrap {
         max-height: 100vh;
@@ -398,8 +396,8 @@
       }
       .category__inner {
         cursor: pointer;
-        border-bottom: 2px solid var(--border-color);
         transition: all 0.5s;
+        @apply border-b-2 border-base-300;
       }
       .category-item:hover {
         background-color: var(--hover-color);
