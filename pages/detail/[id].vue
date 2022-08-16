@@ -85,7 +85,6 @@
     // console.log(previewTheme.value);
   };
   const scrollElement = ref(null);
-  const themeLocal: any = ref("");
   const themeList: any = ref([
     "default",
     "github",
@@ -94,16 +93,12 @@
     "smart-blue",
     "cyanosis",
   ]);
+  // 为了客户端时重新渲染才能设置为缓存的暗黑模式，themeLocal 另设置一个变量会导致签署数据两次
+  const mdKey = ref(new Date().getTime());
   onMounted(() => {
     scrollElement.value = document.documentElement;
-    themeLocal.value = theme.value;
+    mdKey.value = new Date().getTime();
   });
-  watch(
-    () => theme.value,
-    (n) => {
-      themeLocal.value = n;
-    }
-  );
   useHead({
     title: ArticleInfo.title + " - 文章详情",
     titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`,
@@ -160,11 +155,12 @@
         </div>
       </div>
       <md-editor
+        :key="mdKey"
         v-model="ArticleInfo.contentHtml"
         class="x-md-editor"
         preview-only
         :preview-theme="previewTheme"
-        :theme="themeLocal"
+        :theme="theme"
         @onGetCatalog="onGetCatalogHandle"
       />
       <!-- 目录 -->
