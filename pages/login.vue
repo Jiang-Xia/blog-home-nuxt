@@ -2,7 +2,6 @@
   import { reactive, ref } from "vue";
   import request from "~~/api/request.js";
   import api from "@/api";
-  // const userInfo = useUserInfo();
   import { dailyImage } from "~~/api/article";
   import { onMounted } from "vue";
   import { messageDanger, messageSuccess } from "~~/utils/toast";

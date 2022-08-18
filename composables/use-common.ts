@@ -4,6 +4,7 @@ export const defaultInfo: userInfoState = {
   homepage: "",
   intro: "",
   avatar: "",
+  uid: null
 };
 
 let userInfo: userInfoState = { ...defaultInfo };

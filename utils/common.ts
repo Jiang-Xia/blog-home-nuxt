@@ -61,12 +61,12 @@ export const updateLikes = async (data: any) => {
 };
 
 // const store = useStore()
-
 // 更新点赞数
 export const updateLikesHandle = async (item: any) => {
+  const { uid } = useUserInfo().value;
   const send = {
     articleId: item.id,
-    uid: 1,
+    uid,
     status: 1,
   };
   const likes = xBLogStore.value.likes;

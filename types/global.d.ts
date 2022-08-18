@@ -6,11 +6,11 @@ type BannerState = {
 };
 
 interface queryState {
-  page: number
-  pageSize: number
-  title: string
-  description: string
-  content: string
+  page: number;
+  pageSize: number;
+  title: string;
+  description: string;
+  content: string;
 }
 
 interface StringKey {
@@ -22,6 +22,7 @@ interface userInfoState {
   homepage: string;
   intro: string;
   avatar: string;
+  uid: number | null;
 }
 
-declare module 'js-cookie';
+declare module "js-cookie";

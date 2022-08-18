@@ -4,7 +4,6 @@
   import request from "~~/api/request.js";
   import { messageDanger, messageSuccess } from "~~/utils/toast";
 
-  // const userInfo = useUserInfo();
   definePageMeta({
     layout: "custom", // 不使用default布局
   });
