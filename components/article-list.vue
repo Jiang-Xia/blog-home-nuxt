@@ -6,9 +6,10 @@
     getOptions,
     updateLikesHandle,
     formactDate,
+    xBLogStore
   } from "@/utils/common";
-  import { ref, reactive, unref, UnwrapRef, toRefs } from "vue";
-  import defaultCover from "@/assets/images/create.webp";
+  import { ref, reactive, onMounted, computed, toRefs } from "vue";
+  import { useStorage } from "@vueuse/core";
   import { isTrueCoverLink } from "@/utils";
   import { colorRgb } from "~~/utils/color";
   interface queryState {
@@ -36,7 +37,7 @@
     page: 1,
     category: "",
     tags: [],
-    pageSize: 10,
+    pageSize: 12,
     total: 0,
     title: "",
     description: "",
@@ -138,6 +139,19 @@
     color = color.replace(")", ",0.24)");
     return color;
   };
+
+  let likes = ref([]);
+  // 客户端执行
+  // 本地点赞记录
+  const localLikes = computed(() => likes.value);
+  // 客户端徐根据缓存需重新渲染
+  onMounted(() => {
+    likes.value = xBLogStore.value.likes;
+    articleList.value = articleList.value.map((v: any) => {
+      v.checked = likes.value.includes(v.id);
+      return v
+    });
+  });
 </script>
 
 <template>
@@ -173,7 +187,10 @@
                 >
                 <!-- 点赞数 -->
                 <span class="text-icon pointer" @click.stop="updateLikesHandle(item)">
-                  <xia-icon :icon="item.checked ? 'blog-like-solid' : 'blog-like'" class="mr-1" />
+                  <xia-icon
+                    :icon="localLikes.includes(item.id) ? 'blog-like-solid' : 'blog-like'"
+                    class="mr-1"
+                  />
                   {{ item.likes }}
                 </span>
                 <!-- 评论数 -->
@@ -349,7 +366,7 @@
       transform: translateX(300%);
       // 作者信息
       .card-wrap {
-        @apply  border border-base-300 shadow-lg bg-base-100;
+        @apply border border-base-300 shadow-lg bg-base-100;
         margin-bottom: 20px;
         margin-right: 20px;
         margin-left: 20px;

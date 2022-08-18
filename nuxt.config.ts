@@ -4,7 +4,7 @@ import Icons from "unplugin-icons/vite";
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
   /* 仅在开发和构建期间需要的模块 */
-  // modules: ["~/modules/sitemap"],
+  modules: ["@vueuse/nuxt"],
   /* nuxt3构建时模块  */
   buildModules: ["~/modules/sitemap", "@nuxtjs/tailwindcss", "@tailvue/nuxt"],
   sitemap: {

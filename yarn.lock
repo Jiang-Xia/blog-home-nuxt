@@ -790,6 +790,11 @@
   "resolved" "https://registry.npmmirror.com/@types/tough-cookie/-/tough-cookie-4.0.2.tgz"
   "version" "4.0.2"
 
+"@types/web-bluetooth@^0.0.15":
+  "integrity" "sha512-w7hEHXnPMEZ+4nGKl/KDRVpxkwYxYExuHOYXyzIzCDzEZ9ZCGMAewulr9IqJu2LR4N37fcnb1XVeuZ09qgOxhA=="
+  "resolved" "https://registry.npmmirror.com/@types/web-bluetooth/-/web-bluetooth-0.0.15.tgz"
+  "version" "0.0.15"
+
 "@vercel/nft@^0.20.1":
   "integrity" "sha512-hSLcr64KHOkcNiTAlv154K4p4faEFBwYIi2eIgu1QCDhB1qyQYvFuEhtw3eaapNjA4/7x/2jcclfCAjILua/ag=="
   "resolved" "https://registry.npmmirror.com/@vercel/nft/-/nft-0.20.1.tgz"
@@ -938,10 +943,43 @@
   "resolved" "https://registry.npmmirror.com/@vue/shared/-/shared-3.2.37.tgz"
   "version" "3.2.37"
 
+"@vueuse/core@^9.1.0", "@vueuse/core@9.1.0":
+  "integrity" "sha512-BIroqvXEqt826aE9r3K5cox1zobuPuAzdYJ36kouC2TVhlXvFKIILgFVWrpp9HZPwB3aLzasmG3K87q7TSyXZg=="
+  "resolved" "https://registry.npmmirror.com/@vueuse/core/-/core-9.1.0.tgz"
+  "version" "9.1.0"
+  dependencies:
+    "@types/web-bluetooth" "^0.0.15"
+    "@vueuse/metadata" "9.1.0"
+    "@vueuse/shared" "9.1.0"
+    "vue-demi" "*"
+
 "@vueuse/head@^0.7.6":
   "integrity" "sha512-umsupiMPYxSMvREskQhcwhQ8zpnv8u1oKSB3Q1gclhsV53XAMTurkX+vPE4aBmGulHI1XEZp3N5ctEABEj3xqQ=="
   "resolved" "https://registry.npmmirror.com/@vueuse/head/-/head-0.7.7.tgz"
   "version" "0.7.7"
+
+"@vueuse/metadata@9.1.0":
+  "integrity" "sha512-8OEhlog1iaAGTD3LICZ8oBGQdYeMwByvXetOtAOZCJOzyCRSwqwdggTsmVZZ1rkgYIEqgUBk942AsAPwM21s6A=="
+  "resolved" "https://registry.npmmirror.com/@vueuse/metadata/-/metadata-9.1.0.tgz"
+  "version" "9.1.0"
+
+"@vueuse/nuxt@^9.1.0":
+  "integrity" "sha512-ejWjv8IPo2sSCQ81lY5TtzszWvnqRUYsBTrK0XOJGMDIeUHc6/gQbwezyb9OY3yJvIvQ3sGBbLo1iW04Rk7ZhA=="
+  "resolved" "https://registry.npmmirror.com/@vueuse/nuxt/-/nuxt-9.1.0.tgz"
+  "version" "9.1.0"
+  dependencies:
+    "@nuxt/kit" "^3.0.0-rc.6"
+    "@vueuse/core" "9.1.0"
+    "@vueuse/metadata" "9.1.0"
+    "local-pkg" "^0.4.2"
+    "vue-demi" "*"
+
+"@vueuse/shared@9.1.0":
+  "integrity" "sha512-pB/3njQu4tfJJ78ajELNda0yMG6lKfpToQW7Soe09CprF1k3QuyoNi1tBNvo75wBDJWD+LOnr+c4B5HZ39jY/Q=="
+  "resolved" "https://registry.npmmirror.com/@vueuse/shared/-/shared-9.1.0.tgz"
+  "version" "9.1.0"
+  dependencies:
+    "vue-demi" "*"
 
 "@webassemblyjs/ast@1.11.1":
   "integrity" "sha512-ukBh14qFLjxTQNTXocdyksN5QdM28S1CxHt2rdskFyL+xFV7VremuBLVbmCePj+URalXBENx/9Lm7lnhihtCSw=="
@@ -5481,6 +5519,11 @@
   dependencies:
     "bundle-runner" "^0.0.1"
 
+"vue-demi@*":
+  "integrity" "sha512-Vy1zbZhCOdsmvGR6tJhAvO5vhP7eiS8xkbYQSoVa7o6KlIy3W8Rc53ED4qI4qpeRDjv3mLfXSEpYU6Yq4pgXRg=="
+  "resolved" "https://registry.npmmirror.com/vue-demi/-/vue-demi-0.13.8.tgz"
+  "version" "0.13.8"
+
 "vue-router@^4.1.2":
   "integrity" "sha512-5BP1qXFncVRwgV/XnqzsKApdMjQPqWIpoUBdL1ynz8HyLxIX/UDAx7Ql2BjmA5CXT/p61JfZvkpiFWFpaqcfag=="
   "resolved" "https://registry.npmmirror.com/vue-router/-/vue-router-4.1.2.tgz"
@@ -5488,7 +5531,7 @@
   dependencies:
     "@vue/devtools-api" "^6.1.4"
 
-"vue@^3.2.0", "vue@^3.2.21", "vue@^3.2.25", "vue@^3.2.37", "vue@>=3", "vue@3.2.37", "vue@3.x":
+"vue@^3.0.0-0 || ^2.6.0", "vue@^3.2.0", "vue@^3.2.21", "vue@^3.2.25", "vue@^3.2.37", "vue@>=3", "vue@3.2.37", "vue@3.x":
   "integrity" "sha512-bOKEZxrm8Eh+fveCqS1/NkG/n6aMidsI6hahas7pa0w/l7jkbssJVsRhVDs07IdDq7h9KHswZOgItnwJAgtVtQ=="
   "resolved" "https://registry.npmmirror.com/vue/-/vue-3.2.37.tgz"
   "version" "3.2.37"

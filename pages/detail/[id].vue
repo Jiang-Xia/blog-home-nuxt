@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { getArticleInfo } from "@/api/article";
   import { ref, reactive, computed } from "vue";
-  import { updateViews } from "@/utils/common";
+  import { updateViews,xBLogStore } from "@/utils/common";
   import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
   import { updateLikesHandle } from "@/utils/common";
 
@@ -95,9 +95,16 @@
   ]);
   // 为了客户端时重新渲染才能设置为缓存的暗黑模式，themeLocal 另设置一个变量会导致签署数据两次
   const mdKey = ref(new Date().getTime());
+  let likes = ref([]);
+  // 本地点赞记录
+  const localLikes = computed(() => likes.value);
   onMounted(() => {
     scrollElement.value = document.documentElement;
     mdKey.value = new Date().getTime();
+    // 点赞的
+    likes.value = xBLogStore.value.likes;
+    ArticleInfo.checked = likes.value.includes(ArticleInfo.id);
+
   });
   useHead({
     title: ArticleInfo.title + " - 文章详情",
