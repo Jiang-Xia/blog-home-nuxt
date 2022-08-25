@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  import { getArticleInfo } from "@/api/article";
+  import { getArticleInfo, getComment } from "@/api/article";
   import { ref, reactive, computed } from "vue";
-  import { updateViews,xBLogStore } from "@/utils/common";
+  import { updateViews, xBLogStore } from "@/utils/common";
   import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
   import { updateLikesHandle } from "@/utils/common";
 
@@ -104,8 +104,23 @@
     // 点赞的
     likes.value = xBLogStore.value.likes;
     ArticleInfo.checked = likes.value.includes(ArticleInfo.id);
-
+    // getCommentHandle();
   });
+
+  /* 评论回复功能 */
+  const comments = ref([]);
+  const commentTotal = ref(0);
+
+  const getCommentHandle = async () => {
+    const id: string = route.params.id as string;
+    const res = await getComment(id);
+    comments.value = res.list;
+    let total = res.pagination.total;
+    res.list.map((v: any) => (total += v.allReplyCount));
+    commentTotal.value = total;
+    console.log({ comments, total });
+  };
+  getCommentHandle();
   useHead({
     title: ArticleInfo.title + " - 文章详情",
     titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`,
@@ -174,6 +189,12 @@
       <Catalogue :topics="topics" />
     </section>
     <!-- 评论 -->
+    <XiaComment
+      class="module-wrap__detail comment-module"
+      :comments="comments"
+      :total="commentTotal"
+      @commented="getCommentHandle"
+    />
   </div>
 </template>
 <style lang="less" scoped>

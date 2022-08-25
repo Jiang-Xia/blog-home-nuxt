@@ -70,6 +70,19 @@ const get = async (url: string, params = {}): Promise<ApiResponse> => {
   }
 };
 
+const del = async (url: string, params = {}): Promise<ApiResponse> => {
+  try {
+    const res = await $http(baseUrl + url, {
+      method: "DELETE",
+      params: params,
+    });
+    return res;
+  } catch (error: any) {
+    errorResponse.message = error;
+    return errorResponse;
+  }
+};
+
 const post = async (url: string, params = {}): Promise<ApiResponse> => {
   try {
     const res = await $http(baseUrl + url, {
@@ -96,4 +109,4 @@ const put = async (url: string, params = {}): Promise<ApiResponse> => {
   }
 };
 
-export default { get, post, put };
+export default { get, post, put,del };

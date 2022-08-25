@@ -68,8 +68,10 @@
     } else {
       theme.value = "dark";
     }
+    setTheme(theme.value);
   };
   onMounted(() => {
+    console.log(localStorage.getItem("theme"));
     const themeType = localStorage.getItem("theme");
     if (themeType) {
       // 都有设置icon和选中
