@@ -1,20 +1,20 @@
 import { useToast } from "tailvue";
-export const messageDanger = (msg: string) => {
+export const messageDanger = (msg: string,timeout:number = 1) => {
   if (process.client) {
     const $toast = useToast();
     $toast.show({
       type: "danger",
-      timeout: 1,
+      timeout,
       message: msg,
     });
   }
 };
-export const messageSuccess = (msg: string) => {
+export const messageSuccess = (msg: string = "",timeout:number = 1) => {
   if (process.client) {
     const $toast = useToast();
     $toast.show({
       type: "success",
-      timeout: 1,
+      timeout,
       message: msg,
     });
   }

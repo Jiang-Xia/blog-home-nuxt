@@ -2,6 +2,7 @@
   import { useToast } from "tailvue";
   import { reactive, ref } from "vue";
   import request from "~~/api/request.js";
+  import { getRandomAvatar } from "~~/utils/common";
   import { messageDanger, messageSuccess } from "~~/utils/toast";
 
   definePageMeta({
@@ -16,12 +17,14 @@
     password: string;
     passwordRepeat: string;
     nickname: string;
+    avatar?: string;
   }
   const form: formState = reactive({
     password: "",
     passwordRepeat: "",
     nickname: "",
     mobile: "",
+    avatar: getRandomAvatar() as string,
   });
   /* 登录 */
   const okHandle = async () => {
@@ -52,7 +55,18 @@
       <div class="card max-w-sm shadow-2x text-white">
         <!-- <figure  class="h-full"><img src="@/assets/images/login/phone.jpg" alt="注 册" /></figure> -->
         <div class="card-body">
-          <h1 class="card-title">注 册</h1>
+          <div class="flex justify-between items-center">
+            <h1 class="card-title">注 册</h1>
+            <div
+              class="avatar btn btn-ghost btn-circle btn-sm"
+              @click="form.avatar = getRandomAvatar()"
+              title="点击切换头像"
+            >
+              <div class="rounded-full">
+                <img :src="form.avatar" />
+              </div>
+            </div>
+          </div>
           <div class="form-control">
             <label class="label">
               <span class="label-text">手机号</span>

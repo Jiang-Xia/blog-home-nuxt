@@ -6,6 +6,7 @@
 
   import { messageDanger, messageSuccess } from "~~/utils/toast";
   import { useRoute } from "vue-router";
+  import { useModal, useToast } from "tailvue";
   const props = defineProps({
     comments: {
       type: Array as PropType<any[]>,
@@ -27,13 +28,14 @@
   /* 评论功能 开始*/
   const inputContent = ref("");
   const addCommentHandle = async () => {
+    const toast = useToast()
     if (!inputContent.value) {
-      Message.warning("请输入你的评论！");
+      toast.warning("请输入你的评论！");
     }
     const params = {
-      uid: store.state.userInfo.id,
+      uid: uid.value,
       content: inputContent.value,
-      articleId: route.query.id,
+      articleId: Number(route.params.id),
     };
     const res = await addComment(params);
     messageSuccess("评论成功");
@@ -63,6 +65,27 @@
    * @return {*}
    */
   const clickReplyHandle = (type: string, item: any, pId?: string) => {
+    const $modal = useModal();
+    if (!uid.value) {
+      $modal.show({
+        type: "danger",
+        title: "提示",
+        body: "需要登录才能评论哦",
+        primary: {
+          label: "去登录",
+          theme: "red",
+          action: () => {
+            navigateTo("/login");
+          },
+        },
+        secondary: {
+          label: "关闭",
+          theme: "white",
+          action: () => {},
+        },
+      });
+      return;
+    }
     currentReplyBoxId.value = item.id;
     if (type === "comment") {
       currentParentId.value = item.id;

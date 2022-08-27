@@ -6,7 +6,7 @@
     getOptions,
     updateLikesHandle,
     formactDate,
-    xBLogStore
+    xBLogStore,
   } from "@/utils/common";
   import { ref, reactive, onMounted, computed, toRefs } from "vue";
   import { useStorage } from "@vueuse/core";
@@ -149,7 +149,7 @@
     likes.value = xBLogStore.value.likes;
     articleList.value = articleList.value.map((v: any) => {
       v.checked = likes.value.includes(v.id);
-      return v
+      return v;
     });
   });
 </script>
@@ -168,7 +168,7 @@
               {{ item.title }}
               <div v-if="item.topping" class="badge badge-secondary">TOP</div>
             </h2>
-            <p class="">{{ item.description }}</p>
+            <p class="text-sm">{{ item.description }}</p>
             <div class="card-actions justify-start text-xs flex-wrap">
               <div class="flex items-center">
                 <!-- 分类 -->
@@ -200,7 +200,15 @@
                 </span>
               </div>
               <div class="flex justify-between w-full items-center">
-                <span class=""> 时间 {{ formactDate(item.createTime) }}</span>
+                <div class="flex items-center">
+                  <div class="avatar btn btn-ghost btn-circle btn-xs">
+                    <div class="rounded-full">
+                      <img :src="item.userInfo.avatar" />
+                    </div>
+                  </div>
+                  <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
+                  <span class="pt-2">{{ formactDate(item.createTime) }}</span>
+                </div>
                 <nuxt-link :to="'/detail/' + item.id">
                   <button class="btn btn-xs xia-btn">Read</button>
                 </nuxt-link>

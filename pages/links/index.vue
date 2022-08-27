@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import request from "~~/api/request";
-import { messageSuccess } from "~~/utils/toast";
+import { messageDanger, messageSuccess } from "~~/utils/toast";
 const { data: linkList } = await useAsyncData("link_Get", () =>
   request.get("/link", { client: true }).then((res) => res.data)
 );
@@ -11,7 +11,8 @@ const openModal = () => {
 };
 const closeModal = () => (isOpen.value = false);
 const okHandle = async () => {
-  if (Object.keys(linkState.value).every((v) => !v)) {
+  if (Object.keys(linkState.value).every((v) => !linkState[v])) {
+    messageDanger('请信息填写完整信息',2)
     return;
   }
   const res = await request.post("/link", linkState.value);
@@ -62,7 +63,7 @@ useHead({
           <h3 class="text-lg font-bold">申请外链</h3>
           <div class="pl-8 pt-4">
             <div class="flex items-center mb-4">
-              <span class="w-16">网站名</span>
+              <span class="w-16"><span class="text-red-600">*</span>网站名</span>
               <input
                 type="text"
                 v-model="linkState.title"
@@ -71,7 +72,7 @@ useHead({
               />
             </div>
             <div class="flex items-center mb-4">
-              <span class="w-16">网址</span>
+              <span class="w-16"><span class="text-red-600">*</span>网址</span>
               <input
                 type="text"
                 v-model="linkState.url"
@@ -80,7 +81,7 @@ useHead({
               />
             </div>
             <div class="flex items-center mb-4">
-              <span class="w-16">图标</span>
+              <span class="w-16"><span class="text-red-600">*</span>图标</span>
               <input
                 type="text"
                 v-model="linkState.icon"
@@ -89,7 +90,7 @@ useHead({
               />
             </div>
             <div class="flex items-center">
-              <span class="w-16">个签</span>
+              <span class="w-16"><span class="text-red-600">*</span>个签</span>
               <input
                 type="text"
                 v-model="linkState.desp"

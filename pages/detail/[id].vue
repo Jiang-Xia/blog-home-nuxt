@@ -8,6 +8,7 @@
   import defaultImg from "@/assets/images/create.webp";
   import { makeToc, tocInter, isTrueCoverLink } from "@/utils";
   import MdEditor from "md-editor-v3";
+  import Qie from "@/assets/images/animal/qie.svg";
   const theme: any = useTheme();
   interface FormState {
     [propName: string]: any;
@@ -27,6 +28,7 @@
     checked: 0,
     likes: 0,
     uid: 0,
+    userInfo:{}
   };
   const route = useRoute();
   // 获取到的html内容
@@ -163,10 +165,16 @@
       </div>
     </section>
     <section class="module-wrap__detail article-info">
-      <div>
-        <!-- <select class="select w-56 bg-base-300" v-model="previewTheme" @change="previewThemeChange">
-          <option v-for="item of themeList">{{item}}</option>
-        </select> -->
+      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between">
+        <div class="btn btn-ghost btn-circle avatar">
+        <div class="w-10 rounded-full">
+          <img :src="ArticleInfo.userInfo.avatar||Qie" />
+        </div>
+      </div>
+        <span class="text-color font-bold">{{ArticleInfo.userInfo.nickname}}</span>
+      </div>
+
         <div class="dropdown">
           <label tabindex="0" class="btn m-1">主 题</label>
           <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
