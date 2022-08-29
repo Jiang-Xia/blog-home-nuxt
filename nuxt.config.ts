@@ -6,16 +6,24 @@ export default defineNuxtConfig({
   /* 仅在开发和构建期间需要的模块 */
   modules: ["@vueuse/nuxt"],
   /* nuxt3构建时模块  */
-  buildModules: ["~/modules/sitemap", "@nuxtjs/tailwindcss", "@tailvue/nuxt"],
+  buildModules: ["~/modules/sitemap","@tailvue/nuxt"],
   sitemap: {
     hostname: "https://jiang-xia.top",
   },
+  
   css: [
-    // 'vant/lib/index.css'
-    "@/assets/font/iconfont.css",
+    "~/assets/css/tailwind.css",
+    "~/assets/font/iconfont.css",
   ],
   build: {
-    // Babel 转译特定的依赖关系（解决element-plus vue版本不一致打包报错问题）
+    postcss: {
+      postcssOptions: {
+          plugins: {
+              tailwindcss: {},
+              autoprefixer: {},
+          },
+      },
+    },
   },
   vite: {
     plugins: [
