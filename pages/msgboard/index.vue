@@ -1,14 +1,13 @@
 <script setup lang="ts">
-  import { reactive, ref, computed, onMounted } from "vue";
-  import { XiaAuthCode } from "~~/.nuxt/components";
-  import { messageDanger, messageSuccess } from "~~/utils/toast";
+  import { reactive, ref, computed } from "vue";
+  import { messageDanger, messageSuccess } from "@/utils/toast";
 
   import request from "~~/api/request";
   const { data: msgboardList } = await useAsyncData("msgboard_Get", () =>
     request.get("/msgboard").then((res) => res.data)
   );
   const authCode = ref("");
-  const authCodeRef = ref(XiaAuthCode);
+  const authCodeRef = ref();
   const showToast = ref(false);
   const createCodeHandle = () => {
     authCode.value = authCodeRef.value.createCode(4);
@@ -60,7 +59,7 @@
     <h1 class="hidden">网站留言板 - 江夏的个人博客 - 记录生活记录你~</h1>
     <div class="msgboard-container flex flex-wrap md:flex-nowrap">
       <div
-        class="card card-compact flex-shrink-0 w-full md:max-w-sm shadow-2xl bg-base-100 form-wrap relative shadow-xl"
+        class="card card-compact flex-shrink-0 w-full md:max-w-sm shadow-2xl bg-base-100 form-wrap relative"
       >
         <div class="alert alert-info absolute top-0 left-0" v-show="showToast">
           <div>
