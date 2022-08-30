@@ -165,7 +165,7 @@
           tabindex="0"
           class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-zinc-500"
         >
-          <li v-for="(item, index) in navList" :key="index">
+          <li v-for="(item, index) in navList" :key="item.path">
             <NuxtLink class="py-2 px-4 flex" :to="item.path">
               <span>{{ item.title }}</span>
             </NuxtLink>
@@ -178,7 +178,7 @@
     </div>
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal p-0">
-        <li v-for="(item, index) in navList" :key="index" class="mr-2">
+        <li v-for="(item, index) in navList" :key="item.path" class="mr-2">
           <NuxtLink :to="item.path" class="router-link-item leading-6 flex items-center px-4 py-3">
             <span>{{ item.title }}</span>
           </NuxtLink>

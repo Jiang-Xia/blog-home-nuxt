@@ -73,7 +73,7 @@ const prev = () => {
     <div
       class="xia-carousel-item"
       v-for="(image, index) in images"
-      :key="index"
+      :key="image.title+index"
       :style="{ backgroundImage: `url(${image.url})` }"
       :title="image.title"
       ref="itemRefs"

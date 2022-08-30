@@ -9,10 +9,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
 const banners = useBanners();
-const key = new Date().getTime();
+// const key = new Date().getTime();
 </script>
 <template>
-  <div class="custom-layout-contaier paper-feeling" :key="key">
+  <div class="custom-layout-contaier paper-feeling">
     <!-- 全局共享布局 -->
     <section class="banner-container">
       <div class="banner-content">

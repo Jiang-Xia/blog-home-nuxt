@@ -145,21 +145,21 @@
   // 本地点赞记录
   const localLikes = computed(() => likes.value);
   // 客户端徐根据缓存需重新渲染
-  onMounted(() => {
-    likes.value = xBLogStore.value.likes;
-    articleList.value = articleList.value.map((v: any) => {
-      v.checked = likes.value.includes(v.id);
-      return v;
-    });
-  });
+  // onMounted(() => {
+  //   likes.value = xBLogStore.value.likes;
+  //   articleList.value = articleList.value.map((v: any) => {
+  //     v.checked = likes.value.includes(v.id);
+  //     return v;
+  //   });
+  // });
 </script>
 
 <template>
   <div class="article-list-container">
-    <section class="main-article-wrap" key="main-article-wrap">
+    <section class="main-article-wrap">
       <!-- lg:w-5/12 -->
-      <transition-group name="list">
-        <div class="article-item" v-for="(item, index) in articleList" :key="index">
+      <transition-group name="list" key="main-article-wrap">
+        <div class="article-item" v-for="(item, index) in articleList" :key="item.id">
           <figure>
             <img class="h-52 w-full" :alt="item.category.label" :src="item.cover" />
           </figure>
@@ -303,7 +303,7 @@
         <div class="category-item-wrap">
           <div
             v-for="(item, index) of categoryOptions"
-            :key="index"
+            :key="item.id"
             class="category-item"
             :color="item.color"
             :class="item.id === queryPrams.category ? 'active' : ''"
@@ -334,7 +334,7 @@
         <h4><xia-icon icon="blog-tag" /> 标签</h4>
         <div
           v-for="(item, index) of tagsOptions"
-          :key="index"
+          :key="item.id"
           class="custom-tag"
           :class="item.checked ? 'active' : ''"
           size="small"
