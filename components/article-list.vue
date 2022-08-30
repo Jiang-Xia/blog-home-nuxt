@@ -145,13 +145,13 @@
   // 本地点赞记录
   const localLikes = computed(() => likes.value);
   // 客户端徐根据缓存需重新渲染
-  // onMounted(() => {
-  //   likes.value = xBLogStore.value.likes;
-  //   articleList.value = articleList.value.map((v: any) => {
-  //     v.checked = likes.value.includes(v.id);
-  //     return v;
-  //   });
-  // });
+  onMounted(() => {
+    likes.value = xBLogStore.value.likes;
+    articleList.value = articleList.value.map((v: any) => {
+      v.checked = likes.value.includes(v.id);
+      return v;
+    });
+  });
 </script>
 
 <template>

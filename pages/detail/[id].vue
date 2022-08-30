@@ -28,7 +28,7 @@
     checked: 0,
     likes: 0,
     uid: 0,
-    userInfo:{}
+    userInfo: {},
   };
   const route = useRoute();
   // 获取到的html内容
@@ -120,7 +120,7 @@
     let total = res.pagination.total;
     res.list.map((v: any) => (total += v.allReplyCount));
     commentTotal.value = total;
-    console.log({ comments, total });
+    // console.log({ comments, total });
   };
   getCommentHandle();
   useHead({
@@ -135,7 +135,6 @@
         <img
           :alt="ArticleInfo.category.label"
           :src="isTrueCoverLink(ArticleInfo.cover) || defaultImg"
-          alt=""
         />
         <!-- <div>文章详情</div> -->
         <div class="article-header text-gray-200">
@@ -165,15 +164,15 @@
       </div>
     </section>
     <section class="module-wrap__detail article-info">
-      <div class="flex items-center justify-between">
-      <div class="flex items-center justify-between">
-        <div class="btn btn-ghost btn-circle avatar">
-        <div class="w-10 rounded-full">
-          <img :src="ArticleInfo.userInfo.avatar||Qie" />
+      <div class="flex items-center justify-between overflow-hidden">
+        <div class="flex items-center justify-between">
+          <div class="btn btn-ghost btn-circle avatar">
+            <div class="w-10 rounded-full">
+              <img :src="ArticleInfo.userInfo.avatar || Qie" />
+            </div>
+          </div>
+          <span class="text-color font-bold">{{ ArticleInfo.userInfo.nickname }}</span>
         </div>
-      </div>
-        <span class="text-color font-bold">{{ArticleInfo.userInfo.nickname}}</span>
-      </div>
 
         <div class="dropdown">
           <label tabindex="0" class="btn m-1">主 题</label>
