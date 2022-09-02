@@ -129,3 +129,11 @@
 .main-color{
   color: var(--main-color);
 }
+.padding-top-bar{
+  position: relative;
+  &::after{
+    content: '';
+    height: 64px;
+    @apply absolute left-0 top-0 w-full from-black bg-gradient-to-r to-gray-700;
+  }
+}

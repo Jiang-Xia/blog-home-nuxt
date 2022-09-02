@@ -9,7 +9,6 @@
 
 <script setup lang="ts">
   import { ref, computed, reactive } from "vue";
-  import Login from "./login.vue";
   import { useRoute, useRouter } from "vue-router";
   import { getArticleList } from "@/api/article";
   import dayjs from "dayjs";
@@ -42,6 +41,16 @@
     {
       path: "/about",
       title: "关于",
+      icon: "",
+    },
+    {
+      path: "/au-vi",
+      title: "音视频",
+      icon: "",
+    },
+    {
+      path: "/tool",
+      title: "工具箱",
       icon: "",
     },
   ]);
