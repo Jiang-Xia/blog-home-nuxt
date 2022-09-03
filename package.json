@@ -5,8 +5,7 @@
     "dev": "nuxt dev --port 5050",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "prettier": "prettier --config ./.prettierrc --write \"./**/*.{js,ts,jsx,vue,scss,css,json}\" ",
-    "lint": "eslint --ext .ts,.js,.vue .",
+    "lint": "eslint --fix --ext .ts,.js,.vue .",
     "pm2:prod": "pm2 start ecosystem.config.js --env production",
     "pm2:dev": "pm2 start ecosystem.config.js --env development"
   },

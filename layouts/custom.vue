@@ -3,14 +3,14 @@
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
  * @LastEditTime: 2022-08-06 19:50:53
- * @Description: 
+ * @Description:
  * @FilePath: \blog-home-nuxt\layouts\custom.vue
 -->
 <script setup lang="ts">
 </script>
 <template>
   <div>
-    <NuxtChild></NuxtChild>
+    <NuxtChild />
   </div>
 </template>
 

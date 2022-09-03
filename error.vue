@@ -1,16 +1,16 @@
 <script setup lang="ts">
   definePageMeta({
-    layout: "custom", // 不使用default布局
-  });
+    layout: 'custom', // 不使用default布局
+  })
   const props = defineProps({
     error: Object,
-  });
-  const handleError = () => clearError({ redirect: "/" });
-  console.log(props.error);
+  })
+  const handleError = () => clearError({ redirect: '/', })
+  console.log(props.error)
 </script>
 <template>
   <div class="common-page">
-    <div class="img-wrap"></div>
+    <div class="img-wrap" />
     <div class="b-text text-center">
       <div class="gradient-text flex justify-center">
         <span class="mr-2">{{ error.statusCode }}</span>
@@ -22,7 +22,7 @@
       >
         {{ error.message }}
       </div>
-      <div class="text-left text-sm mb-3 w-3/4 whitespace-pre-wrap" v-html="error.description"></div>
+      <div class="text-left text-sm mb-3 w-3/4 whitespace-pre-wrap" v-html="error.description" />
       <div class="w-full flex items-center justify-center">
         <xia-button @click="handleError">Try Again</xia-button>
       </div>

@@ -3,12 +3,12 @@
  * @LastEditors: 酱
  * @Date: 2021-11-20 11:28:42
  * @LastEditTime: 2022-08-03 16:56:45
- * @Description: 
+ * @Description:
  * @FilePath: \blog-home-nuxt\layouts\main-content.vue
 -->
 <script setup lang="ts">
-import { ref } from "vue";
-const banners = useBanners();
+import { ref } from 'vue'
+const banners = useBanners()
 // const key = new Date().getTime();
 </script>
 <template>
@@ -16,7 +16,7 @@ const banners = useBanners();
     <!-- 全局共享布局 -->
     <section class="banner-container">
       <div class="banner-content">
-        <xia-carousel :images="banners"></xia-carousel>
+        <xia-carousel :images="banners" />
       </div>
     </section>
     <!-- 主显示区 -->

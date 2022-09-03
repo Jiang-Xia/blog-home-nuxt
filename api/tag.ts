@@ -8,6 +8,6 @@ export const getAllTag = async () => {
   return res.data
 }
 export const createTag = async (data: any) => {
-  const res = await request.post('/tag',data)
+  const res = await request.post('/tag', data)
   return res.data
 }

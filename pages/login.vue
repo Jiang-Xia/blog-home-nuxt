@@ -1,54 +1,54 @@
 <script setup lang="ts">
-  import { reactive, ref } from "vue";
-  import request from "~~/api/request.js";
-  import api from "@/api";
-  import { dailyImage } from "~~/api/article";
-  import { onMounted } from "vue";
-  import { messageDanger, messageSuccess } from "~~/utils/toast";
+  import { reactive, ref, onMounted } from 'vue'
+  import request from '~~/api/request.js'
+  import api from '@/api'
+  import { dailyImage } from '~~/api/article'
+
+  import { messageDanger, messageSuccess } from '~~/utils/toast'
   // console.log(imagesData);
-  onMounted(() => {});
-  const token = useToken();
+  onMounted(() => {})
+  const token = useToken()
 
   definePageMeta({
-    layout: "custom", // 不使用default布局
-  });
+    layout: 'custom', // 不使用default布局
+  })
   useHead({
-    title: "登录",
-    titleTemplate: (title) => `${title} - 江夏的个人博客-记录生活记录你~`,
-  });
+    title: '登录',
+    titleTemplate: title => `${title} - 江夏的个人博客-记录生活记录你~`,
+  })
   interface formState extends StringKey {
     mobile: string;
     password: string;
   }
   const form: formState = reactive({
-    mobile: "",
-    password: "",
-  });
+    mobile: '',
+    password: '',
+  })
   /* 登录 */
   const loginHandle = async () => {
     // console.log(res)
-  };
+  }
   const okHandle = async () => {
     const msg: formState = {
-      mobile: "填写手机号",
-      password: "填写密码",
-    };
-    for (let key in form) {
+      mobile: '填写手机号',
+      password: '填写密码',
+    }
+    for (const key in form) {
       if (!form[key]) {
         // console.log(msg[key]);
-        messageDanger(msg[key] as string);
-        return;
+        messageDanger(msg[key] as string)
+        return
       }
     }
-    let res: any;
+    let res: any
     try {
-      res = await request.post("/user/login", form);
-      token.value = res.data.info.token;
-      navigateTo("/");
-      localStorage.setItem("x-token", token.value);
-      messageSuccess("登录成功");
+      res = await request.post('/user/login', form)
+      token.value = res.data.info.token
+      navigateTo('/')
+      localStorage.setItem('x-token', token.value)
+      messageSuccess('登录成功')
     } catch (err) {}
-  };
+  }
 </script>
 <template>
   <div class="form-container">
@@ -62,29 +62,30 @@
               <span class="label-text">手机号</span>
             </label>
             <input
+              v-model="form.mobile"
               type="text"
               class="input"
-              v-model="form.mobile"
               maxlength="11"
               placeholder="手机号"
-            />
+            >
           </div>
           <div class="form-control">
             <label class="label">
               <span class="label-text">密码</span>
             </label>
             <input
+              v-model="form.password"
               type="password"
               class="input"
-              v-model="form.password"
               maxlength="16"
               placeholder="密码"
-            />
+            >
           </div>
           <div class="flex justify-between mt-1">
-            <a href="/register" class="link text-xs text-gray-600 hover:text-gray-500"
-              >还没有账号?快去注册吧！</a
-            >
+            <a
+              href="/register"
+              class="link text-xs text-gray-600 hover:text-gray-500"
+            >还没有账号?快去注册吧！</a>
             <a href="/" class="link text-xs text-gray-600 hover:text-gray-500">返回首页</a>
           </div>
 

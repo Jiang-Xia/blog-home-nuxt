@@ -1,58 +1,58 @@
 <script setup lang="ts">
-  import { reactive, ref, computed } from "vue";
-  import { messageDanger, messageSuccess } from "@/utils/toast";
+  import { reactive, ref, computed } from 'vue'
+  import { messageDanger, messageSuccess } from '@/utils/toast'
 
-  import request from "~~/api/request";
-  const { data: msgboardList } = await useAsyncData("msgboard_Get", () =>
-    request.get("/msgboard").then((res) => res.data)
-  );
-  const authCode = ref("");
-  const authCodeRef = ref();
-  const showToast = ref(false);
+  import request from '~~/api/request'
+  const { data: msgboardList, } = await useAsyncData('msgboard_Get', () =>
+    request.get('/msgboard').then(res => res.data)
+  )
+  const authCode = ref('')
+  const authCodeRef = ref()
+  const showToast = ref(false)
   const createCodeHandle = () => {
-    authCode.value = authCodeRef.value.createCode(4);
-  };
+    authCode.value = authCodeRef.value.createCode(4)
+  }
   const createdHandle = (v: string) => {
-    authCode.value = v;
-  };
+    authCode.value = v
+  }
   const msgForm = reactive({
-    name: "",
-    eamil: "",
-    address: "",
-    comment: "",
-    code: "",
-  });
+    name: '',
+    eamil: '',
+    address: '',
+    comment: '',
+    code: '',
+  })
   const isRight = computed(() => {
-    return authCode.value.toUpperCase() === msgForm.code.toUpperCase();
-  });
+    return authCode.value.toUpperCase() === msgForm.code.toUpperCase()
+  })
   const showTip = () => {
-    showToast.value = true;
+    showToast.value = true
     setTimeout(() => {
-      showToast.value = false;
-    }, 1500);
-  };
-  const confirmHandle = async () => {
-    const keys = Object.keys(msgForm);
-    console.log(isRight, authCode.value.toUpperCase() === msgForm.code.toUpperCase());
+      showToast.value = false
+    }, 1500)
+  }
+  const confirmHandle = () => {
+    const keys = Object.keys(msgForm)
+    console.log(isRight, authCode.value.toUpperCase() === msgForm.code.toUpperCase())
     if (!isRight.value) {
       // console.log("验证码错误！");
-      messageDanger("验证码错误！");
-      showTip();
-      return;
+      messageDanger('验证码错误！')
+      showTip()
+      return
     }
-    if (keys.every((v) => !v)) {
-      showTip();
+    if (keys.every(v => !v)) {
+      showTip()
     }
-    console.log(msgForm);
-    request.post("/msgboard", msgForm);
-    messageSuccess("留言成功");
-    keys.forEach((k) => (msgForm[k] = ""));
-  };
+    console.log(msgForm)
+    request.post('/msgboard', msgForm)
+    messageSuccess('留言成功')
+    keys.forEach(k => (msgForm[k] = ''))
+  }
 
   useHead({
-    title: "留言板",
-    titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`,
-  });
+    title: '留言板',
+    titleTemplate: title => `${title} - 江夏的个人博客 - 记录生活记录你~`,
+  })
 </script>
 <template>
   <NuxtLayout name="main-content">
@@ -61,7 +61,7 @@
       <div
         class="card card-compact flex-shrink-0 w-full md:max-w-sm shadow-2xl bg-base-100 form-wrap relative"
       >
-        <div class="alert alert-info absolute top-0 left-0" v-show="showToast">
+        <div v-show="showToast" class="alert alert-info absolute top-0 left-0">
           <div>
             <span>请填写完整信息哦！</span>
           </div>
@@ -72,29 +72,28 @@
               <span class="label-text"><span class="text-red-600 px-2">*</span>昵称</span>
             </label>
             <input
+              v-model="msgForm.name"
               type="text"
               placeholder="您的昵称"
               class="input input-bordered"
-              v-model="msgForm.name"
-            />
+            >
           </div>
           <div class="form-control">
             <label class="label">
               <span class="label-text"><span class="text-red-600 px-2">*</span>邮件</span>
             </label>
             <input
+              v-model="msgForm.eamil"
               type="text"
               placeholder="您的邮件"
               class="input input-bordered"
-              v-model="msgForm.eamil"
-            />
+            >
             <label class="label">
               <a
                 href="http://milu.blog/message"
                 class="label-text-alt link link-primary link-hover"
                 target="_blank"
-                >Gravatar?</a
-              >
+              >Gravatar?</a>
             </label>
           </div>
 
@@ -103,11 +102,11 @@
               <span class="label-text"><span class="text-red-600 px-2">*</span>主页</span>
             </label>
             <input
+              v-model="msgForm.address"
               type="text"
               placeholder="您的主页"
               class="input input-bordered"
-              v-model="msgForm.address"
-            />
+            >
           </div>
 
           <div class="form-control">
@@ -115,10 +114,10 @@
               <span class="label-text"><span class="text-red-600 px-2">*</span>评论</span>
             </label>
             <textarea
+              v-model="msgForm.comment"
               class="textarea textarea-bordered"
               placeholder="您的评论"
-              v-model="msgForm.comment"
-            ></textarea>
+            />
           </div>
 
           <div class="form-control">
@@ -127,20 +126,21 @@
             </label>
             <div class="flex justify-between items-center mb-2">
               <xia-auth-code
-                class="bg-base-300 rounded-sm"
                 ref="authCodeRef"
+                class="bg-base-300 rounded-sm"
                 @created="createdHandle"
               />
 
-              <span class="label-text-alt link link-secondary link-hover" @click="createCodeHandle"
-                >看不清？重新生成</span
-              >
+              <span
+                class="label-text-alt link link-secondary link-hover"
+                @click="createCodeHandle"
+              >看不清？重新生成</span>
             </div>
             <input
-              class="input input-bordered"
               v-model="msgForm.code"
+              class="input input-bordered"
               placeholder="请输入图片中的验证码"
-            />
+            >
           </div>
 
           <div class="form-control mt-6">
@@ -161,7 +161,7 @@
               <div class="avatar h-16 w-16 ml-3">
                 <div class="w-24 rounded-full bg-base-300" title="点击跳转他的主页！">
                   <a :href="item.address" target="_blank">
-                    <img :alt="item.name" :src="item.avatar" />
+                    <img :alt="item.name" :src="item.avatar">
                   </a>
                 </div>
               </div>

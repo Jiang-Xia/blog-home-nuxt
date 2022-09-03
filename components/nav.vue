@@ -3,100 +3,100 @@
  * @LastEditors: jiangxia
  * @Date: 2021-11-24 20:34:46
  * @LastEditTime: 2022-08-15 21:09:11
- * @Description: 
+ * @Description:
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
 
 <script setup lang="ts">
-  import { ref, computed, reactive } from "vue";
-  import { useRoute, useRouter } from "vue-router";
-  import { getArticleList } from "@/api/article";
-  import dayjs from "dayjs";
-  import { throttle } from "~~/utils";
-  import request from "~~/api/request";
-  import api from "@/api";
-  import { adminUrl } from "@/config";
-  import Yaya from "../assets/images/animal/yaya.svg";
+  import { ref, computed, reactive } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
+  import dayjs from 'dayjs'
+  import Yaya from '../assets/images/animal/yaya.svg'
+  import { getArticleList } from '@/api/article'
+  import { throttle } from '~~/utils'
+  import request from '~~/api/request'
+  import api from '@/api'
+  import { adminUrl } from '@/config'
   const navList = ref([
     {
-      path: "/",
-      title: "首页",
-      icon: "",
+      path: '/',
+      title: '首页',
+      icon: '',
     },
     {
-      path: "/archives",
-      title: "归档",
-      icon: "",
+      path: '/archives',
+      title: '归档',
+      icon: '',
     },
     {
-      path: "/links",
-      title: "友链",
-      icon: "",
+      path: '/links',
+      title: '友链',
+      icon: '',
     },
     {
-      path: "/msgboard",
-      title: "留言板",
-      icon: "",
+      path: '/msgboard',
+      title: '留言板',
+      icon: '',
     },
     {
-      path: "/about",
-      title: "关于",
-      icon: "",
+      path: '/about',
+      title: '关于',
+      icon: '',
     },
     {
-      path: "/au-vi",
-      title: "音视频",
-      icon: "",
+      path: '/au-vi',
+      title: '音视频',
+      icon: '',
     },
     {
-      path: "/tool",
-      title: "工具箱",
-      icon: "",
-    },
-  ]);
+      path: '/tool',
+      title: '工具箱',
+      icon: '',
+    }
+  ])
 
-  const token = useToken();
-  const userInfo = useUserInfo();
+  const token = useToken()
+  const userInfo = useUserInfo()
   // init()
   /* 切换主题 开始 */
-  const theme = useTheme();
+  const theme = useTheme()
 
-  const iconClass = ref("blog-light");
+  const iconClass = ref('blog-light')
   const setTheme = (type: string) => {
-    iconClass.value = "blog-" + type;
-    document.documentElement.className = type;
-    document.documentElement.setAttribute("data-theme", type);
-    localStorage.setItem("theme", type);
-    theme.value = type;
-  };
+    iconClass.value = 'blog-' + type
+    document.documentElement.className = type
+    document.documentElement.setAttribute('data-theme', type)
+    localStorage.setItem('theme', type)
+    theme.value = type
+  }
   const getHour = () => {
-    const time = dayjs().hour();
+    const time = dayjs().hour()
     // 白天
-    if (6 < time && time < 18) {
-      theme.value = "light";
+    if (time > 6 && time < 18) {
+      theme.value = 'light'
     } else {
-      theme.value = "dark";
+      theme.value = 'dark'
     }
-    setTheme(theme.value);
-  };
+    setTheme(theme.value)
+  }
   onMounted(() => {
-    console.log(localStorage.getItem("theme"));
-    const themeType = localStorage.getItem("theme");
+    console.log(localStorage.getItem('theme'))
+    const themeType = localStorage.getItem('theme')
     if (themeType) {
       // 都有设置icon和选中
-      setTheme(themeType);
+      setTheme(themeType)
     } else {
-      getHour();
+      getHour()
     }
-  });
+  })
   // 点击icon直接切换
   const clickIcon = () => {
-    if (theme.value === "light") {
-      setTheme("dark");
+    if (theme.value === 'light') {
+      setTheme('dark')
     } else {
-      setTheme("light");
+      setTheme('light')
     }
-  };
+  }
   /* 切换主题 结束 */
 
   /* 搜索文章 */
@@ -105,50 +105,50 @@
   const queryPrams = reactive<queryState>({
     page: 1,
     pageSize: 20,
-    title: "",
-    description: "",
-    content: "",
-  });
-  const searchText = ref("");
-  const articleList: any = ref([]);
+    title: '',
+    description: '',
+    content: '',
+  })
+  const searchText = ref('')
+  const articleList: any = ref([])
   const getArticleListHandle = async () => {
-    const res = await getArticleList(queryPrams);
+    const res = await getArticleList(queryPrams)
     articleList.value = res.list.map((v: any) => {
       return {
         value: v.title,
         label: v.title,
         id: v.id,
-      };
-    });
-  };
+      }
+    })
+  }
 
   const onSearchHandle = throttle(() => {
     if (searchText.value) {
-      queryPrams.page = 1;
-      queryPrams.title = searchText.value;
-      queryPrams.description = searchText.value;
-      queryPrams.content = searchText.value;
-      getArticleListHandle();
+      queryPrams.page = 1
+      queryPrams.title = searchText.value
+      queryPrams.description = searchText.value
+      queryPrams.content = searchText.value
+      getArticleListHandle()
     } else {
-      articleList.value = [];
+      articleList.value = []
     }
-  }, 500);
+  }, 500)
 
   const clear = () => {
-    token.value = "";
-    localStorage.setItem("x-token", "");
-  };
+    token.value = ''
+    localStorage.setItem('x-token', '')
+  }
   if (process.client) {
-    token.value = localStorage.getItem("x-token") || ("" as string);
+    token.value = localStorage.getItem('x-token') || ('' as string)
     if (token.value) {
       api.getUserInfo().then((res: any) => {
-        userInfo.value = res;
-      });
+        userInfo.value = res
+      })
     } else {
-      clear();
+      clear()
     }
   }
-  const goUrl = `${adminUrl}?ticket=${token.value}`;
+  const goUrl = `${adminUrl}?ticket=${token.value}`
 </script>
 <template>
   <div class="navbar bg-transparent text-gray-100 dark:text-gray-300">
@@ -181,9 +181,10 @@
           </li>
         </ul>
       </div>
-      <a class="hidden sm:inline-flex btn btn-ghost normal-case text-xl gradient-text" href="/"
-        >Xia</a
-      >
+      <a
+        class="hidden sm:inline-flex btn btn-ghost normal-case text-xl gradient-text"
+        href="/"
+      >Xia</a>
     </div>
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal p-0">
@@ -199,21 +200,21 @@
       <div class="dropdown relative">
         <label tabindex="0">
           <input
+            v-model="searchText"
             type="text"
             placeholder="搜索"
             class="input w-full input-bordered input-ghost input-md"
-            v-model="searchText"
+            autocomplete="off"
             @input="onSearchHandle"
             @keyup.enter="onSearchHandle"
-            autocomplete="off"
-          />
+          >
         </label>
         <ul
           v-if="articleList.length"
           tabindex="0"
           class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52 max-h-72 text-gray-500 text-xs overflow-auto"
         >
-          <li class="flex items-center" v-for="(item, index) in articleList">
+          <li v-for="(item, index) in articleList" class="flex items-center">
             <NuxtLink class="py-2 px-4" :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
           </li>
         </ul>
@@ -222,10 +223,10 @@
       <xia-icon class="cursor-pointer px-3" :icon="iconClass" @click="clickIcon" />
 
       <NuxtLink
+        v-if="!token"
         class="btn btn-ghost inline-flex tracking-wide"
         to="/login"
         title="登录"
-        v-if="!token"
       >
         登录
         <!-- <svg
@@ -244,10 +245,10 @@
         </svg> -->
       </NuxtLink>
 
-      <div class="dropdown dropdown-end" v-if="token">
+      <div v-if="token" class="dropdown dropdown-end">
         <label tabindex="0" class="btn btn-ghost btn-circle avatar">
           <div class="w-10 rounded-full text-center leading-loose">
-            <img :src="userInfo.avatar || Yaya" :alt="userInfo.nickname" />
+            <img :src="userInfo.avatar || Yaya" :alt="userInfo.nickname">
           </div>
         </label>
         <ul

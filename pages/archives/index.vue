@@ -9,13 +9,13 @@ const {
   data: archivesInfo,
   pending,
   refresh,
-  error
+  error,
 } = await useAsyncData('archives_GetList', () => getArchives())
 defaultActiveKey.value = Object.keys(archivesInfo.value)
 
 useHead({
   title: '归档',
-  titleTemplate: title => `${title} - 江夏的个人博客 - 记录生活记录你~`
+  titleTemplate: title => `${title} - 江夏的个人博客 - 记录生活记录你~`,
 })
 </script>
 

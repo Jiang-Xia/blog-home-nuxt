@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PropType } from "vue";
+import { PropType } from 'vue'
 const props = defineProps({
   images: {
     type: Array as PropType<BannerState[]>,
@@ -17,66 +17,66 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-});
-let timer = null; // 清楚定时器
-let isHover = false; // hover时不轮播
+})
+let timer = null // 清楚定时器
+let isHover = false // hover时不轮播
 onMounted(() => {
   // console.log(carouselRef);
-  startTimer();
-});
+  startTimer()
+})
 onUnmounted(() => {
-  clearTimer();
-});
+  clearTimer()
+})
 const clearTimer = () => {
-  isHover = true;
-  clearInterval(timer);
-  timer = null;
-};
+  isHover = true
+  clearInterval(timer)
+  timer = null
+}
 const startTimer = () => {
-  isHover = false;
+  isHover = false
   timer = setInterval(() => {
-    if (isHover) return;
-    next();
-  }, props.duration);
-};
+    if (isHover) { return }
+    next()
+  }, props.duration)
+}
 
-const carouselRef = ref(null);
+const carouselRef = ref(null)
 // 多个ref就绑定为数组
-const itemRefs = ref([]);
-const currentIndex = ref(0);
+const itemRefs = ref([])
+const currentIndex = ref(0)
 // 设置滚动条
 const setScrollLeft = () => {
-  const left = itemRefs.value[currentIndex.value].offsetWidth;
+  const left = itemRefs.value[currentIndex.value].offsetWidth
   // console.log(currentIndex.value, left);
-  carouselRef.value.scrollLeft = currentIndex.value * left;
-};
+  carouselRef.value.scrollLeft = currentIndex.value * left
+}
 
-const len = computed(() => props.images.length);
+const len = computed(() => props.images.length)
 const next = () => {
-  currentIndex.value++;
+  currentIndex.value++
   if (currentIndex.value >= len.value) {
-    currentIndex.value = 0;
+    currentIndex.value = 0
   }
-  setScrollLeft();
-};
+  setScrollLeft()
+}
 const prev = () => {
-  currentIndex.value--;
+  currentIndex.value--
   if (currentIndex.value <= 0) {
-    currentIndex.value = len.value - 1;
+    currentIndex.value = len.value - 1
   }
-  setScrollLeft();
-};
+  setScrollLeft()
+}
 </script>
 <script lang="ts"></script>
 <template>
-  <div class="xia-carousel" ref="carouselRef">
+  <div ref="carouselRef" class="xia-carousel">
     <div
-      class="xia-carousel-item"
       v-for="(image, index) in images"
       :key="image.title+index"
+      ref="itemRefs"
+      class="xia-carousel-item"
       :style="{ backgroundImage: `url(${image.url})` }"
       :title="image.title"
-      ref="itemRefs"
       @mouseout="clearTimer"
       @mouseleave="startTimer"
     >
@@ -84,15 +84,15 @@ const prev = () => {
         v-if="arrow"
         class="absolute flex justify-between transform -translate-y-1/2 left-0 right-0 top-1/2"
       >
-        <span @click="prev" class="arrow-btn rounded-tr-md rounded-br-md"
-          >❮</span
-        >
         <span
-          @click="next"
+          class="arrow-btn rounded-tr-md rounded-br-md"
+          @click="prev"
+        >❮</span>
+        <span
           href="#"
           class="arrow-btn rounded-tl-md rounded-bl-md"
-          >❯</span
-        >
+          @click="next"
+        >❯</span>
       </div>
     </div>
   </div>

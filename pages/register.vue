@@ -1,17 +1,17 @@
 <script setup lang="ts">
-  import { useToast } from "tailvue";
-  import { reactive, ref } from "vue";
-  import request from "~~/api/request.js";
-  import { getRandomAvatar } from "~~/utils/common";
-  import { messageDanger, messageSuccess } from "~~/utils/toast";
+  import { useToast } from 'tailvue'
+  import { reactive, ref } from 'vue'
+  import request from '~~/api/request.js'
+  import { getRandomAvatar } from '~~/utils/common'
+  import { messageDanger, messageSuccess } from '~~/utils/toast'
 
   definePageMeta({
-    layout: "custom", // 不使用default布局
-  });
+    layout: 'custom', // 不使用default布局
+  })
   useHead({
-    title: "注册",
-    titleTemplate: (title) => `${title} - 江夏的个人博客-记录生活记录你~`,
-  });
+    title: '注册',
+    titleTemplate: title => `${title} - 江夏的个人博客-记录生活记录你~`,
+  })
   interface formState extends StringKey {
     mobile: string;
     password: string;
@@ -20,34 +20,34 @@
     avatar?: string;
   }
   const form: formState = reactive({
-    password: "",
-    passwordRepeat: "",
-    nickname: "",
-    mobile: "",
+    password: '',
+    passwordRepeat: '',
+    nickname: '',
+    mobile: '',
     avatar: getRandomAvatar() as string,
-  });
+  })
   /* 登录 */
   const okHandle = async () => {
-    form.passwordRepeat = form.password;
+    form.passwordRepeat = form.password
     const msg: formState = {
-      mobile: "填写手机号",
-      password: "填写密码",
-      nickname: "填写昵称",
-      passwordRepeat: "再次填写密码",
-    };
-    for (let key in form) {
+      mobile: '填写手机号',
+      password: '填写密码',
+      nickname: '填写昵称',
+      passwordRepeat: '再次填写密码',
+    }
+    for (const key in form) {
       if (!form[key]) {
         // console.log(msg[key]);
-        messageDanger(msg[key] as string);
-        return;
+        messageDanger(msg[key] as string)
+        return
       }
     }
-    await request.post("/user/register", form).then((res) => res.data.info);
-    messageDanger("注册成功");
+    await request.post('/user/register', form).then(res => res.data.info)
+    messageDanger('注册成功')
     setTimeout(() => {
-      navigateTo("/login");
-    }, 500);
-  };
+      navigateTo('/login')
+    }, 500)
+  }
 </script>
 <template>
   <div class="form-container">
@@ -59,11 +59,11 @@
             <h1 class="card-title">注 册</h1>
             <div
               class="avatar btn btn-ghost btn-circle btn-sm"
-              @click="form.avatar = getRandomAvatar()"
               title="点击切换头像"
+              @click="form.avatar = getRandomAvatar()"
             >
               <div class="rounded-full">
-                <img :src="form.avatar" />
+                <img :src="form.avatar">
               </div>
             </div>
           </div>
@@ -72,40 +72,41 @@
               <span class="label-text">手机号</span>
             </label>
             <input
+              v-model="form.mobile"
               type="text"
               class="input"
-              v-model="form.mobile"
               maxlength="11"
               placeholder="手机号"
-            />
+            >
           </div>
           <div class="form-control">
             <label class="label">
               <span class="label-text">昵称</span>
             </label>
             <input
+              v-model="form.nickname"
               type="text"
               class="input"
-              v-model="form.nickname"
               maxlength="16"
               placeholder="昵称"
-            />
+            >
           </div>
           <div class="form-control">
             <label class="label">
               <span class="label-text">密码</span>
             </label>
             <input
+              v-model="form.password"
               type="password"
               class="input"
-              v-model="form.password"
               maxlength="16"
               placeholder="密码"
-            />
+            >
           </div>
-          <a href="/login" class="link text-xs text-gray-600 hover:text-gray-500 mt-1"
-            >已有账号?快去登录吧！</a
-          >
+          <a
+            href="/login"
+            class="link text-xs text-gray-600 hover:text-gray-500 mt-1"
+          >已有账号?快去登录吧！</a>
 
           <div class="form-control mt-4">
             <button class="btn btn-primary" @click.prevent="okHandle">注 册</button>

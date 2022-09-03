@@ -25,4 +25,4 @@ interface userInfoState {
   uid: number | null;
 }
 
-declare module "js-cookie";
+declare module 'js-cookie';

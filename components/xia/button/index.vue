@@ -1,15 +1,15 @@
 <script setup lang="ts">
-  import { reactive, ref } from "vue";
-  const emit = defineEmits(["click"]);
+  import { reactive, ref } from 'vue'
+  const emit = defineEmits(['click'])
   defineProps({
     text: {
       type: String,
-      default: "按钮",
+      default: '按钮',
     },
-  });
+  })
 </script>
 <template>
-  <div @click="emit('click')" class="gradient-border text-md sm:text-xl py-2 px-4 sm:py-3 sm:px-6 cursor-pointer">
+  <div class="gradient-border text-md sm:text-xl py-2 px-4 sm:py-3 sm:px-6 cursor-pointer" @click="emit('click')">
     <!-- 回到首页 -->
     <slot>{{ text }}</slot>
   </div>

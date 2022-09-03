@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { reactive, ref, PropType } from "vue";
-import { throttle, tocInter } from "@/utils";
+import { reactive, ref, PropType } from 'vue'
+import { throttle, tocInter } from '@/utils'
 const props = defineProps({
   topics: {
     type: Array as PropType<tocInter[]>,
     default: () => [],
   },
-});
+})
 const goTopicItem = (item: tocInter) => {
-  const dom: HTMLElement | null = document.getElementById(item.id);
+  const dom: HTMLElement | null = document.getElementById(item.id)
   if (dom) {
-    const wh = window.innerHeight * 0.4 + 20; // 20为margin值
-    const top = dom.offsetTop;
-    document.documentElement.scrollTop = wh + top - 58;
+    const wh = window.innerHeight * 0.4 + 20 // 20为margin值
+    const top = dom.offsetTop
+    document.documentElement.scrollTop = wh + top - 58
   }
-};
+}
 // 滚动高亮目录没有做
 // const currentActive = ref(null)
 // const scrollHandle = (e: any) => {
@@ -23,8 +23,8 @@ const goTopicItem = (item: tocInter) => {
 // window.addEventListener('scroll', throttle(scrollHandle, 100), true)
 </script>
 <template>
-  <transition-group name="fade" key="catalogue-wrap">
-    <aside class="aisde-wrap" key="aisde-wrap">
+  <transition-group key="catalogue-wrap" name="fade">
+    <aside key="aisde-wrap" class="aisde-wrap">
       <div class="catalogue-wrap">
         <p class="heading">目录</p>
         <div

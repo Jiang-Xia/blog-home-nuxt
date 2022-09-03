@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
-  layout: 'custom' // 不使用default布局
+  layout: 'custom', // 不使用default布局
 })
 const route = useRoute()
 </script>
