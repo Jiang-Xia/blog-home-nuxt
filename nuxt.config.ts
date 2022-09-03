@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   },
   
   css: [
-    "~/assets/css/tailwind.css",
+    "~/assets/css/main.css",
     "~/assets/font/iconfont.css",
   ],
   build: {
