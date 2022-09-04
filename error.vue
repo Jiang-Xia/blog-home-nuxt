@@ -51,7 +51,7 @@
       filter: blur(20vh);
     }
     .img-wrap {
-      background-image: url(../assets/images/gif/error.gif);
+      background-image: url(https://jiang-xia.top/x-api/blog-server/static/uploads/2022-08-27/3d2ro4sgqwxlhmic5w6o7a-error.gif);
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;

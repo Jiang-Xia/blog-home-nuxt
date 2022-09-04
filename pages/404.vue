@@ -6,7 +6,7 @@ const route = useRoute()
 </script>
 <template>
   <div class="common-page">
-    <img src="../assets/images/gif/404.gif" alt="404">
+    <img src="https://jiang-xia.top/x-api/blog-server/static/uploads/2022-08-27/tx5o5qbp1byoxqvtvsg9n6-404.gif" alt="404">
     <div class="b-text">
       <div
         class="gradient-text text-xl px-8 sm:px-0 sm:text-4xl md:mb-6 font-light h-11 leading-none"
