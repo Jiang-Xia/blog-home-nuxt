@@ -21,37 +21,37 @@
     {
       path: '/',
       title: '首页',
-      icon: '',
+      icon: 'blog-shouye',
     },
     {
       path: '/archives',
       title: '归档',
-      icon: '',
+      icon: 'blog-guidang',
     },
     {
       path: '/links',
       title: '友链',
-      icon: '',
+      icon: 'blog-lianjie',
     },
     {
       path: '/msgboard',
       title: '留言板',
-      icon: '',
+      icon: 'blog-liuyanguanli',
     },
     {
       path: '/about',
       title: '关于',
-      icon: '',
+      icon: 'blog-about',
     },
     {
       path: '/au-vi',
       title: '音视频',
-      icon: '',
+      icon: 'blog-shipin',
     },
     {
       path: '/tool',
       title: '工具箱',
-      icon: '',
+      icon: 'blog-tool',
     }
   ])
 
@@ -176,6 +176,7 @@
         >
           <li v-for="(item, index) in navList" :key="item.path">
             <NuxtLink class="py-2 px-4 flex" :to="item.path">
+              <xia-icon :icon="item.icon" />
               <span>{{ item.title }}</span>
             </NuxtLink>
           </li>
@@ -186,16 +187,18 @@
         href="/"
       >Xia</a>
     </div>
-    <div class="navbar-center hidden lg:flex">
+    <div class="navbar-center hidden md:flex">
       <ul class="menu menu-horizontal p-0">
         <li v-for="(item, index) in navList" :key="item.path" class="mr-2">
           <NuxtLink :to="item.path" class="router-link-item leading-6 flex items-center px-4 py-3">
-            <span>{{ item.title }}</span>
+            <xia-icon class="hidden md:flex" :icon="item.icon" />
+            <span class="hidden xl:flex">{{ item.title }}</span>
           </NuxtLink>
         </li>
       </ul>
     </div>
 
+    <!-- 右边搜索 -->
     <div class="navbar-end flex-1 flex items-center">
       <div class="dropdown relative">
         <label tabindex="0">
