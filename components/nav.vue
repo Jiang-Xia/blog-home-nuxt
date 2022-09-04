@@ -42,17 +42,17 @@
       path: '/about',
       title: '关于',
       icon: 'blog-about',
-    },
-    {
-      path: '/au-vi',
-      title: '音视频',
-      icon: 'blog-shipin',
-    },
-    {
-      path: '/tool',
-      title: '工具箱',
-      icon: 'blog-tool',
     }
+    // {
+    //   path: '/au-vi',
+    //   title: '音视频',
+    //   icon: 'blog-shipin',
+    // },
+    // {
+    //   path: '/tool',
+    //   title: '工具箱',
+    //   icon: 'blog-tool',
+    // }
   ])
 
   const token = useToken()
@@ -190,7 +190,11 @@
     <div class="navbar-center hidden md:flex">
       <ul class="menu menu-horizontal p-0">
         <li v-for="(item, index) in navList" :key="item.path" class="mr-2">
-          <NuxtLink :to="item.path" class="router-link-item leading-6 flex items-center px-4 py-3" :title="item.title">
+          <NuxtLink
+            :to="item.path"
+            class="router-link-item leading-6 flex items-center px-4 py-3"
+            :title="item.title"
+          >
             <xia-icon class="hidden md:flex" :icon="item.icon" />
             <span class="hidden xl:flex">{{ item.title }}</span>
           </NuxtLink>
