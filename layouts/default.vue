@@ -136,16 +136,19 @@ useHead({
     }
   }
   &-body {
-    min-height: 60vh;
+    min-height: calc(100vh - 60px);
   }
 
   &-footer {
-    // background-color: var(--main-bgc);
-    padding: 24px 1.5vw;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 1.5vw;
     line-height: 1.7;
-    // color: var(--text-color2);
-    height: auto;
+    color: var(--text-color2);
+    height: 60px;
+    font-size: 12px;
   }
 }
 </style>

@@ -175,7 +175,7 @@
           class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-zinc-500"
         >
           <li v-for="(item, index) in navList" :key="item.path">
-            <NuxtLink class="py-2 px-4 flex" :to="item.path">
+            <NuxtLink class="py-2 px-4 flex" :to="item.path" :title="item.title">
               <xia-icon :icon="item.icon" />
               <span>{{ item.title }}</span>
             </NuxtLink>
@@ -190,7 +190,7 @@
     <div class="navbar-center hidden md:flex">
       <ul class="menu menu-horizontal p-0">
         <li v-for="(item, index) in navList" :key="item.path" class="mr-2">
-          <NuxtLink :to="item.path" class="router-link-item leading-6 flex items-center px-4 py-3">
+          <NuxtLink :to="item.path" class="router-link-item leading-6 flex items-center px-4 py-3" :title="item.title">
             <xia-icon class="hidden md:flex" :icon="item.icon" />
             <span class="hidden xl:flex">{{ item.title }}</span>
           </NuxtLink>
