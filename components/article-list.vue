@@ -1,17 +1,17 @@
 <script setup lang="ts">
-  import { getArticleList } from "@/api/article";
+  import { ref, reactive, onMounted, computed, toRefs } from 'vue'
+  import { useStorage } from '@vueuse/core'
+  import { getArticleList } from '@/api/article'
   import {
     categoryOptions,
     tagsOptions,
     getOptions,
     updateLikesHandle,
     formactDate,
-    xBLogStore,
-  } from "@/utils/common";
-  import { ref, reactive, onMounted, computed, toRefs } from "vue";
-  import { useStorage } from "@vueuse/core";
-  import { isTrueCoverLink } from "@/utils";
-  import { colorRgb } from "~~/utils/color";
+    xBLogStore
+  } from '@/utils/common'
+  import { isTrueCoverLink } from '@/utils'
+  import { colorRgb } from '~~/utils/color'
   interface queryState {
     page: number;
     category: string;
@@ -30,21 +30,21 @@
   }
   // const store = useStore()
   // 文章列表中的每一项item都为any
-  const articleListDefault: any[] = [];
-  const articleList = ref(articleListDefault);
+  const articleListDefault: any[] = []
+  const articleList = ref(articleListDefault)
 
   const queryPrams: queryState = reactive({
     page: 1,
-    category: "",
+    category: '',
     tags: [],
     pageSize: 12,
     total: 0,
-    title: "",
-    description: "",
-    content: "",
+    title: '',
+    description: '',
+    content: '',
     client: true,
-    sort: "DESC", // 降序
-  });
+    sort: 'DESC', // 降序
+  })
 
   /*
    * 第一个参数为唯一key
@@ -58,110 +58,108 @@
     pending,
     refresh,
     error,
-  } = await useAsyncData("index_GetList", () => getArticleList(queryPrams));
+  } = await useAsyncData('index_GetList', () => getArticleList(queryPrams))
   if (articleData.value) {
-    articleList.value = articleData.value.list;
-    queryPrams.total = articleData.value.pagination.total;
+    articleList.value = articleData.value.list
+    queryPrams.total = articleData.value.pagination.total
   }
   // console.log({articleData:articleData.value})
   // 此测试印证上面描述
   // const { data: articleData } = await useAsyncData("index_GetList", () =>
   //   Promise.resolve()
   // );
-  getOptions("标签");
-  getOptions("分类");
+  getOptions('标签')
+  getOptions('分类')
   // 下一页
   const getArticleListHandle = async (val = 1) => {
-    queryPrams.page = val;
-    const res = await getArticleList(queryPrams);
-    articleList.value = res.list;
-    queryPrams.total = res.pagination.total;
-  };
+    queryPrams.page = val
+    const res = await getArticleList(queryPrams)
+    articleList.value = res.list
+    queryPrams.total = res.pagination.total
+  }
   // 获取标签名(暂时没有用)
   const getTagLabel = (arr: []): string => {
     // 如果是js的话，这个方法会写得很简单
     //  ts的话，它会提前对各种值进行类型推导，避免了一些取值的错误（比如在undefined和null取属性值）
-    let text = arr.map((v: any) => v.label).join();
-    return text;
-  };
+    const text = arr.map((v: any) => v.label).join()
+    return text
+  }
 
   // 点击tag
   const clickTagHandle = (item: itemState, type: string) => {
-    if (type === "分类") {
+    if (type === '分类') {
       if (queryPrams.category === item.id) {
         // 清空选中
-        queryPrams.category = "";
+        queryPrams.category = ''
       } else {
-        queryPrams.category = item.id;
+        queryPrams.category = item.id
       }
     } else {
       // 标签
-      item.checked = !item.checked;
+      item.checked = !item.checked
 
-      const list: any = [...queryPrams.tags];
+      const list: any = [...queryPrams.tags]
       if (!item.checked) {
-        list.splice(list.indexOf(item.id), 1);
-      } else {
-        if (!list.includes(item.id)) {
-          list.push(item.id);
+        list.splice(list.indexOf(item.id), 1)
+      } else if (!list.includes(item.id)) {
+          list.push(item.id)
         }
-      }
-      queryPrams.tags = list;
+      queryPrams.tags = list
       // console.log(queryPrams.tags);
     }
-    getArticleListHandle(1);
-  };
+    getArticleListHandle(1)
+  }
   // 分页
-  const current = ref(1);
+  const current = ref(1)
   const currentChangeHandle = (val: number) => {
-    getArticleListHandle(val);
-  };
+    getArticleListHandle(val)
+  }
 
   // 模糊搜索
-  const searchText = ref("");
+  const searchText = ref('')
   const onSearchHandle = () => {
-    queryPrams.page = 1;
-    queryPrams.category = "";
-    queryPrams.tags = [];
-    queryPrams.title = searchText.value;
-    queryPrams.description = searchText.value;
-    queryPrams.content = searchText.value;
-    getArticleListHandle(1);
-  };
+    queryPrams.page = 1
+    queryPrams.category = ''
+    queryPrams.tags = []
+    queryPrams.title = searchText.value
+    queryPrams.description = searchText.value
+    queryPrams.content = searchText.value
+    getArticleListHandle(1)
+  }
   const changeSort = () => {
-    queryPrams.sort === "ASC" ? (queryPrams.sort = "DESC") : (queryPrams.sort = "ASC");
-    getArticleListHandle();
-  };
+    queryPrams.sort === 'ASC' ? (queryPrams.sort = 'DESC') : (queryPrams.sort = 'ASC')
+    getArticleListHandle()
+  }
 
   // 颜色转换
   const toRgb = (color: string) => {
-    color = colorRgb(color);
-    color = color.replace(")", ",0.24)");
-    return color;
-  };
+    color = colorRgb(color)
+    color = color.replace(')', ',0.24)')
+    return color
+  }
 
-  let likes = ref([]);
+  const likes = ref([])
   // 客户端执行
   // 本地点赞记录
-  const localLikes = computed(() => likes.value);
+  const localLikes = computed(() => likes.value)
   // 客户端徐根据缓存需重新渲染
   onMounted(() => {
-    likes.value = xBLogStore.value.likes;
+    likes.value = xBLogStore.value.likes
     articleList.value = articleList.value.map((v: any) => {
-      v.checked = likes.value.includes(v.id);
-      return v;
-    });
-  });
+      v.checked = likes.value.includes(v.id)
+      return v
+    })
+  })
 </script>
 
 <template>
   <div class="article-list-container">
     <section class="main-article-wrap">
       <!-- lg:w-5/12 -->
-      <transition-group name="list" key="main-article-wrap">
-        <div class="article-item" v-for="(item, index) in articleList" :key="item.id">
+      <transition-group key="main-article-wrap" name="list">
+        <div v-for="(item, index) in articleList" :key="item.id" class="article-item">
           <figure>
-            <img class="h-52 w-full" :alt="item.category.label" :src="item.cover" />
+            <img class="h-52 w-full" :alt="item.category.label" :src="item.cover">
           </figure>
           <div class="card-body">
             <h2 class="card-title">
@@ -182,9 +180,7 @@
                   {{ getTagLabel(item.tags) }}
                 </span>
                 <!-- 阅读量 -->
-                <span class="text-icon pointer"
-                  ><xia-icon icon="blog-view" class="mr-1" />{{ item.views }}</span
-                >
+                <span class="text-icon pointer"><xia-icon icon="blog-view" class="mr-1" />{{ item.views }}</span>
                 <!-- 点赞数 -->
                 <span class="text-icon pointer" @click.stop="updateLikesHandle(item)">
                   <xia-icon
@@ -203,7 +199,7 @@
                 <div class="flex items-center">
                   <div class="avatar btn btn-ghost btn-circle btn-xs">
                     <div class="rounded-full">
-                      <img :src="item.userInfo.avatar" />
+                      <img :src="item.userInfo.avatar">
                     </div>
                   </div>
                   <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
@@ -223,15 +219,15 @@
           v-show="!articleList.length"
           :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
           description="找不到文章..."
-        ></xia-empty>
+        />
         <!-- 分页 -->
         <xia-pagination
           :current-page="current"
           :page-size="queryPrams.pageSize"
           :total="queryPrams.total"
-          @change="currentChangeHandle"
           :max="5"
-        ></xia-pagination>
+          @change="currentChangeHandle"
+        />
       </div>
     </section>
     <!-- 右边筛选卡片 -->
@@ -271,12 +267,12 @@
             </svg>
           </button>
           <input
-            type="text"
             v-model="searchText"
+            type="text"
             placeholder="输入标题或者摘要"
-            @keyup.enter="onSearchHandle"
             class="input input-bordered input-sm"
-          />
+            @keyup.enter="onSearchHandle"
+          >
           <button class="btn btn-square w-10 btn-sm" @click="onSearchHandle">
             <svg
               xmlns="http://www.w3.org/2000/svg"

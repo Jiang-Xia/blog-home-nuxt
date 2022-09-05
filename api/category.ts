@@ -8,6 +8,6 @@ export const getAllCategory = async () => {
   return res.data
 }
 export const createCategory = async (data: any) => {
-  const res = await request.post('/category',data)
+  const res = await request.post('/category', data)
   return res.data
 }

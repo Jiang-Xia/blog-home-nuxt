@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { messageDanger } from '~~/utils/toast';
+import { messageDanger } from '~~/utils/toast'
 
 const props = defineProps({
   name: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 const emits = defineEmits(['replyed'])
 const inputContent = ref('')
-const addReplytHandle = async () => {
+const addReplytHandle = () => {
   if (!inputContent.value) {
     messageDanger('请输入你的回复！')
   }
@@ -19,17 +19,17 @@ const addReplytHandle = async () => {
 const placeholder = computed(() => {
   return '@' + props.name
 })
-const replyClear = async () => {
-  inputContent.value = ''
-}
+// const replyClear = () => {
+//   inputContent.value = ''
+// }
 // clear
 </script>
 <template>
   <transition-group name="fade">
     <div key="reply-container" class="reply-container">
       <textarea
-        class="textarea textarea-ghost w-full bg-base-300"
         v-model="inputContent"
+        class="textarea textarea-ghost w-full bg-base-300"
         :placeholder="placeholder"
         :max-length="100"
       />

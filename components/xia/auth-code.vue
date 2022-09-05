@@ -24,37 +24,37 @@ export default {
   props: {
     height: {
       default: 36,
-      type: [String, Number]
+      type: [String, Number],
     },
     width: {
       default: 90,
-      type: [String, Number]
+      type: [String, Number],
     },
     // 验证码数量
     count: {
       default: 4,
-      type: Number
+      type: Number,
     },
     //  自定义验证码，传入的话就不用前端随机生产code
     codes: {
       default: () => [],
-      type: Array
-    }
+      type: Array,
+    },
   },
-  data() {
+  data () {
     return {
-      authCode: ''
+      authCode: '',
     }
   },
-  mounted() {
+  mounted () {
     this.authCode = this.createCode(this.count)
   },
   methods: {
-    createCodeHandle() {
+    createCodeHandle () {
       this.authCode = this.createCode(this.count)
     },
     // 生成并渲染出验证码图形
-    createCode(show_num = 4) {
+    createCode (showNum = 4) {
       const codes = this.codes
       // 得到随机的颜色值
       const randomColor = () => {
@@ -64,21 +64,21 @@ export default {
         return 'rgb(' + r + ',' + g + ',' + b + ')'
       }
       const canvas = this.$refs.authCode
-      const { width, height } = canvas.getBoundingClientRect()
-      const canvas_width = width
-      const canvas_height = height
+      const { width, height, } = canvas.getBoundingClientRect()
+      const canvasWidth = width
+      const canvasHeight = height
       // 获取到canvas的对象，演员
       const context = canvas.getContext('2d')// 获取到canvas画图的环境，演员表演的舞台
       // 需要重新设置width和height，不然画内容的时候width和height不会继承的
-      canvas.width = canvas_width
-      canvas.height = canvas_height
+      canvas.width = canvasWidth
+      canvas.height = canvasHeight
       const sCode = 'a,b,c,d,e,f,g,h,i,j,k,m,n,p,q,r,s,t,u,v,w,x,y,z,A,B,C,E,F,G,H,J,K,L,M,N,P,Q,R,S,T,W,X,Y,Z,1,2,3,4,5,6,7,8,9,0'
       const aCode = sCode.split(',')
 
       const aLength = aCode.length// 获取到数组的长度
       let authCode = ''// 随机号码
       // 这里的for循环可以控制验证码位数（如果想显示6位数，4改成6即可）
-      for (let i = 0; i < show_num; i++) {
+      for (let i = 0; i < showNum; i++) {
         let txt = ''
         if (codes.length) {
           txt = codes[i]
@@ -105,24 +105,24 @@ export default {
       for (let i = 0; i <= 5; i++) {
         context.strokeStyle = randomColor()
         context.beginPath()
-        context.moveTo(Math.random() * canvas_width, Math.random() * canvas_height)
-        context.lineTo(Math.random() * canvas_width, Math.random() * canvas_height)
+        context.moveTo(Math.random() * canvasWidth, Math.random() * canvasHeight)
+        context.lineTo(Math.random() * canvasWidth, Math.random() * canvasHeight)
         context.stroke()
       }
       // 验证码上显示小点
       for (let i = 0; i <= 30; i++) {
         context.strokeStyle = randomColor()
         context.beginPath()
-        const x = Math.random() * canvas_width
-        const y = Math.random() * canvas_height
+        const x = Math.random() * canvasWidth
+        const y = Math.random() * canvasHeight
         context.moveTo(x, y)
         context.lineTo(x + 1, y + 1)
         context.stroke()
       }
-      this.$emit('created',authCode)
+      this.$emit('created', authCode)
       return authCode
-    }
-  }
+    },
+  },
 }
 </script>
 

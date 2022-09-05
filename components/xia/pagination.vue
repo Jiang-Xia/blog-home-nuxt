@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive, ref } from 'vue'
 const props = defineProps({
   total: {
     type: Number,
@@ -25,60 +25,60 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-});
-const totalPages = computed(() => Math.ceil(props.total / props.pageSize));
-const emits = defineEmits(["change"]);
-const current = ref(props.currentPage);
+})
+const totalPages = computed(() => Math.ceil(props.total / props.pageSize))
+const emits = defineEmits(['change'])
+const current = ref(props.currentPage)
 const currentChange = (v: number) => {
   if (v < 1 || v > totalPages.value) {
-    return;
+    return
   }
-  current.value = v;
+  current.value = v
   // console.log(current.value);
-  emits("change", v);
-};
+  emits('change', v)
+}
 const pageList = computed(() => {
-  let pages = [];
+  const pages = []
   for (let i = current.value; i <= totalPages.value; i++) {
     if (pages.length + 1 > props.max) {
-      break;
+      break
     } else {
-      pages.push(i);
+      pages.push(i)
     }
   }
 
-  return pages;
-});
+  return pages
+})
 
-let startEnd = computed(() => {
-  let start = 1,
-    end = 0;
+const startEnd = computed(() => {
+  let start = 1
+    let end = 0
   // 总页数不够，不够最大按钮数
   if (totalPages.value < props.max) {
-    start = 1;
-    end = totalPages.value;
+    start = 1
+    end = totalPages.value
   } else {
-    const max = props.max;
-    start = current.value - Math.floor(max / 2);
-    end = current.value + Math.floor(max / 2);
-    //处理边界问题
+    const max = props.max
+    start = current.value - Math.floor(max / 2)
+    end = current.value + Math.floor(max / 2)
+    // 处理边界问题
     if (start < 1) {
-      start = 1;
-      end = max;
+      start = 1
+      end = max
     }
-    //处理边界问题
+    // 处理边界问题
     if (end > totalPages.value) {
-      end = totalPages.value;
-      start = totalPages.value - max + 1;
+      end = totalPages.value
+      start = totalPages.value - max + 1
     }
   }
-  return { start, end };
-});
+  return { start, end, }
+})
 </script>
 <script lang="ts">
 export default {
-  name: "XiaPagination",
-};
+  name: 'XiaPagination',
+}
 </script>
 <template>
   <div class="btn-group mt-4">
@@ -99,13 +99,13 @@ export default {
       </svg>
     </button>
     <button
-      class="btn"
       v-for="item of startEnd.end"
+      v-show="item >= startEnd.start"
+      class="btn"
       :class="{
         'btn-active': current === item,
       }"
       @click="currentChange(item)"
-      v-show="item >= startEnd.start"
     >
       {{ item }}
     </button>

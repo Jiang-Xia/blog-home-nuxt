@@ -1,27 +1,26 @@
 <script setup lang="ts">
-  import { getArticleInfo, getComment } from "@/api/article";
-  import { ref, reactive, computed } from "vue";
-  import { updateViews, xBLogStore } from "@/utils/common";
-  import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
-  import { updateLikesHandle } from "@/utils/common";
+  import { ref, reactive, computed } from 'vue'
+  import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
+  import MdEditor from 'md-editor-v3'
+  import { getArticleInfo, getComment } from '@/api/article'
+  import { updateViews, xBLogStore, updateLikesHandle } from '@/utils/common'
 
-  import defaultImg from "@/assets/images/create.webp";
-  import { makeToc, tocInter, isTrueCoverLink } from "@/utils";
-  import MdEditor from "md-editor-v3";
-  import Qie from "@/assets/images/animal/qie.svg";
-  const theme: any = useTheme();
+  import defaultImg from '@/assets/images/create.webp'
+  import { makeToc, tocInter, isTrueCoverLink } from '@/utils'
+  import Qie from '@/assets/images/animal/qie.svg'
+  const theme: any = useTheme()
   interface FormState {
     [propName: string]: any;
   }
   const defaultForm: FormState = {
-    id: "",
-    title: "",
-    description: "",
-    content: "",
-    contentHtml: "",
-    cover: "",
+    id: '',
+    title: '',
+    description: '',
+    content: '',
+    contentHtml: '',
+    cover: '',
     category: {
-      label: "",
+      label: '',
     },
     tags: [],
     views: 0,
@@ -29,104 +28,104 @@
     likes: 0,
     uid: 0,
     userInfo: {},
-  };
-  const route = useRoute();
+  }
+  const route = useRoute()
   // 获取到的html内容
-  const html = ref("");
+  const html = ref('')
   // 先定义默认数组类型
-  const topicsDefault: tocInter[] = [];
-  const topics = ref(topicsDefault);
-  let ArticleInfo = reactive({ ...defaultForm });
-  let params = route.params;
+  const topicsDefault: tocInter[] = []
+  const topics = ref(topicsDefault)
+  const ArticleInfo = reactive({ ...defaultForm, })
+  const params = route.params
   // 响应式声明
   const {
     data: articleData,
     pending,
     refresh,
     error,
-  } = await useAsyncData("detail_GetInfo", () => getArticleInfo(params));
+  } = await useAsyncData('detail_GetInfo', () => getArticleInfo(params))
   const setArticleData = () => {
     if (articleData) {
       Object.keys(defaultForm).forEach((v: string) => {
         if (articleData.value.info[v]) {
-          ArticleInfo[v] = articleData.value.info[v];
+          ArticleInfo[v] = articleData.value.info[v]
         }
-      });
+      })
     }
-  };
-  setArticleData();
+  }
+  setArticleData()
 
   onBeforeMount(async () => {
-    console.log("onBeforeMount");
-    await refresh();
-    setArticleData();
-  });
-  updateViews(params.id);
+    console.log('onBeforeMount')
+    await refresh()
+    setArticleData()
+  })
+  updateViews(params.id)
 
   const getTagLabel = (arr: any): string => {
-    let text = arr.map((v: any) => v.label).join();
-    return text;
-  };
+    const text = arr.map((v: any) => v.label).join()
+    return text
+  }
 
   const tagLabel = computed(() => {
-    return getTagLabel(ArticleInfo.tags);
-  });
+    return getTagLabel(ArticleInfo.tags)
+  })
 
-  const router = useRouter();
+  const router = useRouter()
 
   // 获取文章目录
   const onGetCatalogHandle = (list: any) => {
     topics.value = list.map((v: any) => {
-      v.id = v.text;
-      return v;
-    });
-  };
-  const previewTheme = ref("default");
+      v.id = v.text
+      return v
+    })
+  }
+  const previewTheme = ref('default')
   const previewThemeChange = (e) => {
-    previewTheme.value = e;
+    previewTheme.value = e
     // console.log(previewTheme.value);
-  };
-  const scrollElement = ref(null);
+  }
+  const scrollElement = ref(null)
   const themeList: any = ref([
-    "default",
-    "github",
-    "vuepress",
-    "mk-cute",
-    "smart-blue",
-    "cyanosis",
-  ]);
+    'default',
+    'github',
+    'vuepress',
+    'mk-cute',
+    'smart-blue',
+    'cyanosis'
+  ])
   // 为了客户端时重新渲染才能设置为缓存的暗黑模式，themeLocal 另设置一个变量会导致签署数据两次
-  const mdKey = ref(new Date().getTime());
-  let likes = ref([]);
+  const mdKey = ref(new Date().getTime())
+  const likes = ref([])
   // 本地点赞记录
-  const localLikes = computed(() => likes.value);
+  const localLikes = computed(() => likes.value)
   onMounted(() => {
-    scrollElement.value = document.documentElement;
-    mdKey.value = new Date().getTime();
+    scrollElement.value = document.documentElement
+    mdKey.value = new Date().getTime()
     // 点赞的
-    likes.value = xBLogStore.value.likes;
-    ArticleInfo.checked = likes.value.includes(ArticleInfo.id);
+    likes.value = xBLogStore.value.likes
+    ArticleInfo.checked = likes.value.includes(ArticleInfo.id)
     // getCommentHandle();
-  });
+  })
 
   /* 评论回复功能 */
-  const comments = ref([]);
-  const commentTotal = ref(0);
+  const comments = ref([])
+  const commentTotal = ref(0)
 
   const getCommentHandle = async () => {
-    const id: string = route.params.id as string;
-    const res = await getComment(id);
-    comments.value = res.list;
-    let total = res.pagination.total;
-    res.list.map((v: any) => (total += v.allReplyCount));
-    commentTotal.value = total;
+    const id: string = route.params.id as string
+    const res = await getComment(id)
+    comments.value = res.list
+    let total = res.pagination.total
+    res.list.map((v: any) => (total += v.allReplyCount))
+    commentTotal.value = total
     // console.log({ comments, total });
-  };
-  getCommentHandle();
+  }
+  getCommentHandle()
   useHead({
-    title: ArticleInfo.title + " - 文章详情",
-    titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`,
-  });
+    title: ArticleInfo.title + ' - 文章详情',
+    titleTemplate: title => `${title} - 江夏的个人博客 - 记录生活记录你~`,
+  })
 </script>
 <template>
   <div class="article-detail">
@@ -135,7 +134,7 @@
         <img
           :alt="ArticleInfo.category.label"
           :src="isTrueCoverLink(ArticleInfo.cover) || defaultImg"
-        />
+        >
         <!-- <div>文章详情</div> -->
         <div class="article-header text-gray-200">
           <h1 class="title">{{ ArticleInfo.title }}</h1>
@@ -168,7 +167,7 @@
         <div class="flex items-center justify-between">
           <div class="btn btn-ghost btn-circle avatar">
             <div class="w-10 rounded-full">
-              <img :src="ArticleInfo.userInfo.avatar || Qie" />
+              <img :src="ArticleInfo.userInfo.avatar || Qie">
             </div>
           </div>
           <span class="text-color font-bold">{{ ArticleInfo.userInfo.nickname }}</span>

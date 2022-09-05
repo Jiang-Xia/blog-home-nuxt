@@ -1,14 +1,14 @@
-import { baseUrl } from "~~/config";
-import { messageDanger } from "~~/utils/toast";
+import { baseUrl } from '~~/config'
+import { messageDanger } from '~~/utils/toast'
 
 const errorResponse: ApiResponse = {
   success: false,
   code: 0,
-  message: "",
+  message: '',
   data: null,
-};
+}
 const $http = async (baseUrl: string, options: any): Promise<ApiResponse> => {
-  const { method = "GET", params = {}, body = {} } = options;
+  const { method = 'GET', params = {}, body = {}, } = options
   // console.log({
   //   method,
   //   params,
@@ -20,93 +20,93 @@ const $http = async (baseUrl: string, options: any): Promise<ApiResponse> => {
     headers: {
       Authorization: getToken(),
     },
-    method: method,
+    method,
     /* fetch中 params和body不能同时存在 */
-    params: ["GET", "DELETE"].includes(method.toUpperCase()) ? params : undefined,
-    body: ["POST", "PUT", "PATCH"].includes(method.toUpperCase()) ? body : undefined,
-    onResponseError(ctx: any) {
-      console.log("onRequestError", ctx);
+    params: ['GET', 'DELETE'].includes(method.toUpperCase()) ? params : undefined,
+    body: ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) ? body : undefined,
+    onResponseError (ctx: any) {
+      console.log('onRequestError', ctx)
       // console.log("status", ctx.response);
-      const status: number = ctx.response.status;
+      const status: number = ctx.response.status
       try {
         if (status === 401) {
           // 清除token
-          const token = useToken();
-          token.value = "";
-          localStorage.setItem("x-token", "");
-          console.error(ctx.response._data.message);
+          const token = useToken()
+          token.value = ''
+          localStorage.setItem('x-token', '')
+          console.error(ctx.response._data.message)
         }
-        messageDanger(ctx.response._data.message || "");
-        return Promise.reject(ctx.response._data);
+        messageDanger(ctx.response._data.message || '')
+        return Promise.reject(ctx.response._data)
       } catch (error) {
         // console.log("onRequestError", error);
-        return Promise.reject(error);
+        return Promise.reject(error)
       }
     },
-  });
+  })
   // console.log({ type: "$http ", res });
-  return res;
-};
+  return res
+}
 // 获取 token
 const getToken = () => {
-  const tk = useToken();
-  let token = "";
+  const tk = useToken()
+  let token = ''
   if (tk.value) {
-    token = "Bearer " + tk.value;
+    token = 'Bearer ' + tk.value
   }
   // console.log({ token });
-  return token;
-};
+  return token
+}
 const get = async (url: string, params = {}): Promise<ApiResponse> => {
   try {
     const res = await $http(baseUrl + url, {
-      method: "GET",
-      params: params,
-    });
-    return res;
+      method: 'GET',
+      params,
+    })
+    return res
   } catch (error: any) {
-    errorResponse.message = error;
-    return errorResponse;
+    errorResponse.message = error
+    return errorResponse
   }
-};
+}
 
 const del = async (url: string, params = {}): Promise<ApiResponse> => {
   try {
     const res = await $http(baseUrl + url, {
-      method: "DELETE",
-      params: params,
-    });
-    return res;
+      method: 'DELETE',
+      params,
+    })
+    return res
   } catch (error: any) {
-    errorResponse.message = error;
-    return errorResponse;
+    errorResponse.message = error
+    return errorResponse
   }
-};
+}
 
 const post = async (url: string, params = {}): Promise<ApiResponse> => {
   try {
     const res = await $http(baseUrl + url, {
-      method: "POST",
+      method: 'POST',
       body: params,
-    });
-    return res;
+    })
+    return res
   } catch (error: any) {
-    errorResponse.message = error;
-    return errorResponse;
+    errorResponse.message = error
+    return errorResponse
   }
-};
+}
 
 const put = async (url: string, params = {}): Promise<ApiResponse> => {
   try {
     const res = await $http(baseUrl + url, {
-      method: "PUT",
+      method: 'PUT',
       body: params,
-    });
-    return res;
+    })
+    return res
   } catch (error: any) {
-    errorResponse.message = error;
-    return errorResponse;
+    errorResponse.message = error
+    return errorResponse
   }
-};
+}
 
-export default { get, post, put,del };
+export default { get, post, put, del, }

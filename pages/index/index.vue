@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { dailyImage } from "~~/api/article";
-const banners = useBanners();
+import { dailyImage } from '~~/api/article'
+const banners = useBanners()
 // console.log(imagesData);
 useHead({
-  title: "文章列表",
-  titleTemplate: (title) => `${title} - 江夏的个人博客 - 记录生活记录你~`,
-});
+  title: '文章列表',
+  titleTemplate: title => `${title} - 江夏的个人博客 - 记录生活记录你~`,
+})
 </script>
 <template>
   <div class="home-contaier">
@@ -18,7 +18,7 @@ useHead({
           :duration="60000"
           interval
           arrow
-        ></xia-carousel>
+        />
       </div>
     </section>
     <section class="home-content w-11/12">

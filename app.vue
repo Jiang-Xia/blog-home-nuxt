@@ -3,6 +3,6 @@
   <NuxtLayout />
 </template>
 <script setup lang="ts">
-  import "@/styles/index.less";
+  import '@/styles/index.less'
   import './utils/editor-config'
 </script>
