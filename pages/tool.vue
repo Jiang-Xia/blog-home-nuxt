@@ -8,8 +8,9 @@
             :title="item.title"
             class="link-item"
           >
-            <xia-icon v-if="item.icon" :icon="item.icon" />
-            <span>{{ item.title }}</span>
+            <xia-icon v-if="item.icon" width="40px" height="40px" :icon="item.icon" />
+
+            <span class="mt-2">{{ item.title }}</span>
           </NuxtLink>
         </li>
       </ul>
@@ -25,13 +26,18 @@
   const menuList = ref([
     {
       path: '/tool/code',
-      title: '码',
-      icon: '',
+      title: '条形/二维码',
+      icon: 'blog-erweima',
     },
     {
       path: '/tool/other',
-      title: '其他',
-      icon: '',
+      title: '其他工具',
+      icon: 'blog-qita',
+    },
+    {
+      path: '/au-vi',
+      title: '音视频',
+      icon: 'blog-shipin1',
     }
   ])
 </script>
@@ -39,7 +45,8 @@
   .xia-page {
     padding-top: 64px;
     .link-item {
-      @apply border border-base-300 h-24 w-24 rounded-lg flex justify-center items-center mr-2 hover:bg-base-200;
+      @apply transition border border-base-300 h-36 w-36 text-sm rounded-lg flex flex-col justify-center items-center mr-2 hover:bg-base-200;
+      @apply hover:scale-105 active:bg-base-300;
     }
     .tool-children-pages {
       // min-height: 60vh

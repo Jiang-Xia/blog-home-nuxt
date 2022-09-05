@@ -127,12 +127,12 @@ useHead({
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16),
       0 2px 10px 0 rgba(0, 0, 0, 0.12);
     transition: all 1s;
-    background: transparent !important;
+    background: transparent;
     // padding: 0 1.5vw 0;
     // 会编译成和 & 同级类名即 app-layout-header__active
     &__active {
-      background-color: var(--nav-color) !important;
-      border-color: var(--nav-color) !important;
+      background-color: var(--nav-color);
+      border-color: var(--nav-color);
     }
   }
   &-body {

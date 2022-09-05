@@ -42,17 +42,17 @@
       path: '/about',
       title: '关于',
       icon: 'blog-about',
+    },
+    {
+      path: '/au-vi',
+      title: '音视频',
+      icon: 'blog-shipin',
+    },
+    {
+      path: '/tool',
+      title: '工具箱',
+      icon: 'blog-tool',
     }
-    // {
-    //   path: '/au-vi',
-    //   title: '音视频',
-    //   icon: 'blog-shipin',
-    // },
-    // {
-    //   path: '/tool',
-    //   title: '工具箱',
-    //   icon: 'blog-tool',
-    // }
   ])
 
   const token = useToken()

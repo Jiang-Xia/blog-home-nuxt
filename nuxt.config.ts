@@ -11,17 +11,14 @@ export default defineNuxtConfig({
     hostname: 'https://jiang-xia.top',
   },
 
-  css: [
-    '~/assets/css/main.css',
-    '~/assets/font/iconfont.css'
-  ],
+  css: ['~/assets/css/main.css', '~/assets/font/iconfont.css'],
   build: {
     postcss: {
       postcssOptions: {
-          plugins: {
-              tailwindcss: {},
-              autoprefixer: {},
-          },
+        plugins: {
+          tailwindcss: {},
+          autoprefixer: {},
+        },
       },
     },
   },
