@@ -6,10 +6,10 @@ module.exports = {
       args: '', // 传递给脚本的参数
       watch: true, // 开启监听文件变动重启
       ignore_watch: ['node_modules', 'public', 'logs'], // 不用监听的文件
-      exec_mode: 'fork', // 自家主机window cluster_mode 模式下启动失败
+      exec_mode: 'cluster_mode', // 自家主机window cluster_mode 模式下启动失败
       instances: '2', // max表示最大的 应用启动实例个数，仅在 cluster 模式有效 默认为 fork
       autorestart: true, // 默认为 true, 发生异常的情况下自动重启
-      max_memory_restart: '1G',
+      max_memory_restart: '500M',
       error_file: './logs/app-err.log', // 错误日志文件
       out_file: './logs/app-out.log', // 正常日志文件
       merge_logs: true, // 设置追加日志而不是新建日志
