@@ -2,6 +2,7 @@
   import { ref, reactive, computed } from 'vue'
   import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
   import MdEditor from 'md-editor-v3'
+
   import { getArticleInfo, getComment } from '@/api/article'
   import { updateViews, xBLogStore, updateLikesHandle } from '@/utils/common'
 
@@ -163,7 +164,7 @@
       </div>
     </section>
     <section class="module-wrap__detail article-info">
-      <div class="flex items-center justify-between overflow-hidden">
+      <div class="flex items-center">
         <div class="flex items-center justify-between">
           <div class="btn btn-ghost btn-circle avatar">
             <div class="w-10 rounded-full">
@@ -173,7 +174,7 @@
           <span class="text-color font-bold">{{ ArticleInfo.userInfo.nickname }}</span>
         </div>
 
-        <div class="dropdown">
+        <div class="dropdown ml-6">
           <label tabindex="0" class="btn m-1">主 题</label>
           <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
             <li v-for="item of themeList" @click="previewThemeChange(item)">

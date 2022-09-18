@@ -14,7 +14,7 @@ Blog Home  是一个基于 Vue3、Vite、TypeScript、Arco Design UI 的个人�
 
 - [Vue3](https://staging-cn.vuejs.org/guide/introduction.html)
 - [Vite](https://www.vitejs.net/guide/)
-- [Element Plus UI](https://element-plus.gitee.io/zh-CN/guide/design.html)
+- [Daisyui UI](https://daisyui.com/)
 - [TypeScript](https://typescript.bootcss.com/)
 - [Nuxt3](https://v3.nuxtjs.org/getting-started/quick-start)
    
