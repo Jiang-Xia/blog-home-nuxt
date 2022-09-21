@@ -29,7 +29,9 @@
     "unplugin-icons": "^0.14.8"
   },
   "dependencies": {
+    "@types/crypto-js": "^4.1.1",
     "copy-to-clipboard": "^3.3.2",
+    "crypto-js": "^4.1.1",
     "daisyui": "^2.24.0",
     "dayjs": "^1.11.5",
     "js-cookie": "^3.0.1",

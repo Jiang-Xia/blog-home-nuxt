@@ -1,14 +1,17 @@
 <script setup lang="ts">
-  import { reactive, ref, onMounted } from 'vue'
+  import { reactive, onMounted } from 'vue'
   import request from '~~/api/request.js'
-  import api from '@/api'
-  import { dailyImage } from '~~/api/article'
-
   import { messageDanger, messageSuccess } from '~~/utils/toast'
+  let aesEncrypt
+  // 客户端才引入
+  if (process.client) {
+    import('~~/utils/crypto.aes').then((res) => {
+      aesEncrypt = res.aesEncrypt
+    })
+  }
   // console.log(imagesData);
   onMounted(() => {})
   const token = useToken()
-
   definePageMeta({
     layout: 'custom', // 不使用default布局
   })
@@ -41,6 +44,8 @@
       }
     }
     let res: any
+
+    // form.password = aesEncrypt(form.password)
     try {
       res = await request.post('/user/login', form)
       token.value = res.data.info.token
