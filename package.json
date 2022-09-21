@@ -13,6 +13,7 @@
     "@iconify/vue": "^3.2.1",
     "@nuxtjs/eslint-config-typescript": "^11.0.0",
     "@tailvue/nuxt": "^0.1.62",
+    "@types/crypto-js": "^4.1.1",
     "@types/js-cookie": "^3.0.2",
     "@vueuse/core": "^9.1.0",
     "@vueuse/nuxt": "^9.1.0",
@@ -29,7 +30,6 @@
     "unplugin-icons": "^0.14.8"
   },
   "dependencies": {
-    "@types/crypto-js": "^4.1.1",
     "copy-to-clipboard": "^3.3.2",
     "crypto-js": "^4.1.1",
     "daisyui": "^2.24.0",
