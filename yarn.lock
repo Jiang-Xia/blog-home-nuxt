@@ -3530,6 +3530,11 @@
   "resolved" "https://registry.npmmirror.com/jsbarcode/-/jsbarcode-3.11.5.tgz"
   "version" "3.11.5"
 
+"jsencrypt@^3.2.1":
+  "integrity" "sha512-k1sD5QV0KPn+D8uG9AdGzTQuamt82QZ3A3l6f7TRwMU6Oi2Vg0BsL+wZIQBONcraO1pc78ExMdvmBBJ8WhNYUA=="
+  "resolved" "https://registry.npmmirror.com/jsencrypt/-/jsencrypt-3.2.1.tgz"
+  "version" "3.2.1"
+
 "jsesc@^2.5.1":
   "integrity" "sha512-OYu7XEzjkCQ3C5Ps3QIZsQfNpqoJyZZA99wd9aWd05NCtC5pWOkShK2mkL6HXQR6/Cy2lbNdPlZBpuQHXE63gA=="
   "resolved" "https://registry.npmmirror.com/jsesc/-/jsesc-2.5.2.tgz"

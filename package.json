@@ -36,6 +36,7 @@
     "dayjs": "^1.11.5",
     "js-cookie": "^3.0.1",
     "jsbarcode": "^3.11.5",
+    "jsencrypt": "^3.2.1",
     "md-editor-v3": "^2.2.1",
     "vue": "^3.2.37"
   }

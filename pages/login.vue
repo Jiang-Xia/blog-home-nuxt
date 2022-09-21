@@ -2,11 +2,11 @@
   import { reactive, onMounted } from 'vue'
   import request from '~~/api/request.js'
   import { messageDanger, messageSuccess } from '~~/utils/toast'
-  let aesEncrypt
+  let rsaEncrypt
   // 客户端才引入
   if (process.client) {
-    import('~~/utils/crypto.aes').then((res) => {
-      aesEncrypt = res.aesEncrypt
+    import('~~/utils/crypto').then((res) => {
+      rsaEncrypt = res.rsaEncrypt
     })
   }
   // console.log(imagesData);
@@ -45,9 +45,10 @@
     }
     let res: any
 
-    // form.password = aesEncrypt(form.password)
     try {
-      res = await request.post('/user/login', form)
+      const params = { ...form, }
+      params.password = rsaEncrypt(form.password)
+      res = await request.post('/user/login', params)
       token.value = res.data.info.token
       navigateTo('/')
       localStorage.setItem('x-token', token.value)
