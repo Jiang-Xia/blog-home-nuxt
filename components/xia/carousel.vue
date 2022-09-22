@@ -104,9 +104,9 @@ const prev = () => {
   @apply carousel w-full h-full from-black bg-gradient-to-r to-gray-700 relative;
 }
 .xia-carousel-item {
-  background-size: cover;
+  object-fit:cover;
   background-position: center;
-  @apply carousel-item w-full relative;
+  @apply carousel-item w-full relative bg-cover;
 }
 .arrow-btn {
   @apply bg-black bg-opacity-20 h-16 px-4 py-2 cursor-pointer text-white flex justify-center items-center transition-transform scale-0 duration-500 hover:bg-black hover:bg-opacity-25;

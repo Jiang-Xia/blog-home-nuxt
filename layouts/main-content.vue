@@ -7,16 +7,21 @@
  * @FilePath: \blog-home-nuxt\layouts\main-content.vue
 -->
 <script setup lang="ts">
-import { ref } from 'vue'
 const banners = useBanners()
-// const key = new Date().getTime();
+defineProps({
+  // 页面自定义banner
+  images: {
+    type: Array<BannerState>,
+    default: () => [],
+  },
+})
 </script>
 <template>
   <div class="custom-layout-contaier paper-feeling">
     <!-- 全局共享布局 -->
     <section class="banner-container">
       <div class="banner-content">
-        <xia-carousel :images="banners" />
+        <xia-carousel :images="images.length?images:banners" />
       </div>
     </section>
     <!-- 主显示区 -->

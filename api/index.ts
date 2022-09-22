@@ -21,4 +21,5 @@ const api = {
   ...category,
   getUserInfo,
 }
+// https://gitee.com/api/v5/repos/jiang-xia/blog-home-nuxt/commits?access_token=53db1802db341bf994093cace04c275b&page=1&per_page=20
 export default api
