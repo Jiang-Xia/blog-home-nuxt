@@ -129,7 +129,7 @@
   })
 </script>
 <template>
-  <div class="article-detail">
+  <div class="article-detail main-bgc">
     <section class="banner-container">
       <div class="banner-content">
         <img

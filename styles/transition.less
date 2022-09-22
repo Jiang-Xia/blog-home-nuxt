@@ -1,4 +1,7 @@
 // global transition css
+// default：淡入和淡出过渡同时发生
+// in-out：新元素首先淡入。 然后当前元素淡出。
+// out-in：当前元素先淡出。 然后新元素开始淡入。
 
 /* fade */
 .fade-enter-active,
@@ -88,7 +91,7 @@
   transform: translate3d(-100%, 0, 0);
 }
 
-// slide
+// slide 幻灯片
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.75s ease-out;
@@ -110,8 +113,19 @@
   position: absolute;
   left: 0;
 }
+// scale 缩放过渡
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 0.2s ease;
+}
 
-// 组合过渡
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
+  // transform: translate3d(0,-20px,0);
+}
+// 幻灯片缩放 组合过渡
 .scale-slide-enter-active,
 .scale-slide-leave-active {
   position: absolute;
@@ -148,3 +162,4 @@
   opacity: 0;
   transform: translateY(30px);
 }
+

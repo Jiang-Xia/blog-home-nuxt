@@ -8,7 +8,7 @@ useHead({
 })
 </script>
 <template>
-  <div class="home-contaier">
+  <div class="home-contaier main-bgc">
     <h1 class="hidden">首页 - 江夏的个人博客 - 记录生活记录你~</h1>
     <!-- 全局共享布局 -->
     <section class="banner-container">

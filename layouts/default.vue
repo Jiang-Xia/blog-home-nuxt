@@ -110,8 +110,9 @@ useHead({
 <style lang="less">
 /* 这样写法好像也怎么只管看到类名，也不利于根据类名搜索 */
 .app-layout {
-  background-color: var(--main-bgc);
+  // background-color: var(--main-bgc);
   color: var(--text-color);
+  background-color: #222831;
   min-height: 100vh;
   // padding-top: 64px;
   // 会编译成和 & 同级类名即 app-layout-header
@@ -147,6 +148,7 @@ useHead({
     padding: 0px 1.5vw;
     line-height: 1.7;
     color: var(--text-color2);
+    background-color: var(--main-bgc);
     height: 60px;
     font-size: 12px;
   }

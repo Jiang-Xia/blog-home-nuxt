@@ -86,7 +86,7 @@ defineProps({
   // padding: 10px 20px 20px 20px;
   min-height: 50vh;
   // border-radius: var(--layout-border-radius);
-  // background-color: var(--minor-bgc);
+  background-color: var(--main-bgc);
 }
 .paper-feeling {
   &::after {

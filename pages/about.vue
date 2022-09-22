@@ -9,9 +9,8 @@
   const content = articleData.value.info.contentHtml
   const images = [{
     url: articleData.value.info.cover,
-    title: '金毛',
+    title: '关于',
   }]
-  console.log(images)
   const mdKey = ref(new Date().getTime())
   onMounted(() => {
     mdKey.value = new Date().getTime()
@@ -19,6 +18,13 @@
   useHead({
     title: '关于',
     titleTemplate: title => `${title} - 江夏的个人博客-记录生活记录你~`,
+  })
+  definePageMeta({
+    pageTransition: {
+      name: 'scale',
+      appear: true,
+      mode: 'out-in',
+    },
   })
 </script>
 <template>
