@@ -5,6 +5,7 @@ import Cookies from 'js-cookie'
 import dayjs from 'dayjs'
 import { throttle } from '@/utils'
 import { dailyImage } from '~~/api/article.js'
+import { messageSuccess } from '~~/utils/toast'
 
 /* 获取全局banner数据 */
 const banners = useBanners()
@@ -23,7 +24,7 @@ banners.value = imagesData.value.images.map((v: any) => {
 
 const scrollTop = ref(0)
 const scrollHandle = (e: any) => {
-  scrollTop.value = document.documentElement.scrollTop
+  scrollTop.value = document.documentElement.scrollTop || document.body.scrollTop // 微信里面获取body的
 }
 
 // 客戶端执行
@@ -34,7 +35,7 @@ onMounted(() => {
     之所以绑定window的滚动事件 是为了元素样式为固定定位（相对于window定位的）时会覆盖document子元素的滚动条
     造成错位不好看。这里的滚动对象是 document.documentElement
   */
-  window.addEventListener('scroll', throttle(scrollHandle, 100), true)
+ window.addEventListener('scroll', throttle(scrollHandle, 100), true)
   // 写入一个cookie，用于判断用户是否点过赞
   if (!Cookies.get('browserId')) {
     // 存个当前时间戳

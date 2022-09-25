@@ -248,6 +248,13 @@
     "@babel/helper-plugin-utils" "^7.18.9"
     "@babel/plugin-syntax-typescript" "^7.18.6"
 
+"@babel/runtime@^7.17.2":
+  "integrity" "sha512-eR8Lo9hnDS7tqkO7NsV+mKvCmv5boaXFSZ70DnfhcgiEne8hv9oCEd36Klw74EtizEqLsy4YnW8UWwpBVolHZA=="
+  "resolved" "https://registry.npmmirror.com/@babel/runtime/-/runtime-7.19.0.tgz"
+  "version" "7.19.0"
+  dependencies:
+    "regenerator-runtime" "^0.13.4"
+
 "@babel/standalone@^7.18.13":
   "integrity" "sha512-5hjvvFkaXyfQri+s4CAZtx6FTKclfTNd2QN2RwgzCVJhnYYgKh4YFBCnNJSxurzvpSKD2NmpCkoWAkMc+j9y+g=="
   "resolved" "https://registry.npmmirror.com/@babel/standalone/-/standalone-7.18.13.tgz"
@@ -1740,12 +1747,22 @@
   dependencies:
     "is-what" "^3.14.1"
 
+"copy-text-to-clipboard@^3.0.1":
+  "integrity" "sha512-rvVsHrpFcL4F2P8ihsoLdFHmd404+CMg71S756oRSeQgqk51U3kicGdnvfkrxva0xXH92SjGS62B0XIJsbh+9Q=="
+  "resolved" "https://registry.npmmirror.com/copy-text-to-clipboard/-/copy-text-to-clipboard-3.0.1.tgz"
+  "version" "3.0.1"
+
 "copy-to-clipboard@^3.3.2":
   "integrity" "sha512-Vme1Z6RUDzrb6xAI7EZlVZ5uvOk2F//GaxKUxajDqm9LhOVM1inxNAD2vy+UZDYsd0uyA9s7b3/FVZPSxqrCfg=="
   "resolved" "https://registry.npmmirror.com/copy-to-clipboard/-/copy-to-clipboard-3.3.2.tgz"
   "version" "3.3.2"
   dependencies:
     "toggle-selection" "^1.0.6"
+
+"core-js@^3.11.0":
+  "integrity" "sha512-YB4IAT1bjEfxTJ1XYy11hJAKskO+qmhuDBM8/guIfMz4JvdsAQAqvyb97zXX7JgSrfPLG5mRGFWJwJD39ruq2A=="
+  "resolved" "https://registry.npmmirror.com/core-js/-/core-js-3.25.2.tgz"
+  "version" "3.25.2"
 
 "core-util-is@~1.0.0":
   "integrity" "sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ=="
@@ -3962,6 +3979,11 @@
   "resolved" "https://registry.npmmirror.com/ms/-/ms-2.1.2.tgz"
   "version" "2.1.2"
 
+"mutation-observer@^1.0.3":
+  "integrity" "sha512-M/O/4rF2h776hV7qGMZUH3utZLO/jK7p8rnNgGkjKUw8zCGjRQPxB8z6+5l8+VjRUQ3dNYu4vjqXYLr+U8ZVNA=="
+  "resolved" "https://registry.npmmirror.com/mutation-observer/-/mutation-observer-1.0.3.tgz"
+  "version" "1.0.3"
+
 "mute-stream@0.0.8":
   "integrity" "sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA=="
   "resolved" "https://registry.npmmirror.com/mute-stream/-/mute-stream-0.0.8.tgz"
@@ -4930,6 +4952,11 @@
   "version" "3.0.0"
   dependencies:
     "redis-errors" "^1.0.0"
+
+"regenerator-runtime@^0.13.4":
+  "integrity" "sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA=="
+  "resolved" "https://registry.npmmirror.com/regenerator-runtime/-/regenerator-runtime-0.13.9.tgz"
+  "version" "0.13.9"
 
 "regexp-tree@^0.1.24", "regexp-tree@~0.1.1":
   "integrity" "sha512-s2aEVuLhvnVJW6s/iPgEGK6R+/xngd2jNQ+xy4bXNDKxZKJH6jpPHY6kVeVv1IeLCHgswRj+Kl3ELaDjG6V1iw=="
@@ -5916,6 +5943,16 @@
   dependencies:
     "spdx-correct" "^3.0.0"
     "spdx-expression-parse" "^3.0.0"
+
+"vconsole@^3.14.7":
+  "integrity" "sha512-48byrra1sZk0zJfUM8HFN/ZKtMzvd7Sirt2h5Hfnf7txKOxL9JfoFKB2uLixmOF3jjxCpwnLLb1tsHlg4YzoyA=="
+  "resolved" "https://registry.npmmirror.com/vconsole/-/vconsole-3.14.7.tgz"
+  "version" "3.14.7"
+  dependencies:
+    "@babel/runtime" "^7.17.2"
+    "copy-text-to-clipboard" "^3.0.1"
+    "core-js" "^3.11.0"
+    "mutation-observer" "^1.0.3"
 
 "vite-node@^0.21.1":
   "integrity" "sha512-JYEGMLovQOFoInIbSEXWApBp9ycEJEvlHFLheeR27ZXwpN7Oqy0jNJzh4gsmowTJt1VxtDwjkIU1p359Q/anAw=="
