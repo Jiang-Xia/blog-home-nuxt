@@ -21,7 +21,7 @@ useHead({
         />
       </div>
     </section>
-    <section class="home-content w-11/12">
+    <section class="home-content">
       <ArticleList />
     </section>
   </div>
@@ -29,12 +29,10 @@ useHead({
 <style lang="less" scoped>
 .home-content {
   position: relative;
-  margin: 20px auto 0;
   min-height: 150vh;
   min-width: 40%;
   overflow: hidden;
   z-index: 0;
-  padding: 0 0 20px 0;
 }
 .banner-container {
   height: calc(100vh + 100px);

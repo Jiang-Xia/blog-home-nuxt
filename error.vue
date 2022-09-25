@@ -6,7 +6,7 @@
     error: Object,
   })
   const handleError = () => clearError({ redirect: '/', })
-  console.log(props.error)
+  // console.log(props.error)
 </script>
 <template>
   <div class="common-page">

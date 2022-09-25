@@ -159,7 +159,7 @@
       <transition-group key="main-article-wrap" name="list">
         <div v-for="(item, index) in articleList" :key="item.id" class="article-item">
           <figure>
-            <img class="h-52 w-full" :alt="item.category.label" :src="item.cover">
+            <img v-lazyImg="item.cover" class="h-52 w-full bg-gray-900" :alt="item.category.label">
           </figure>
           <div class="card-body">
             <h2 class="card-title">
@@ -221,13 +221,15 @@
           description="找不到文章..."
         />
         <!-- 分页 -->
-        <xia-pagination
-          :current-page="current"
-          :page-size="queryPrams.pageSize"
-          :total="queryPrams.total"
-          :max="5"
-          @change="currentChangeHandle"
-        />
+        <div class="flex justify-around">
+          <xia-pagination
+            :current-page="current"
+            :page-size="queryPrams.pageSize"
+            :total="queryPrams.total"
+            :max="5"
+            @change="currentChangeHandle"
+          />
+        </div>
       </div>
     </section>
     <!-- 右边筛选卡片 -->
@@ -434,7 +436,7 @@
     }
     .main-article-wrap,
     .info-tool {
-      min-height: 50vh;
+      min-height: 100vh;
     }
     .card-title {
       color: var(--text-color);
@@ -448,7 +450,8 @@
       @apply flex justify-around flex-wrap md:px-2;
     }
     .article-item {
-      @apply card w-full bg-base-100 mb-5 lg:w-4/5 xl:w-96 hover:drop-shadow-lg transition-all shadow-xl;
+      max-height: 408px;
+      @apply card w-full bg-base-100 mb-5 lg:w-4/5 lg:mx-4 xl:w-96 hover:drop-shadow-lg transition-all shadow-xl;
     }
 
     .text-icon {
