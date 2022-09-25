@@ -45,10 +45,10 @@ useHead({
             <ul class="menu menu-compact lg:menu-normal lg:w-4/5 bg-base-100 p-2 rounded-box">
               <li v-for="(item, index) in value2" :key="index" class="font-semibold">
                 <nuxt-link :to="'/detail/' + item.id" class="flex">
-                  <span class="badge badge-md">{{
+                  <span class="badge badge-md min-w-fit">{{
                     dayjs(item.createTime).format("YYYY-MM-DD")
                   }}</span>
-                  <div class="hover:text-green-700 hover:underline">
+                  <div class="hover:text-green-700 hover:underline flex-1">
                     {{ item["title"] }}
                   </div>
                 </nuxt-link>

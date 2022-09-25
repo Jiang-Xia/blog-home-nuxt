@@ -13,20 +13,20 @@
   import { isTrueCoverLink } from '@/utils'
   import { colorRgb } from '~~/utils/color'
   interface queryState {
-    page: number;
-    category: string;
-    tags: string[];
-    pageSize: number;
-    total: number;
-    title?: string;
-    description?: string;
-    content?: string;
-    sort: string;
+    page: number
+    category: string
+    tags: string[]
+    pageSize: number
+    total: number
+    title?: string
+    description?: string
+    content?: string
+    sort: string
   }
   interface itemState {
-    id: string;
-    checked: boolean;
-    [x: string]: string | boolean;
+    id: string
+    checked: boolean
+    [x: string]: string | boolean
   }
   // const store = useStore()
   // 文章列表中的每一项item都为any
@@ -102,8 +102,8 @@
       if (!item.checked) {
         list.splice(list.indexOf(item.id), 1)
       } else if (!list.includes(item.id)) {
-          list.push(item.id)
-        }
+        list.push(item.id)
+      }
       queryPrams.tags = list
       // console.log(queryPrams.tags);
     }
@@ -153,66 +153,90 @@
 </script>
 
 <template>
-  <div class="article-list-container">
-    <section class="main-article-wrap">
-      <!-- lg:w-5/12 -->
-      <transition-group key="main-article-wrap" name="list">
-        <div v-for="(item, index) in articleList" :key="item.id" class="article-item">
-          <figure>
-            <img v-lazyImg="item.cover" class="h-52 w-full bg-gray-900" :alt="item.category.label">
-          </figure>
-          <div class="card-body">
-            <h2 class="card-title">
-              {{ item.title }}
-              <div v-if="item.topping" class="badge badge-secondary">TOP</div>
-            </h2>
-            <p class="text-sm">{{ item.description }}</p>
-            <div class="card-actions justify-start text-xs flex-wrap">
-              <div class="flex items-center">
-                <!-- 分类 -->
-                <span class="text-icon" :style="{ color: item.category.color }">
-                  <xia-icon icon="blog-category" class="mr-1" />
-                  {{ item.category.label }}
-                </span>
-                <!-- 标签 -->
-                <span class="text-icon" :style="{ color: item.tags[0]?.color }">
-                  <xia-icon icon="blog-tag" class="mr-1" />
-                  {{ getTagLabel(item.tags) }}
-                </span>
-                <!-- 阅读量 -->
-                <span class="text-icon pointer"><xia-icon icon="blog-view" class="mr-1" />{{ item.views }}</span>
-                <!-- 点赞数 -->
-                <span class="text-icon pointer" @click.stop="updateLikesHandle(item)">
-                  <xia-icon
-                    :icon="localLikes.includes(item.id) ? 'blog-like-solid' : 'blog-like'"
-                    class="mr-1"
-                  />
-                  {{ item.likes }}
-                </span>
-                <!-- 评论数 -->
-                <span class="text-icon">
-                  <xia-icon icon="blog-pinglun" class="mr-1" />
-                  {{ item.commentCount }}
-                </span>
-              </div>
-              <div class="flex justify-between w-full items-center">
+  <div class="article-list-page">
+    <section class="main-content">
+      <div class="tag-card-wrap">
+        <base-card icon="blog-tag" title="标签" min-height="110px" vertical>
+          <div
+            v-for="(item, index) of tagsOptions"
+            :key="item.id"
+            class="custom-tag"
+            :class="item.checked ? 'active' : ''"
+            size="small"
+            :style="{
+              backgroundColor: item.checked ? item.color : toRgb(item.color),
+              color: item.checked ? '#fff' : item.color,
+            }"
+            @click="clickTagHandle(item, '标签')"
+          >
+            <span>{{ item['label'] }} ({{ item['articleCount'] }})</span>
+          </div>
+        </base-card>
+      </div>
+      <!-- 文章列表 -->
+      <div class="article-item-wrap">
+        <transition-group key="article-item-wrap" name="list">
+          <div v-for="(item, index) in articleList" :key="item.id" class="article-item">
+            <figure>
+              <img
+                v-lazyImg="item.cover"
+                class="h-52 w-full bg-gray-900"
+                :alt="item.category.label"
+              >
+            </figure>
+            <div class="card-body">
+              <h2 class="card-title">
+                {{ item.title }}
+                <div v-if="item.topping" class="badge badge-secondary">TOP</div>
+              </h2>
+              <p class="text-sm">{{ item.description }}</p>
+              <div class="card-actions justify-start text-xs flex-wrap">
                 <div class="flex items-center">
-                  <div class="avatar btn btn-ghost btn-circle btn-xs">
-                    <div class="rounded-full">
-                      <img :src="item.userInfo.avatar">
-                    </div>
-                  </div>
-                  <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
-                  <span class="pt-2">{{ formactDate(item.createTime) }}</span>
+                  <!-- 分类 -->
+                  <span class="text-icon" :style="{ color: item.category.color }">
+                    <xia-icon icon="blog-category" class="mr-1" />
+                    {{ item.category.label }}
+                  </span>
+                  <!-- 标签 -->
+                  <span class="text-icon" :style="{ color: item.tags[0]?.color }">
+                    <xia-icon icon="blog-tag" class="mr-1" />
+                    {{ getTagLabel(item.tags) }}
+                  </span>
+                  <!-- 阅读量 -->
+                  <span class="text-icon pointer"><xia-icon icon="blog-view" class="mr-1" />{{ item.views }}</span>
+                  <!-- 点赞数 -->
+                  <span class="text-icon pointer" @click.stop="updateLikesHandle(item)">
+                    <xia-icon
+                      :icon="localLikes.includes(item.id) ? 'blog-like-solid' : 'blog-like'"
+                      class="mr-1"
+                    />
+                    {{ item.likes }}
+                  </span>
+                  <!-- 评论数 -->
+                  <span class="text-icon">
+                    <xia-icon icon="blog-pinglun" class="mr-1" />
+                    {{ item.commentCount }}
+                  </span>
                 </div>
-                <nuxt-link :to="'/detail/' + item.id">
-                  <button class="btn btn-xs xia-btn">Read</button>
-                </nuxt-link>
+                <div class="flex justify-between w-full items-center">
+                  <div class="flex items-center">
+                    <div class="avatar btn btn-ghost btn-circle btn-xs">
+                      <div class="rounded-full">
+                        <img :src="item.userInfo.avatar">
+                      </div>
+                    </div>
+                    <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
+                    <span class="pt-2">{{ formactDate(item.createTime) }}</span>
+                  </div>
+                  <nuxt-link :to="'/detail/' + item.id">
+                    <button class="btn btn-xs xia-btn">Read</button>
+                  </nuxt-link>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </transition-group>
+        </transition-group>
+      </div>
 
       <div class="w-full">
         <xia-empty
@@ -234,11 +258,7 @@
     </section>
     <!-- 右边筛选卡片 -->
     <section class="info-tool">
-      <div class="card-wrap auth-info">
-        <h4>
-          <xia-icon icon="blog-filter" />
-          关键字
-        </h4>
+      <base-card icon="blog-filter" title="关键字" min-height="110px">
         <div class="input-group input-group-sm w-full mt-2">
           <button
             :title="queryPrams.sort === 'ASC' ? '升序' : '降序'"
@@ -292,65 +312,47 @@
             </svg>
           </button>
         </div>
-      </div>
-      <div class="card-wrap category-wrap relative">
-        <h4 class="category-title">
-          <xia-icon icon="blog-category" />
-          分类
-        </h4>
-        <div class="category-item-wrap">
+      </base-card>
+
+      <base-card
+        icon="blog-category"
+        title="分类"
+        style="height:110vh"
+      >
+        <div
+          v-for="(item, index) of categoryOptions"
+          :key="item.id"
+          class="category-item"
+          :color="item.color"
+          :class="item.id === queryPrams.category ? 'active' : ''"
+          @click="clickTagHandle(item, '分类')"
+        >
           <div
-            v-for="(item, index) of categoryOptions"
-            :key="item.id"
-            class="category-item"
-            :color="item.color"
-            :class="item.id === queryPrams.category ? 'active' : ''"
-            @click="clickTagHandle(item, '分类')"
+            class="category__inner flex justify-between items-center"
+            :style="{
+              borderColor: item.id === queryPrams.category ? item.color : '',
+            }"
           >
+            <span class="category__text">{{ item['label'] }}</span>
             <div
-              class="category__inner flex justify-between items-center"
+              class="category__tag"
+              :color="item.color"
+              size="small"
               :style="{
-                borderColor: item.id === queryPrams.category ? item.color : '',
+                backgroundColor: item.color,
               }"
             >
-              <span class="category__text">{{ item["label"] }}</span>
-              <div
-                class="category__tag"
-                :color="item.color"
-                size="small"
-                :style="{
-                  backgroundColor: item.color,
-                }"
-              >
-                <span>{{ item["articleCount"] }}</span>
-              </div>
+              <span>{{ item['articleCount'] }}</span>
             </div>
           </div>
         </div>
-      </div>
-      <div class="card-wrap tag-wrap">
-        <h4><xia-icon icon="blog-tag" /> 标签</h4>
-        <div
-          v-for="(item, index) of tagsOptions"
-          :key="item.id"
-          class="custom-tag"
-          :class="item.checked ? 'active' : ''"
-          size="small"
-          :style="{
-            backgroundColor: item.checked ? item.color : toRgb(item.color),
-            color: item.checked ? '#fff' : item.color,
-          }"
-          @click="clickTagHandle(item, '标签')"
-        >
-          <span>{{ item["label"] }} ({{ item["articleCount"] }})</span>
-        </div>
-      </div>
+      </base-card>
     </section>
   </div>
 </template>
 
 <style lang="less" scoped>
-  .article-list-container {
+  .article-list-page {
     position: relative;
     padding-top: 20px;
     :deep(.xia-empty) {
@@ -361,7 +363,9 @@
     .el-pagination {
       margin-top: 8vh;
     }
-
+    .tag-card-wrap{
+      @apply mx-3 mb-5;
+    }
     // 右边卡片
     .info-tool {
       position: absolute;
@@ -370,24 +374,8 @@
       width: 340px;
       transition: all 0.5s;
       transform: translateX(300%);
-      // 作者信息
-      .card-wrap {
-        @apply border border-base-300 shadow-lg bg-base-100;
-        margin-bottom: 20px;
-        margin-right: 20px;
-        margin-left: 20px;
-        padding: 18px 20px;
-        border-radius: 8px;
-        min-height: 310px;
-        & > h4 {
-          line-height: 32px;
-          font-size: 15px;
-          font-weight: 600;
-          color: var(--text-color);
-        }
-      }
-      .auth-info {
-        min-height: 50px;
+      .card-wrap{
+        @apply mx-5 mb-5;
       }
       // 分类
       .category-wrap {
@@ -400,11 +388,6 @@
         padding: 18px 20px;
         box-sizing: border-box;
         @apply bg-base-100;
-      }
-      .category-item-wrap {
-        max-height: 100vh;
-        overflow: auto;
-        padding: 0px 20px 18px;
       }
       .category-item {
         padding: 5px 0;
@@ -429,12 +412,8 @@
         line-height: 1.8;
         flex: 1;
       }
-      // 标签
-      .tag-wrap {
-        min-height: 470px;
-      }
     }
-    .main-article-wrap,
+    .main-content,
     .info-tool {
       min-height: 100vh;
     }
@@ -444,14 +423,16 @@
     .card-body {
       color: var(--text-color2);
     }
-    .main-article-wrap {
+    .main-content {
       margin-right: 0;
+    }
+    .article-item-wrap {
       transition: all 0.5s;
-      @apply flex justify-around flex-wrap md:px-2;
+      @apply flex justify-around flex-wrap px-3;
     }
     .article-item {
       max-height: 408px;
-      @apply card w-full bg-base-100 mb-5 lg:w-4/5 lg:mx-4 xl:w-96 hover:drop-shadow-lg transition-all shadow-xl;
+      @apply card w-full bg-base-100 mb-5 lg:w-4/5  xl:w-96 hover:drop-shadow-lg transition-all shadow-xl;
     }
 
     .text-icon {
@@ -464,7 +445,7 @@
     // }
 
     @media (min-width: 768px) {
-      .main-article-wrap {
+      .main-content {
         margin-right: 340px;
       }
       .info-tool {
