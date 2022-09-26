@@ -40,9 +40,7 @@ const goTopicItem = (item: tocInter) => {
 </template>
 <style lang="less" scoped>
 .catalogue-wrap {
-  position: sticky;
-  top: 66px;
-  left: 0;
+  width: 100%;
   .heading {
     font-weight: 600;
     text-indent: 1.5em;

@@ -119,6 +119,16 @@
   }
   getCommentHandle()
 
+  // 目录吸顶
+  const mainViewArea = ref(null)
+  let fixedAsideBar = null
+  if (process.client) {
+    // 都是响应式的
+     const { y, } = useScroll(window, {})
+     fixedAsideBar = computed(() => {
+      return y.value > (mainViewArea.value?.offsetTop - 20)
+     })
+  }
   // 侧边栏吸顶
 
   useHead({
@@ -161,7 +171,7 @@
         </div>
       </div>
     </section>
-    <div class="main-view-area">
+    <div ref="mainViewArea" class="main-view-area">
       <section class="main-content">
         <section class="module-wrap__detail article-info">
           <div class="flex items-center">
@@ -173,7 +183,6 @@
               </div>
               <span class="text-color font-bold">{{ ArticleInfo.userInfo.nickname }}</span>
             </div>
-
             <div class="dropdown ml-6">
               <label tabindex="0" class="btn m-1">主 题</label>
               <ul
@@ -204,8 +213,10 @@
         />
       </section>
 
-      <aside ref="aside" class="aside-bar">
-        <Catalogue :topics="topics" />
+      <aside ref="aside" class="aside-bar" :class="{'aside-bar__fixed':fixedAsideBar}">
+        <div class="sticky-box">
+          <Catalogue :topics="topics" />
+        </div>
       </aside>
     </div>
   </div>
@@ -271,6 +282,13 @@
       @apply w-80 absolute right-0 top-0 hidden lg:block rounded-lg h-full overflow-auto;
     }
   }
+  .aside-bar__fixed{
+    .sticky-box{
+        position: fixed;
+        top: 66px;
+        width:inherit;// 这样定位时还是继承父元素的宽度
+      }
+    }
   @media (max-width: 1140px) {
     .main-view-area {
       .main-content {
