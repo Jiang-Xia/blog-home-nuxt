@@ -121,16 +121,12 @@
 
   // 目录吸顶
   const mainViewArea = ref(null)
-  let fixedAsideBar = ref(null)
+  let fixedAsideBar = null
   if (process.client) {
     // 都是响应式的
      const { y, } = useScroll(window, {})
      fixedAsideBar = computed(() => {
-      let top = 0
-      if (mainViewArea.value) {
-        top = mainViewArea.value.offsetTop - 66
-      }
-      return y.value && y.value > top
+      return y.value > (mainViewArea.value?.offsetTop - 20)
      })
   }
   // 侧边栏吸顶
