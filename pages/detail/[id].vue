@@ -7,11 +7,12 @@
   import { updateViews, xBLogStore, updateLikesHandle } from '@/utils/common'
 
   import defaultImg from '@/assets/images/create.webp'
-  import { makeToc, tocInter, isTrueCoverLink } from '@/utils'
+  import { makeToc, tocInter, isTrueCoverLink, throttle } from '@/utils'
   import Qie from '@/assets/images/animal/qie.svg'
+
   const theme: any = useTheme()
   interface FormState {
-    [propName: string]: any;
+    [propName: string]: any
   }
   const defaultForm: FormState = {
     id: '',
@@ -87,19 +88,13 @@
     // console.log(previewTheme.value);
   }
   const scrollElement = ref(null)
-  const themeList: any = ref([
-    'default',
-    'github',
-    'vuepress',
-    'mk-cute',
-    'smart-blue',
-    'cyanosis'
-  ])
+  const themeList: any = ref(['default', 'github', 'vuepress', 'mk-cute', 'smart-blue', 'cyanosis'])
   // 为了客户端时重新渲染才能设置为缓存的暗黑模式，themeLocal 另设置一个变量会导致签署数据两次
   const mdKey = ref(new Date().getTime())
   const likes = ref([])
   // 本地点赞记录
   const localLikes = computed(() => likes.value)
+
   onMounted(() => {
     scrollElement.value = document.documentElement
     mdKey.value = new Date().getTime()
@@ -123,6 +118,9 @@
     // console.log({ comments, total });
   }
   getCommentHandle()
+
+  // 侧边栏吸顶
+
   useHead({
     title: ArticleInfo.title + ' - 文章详情',
     titleTemplate: title => `${title} - 江夏的个人博客 - 记录生活记录你~`,
@@ -149,7 +147,7 @@
             <!-- 阅读量 -->
             <span class="mr-2 cursor-pointer inline-flex items-center">
               <xia-icon icon="blog-view" />
-              {{ ArticleInfo["views"] }}
+              {{ ArticleInfo['views'] }}
             </span>
             <!-- 点赞数 -->
             <span
@@ -157,51 +155,59 @@
               @click.stop="updateLikesHandle(ArticleInfo)"
             >
               <xia-icon :icon="ArticleInfo['checked'] ? 'blog-like-solid' : 'blog-like'" />
-              {{ ArticleInfo["likes"] }}
+              {{ ArticleInfo['likes'] }}
             </span>
           </p>
         </div>
       </div>
     </section>
-    <section class="module-wrap__detail article-info">
-      <div class="flex items-center">
-        <div class="flex items-center justify-between">
-          <div class="btn btn-ghost btn-circle avatar">
-            <div class="w-10 rounded-full">
-              <img :src="ArticleInfo.userInfo.avatar || Qie">
+    <div class="main-view-area">
+      <section class="main-content">
+        <section class="module-wrap__detail article-info">
+          <div class="flex items-center">
+            <div class="flex items-center justify-between">
+              <div class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                  <img :src="ArticleInfo.userInfo.avatar || Qie">
+                </div>
+              </div>
+              <span class="text-color font-bold">{{ ArticleInfo.userInfo.nickname }}</span>
+            </div>
+
+            <div class="dropdown ml-6">
+              <label tabindex="0" class="btn m-1">主 题</label>
+              <ul
+                tabindex="0"
+                class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+              >
+                <li v-for="item of themeList" @click="previewThemeChange(item)">
+                  <a>{{ item }}</a>
+                </li>
+              </ul>
             </div>
           </div>
-          <span class="text-color font-bold">{{ ArticleInfo.userInfo.nickname }}</span>
-        </div>
+          <md-editor
+            :key="mdKey"
+            v-model="ArticleInfo.contentHtml"
+            class="x-md-editor"
+            preview-only
+            :preview-theme="previewTheme"
+            :theme="theme"
+            @onGetCatalog="onGetCatalogHandle"
+          />
+        </section>
+        <XiaComment
+          class="module-wrap__detail comment-module"
+          :comments="comments"
+          :total="commentTotal"
+          @commented="getCommentHandle"
+        />
+      </section>
 
-        <div class="dropdown ml-6">
-          <label tabindex="0" class="btn m-1">主 题</label>
-          <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-            <li v-for="item of themeList" @click="previewThemeChange(item)">
-              <a>{{ item }}</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <md-editor
-        :key="mdKey"
-        v-model="ArticleInfo.contentHtml"
-        class="x-md-editor"
-        preview-only
-        :preview-theme="previewTheme"
-        :theme="theme"
-        @onGetCatalog="onGetCatalogHandle"
-      />
-      <!-- 目录 -->
-      <Catalogue :topics="topics" />
-    </section>
-    <!-- 评论 -->
-    <XiaComment
-      class="module-wrap__detail comment-module"
-      :comments="comments"
-      :total="commentTotal"
-      @commented="getCommentHandle"
-    />
+      <aside ref="aside" class="aside-bar">
+        <Catalogue :topics="topics" />
+      </aside>
+    </div>
   </div>
 </template>
 <style lang="less" scoped>
@@ -253,23 +259,27 @@
       font-size: 16px;
     }
   }
-
-  .module-wrap__detail {
-    // @apply rounded-lg shadow-xl;
-    box-sizing: border-box;
+  .main-view-area {
+    margin: 20px auto 0;
     position: relative;
-    margin: 20px auto 100px;
-    min-height: 40vh;
-    min-width: 40%;
-    max-width: 1200px;
-    width: 70%;
-    z-index: 0;
-    // background-color: var(--minor-bgc);
-    // padding: 10px;
-    @media screen and (max-width: 768px) {
-      width: 98%;
-      padding: 0;
+    @apply w-full xl:w-4/5;
+    .main-content {
+      width: calc(100% - 324px);
+      @apply rounded-lg max-w-full p-3;
     }
+    .aside-bar {
+      @apply w-80 absolute right-0 top-0 hidden lg:block rounded-lg h-full overflow-auto;
+    }
+  }
+  @media (max-width: 1140px) {
+    .main-view-area {
+      .main-content {
+        width: 820px;
+      }
+    }
+  }
+  .article-detail {
+    position: relative;
   }
   .x-md-editor {
     @apply rounded-lg p-3;
@@ -277,6 +287,7 @@
   .article-info {
   }
   .comment-module {
+    margin-top: 76px;
     min-height: 30vh;
   }
   .md-dark {

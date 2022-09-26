@@ -61,7 +61,7 @@ export function makeToc (html: string): tocInter[] {
 }
 
 export function beforeTimeNow (updateTime: number) {
-  console.log(updateTime)
+  // console.log(updateTime)
   if (updateTime === null) {
     return ''
   }
@@ -73,8 +73,8 @@ export function beforeTimeNow (updateTime: number) {
   const month = Math.floor(day / 31)
   const year = Math.floor(month / 12)
 
-  console.log(hour)
-  console.log(minute)
+  // console.log(hour)
+  // console.log(minute)
   if (year > 0) {
     return year + '年前'
   } else if (month > 0) {

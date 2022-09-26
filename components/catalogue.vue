@@ -23,40 +23,22 @@ const goTopicItem = (item: tocInter) => {
 // window.addEventListener('scroll', throttle(scrollHandle, 100), true)
 </script>
 <template>
-  <transition-group key="catalogue-wrap" name="fade">
-    <aside key="aisde-wrap" class="aisde-wrap">
-      <div class="catalogue-wrap">
-        <p class="heading">目录</p>
-        <div
-          v-for="(item, index) in topics"
-          :key="item.id"
-          class="topic-item text-sm truncate"
-          :style="{
-            textIndent: 8 * Number(item.level) + 'px',
-          }"
-          @click="goTopicItem(item)"
-        >
-          {{ item.text }}
-        </div>
-      </div>
-    </aside>
-  </transition-group>
+  <div class="catalogue-wrap">
+    <p class="heading">目录</p>
+    <div
+      v-for="(item, index) in topics"
+      :key="item.id"
+      class="topic-item text-sm truncate"
+      :style="{
+        textIndent: 8 * Number(item.level) + 'px',
+      }"
+      @click="goTopicItem(item)"
+    >
+      {{ item.text }}
+    </div>
+  </div>
 </template>
 <style lang="less" scoped>
-.aisde-wrap {
-  position: absolute;
-  top: 0;
-  right: -100%;
-  transform: translateX(100%);
-  height: 100%;
-  transition: all 0.8s ease-in;
-  max-width: 400px;
-  display: none;
-  @media screen and (min-width: 768px) {
-    right: -5px;
-    display: block;
-  }
-}
 .catalogue-wrap {
   position: sticky;
   top: 66px;

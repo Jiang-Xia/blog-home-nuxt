@@ -38,9 +38,11 @@
       articleId: Number(route.params.id),
     }
     const res = await addComment(params)
-    messageSuccess('评论成功')
-    emits('commented')
-    inputContent.value = ''
+    if (res) {
+      messageSuccess('评论成功')
+      emits('commented')
+      inputContent.value = ''
+    }
   }
   const delCommentHandle = async (id: string) => {
     const res = await delComment(id)

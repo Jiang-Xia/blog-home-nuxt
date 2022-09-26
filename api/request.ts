@@ -1,7 +1,7 @@
 import { baseUrl } from '~~/config'
 import { messageDanger } from '~~/utils/toast'
 
-const errorResponse: ApiResponse = {
+let errorResponse: ApiResponse = {
   success: false,
   code: 0,
   message: '',
@@ -65,7 +65,7 @@ const get = async (url: string, params = {}): Promise<ApiResponse> => {
     })
     return res
   } catch (error: any) {
-    errorResponse.message = error
+    errorResponse = { ...error, }
     return errorResponse
   }
 }
@@ -78,7 +78,7 @@ const del = async (url: string, params = {}): Promise<ApiResponse> => {
     })
     return res
   } catch (error: any) {
-    errorResponse.message = error
+    errorResponse = { ...error, }
     return errorResponse
   }
 }
@@ -91,7 +91,7 @@ const post = async (url: string, params = {}): Promise<ApiResponse> => {
     })
     return res
   } catch (error: any) {
-    errorResponse.message = error
+    errorResponse = { ...error, }
     return errorResponse
   }
 }
@@ -104,7 +104,7 @@ const put = async (url: string, params = {}): Promise<ApiResponse> => {
     })
     return res
   } catch (error: any) {
-    errorResponse.message = error
+    errorResponse = { ...error, }
     return errorResponse
   }
 }
