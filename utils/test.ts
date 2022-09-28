@@ -1,7 +1,7 @@
 // 测试泛型
-function test (num: number): number {
-  return num
-}
+// function test (num: number): number {
+//   return num
+// }
 function identity<T> (value: T): T {
   return value
 }
@@ -21,9 +21,9 @@ function identity3<T, U> (value: T, message: U): T {
 
 console.log(identity3(68, 'Semlinker'))
 
-function identity4<T, U> (value: T, message: U): [T, U] {
-  return [value, message]
-}
+// function identity4<T, U> (value: T, message: U): [T, U] {
+//   return [value, message]
+// }
 
 interface Identities<V, M> {
   value: V;

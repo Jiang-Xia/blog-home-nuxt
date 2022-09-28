@@ -1,13 +1,12 @@
 <script setup lang="ts">
   import { ref, reactive, computed } from 'vue'
-  import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
   import MdEditor from 'md-editor-v3'
 
   import { getArticleInfo, getComment } from '@/api/article'
   import { updateViews, xBLogStore, updateLikesHandle } from '@/utils/common'
 
   import defaultImg from '@/assets/images/create.webp'
-  import { makeToc, tocInter, isTrueCoverLink, throttle } from '@/utils'
+  import { tocInter, isTrueCoverLink } from '@/utils'
   import Qie from '@/assets/images/animal/qie.svg'
 
   const theme: any = useTheme()
@@ -32,20 +31,16 @@
     userInfo: {},
   }
   const route = useRoute()
-  // 获取到的html内容
-  const html = ref('')
   // 先定义默认数组类型
   const topicsDefault: tocInter[] = []
   const topics = ref(topicsDefault)
   const ArticleInfo = reactive({ ...defaultForm, })
+  console.log(route)
   const params = route.params
   // 响应式声明
-  const {
-    data: articleData,
-    pending,
-    refresh,
-    error,
-  } = await useAsyncData('detail_GetInfo', () => getArticleInfo(params))
+  const { data: articleData, refresh, } = await useAsyncData('detail_GetInfo', () =>
+    getArticleInfo(params)
+  )
   const setArticleData = () => {
     if (articleData) {
       Object.keys(defaultForm).forEach((v: string) => {
@@ -73,8 +68,6 @@
     return getTagLabel(ArticleInfo.tags)
   })
 
-  const router = useRouter()
-
   // 获取文章目录
   const onGetCatalogHandle = (list: any) => {
     topics.value = list.map((v: any) => {
@@ -93,7 +86,6 @@
   const mdKey = ref(new Date().getTime())
   const likes = ref([])
   // 本地点赞记录
-  const localLikes = computed(() => likes.value)
 
   onMounted(() => {
     scrollElement.value = document.documentElement
@@ -121,13 +113,17 @@
 
   // 目录吸顶
   const mainViewArea = ref(null)
-  let fixedAsideBar = null
+  let fixedAsideBar = ref(null)
   if (process.client) {
     // 都是响应式的
-     const { y, } = useScroll(window, {})
-     fixedAsideBar = computed(() => {
-      return y.value > (mainViewArea.value?.offsetTop - 20)
-     })
+    const { y, } = useScroll(window, {})
+    fixedAsideBar = computed(() => {
+      let top = 0
+      if (mainViewArea.value) {
+        top = mainViewArea.value.offsetTop - 66
+      }
+      return !!y.value && y.value > top
+    })
   }
   // 侧边栏吸顶
 
@@ -213,7 +209,7 @@
         />
       </section>
 
-      <aside ref="aside" class="aside-bar" :class="{'aside-bar__fixed':fixedAsideBar}">
+      <aside ref="aside" class="aside-bar" :class="{ 'aside-bar__fixed': fixedAsideBar }">
         <div class="sticky-box">
           <Catalogue :topics="topics" />
         </div>
@@ -282,13 +278,13 @@
       @apply w-80 absolute right-0 top-0 hidden lg:block rounded-lg h-full overflow-auto;
     }
   }
-  .aside-bar__fixed{
-    .sticky-box{
-        position: fixed;
-        top: 66px;
-        width:inherit;// 这样定位时还是继承父元素的宽度
-      }
+  .aside-bar__fixed {
+    .sticky-box {
+      position: fixed;
+      top: 66px;
+      width: inherit; // 这样定位时还是继承父元素的宽度
     }
+  }
   @media (max-width: 1140px) {
     .main-view-area {
       .main-content {

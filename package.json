@@ -5,7 +5,7 @@
     "dev": "nuxt dev --port 5050",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "lint": "eslint --fix --ext .ts,.js,.vue .",
+    "lint": "eslint --fix --ext .ts,.js,tsx,.vue .",
     "pm2:prod": "pm2 start ecosystem.config.js --env production",
     "pm2:dev": "pm2 start ecosystem.config.js --env development"
   },

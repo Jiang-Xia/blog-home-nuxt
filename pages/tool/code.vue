@@ -13,7 +13,7 @@
 </template>
 <script setup>
   import JsBarcode from 'jsbarcode'
-  import { onBeforeUnmount, nextTick, onActivated } from 'vue'
+  import { onBeforeUnmount, onActivated } from 'vue'
   definePageMeta({
     keepalive: true, // nuxt 默认缓存所有页面
   })

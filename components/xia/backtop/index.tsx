@@ -1,7 +1,7 @@
-import { defineComponent, h, SetupContext } from "vue";
-import "./index.less";
-import { onMounted, computed } from "vue";
-import { throttle } from "~~/utils";
+import { defineComponent, SetupContext, onMounted } from 'vue'
+import './index.less'
+
+import { throttle } from '~~/utils'
 interface propsState {
   prev: number; // 提前出线btn的距离
 }
@@ -15,30 +15,30 @@ interface propsState {
 
 // 创建 XIcon组件
 export default defineComponent({
-  name: "XBacktop",
+  name: 'XBacktop',
   props: {
     prev: {
       type: Number,
       default: 400,
     },
   },
-  setup(props: propsState, context: SetupContext) {
-    const scrollTop = ref(0);
-    const showBtn = ref(false);
-    const scrollHandle = (e: any) => {
-      scrollTop.value = document.documentElement.scrollTop;
+  setup (props: propsState, context: SetupContext) {
+    const scrollTop = ref(0)
+    const showBtn = ref(false)
+    const scrollHandle = () => {
+      scrollTop.value = document.documentElement.scrollTop
       showBtn.value =
-        scrollTop.value > document.documentElement.clientHeight - props.prev;
-    };
+        scrollTop.value > document.documentElement.clientHeight - props.prev
+    }
 
     const goTop = () => {
-      window.scroll({ top: 0, left: 0, behavior: "smooth" });
-    };
+      window.scroll({ top: 0, left: 0, behavior: 'smooth', })
+    }
 
     onMounted(() => {
-      window.addEventListener("scroll", throttle(scrollHandle, 100), true);
-    });
-    const slot = context.slots["default"]?.();
+      window.addEventListener('scroll', throttle(scrollHandle, 100), true)
+    })
+    const slot = context.slots.default?.()
     return () => (
       <div
         class="xia-backtop"
@@ -47,9 +47,7 @@ export default defineComponent({
         onClick={goTop}
       >
         {/* 有插槽内容渲染插槽，没有使用默认内容 */}
-        {slot ? (
-          slot
-        ) : (
+        {slot || (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className=" h-6 w-6 text-sm backtop-icon"
@@ -66,6 +64,6 @@ export default defineComponent({
           </svg>
         )}
       </div>
-    );
+    )
   },
-});
+})

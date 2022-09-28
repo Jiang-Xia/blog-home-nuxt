@@ -1,16 +1,20 @@
 <script setup lang="ts">
+  import config from './config'
   definePageMeta({
     layout: 'custom', // 不使用default布局
   })
-  const props = defineProps({
-    error: Object,
+  defineProps({
+    error: {
+      type: Object,
+      default: () => ({}),
+    },
   })
   const handleError = () => clearError({ redirect: '/', })
   // console.log(props.error)
 </script>
 <template>
   <div class="common-page">
-    <div class="img-wrap" />
+    <div class="img-wrap" :style="{ 'background-image':`url(${config.gifError})` }" />
     <div class="b-text text-center">
       <div class="gradient-text flex justify-center">
         <span class="mr-2">{{ error.statusCode }}</span>
@@ -22,6 +26,7 @@
       >
         {{ error.message }}
       </div>
+      <!-- eslint-disable-next-line vue/no-v-html -->
       <div class="text-left text-sm mb-3 w-3/4 whitespace-pre-wrap" v-html="error.description" />
       <div class="w-full flex items-center justify-center">
         <xia-button @click="handleError">Try Again</xia-button>
@@ -41,7 +46,7 @@
     overflow: hidden;
     &::after {
       pointer-events: none;
-      content: "";
+      content: '';
       position: absolute;
       bottom: -30vh;
       left: 0;
@@ -51,7 +56,6 @@
       filter: blur(20vh);
     }
     .img-wrap {
-      background-image: url(https://jiang-xia.top/x-api/blog-server/static/uploads/2022-08-27/3d2ro4sgqwxlhmic5w6o7a-error.gif);
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;

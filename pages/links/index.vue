@@ -1,21 +1,16 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import request from '~~/api/request'
 import { messageDanger, messageSuccess } from '~~/utils/toast'
 const { data: linkList, } = await useAsyncData('link_Get', () =>
   request.get('/link', { client: true, }).then(res => res.data)
 )
-// console.log(linkList.value);
-const openModal = () => {
-  isOpen.value = true
-}
-const closeModal = () => (isOpen.value = false)
 const okHandle = async () => {
   if (Object.keys(linkState.value).every(v => !linkState[v])) {
     messageDanger('请信息填写完整信息', 2)
     return
   }
-  const res = await request.post('/link', linkState.value)
+  await request.post('/link', linkState.value)
   messageSuccess('申请成功')
   isOpen.value = false
   linkState.value = {
@@ -112,7 +107,7 @@ useHead({
       <!-- 友链列表 -->
       <div class="flex flex-wrap justify-around mt-6">
         <div
-          v-for="(item, index) in linkList"
+          v-for="(item) in linkList"
           class="card w-full lg:w-80 shadow-xl bg-base-100 mb-6 transition duration-700 ease-in-out hover:scale-105 border border-base-300"
         >
           <div class="card-body p-2 sm:p-4">

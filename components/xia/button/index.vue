@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import { reactive, ref } from 'vue'
   const emit = defineEmits(['click'])
   defineProps({
     text: {

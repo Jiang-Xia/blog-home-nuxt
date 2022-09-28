@@ -1,9 +1,8 @@
 <script setup lang="ts">
-  import { useToast } from 'tailvue'
-  import { reactive, ref } from 'vue'
+  import { reactive } from 'vue'
   import request from '~~/api/request.js'
   import { getRandomAvatar } from '~~/utils/common'
-  import { messageDanger, messageSuccess } from '~~/utils/toast'
+  import { messageDanger } from '~~/utils/toast'
 
   definePageMeta({
     layout: 'custom', // 不使用default布局

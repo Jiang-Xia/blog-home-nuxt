@@ -28,9 +28,6 @@
     password: '',
   })
   /* 登录 */
-  const loginHandle = async () => {
-    // console.log(res)
-  }
   const okHandle = async () => {
     const msg: formState = {
       mobile: '填写手机号',

@@ -154,7 +154,7 @@
       <div class="card card-compact mt-3 ml-0 md:ml-4 md:mt-0 md:flex-1 w-full shadow-2xl">
         <div class="card-body">
           <div
-            v-for="(item, index) in msgboardList"
+            v-for="(item) in msgboardList"
             class="card card-compact card-side bg-base-100 shadow-xl mb-3"
           >
             <figure>

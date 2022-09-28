@@ -1,31 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import dayjs from 'dayjs'
-import { getArchives } from '@/api/article'
-// 默认展开当前年
-const activeArr: string[] = [String(dayjs().year())]
-const defaultActiveKey = ref(activeArr)
-const {
-  data: archivesInfo,
-  pending,
-  refresh,
-  error,
-} = await useAsyncData('archives_GetList', () => getArchives())
-defaultActiveKey.value = Object.keys(archivesInfo.value)
+  import { ref } from 'vue'
+  import dayjs from 'dayjs'
+  import { getArchives } from '@/api/article'
+  // 默认展开当前年
+  const activeArr: string[] = [String(dayjs().year())]
+  const defaultActiveKey = ref(activeArr)
+  const { data: archivesInfo, } = await useAsyncData('archives_GetList', () => getArchives())
+  defaultActiveKey.value = Object.keys(archivesInfo.value)
 
-useHead({
-  title: '归档',
-  titleTemplate: title => `${title} - 江夏的个人博客 - 记录生活记录你~`,
-})
+  useHead({
+    title: '归档',
+    titleTemplate: title => `${title} - 江夏的个人博客 - 记录生活记录你~`,
+  })
 </script>
 
 <template>
   <!-- default布局和custom布局只能二选一 -->
   <NuxtLayout name="main-content">
     <div class="archives-container">
-      <h1 class="hidden">
-        文章归档 - 江夏的个人博客 - 记录生活记录你~
-      </h1>
+      <h1 class="hidden"> 文章归档 - 江夏的个人博客 - 记录生活记录你~ </h1>
       <div
         v-for="(value, key) in archivesInfo"
         :key="String(key)"
@@ -46,10 +39,10 @@ useHead({
               <li v-for="(item, index) in value2" :key="index" class="font-semibold">
                 <nuxt-link :to="'/detail/' + item.id" class="flex">
                   <span class="badge badge-md min-w-fit">{{
-                    dayjs(item.createTime).format("YYYY-MM-DD")
+                    dayjs(item.createTime).format('YYYY-MM-DD')
                   }}</span>
                   <div class="hover:text-green-700 hover:underline flex-1">
-                    {{ item["title"] }}
+                    {{ item['title'] }}
                   </div>
                 </nuxt-link>
               </li>

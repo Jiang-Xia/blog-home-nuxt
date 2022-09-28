@@ -1,6 +1,5 @@
 <script setup lang="ts">
-  import { ref, reactive, onMounted, computed, toRefs } from 'vue'
-  import { useStorage } from '@vueuse/core'
+  import { ref, reactive, onMounted, computed } from 'vue'
   import { getArticleList } from '@/api/article'
   import {
     categoryOptions,
@@ -10,7 +9,6 @@
     formactDate,
     xBLogStore
   } from '@/utils/common'
-  import { isTrueCoverLink } from '@/utils'
   import { colorRgb } from '~~/utils/color'
   interface queryState {
     page: number
@@ -55,9 +53,6 @@
   const {
     // 这样生命的变量时响应式的，不这样声明请求回来复制不然渲染到模板上
     data: articleData,
-    pending,
-    refresh,
-    error,
   } = await useAsyncData('index_GetList', () => getArticleList(queryPrams))
   if (articleData.value) {
     articleList.value = articleData.value.list
@@ -158,7 +153,7 @@
       <div class="tag-card-wrap">
         <base-card icon="blog-tag" title="标签" min-height="110px" vertical>
           <div
-            v-for="(item, index) of tagsOptions"
+            v-for="(item,) of tagsOptions"
             :key="item.id"
             class="custom-tag"
             :class="item.checked ? 'active' : ''"
@@ -176,7 +171,7 @@
       <!-- 文章列表 -->
       <div class="article-item-wrap">
         <transition-group key="article-item-wrap" name="list">
-          <div v-for="(item, index) in articleList" :key="item.id" class="article-item">
+          <div v-for="(item,) in articleList" :key="item.id" class="article-item">
             <figure>
               <img
                 v-lazyImg="item.cover"
@@ -314,13 +309,9 @@
         </div>
       </base-card>
 
-      <base-card
-        icon="blog-category"
-        title="分类"
-        style="height:110vh"
-      >
+      <base-card icon="blog-category" title="分类" style="height: 110vh">
         <div
-          v-for="(item, index) of categoryOptions"
+          v-for="(item,) of categoryOptions"
           :key="item.id"
           class="category-item"
           :color="item.color"
@@ -363,7 +354,7 @@
     .el-pagination {
       margin-top: 8vh;
     }
-    .tag-card-wrap{
+    .tag-card-wrap {
       @apply mx-3 mb-5;
     }
     // 右边卡片
@@ -374,7 +365,7 @@
       width: 340px;
       transition: all 0.5s;
       transform: translateX(300%);
-      .card-wrap{
+      .card-wrap {
         @apply mx-5 mb-5;
       }
       // 分类

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { dailyImage } from '~~/api/article'
 const banners = useBanners()
 // console.log(imagesData);
 useHead({

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 const props = defineProps({
   total: {
     type: Number,
@@ -37,19 +37,6 @@ const currentChange = (v: number) => {
   // console.log(current.value);
   emits('change', v)
 }
-const pageList = computed(() => {
-  const pages = []
-  for (let i = current.value; i <= totalPages.value; i++) {
-    if (pages.length + 1 > props.max) {
-      break
-    } else {
-      pages.push(i)
-    }
-  }
-
-  return pages
-})
-
 const startEnd = computed(() => {
   let start = 1
     let end = 0

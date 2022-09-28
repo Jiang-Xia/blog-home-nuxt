@@ -1,11 +1,10 @@
 <script setup lang="ts">
 /* / 路径显示的默认页面 */
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import Cookies from 'js-cookie'
 import dayjs from 'dayjs'
 import { throttle } from '@/utils'
 import { dailyImage } from '~~/api/article.js'
-import { messageSuccess } from '~~/utils/toast'
 
 /* 获取全局banner数据 */
 const banners = useBanners()
@@ -23,7 +22,7 @@ banners.value = imagesData.value.images.map((v: any) => {
 })
 
 const scrollTop = ref(0)
-const scrollHandle = (e: any) => {
+const scrollHandle = () => {
   scrollTop.value = document.documentElement.scrollTop || document.body.scrollTop // 微信里面获取body的
 }
 

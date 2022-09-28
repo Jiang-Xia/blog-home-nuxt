@@ -1,13 +1,12 @@
 <script setup lang="ts">
-  import { computed, PropType, reactive, ref } from 'vue'
-  import dayjs from 'dayjs'
+  import { computed, PropType, ref } from 'vue'
   import { useRoute } from 'vue-router'
   import { useModal, useToast } from 'tailvue'
   import { beforeTimeNow } from '@/utils'
   import { addComment, addReply, delComment, delReply } from '@/api/article'
 
   import { messageDanger, messageSuccess } from '~~/utils/toast'
-  const props = defineProps({
+  defineProps({
     comments: {
       type: Array as PropType<any[]>,
       default: () => [],
@@ -45,7 +44,7 @@
     }
   }
   const delCommentHandle = async (id: string) => {
-    const res = await delComment(id)
+    await delComment(id)
     messageSuccess('删除成功')
     emits('commented')
   }
@@ -122,7 +121,7 @@
         content, // 评论内容
         replyUid: targetUser.value.id, // 目标用户uid
       }
-      const res = await addReply(params)
+      await addReply(params)
       messageSuccess('评论成功')
       currentReplyBoxId.value = ''
       emits('commented')
@@ -131,7 +130,7 @@
     }
   }
   const delReplytHandle = async (id: string) => {
-    const res = await delReply(id)
+    await delReply(id)
     messageSuccess('删除成功')
     emits('commented')
   }
@@ -230,7 +229,7 @@
               <span class="text-xs">
                 {{
                   commentItem.userInfo &&
-                    replyItem.userInfo.nickname + " @ " + replyItem.tUserInfo.nickname
+                    replyItem.userInfo.nickname + ' @ ' + replyItem.tUserInfo.nickname
                 }}
               </span>
               <span class="text-xs pl-2">{{ formactTime(replyItem) }}</span>

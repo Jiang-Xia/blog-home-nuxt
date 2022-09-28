@@ -18,7 +18,6 @@ const getOptions = async (type: string) => {
     })
     // console.log(res)
   } else {
-    const likes = xBLogStore.value.likes
     const res = await api.getAllTag()
     tagsOptions.value = res.map((v: any) => {
       v.value = v.id
@@ -77,7 +76,7 @@ export const updateLikesHandle = async (item: any) => {
     send.status = 1
     !likes.includes(item.id) && likes.push(item.id)
   }
-  const res = await updateLikes(send)
+  await updateLikes(send)
   if (item.checked) {
     item.likes = --item.likes
     item.checked = 0

@@ -8,7 +8,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       const { stop, } = useIntersectionObserver(
         // 监听目标元素
         el,
-        ([{ isIntersecting, }], observerElement) => {
+        ([{ isIntersecting, }]) => {
           // console.log(isIntersecting, observerElement)
           // 正在和root viewport相交
           if (isIntersecting) {

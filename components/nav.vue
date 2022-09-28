@@ -8,13 +8,11 @@
 -->
 
 <script setup lang="ts">
-  import { ref, computed, reactive } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
+  import { ref, reactive } from 'vue'
   import dayjs from 'dayjs'
   import Yaya from '../assets/images/animal/yaya.svg'
   import { getArticleList } from '@/api/article'
   import { throttle } from '~~/utils'
-  import request from '~~/api/request'
   import api from '@/api'
   import { adminUrl } from '@/config'
   const navList = ref([
@@ -164,7 +162,7 @@
           tabindex="0"
           class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-zinc-500"
         >
-          <li v-for="(item, index) in navList" :key="item.path">
+          <li v-for="(item) in navList" :key="item.path">
             <NuxtLink class="py-2 px-4 flex" :to="item.path" :title="item.title">
               <xia-icon :icon="item.icon" />
               <span>{{ item.title }}</span>
@@ -179,7 +177,7 @@
     </div>
     <div class="navbar-center hidden md:flex">
       <ul class="menu menu-horizontal p-0">
-        <li v-for="(item, index) in navList" :key="item.path" class="mr-2">
+        <li v-for="(item) in navList" :key="item.path" class="mr-2">
           <NuxtLink
             :to="item.path"
             class="router-link-item leading-6 flex items-center px-4 py-3"
@@ -211,7 +209,7 @@
           tabindex="0"
           class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52 max-h-72 text-gray-500 text-xs overflow-auto"
         >
-          <li v-for="(item, index) in articleList" class="flex items-center">
+          <li v-for="(item) in articleList" class="flex items-center">
             <NuxtLink class="py-2 px-4" :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
           </li>
         </ul>

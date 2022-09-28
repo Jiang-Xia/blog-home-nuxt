@@ -15,6 +15,7 @@ module.exports = {
         ignores: ['pre', 'textarea'],
       }
     ],
+    'vue/multi-word-component-names': 'off',
     'comma-dangle': [
       'error',
       {
@@ -30,6 +31,5 @@ module.exports = {
     'vue/no-unused-vars': 1,
     'vue/require-v-for-key': 0,
     'no-console': 0,
-    'vue/multi-word-component-names': 1,
   },
 }
