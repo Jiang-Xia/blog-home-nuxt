@@ -5,7 +5,6 @@
   const { data: articleData, } = await useAsyncData('about_GetInfo', () =>
     getArticleInfo({ id: 44, })
   )
-  con
   const theme = useTheme()
   const content = articleData.value.info.contentHtml
   const images = [{
