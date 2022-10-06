@@ -4,7 +4,7 @@ export const getCategoryById = async (id: number) => {
   return res.data
 }
 export const getAllCategory = async () => {
-  const res = await request.get('/category')
+  const res = await request.get('/category', { isDelete: true, })
   return res.data
 }
 export const createCategory = async (data: any) => {

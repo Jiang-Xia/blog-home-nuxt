@@ -4,7 +4,7 @@ export const getTagById = async (id: number) => {
   return res.data
 }
 export const getAllTag = async () => {
-  const res = await request.get('/tag')
+  const res = await request.get('/tag', { isDelete: true, })
   return res.data
 }
 export const createTag = async (data: any) => {
