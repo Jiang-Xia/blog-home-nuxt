@@ -5,6 +5,16 @@ useHead({
   title: '文章列表',
   titleTemplate: title => `${title} - 江夏的个人博客 - 记录生活记录你~`,
 })
+onMounted(() => {
+  setTimeout(() => {
+    const dom:HTMLElement = document.querySelector('html')
+    dom?.setAttribute('style', 'filter: grayscale(.95)')
+  }, 400)
+})
+onBeforeUnmount(() => {
+    const dom:HTMLElement = document.querySelector('html')
+    dom?.setAttribute('style', '')
+})
 </script>
 <template>
   <div class="home-contaier main-bgc">
