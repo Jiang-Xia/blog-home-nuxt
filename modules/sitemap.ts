@@ -47,7 +47,7 @@ export default defineNuxtModule({
 
     nuxt.hook('pages:extend', async (pages) => {
       try {
-        const res: any = await $fetch('https://jiang-xia.top/x-api/blog-server/article/list', {
+        const res: any = await $fetch('https://jiang-xia.top/x-blog/api/v1/article/list', {
           method: 'post',
           body: {
             page: 1,

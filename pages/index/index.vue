@@ -26,6 +26,9 @@ useHead({
   </div>
 </template>
 <style lang="less" scoped>
+.grayscale{
+  filter: grayscale(.95)
+}
 .home-content {
   position: relative;
   min-height: 150vh;

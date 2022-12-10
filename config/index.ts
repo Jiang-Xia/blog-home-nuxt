@@ -19,13 +19,13 @@ console.log(mode)
 // x-api 后端服务
 if (mode === 'production') {
   // baseUrl = 'http://42.192.145.236:5000'
-  baseUrl_ = 'https://jiang-xia.top/x-api/blog-server'
+  baseUrl_ = 'https://jiang-xia.top/x-blog/api/v1'
   adminUrl_ = 'https://admin.jiang-xia.top/login'
 } else {
-  adminUrl_ = 'http://localhost:9856/login'
-  baseUrl_ = 'http://127.0.0.1:5000'
+  // adminUrl_ = 'http://localhost:9856/login'
+  baseUrl_ = 'http://127.0.0.1:5000/api/v1'
   // baseUrl_ = 'http://42.192.145.236:5000'
-  // baseUrl_ = 'https://jiang-xia.top/x-api/blog-server'
+  // baseUrl_ = 'https://jiang-xia.top/x-blog/api/v1'
 }
 const baseUrl: string = baseUrl_
 const adminUrl: string = adminUrl_
