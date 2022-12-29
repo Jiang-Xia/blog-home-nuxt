@@ -11,7 +11,8 @@ const banners = useBanners()
 const { data: imagesData, } = await useAsyncData('index_GetIMG', () =>
   dailyImage(7)
 )
-banners.value = imagesData.value.images.map((v: any) => {
+if(imagesData.value){
+  banners.value = imagesData.value.images.map((v: any) => {
   const { copyright, copyrightlink, title, } = v
   return {
     copyright,
@@ -20,6 +21,7 @@ banners.value = imagesData.value.images.map((v: any) => {
     url: 'https://cn.bing.com' + v.url,
   }
 })
+}
 
 const scrollTop = ref(0)
 const scrollHandle = () => {

@@ -6,7 +6,7 @@ const { data: linkList, } = await useAsyncData('link_Get', () =>
   request.get('/link', { client: true, }).then(res => res.data)
 )
 const okHandle = async () => {
-  if (Object.keys(linkState.value).every(v => !linkState[v])) {
+  if (Object.keys(linkState.value).some(v => !linkState.value[v])) {
     messageDanger('请信息填写完整信息', 2)
     return
   }
