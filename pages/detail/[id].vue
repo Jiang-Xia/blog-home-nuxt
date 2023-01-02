@@ -3,7 +3,7 @@
   import MdEditor from 'md-editor-v3'
 
   import { getArticleInfo, getComment } from '@/api/article'
-  import { updateViews, xBLogStore, updateLikesHandle } from '@/utils/common'
+  import { updateViews, xBLogStore, updateLikesHandle, formactDate } from '@/utils/common'
 
   import defaultImg from '@/assets/images/create.webp'
   import { tocInter, isTrueCoverLink } from '@/utils'
@@ -20,6 +20,7 @@
     content: '',
     contentHtml: '',
     cover: '',
+    uTime: '',
     category: {
       label: '',
     },
@@ -148,6 +149,9 @@
             {{ ArticleInfo.category.label }}
             <xia-icon class="ml-3" icon="blog-tag" />
             {{ tagLabel }}
+          </p>
+          <p class="detail flex items-center justify-center">
+            <xia-icon icon="blog-time" />更新于{{ formactDate(ArticleInfo.uTime) }}
           </p>
           <p class="detail">
             <!-- 阅读量 -->
