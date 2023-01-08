@@ -1,0 +1,6 @@
+This favicon was generated using the following font:
+
+- Font Title: Sofadi One
+- Font Author: Copyright (c) 2011 by Botjo Nikoltchev, with Reserved Font Name 'Sofadi One'
+- Font Source: http://fonts.gstatic.com/s/sofadione/v21/JIA2UVBxdnVBuElZaMFGcDOIETkmYDU.ttf
+- Font License: SIL Open Font License, 1.1 (http://scripts.sil.org/OFL))

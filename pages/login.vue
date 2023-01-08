@@ -2,7 +2,7 @@
   import { reactive, onMounted } from 'vue'
   import request from '~~/api/request.js'
   import { messageDanger, messageSuccess } from '~~/utils/toast'
-  let rsaEncrypt
+  let rsaEncrypt:any
   // 客户端才引入
   if (process.client) {
     import('~~/utils/crypto').then((res) => {

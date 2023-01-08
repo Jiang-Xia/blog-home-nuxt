@@ -1,6 +1,6 @@
 <!-- pages/user.vue -->
 <template>
   user
-  <NuxtChild />
+  <NuxtPage />
   <!-- 子路由出口 -->
 </template>

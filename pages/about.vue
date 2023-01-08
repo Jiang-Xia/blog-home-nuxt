@@ -19,13 +19,6 @@
     title: '关于',
     titleTemplate: title => `${title} - 江夏的个人博客-记录生活记录你~`,
   })
-  definePageMeta({
-    pageTransition: {
-      name: 'scale',
-      appear: true,
-      mode: 'out-in',
-    },
-  })
 </script>
 <template>
   <NuxtLayout name="main-content" :images="images">

@@ -2,9 +2,9 @@
   import { ref, reactive, computed } from 'vue'
   import MdEditor from 'md-editor-v3'
 
+  import { useScroll } from '@vueuse/core'
   import { getArticleInfo, getComment } from '@/api/article'
   import { updateViews, xBLogStore, updateLikesHandle, formactDate } from '@/utils/common'
-
   import defaultImg from '@/assets/images/create.webp'
   import { tocInter, isTrueCoverLink } from '@/utils'
   import Qie from '@/assets/images/animal/qie.svg'
@@ -77,11 +77,11 @@
     })
   }
   const previewTheme = ref('default')
-  const previewThemeChange = (e) => {
+  const previewThemeChange = (e:any) => {
     previewTheme.value = e
     // console.log(previewTheme.value);
   }
-  const scrollElement = ref(null)
+  const scrollElement = ref<HTMLElement>()
   const themeList: any = ref(['default', 'github', 'vuepress', 'mk-cute', 'smart-blue', 'cyanosis'])
   // 为了客户端时重新渲染才能设置为缓存的暗黑模式，themeLocal 另设置一个变量会导致签署数据两次
   const mdKey = ref(new Date().getTime())
@@ -93,7 +93,7 @@
     mdKey.value = new Date().getTime()
     // 点赞的
     likes.value = xBLogStore.value.likes
-    ArticleInfo.checked = likes.value.includes(ArticleInfo.id)
+    ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never)
     // getCommentHandle();
   })
 
@@ -113,8 +113,8 @@
   getCommentHandle()
 
   // 目录吸顶
-  const mainViewArea = ref(null)
-  let fixedAsideBar = ref(null)
+  const mainViewArea = ref<HTMLElement>()
+  let fixedAsideBar = ref<boolean>()
   if (process.client) {
     // 都是响应式的
     const { y, } = useScroll(window, {})

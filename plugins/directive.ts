@@ -1,3 +1,4 @@
+import { useIntersectionObserver } from '@vueuse/core'
 import loadingImg from '@/assets/images/gif/loading3.gif'
 import errorImg from '@/assets/images/common/ErrorAlienSpaceship.svg'
 export default defineNuxtPlugin((nuxtApp) => {

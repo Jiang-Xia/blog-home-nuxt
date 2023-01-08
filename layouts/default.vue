@@ -11,7 +11,7 @@ const banners = useBanners()
 const { data: imagesData, } = await useAsyncData('index_GetIMG', () =>
   dailyImage(7)
 )
-if(imagesData.value){
+if (imagesData.value) {
   banners.value = imagesData.value.images.map((v: any) => {
   const { copyright, copyrightlink, title, } = v
   return {
@@ -95,7 +95,7 @@ useHead({
     </header>
     <!-- 路由显示区域 -->
     <div class="app-layout-body">
-      <NuxtChild />
+      <NuxtPage />
     </div>
     <!-- 页脚 -->
     <footer class="app-layout-footer">

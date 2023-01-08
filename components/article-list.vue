@@ -141,7 +141,7 @@
   onMounted(() => {
     likes.value = xBLogStore.value.likes
     articleList.value = articleList.value.map((v: any) => {
-      v.checked = likes.value.includes(v.id)
+      v.checked = likes.value.includes(v.id as never)
       return v
     })
   })
@@ -202,7 +202,7 @@
                   <!-- 点赞数 -->
                   <span class="text-icon pointer" @click.stop="updateLikesHandle(item)">
                     <xia-icon
-                      :icon="localLikes.includes(item.id) ? 'blog-like-solid' : 'blog-like'"
+                      :icon="localLikes.includes(item.id as never) ? 'blog-like-solid' : 'blog-like'"
                       class="mr-1"
                     />
                     {{ item.likes }}
@@ -223,9 +223,9 @@
                     <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
                     <span class="pt-2">{{ formactDate(item.createTime) }}</span>
                   </div>
-                  <nuxt-link :to="'/detail/' + item.id">
+                  <span @click="$router.push(`/detail/${item.id}`)">
                     <button class="btn btn-xs xia-btn">Read</button>
-                  </nuxt-link>
+                  </span>
                 </div>
               </div>
             </div>
