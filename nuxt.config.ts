@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   },
   pwa: {
     workbox: {
-      enabled: false, // 开发模式也启动
+      enabled: true,
     },
     manifest: {
       name: "Blog",

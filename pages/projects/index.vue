@@ -23,13 +23,7 @@
 import { adminUrl } from '@/config'
 const token = useToken()
 let goUrl = `${adminUrl}?ticket=${token.value}`
-// const zoneUrl = 'https://jiang-xia.top/zone/#/?type=preview'
-const zoneUrl = 'http://localhost:5173/#/pages/blog/index?type=preview'
-// onMounted(() => {
-//     goUrl = `${adminUrl}?ticket=${token.value}`
-//     console.log(goUrl)
-// })
-
+const zoneUrl = 'https://jiang-xia.top/zone/#/'
 
 </script>
 <style lang="less" scoped>
