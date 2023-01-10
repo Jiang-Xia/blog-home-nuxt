@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2023-01-10 15:58:41
+ * @LastEditTime: 2023-01-10 21:26:28
  * @Description:
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -41,11 +41,11 @@
       title: '关于',
       icon: 'blog-about',
     },
-    // {
-    //   path: '/projects',
-    //   title: '项目',
-    //   icon: 'blog-xiangmu',
-    // },
+    {
+      path: '/projects',
+      title: '项目',
+      icon: 'blog-xiangmu',
+    },
     // {
     //   path: '/au-vi',
     //   title: '音视频',

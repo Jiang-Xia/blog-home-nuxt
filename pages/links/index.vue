@@ -97,7 +97,7 @@ useHead({
             <a class="flex items-center" target="_blank" :href="item.url">
               <div class="avatar">
                 <div class="w-10 rounded-full bg-base-300">
-                  <img v-show="item.icon" :alt="item.title" :src="item.icon">
+                  <img v-show="item.icon" :alt="item.title" v-lazyImg="item.icon">
                 </div>
               </div>
               <div class="pl-2 text-sm">{{ item.desp }}</div>
