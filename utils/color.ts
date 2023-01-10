@@ -1,5 +1,5 @@
 //  rgb转为十六进制
-export const colorHex = function (color) {
+export const colorHex = function (color:string) {
   // 十六进制颜色值的正则表达式
   const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/
   // 如果是rgb颜色表示
@@ -33,7 +33,7 @@ export const colorHex = function (color) {
 }
 
 // 十六进制转为rgb
-export const colorRgb = function (color) {
+export const colorRgb = function (color:string) {
   let sColor = color.toLowerCase()
   // 十六进制颜色值的正则表达式
   const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/

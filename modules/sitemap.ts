@@ -15,8 +15,8 @@ export default defineNuxtModule({
     hostname: 'http://localhost:5050',
   },
   setup (options, nuxt) {
-    function generateSitemap (routes, ids: []) {
-      let sitemapRoutes = routes.map(route => route.path)
+    function generateSitemap (routes:any, ids: []) {
+      let sitemapRoutes = routes.map((route:any) => route.path)
       // console.log({sitemapRoutes,ids})
       const details = ids.map((v: any) => 'detail/' + v)
       sitemapRoutes = sitemapRoutes.concat(details)
@@ -27,7 +27,7 @@ export default defineNuxtModule({
       )
     }
 
-    function createSitemapFile (sitemap, filepath) {
+    function createSitemapFile (sitemap:string, filepath:string) {
       const dirPath = dirname(filepath)
       mkdirSync(dirPath, { recursive: true, })
       writeFileSync(filepath, sitemap)
@@ -56,7 +56,7 @@ export default defineNuxtModule({
         })
         if (res.data.list) {
           const articleIds = res.data.list.map((v: any) => v.id)
-          const sitemap = await generateSitemap(pages, articleIds)
+          const sitemap:string = await generateSitemap(pages, articleIds)
           createSitemapFile(sitemap, filePath)
         }
       } catch (error) {

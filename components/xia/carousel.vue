@@ -18,7 +18,7 @@ const props = defineProps({
     default: false,
   },
 })
-let timer = null // 清楚定时器
+let timer:NodeJS.Timer  // 清楚定时器
 let isHover = false // hover时不轮播
 onMounted(() => {
   // console.log(carouselRef);
@@ -30,7 +30,6 @@ onUnmounted(() => {
 const clearTimer = () => {
   isHover = true
   clearInterval(timer)
-  timer = null
 }
 const startTimer = () => {
   isHover = false
@@ -40,13 +39,14 @@ const startTimer = () => {
   }, props.duration)
 }
 
-const carouselRef = ref(null)
+const carouselRef = ref()
 // 多个ref就绑定为数组
 const itemRefs = ref([])
 const currentIndex = ref(0)
 // 设置滚动条
 const setScrollLeft = () => {
-  const left = itemRefs.value[currentIndex.value].offsetWidth
+  const dom:HTMLElement = itemRefs.value[currentIndex.value]
+  const left = dom.offsetWidth
   // console.log(currentIndex.value, left);
   carouselRef.value.scrollLeft = currentIndex.value * left
 }

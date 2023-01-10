@@ -14,7 +14,7 @@ interface queryState {
 }
 
 interface StringKey {
-  [propName: string]: string | number;
+  [propName: string]: any;
 }
 
 interface userInfoState {

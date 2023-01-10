@@ -3,6 +3,13 @@
   import { messageDanger, messageSuccess } from '@/utils/toast'
 
   import request from '~~/api/request'
+  interface MsgInterFace  {
+    name: '',
+    eamil: '',
+    address: '',
+    comment: '',
+    code: '',
+  }
   const { data: msgboardList, } = await useAsyncData('msgboard_Get', () =>
     request.get('/msgboard').then(res => res.data)
   )
@@ -15,7 +22,7 @@
   const createdHandle = (v: string) => {
     authCode.value = v
   }
-  const msgForm = reactive({
+  const msgForm:MsgInterFace = reactive({
     name: '',
     eamil: '',
     address: '',
@@ -45,8 +52,7 @@
     }
     console.log(msgForm)
     request.post('/msgboard', msgForm)
-    messageSuccess('留言成功')
-    keys.forEach(k => (msgForm[k] = ''))
+    keys.forEach((k) => (msgForm[k as keyof MsgInterFace] = ''))
   }
 
   useHead({

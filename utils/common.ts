@@ -71,10 +71,10 @@ export const updateLikesHandle = async (item: any) => {
   const likes = xBLogStore.value.likes
   if (item.checked) {
     send.status = 0
-    likes.splice(likes.indexOf(item.id), 1)
+    likes.splice(likes.indexOf(item.id as never), 1)
   } else {
     send.status = 1
-    !likes.includes(item.id) && likes.push(item.id)
+    !likes.includes(item.id as never) && likes.push(item.id as never)
   }
   await updateLikes(send)
   if (item.checked) {

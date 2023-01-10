@@ -6,7 +6,7 @@
       default: () => ({}),
     },
   })
-  const clickTab = (index) => {
+  const clickTab = (index:number) => {
     active.value = index
     emits('click', props.config.list[index])
     emits('input', index)
