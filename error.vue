@@ -3,12 +3,15 @@
   definePageMeta({
     layout: 'custom', // 不使用default布局
   })
-  defineProps({
+  const props = defineProps({
     error: {
       type: Object,
       default: () => ({}),
     },
   })
+  if(props.error.statusCode){
+    navigateTo('/404')
+  }
   const handleError = () => clearError({ redirect: '/', })
   // console.log(props.error)
 </script>
@@ -27,7 +30,7 @@
         {{ error.message }}
       </div>
       <!-- eslint-disable-next-line vue/no-v-html -->
-      <div class="text-left text-sm mb-3 w-3/4 whitespace-pre-wrap" v-html="error.description" />
+      <div class="text-left text-sm mb-3 w-3/4 whitespace-pre-wrap" v-html="error.stack" />
       <div class="w-full flex items-center justify-center">
         <xia-button @click="handleError">Try Again</xia-button>
       </div>
