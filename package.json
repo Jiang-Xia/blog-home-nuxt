@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@iconify/vue": "^3.2.1",
+    "@kevinmarrec/nuxt-pwa": "^0.14.0",
     "@nuxtjs/eslint-config-typescript": "^11.0.0",
     "@tailvue/nuxt": "^0.1.62",
     "@types/crypto-js": "^4.1.1",

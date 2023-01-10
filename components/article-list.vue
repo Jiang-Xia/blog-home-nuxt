@@ -217,7 +217,7 @@
                   <div class="flex items-center">
                     <div class="avatar btn btn-ghost btn-circle btn-xs">
                       <div class="rounded-full">
-                        <img :src="item.userInfo.avatar">
+                        <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
                       </div>
                     </div>
                     <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>

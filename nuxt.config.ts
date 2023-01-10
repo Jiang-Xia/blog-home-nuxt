@@ -2,36 +2,15 @@ import Icons from 'unplugin-icons/vite'
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-  modules: ['@vueuse/nuxt', '~/modules/sitemap', '@tailvue/nuxt'], // '@kevinmarrec/nuxt-pwa'
+  modules: ['@vueuse/nuxt', '~/modules/sitemap', '@tailvue/nuxt','@kevinmarrec/nuxt-pwa'], // 
   sitemap: {
     hostname: 'https://jiang-xia.top',
   },
-  // pwa: {
-  //   workbox: {
-  //     enabled: false, // 开发模式也启动
-  //   },
-  //   manifest: {
-  //     name: 'xia',
-  //     short_name: 'xia',
-  //     icons: [
-  //       {
-  //         src: '/android-chrome-192x192.png',
-  //         sizes: '192x192',
-  //         type: 'image/png',
-  //         purpose: 'any',
-  //       },
-  //       {
-  //         src: '/android-chrome-512x512.png',
-  //         sizes: '512x512',
-  //         type: 'image/png',
-  //         purpose: 'any',
-  //       }
-  //     ],
-  //     theme_color: '#ffffff',
-  //     background_color: '#ffffff',
-  //     display: 'standalone',
-  //   },
-  // },
+  pwa: {
+    workbox: {
+      enabled: false, // 开发模式也启动
+    }
+  },
   // app: {
   //   pageTransition: {
   //     name: 'scale',
