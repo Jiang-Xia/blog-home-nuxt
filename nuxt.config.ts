@@ -9,7 +9,11 @@ export default defineNuxtConfig({
   pwa: {
     workbox: {
       enabled: false, // 开发模式也启动
-    }
+    },
+    manifest: {
+      name: "Blog",
+      short_name: 'Blog',
+    },
   },
   // app: {
   //   pageTransition: {

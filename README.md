@@ -8,15 +8,16 @@
 
 ## 简介
 
-Blog Home  是一个基于 Vue3、Vite、TypeScript、Arco Design UI 的个人博客前台，它使用了最新的前端技术栈，用于个人博客创建和浏览自身文章。
+Blog Home Nuxt 是一个基于 Vue3、Vite4、TypeScript、Nuxt3、Tailwindcss、DaisyUI的个人博客前台，它使用了最新的前端技术栈，用于个人博客创建和浏览自身文章。
 
 ## 主要技术和依赖
 
 - [Vue3](https://staging-cn.vuejs.org/guide/introduction.html)
 - [Vite](https://www.vitejs.net/guide/)
-- [Daisyui UI](https://daisyui.com/)
 - [TypeScript](https://typescript.bootcss.com/)
 - [Nuxt3](https://v3.nuxtjs.org/getting-started/quick-start)
+- [Tailwindcs](https://tailwindcss.com/docs/installation)
+- [Daisyui UI](https://daisyui.com/)
    
   
 ## 特性
@@ -37,7 +38,7 @@ Blog Home  是一个基于 Vue3、Vite、TypeScript、Arco Design UI 的个人�
 
 ## 代码仓库
 
-- [gitee-blog-home](https://gitee.com/jiang-xia/blog-home-nuxt)
+- [blog-home-nuxt](https://gitee.com/jiang-xia/blog-home-nuxt)
 
 
 
@@ -56,7 +57,7 @@ npm install
 
 - 运行
 ```bash
-npm run dev
+yarn dev
 ```
 - [http://localhost:5050](http://localhost:5050)
 
@@ -65,13 +66,13 @@ npm run dev
 打包生产应用:
 
 ```bash
-npm run build
+yarn build
 ```
 
 本地预览生产打包:
 
 ```bash
-npm run preview
+yarn preview
 ```
 
 查看更多信息 [部署文档](https://v3.nuxtjs.org/guide/deploy/presets)

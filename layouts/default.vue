@@ -99,7 +99,9 @@ useHead({
     </div>
     <!-- 页脚 -->
     <footer class="app-layout-footer">
-      <p>桂ICP备2022001119号-1</p>
+      <p>
+        <NuxtLink target="_blank" href="https://beian.miit.gov.cn/#/Integrated/recordQuery">桂ICP备2022001119号-1</NuxtLink>
+      </p>
       <p>
         Powered By Typescript & Vue3 & Vite3 & Nuxt3 & Tailwindcss & DaisyUI &
         Node.js & NestJS
@@ -112,9 +114,9 @@ useHead({
 <style lang="less">
 /* 这样写法好像也怎么只管看到类名，也不利于根据类名搜索 */
 .app-layout {
-  // background-color: var(--main-bgc);
+  background-color: var(--main-bgc);
   color: var(--text-color);
-  background-color: #222831;
+  // background-color: #222831;
   min-height: 100vh;
   // padding-top: 64px;
   // 会编译成和 & 同级类名即 app-layout-header
