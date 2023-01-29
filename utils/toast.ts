@@ -1,5 +1,5 @@
 import { useToast } from 'tailvue'
-export const messageDanger = (msg: string, timeout:number = 1) => {
+export const messageDanger = (msg: string, timeout = 1) => {
   if (process.client) {
     const $toast = useToast()
     $toast.show({
@@ -9,7 +9,7 @@ export const messageDanger = (msg: string, timeout:number = 1) => {
     })
   }
 }
-export const messageSuccess = (msg: string = '', timeout:number = 1) => {
+export const messageSuccess = (msg = '', timeout = 1) => {
   if (process.client) {
     const $toast = useToast()
     $toast.show({

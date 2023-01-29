@@ -2,7 +2,7 @@ import Icons from 'unplugin-icons/vite'
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-  modules: ['@vueuse/nuxt', '~/modules/sitemap', '@tailvue/nuxt','@kevinmarrec/nuxt-pwa'], // 
+  modules: ['@vueuse/nuxt', '~/modules/sitemap', '@tailvue/nuxt', '@kevinmarrec/nuxt-pwa'], //
   sitemap: {
     hostname: 'https://jiang-xia.top',
   },
@@ -11,7 +11,7 @@ export default defineNuxtConfig({
       enabled: true,
     },
     manifest: {
-      name: "Blog",
+      name: 'Blog',
       short_name: 'Blog',
     },
   },

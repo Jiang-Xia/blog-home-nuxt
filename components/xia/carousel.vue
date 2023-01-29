@@ -18,7 +18,7 @@ const props = defineProps({
     default: false,
   },
 })
-let timer:NodeJS.Timer  // 清楚定时器
+let timer:NodeJS.Timer // 清楚定时器
 let isHover = false // hover时不轮播
 onMounted(() => {
   // console.log(carouselRef);

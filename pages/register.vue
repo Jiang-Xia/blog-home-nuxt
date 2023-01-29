@@ -51,7 +51,7 @@ const okHandle = async () => {
       params.password = rsaEncrypt(form.password)
       const res = await request.post('/user/login', {
         mobile: params.mobile,
-        password: params.password
+        password: params.password,
       })
       token.value = res.data.info.token
       navigateTo('/')

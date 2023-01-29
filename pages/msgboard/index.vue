@@ -3,7 +3,7 @@
   import { messageDanger, messageSuccess } from '@/utils/toast'
 
   import request from '~~/api/request'
-  interface MsgInterFace  {
+  interface MsgInterFace {
     name: '',
     eamil: '',
     address: '',
@@ -52,7 +52,7 @@
     }
     console.log(msgForm)
     request.post('/msgboard', msgForm)
-    keys.forEach((k) => (msgForm[k as keyof MsgInterFace] = ''))
+    keys.forEach(k => (msgForm[k as keyof MsgInterFace] = ''))
   }
 
   useHead({

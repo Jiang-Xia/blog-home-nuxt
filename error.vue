@@ -9,7 +9,7 @@
       default: () => ({}),
     },
   })
-  if(props.error.statusCode){
+  if (props.error.statusCode) {
     navigateTo('/404')
   }
   const handleError = () => clearError({ redirect: '/', })

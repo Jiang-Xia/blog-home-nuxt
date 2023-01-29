@@ -45,7 +45,7 @@
       path: '/projects',
       title: '项目',
       icon: 'blog-xiangmu',
-    },
+    }
     // {
     //   path: '/au-vi',
     //   title: '音视频',

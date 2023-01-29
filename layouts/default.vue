@@ -97,7 +97,8 @@ useHead({
     <!-- 页脚 -->
     <footer class="app-layout-footer">
       <p>
-        <NuxtLink target="_blank" href="https://beian.miit.gov.cn/#/Integrated/recordQuery">桂ICP备2022001119号-1
+        <NuxtLink target="_blank" href="https://beian.miit.gov.cn/#/Integrated/recordQuery">
+          桂ICP备2022001119号-1
         </NuxtLink>
       </p>
       <p>
