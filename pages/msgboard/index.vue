@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { reactive, ref, computed } from 'vue'
-  import { messageDanger, messageSuccess } from '@/utils/toast'
+  import { messageDanger } from '@/utils/toast'
 
   import request from '~~/api/request'
   interface MsgInterFace {

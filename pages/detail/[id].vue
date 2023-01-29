@@ -202,7 +202,7 @@
             preview-only
             :preview-theme="previewTheme"
             :theme="theme"
-            @onGetCatalog="onGetCatalogHandle"
+            @on-get-catalog="onGetCatalogHandle"
           />
         </section>
         <XiaComment

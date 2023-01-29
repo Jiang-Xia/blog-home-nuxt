@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+// eslint-disable-next-line
 const colors = require('tailwindcss/colors')
 module.exports = {
   // darkMode: "class", // 启动暗黑模式 class支持手动切换 media跟随操作系统

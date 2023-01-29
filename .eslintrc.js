@@ -31,5 +31,6 @@ module.exports = {
     'vue/no-unused-vars': 1,
     'vue/require-v-for-key': 0,
     'no-console': 0,
+    'import/no-mutable-exports': 0,
   },
 }

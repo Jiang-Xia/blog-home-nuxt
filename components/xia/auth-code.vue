@@ -1,8 +1,8 @@
 <!--
  * @Author: 酱
- * @LastEditors: 酱
+ * @LastEditors: jx
  * @Date: 2022-07-31 19:45:40
- * @LastEditTime: 2022-07-31 23:50:20
+ * @LastEditTime: 2023-01-29 15:50:30
  * @Description: 验证码
  * @FilePath: \blog-home-nuxt\components\xia\auth-code.vue
 -->
@@ -41,6 +41,7 @@ export default {
       type: Array,
     },
   },
+  emits: ['created'],
   data () {
     return {
       authCode: '',
