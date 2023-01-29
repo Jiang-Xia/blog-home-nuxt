@@ -1,20 +1,24 @@
 import Icons from 'unplugin-icons/vite'
-
+console.log(process.env.NODE_ENV, process.env.NODE_ENV === 'production')
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-  modules: ['@vueuse/nuxt', '~/modules/sitemap', '@tailvue/nuxt', '@kevinmarrec/nuxt-pwa'], //
+  modules: ['@vueuse/nuxt',
+  '~/modules/sitemap',
+   '@tailvue/nuxt'
+  //  '@kevinmarrec/nuxt-pwa'
+  ],
   sitemap: {
     hostname: 'https://jiang-xia.top',
   },
-  pwa: {
-    workbox: {
-      enabled: true,
-    },
-    manifest: {
-      name: 'Blog',
-      short_name: 'Blog',
-    },
-  },
+  // pwa: {
+  //   workbox: {
+  //     enabled: process.env.NODE_ENV === 'production',
+  //   },
+  //   manifest: {
+  //     name: 'Blog',
+  //     short_name: 'Blog',
+  //   },
+  // },
   // app: {
   //   pageTransition: {
   //     name: 'scale',

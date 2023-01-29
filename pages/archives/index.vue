@@ -5,8 +5,8 @@
   // 默认展开当前年
   const activeArr: string[] = [String(dayjs().year())]
   const defaultActiveKey = ref(activeArr)
-  const { data: archivesInfo, } = await useAsyncData('archives_GetList', () => getArchives())
-  defaultActiveKey.value = Object.keys(archivesInfo.value)
+  const { data: archivesList, } = await useAsyncData('archives_GetList', () => getArchives())
+  defaultActiveKey.value = Object.keys(archivesList.value)
 
   useHead({
     title: '归档',
@@ -20,18 +20,18 @@
     <div class="archives-container">
       <h1 class="hidden"> 文章归档 - 江夏的个人博客 - 记录生活记录你~ </h1>
       <div
-        v-for="(value, key) in archivesInfo"
-        :key="String(key)"
+        v-for="(archive, idx) in archivesList"
+        :key="idx"
         tabindex="0"
-        class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box shadow-xl"
+        class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box shadow-xl mb-4"
       >
         <!-- 设置选择就勾选了 -->
         <input type="checkbox" checked>
         <div class="collapse-title text-xl font-medium">
-          {{ key }}
+          {{ archive.year }}
         </div>
         <div class="collapse-content">
-          <div v-for="(value2, key2) in value" :key="key2">
+          <div v-for="(value2, key2) in archive.data" :key="key2">
             <h4 class="month">
               {{ key2 }}
             </h4>
