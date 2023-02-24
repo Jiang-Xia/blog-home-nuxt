@@ -16,7 +16,7 @@ Blog Home Nuxt 是一个基于 Vue3、Vite4、TypeScript、Nuxt3、Tailwindcss�
 - [Vite](https://www.vitejs.net/guide/)
 - [TypeScript](https://typescript.bootcss.com/)
 - [Nuxt3](https://v3.nuxtjs.org/getting-started/quick-start)
-- [Tailwindcs](https://tailwindcss.com/docs/installation)
+- [Tailwindcss](https://tailwindcss.com/docs/installation)
 - [Daisyui UI](https://daisyui.com/)
    
   
