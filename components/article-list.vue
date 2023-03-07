@@ -1,16 +1,10 @@
 <script setup lang="ts">
-  import { ref, reactive, onMounted, computed } from 'vue'
-  import { getArticleList } from '@/api/article'
-  import {
-    categoryOptions,
-    tagsOptions,
-    getOptions,
-    updateLikesHandle,
-    formactDate,
-    xBLogStore
-  } from '@/utils/common'
-  import { colorRgb } from '~~/utils/color'
-  interface queryState {
+import { computed, onMounted, reactive, ref } from 'vue'
+import { getArticleList } from '@/api/article'
+import { categoryOptions, formactDate, getOptions, tagsOptions, updateLikesHandle, xBLogStore } from '@/utils/common'
+import { colorRgb } from '~~/utils/color'
+
+interface queryState {
     page: number
     category: string
     tags: string[]
@@ -57,6 +51,7 @@
   if (articleData.value) {
     articleList.value = articleData.value.list
     queryPrams.total = articleData.value.pagination.total
+    console.log('文章列表总文章======>', articleData.value.pagination.total)
   }
   // console.log({articleData:articleData.value})
   // 此测试印证上面描述
@@ -68,16 +63,15 @@
   // 下一页
   const getArticleListHandle = async (val = 1) => {
     queryPrams.page = val
-    const res = await getArticleList(queryPrams)
-    articleList.value = res.list
-    queryPrams.total = res.pagination.total
+    const { data: res, } = await useAsyncData('index_GetList', () => getArticleList(queryPrams))
+    articleList.value = res.value.list
+    queryPrams.total = res.value.pagination.total
   }
   // 获取标签名(暂时没有用)
   const getTagLabel = (arr: []): string => {
     // 如果是js的话，这个方法会写得很简单
     //  ts的话，它会提前对各种值进行类型推导，避免了一些取值的错误（比如在undefined和null取属性值）
-    const text = arr.map((v: any) => v.label).join()
-    return text
+    return arr.map((v: any) => v.label).join()
   }
 
   // 点击tag
@@ -202,7 +196,7 @@
                   <!-- 点赞数 -->
                   <span class="text-icon pointer" @click.stop="updateLikesHandle(item)">
                     <xia-icon
-                      :icon="localLikes.includes(item.id as never) ? 'blog-like-solid' : 'blog-like'"
+                      :icon="localLikes.includes(item.id) ? 'blog-like-solid' : 'blog-like'"
                       class="mr-1"
                     />
                     {{ item.likes }}

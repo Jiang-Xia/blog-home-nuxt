@@ -36,8 +36,9 @@
   const topicsDefault: tocInter[] = []
   const topics = ref(topicsDefault)
   const ArticleInfo = reactive({ ...defaultForm, })
-  console.log(route)
+  // console.log(route)
   const params = route.params
+  console.log({ '文章id:': params.id, })
   // 响应式声明
   const { data: articleData, refresh, } = await useAsyncData('detail_GetInfo', () =>
     getArticleInfo(params)
@@ -53,11 +54,11 @@
   }
   setArticleData()
 
-  onBeforeMount(async () => {
-    console.log('onBeforeMount')
-    await refresh()
-    setArticleData()
-  })
+  // onBeforeMount(async () => {
+  //   console.log('onBeforeMount')
+  //   await refresh()
+  //   setArticleData()
+  // })
   updateViews(params.id)
 
   const getTagLabel = (arr: any): string => {
@@ -103,10 +104,12 @@
 
   const getCommentHandle = async () => {
     const id: string = route.params.id as string
-    const res = await getComment(id)
-    comments.value = res.list
-    let total = res.pagination.total
-    res.list.map((v: any) => (total += v.allReplyCount))
+    const { data: res, } = await useAsyncData('detail_GetComment', () =>
+        getComment(id)
+    )
+    comments.value = res.value.list
+    let total = res.value.pagination.total
+    res.value.list.map((v: any) => (total += v.allReplyCount))
     commentTotal.value = total
     // console.log({ comments, total });
   }
