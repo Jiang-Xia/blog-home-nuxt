@@ -1,3 +1,4 @@
+'use-client'
 /* eslint-disable */
 import CryptoJS, { enc, mode, AES, pad } from 'crypto-js'
 import JSEncrypt from 'jsencrypt'

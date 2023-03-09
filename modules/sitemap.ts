@@ -3,7 +3,7 @@ import { Readable } from 'stream'
 import { dirname } from 'path'
 import { SitemapStream, streamToPromise } from 'sitemap'
 import { defineNuxtModule, createResolver } from '@nuxt/kit'
-import { $fetch } from 'ohmyfetch'
+import { ofetch } from 'ofetch'
 export default defineNuxtModule({
   meta: {
     name: 'sitemap',
@@ -47,7 +47,7 @@ export default defineNuxtModule({
 
     nuxt.hook('pages:extend', async (pages) => {
       try {
-        const res: any = await $fetch('https://jiang-xia.top/x-blog/api/v1/article/list', {
+        const res: any = await ofetch('https://jiang-xia.top/x-blog/api/v1/article/list', {
           method: 'post',
           body: {
             page: 1,
@@ -55,6 +55,7 @@ export default defineNuxtModule({
           },
         })
         if (res.data.list) {
+          console.log('准备生成sitemap，文章数为', res.data.list.length, '篇')
           const articleIds = res.data.list.map((v: any) => v.id)
           const sitemap:string = await generateSitemap(pages, articleIds)
           createSitemapFile(sitemap, filePath)
