@@ -195,7 +195,7 @@
         <li v-for="(item) in navList" :key="item.path" class="mr-2">
           <NuxtLink
             :to="item.path"
-            class="router-link-item leading-6 flex items-center px-4 py-3"
+            class="router-link-item leading-6 flex items-center px-4 py-3 rounded-lg"
             :title="item.title"
           >
             <xia-icon class="hidden md:flex" :icon="item.icon" />

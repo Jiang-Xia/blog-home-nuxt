@@ -64,27 +64,23 @@ export const updateLikes = async (data: any) => {
 // 更新点赞数
 export const updateLikesHandle = async (item: any) => {
   const { uid, } = useUserInfo().value
+  const id = item.id as never
   const send = {
     articleId: item.id,
     uid,
     status: 1,
   }
   const likes = xBLogStore.value.likes
-  if (item.checked) {
+  if (likes.includes(id)) {
     send.status = 0
-    likes.splice(likes.indexOf(item.id as never), 1)
+    likes.splice(likes.indexOf(id), 1)
+    item.likes = --item.likes
   } else {
     send.status = 1
-    !likes.includes(item.id as never) && likes.push(item.id as never)
+    !likes.includes(id) && likes.push(id)
+    item.likes = ++item.likes
   }
   await updateLikes(send)
-  if (item.checked) {
-    item.likes = --item.likes
-    item.checked = 0
-  } else {
-    item.likes = ++item.likes
-    item.checked = 1
-  }
 }
 
 export const formactDate = (str: string) => {

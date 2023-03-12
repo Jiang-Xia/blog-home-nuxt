@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { getArticleList } from '@/api/article'
 import { categoryOptions, formactDate, getOptions, tagsOptions, updateLikesHandle, xBLogStore } from '@/utils/common'
 import { colorRgb } from '~~/utils/color'
@@ -127,17 +127,13 @@ interface queryState {
     return color
   }
 
-  const likes = ref([])
   // 客户端执行
   // 本地点赞记录
-  const localLikes = computed(() => likes.value)
+  const localLikes = computed<number[]>(() => xBLogStore.value.likes)
+  const listKey = ref()
   // 客户端徐根据缓存需重新渲染
   onMounted(() => {
-    likes.value = xBLogStore.value.likes
-    articleList.value = articleList.value.map((v: any) => {
-      v.checked = likes.value.includes(v.id as never)
-      return v
-    })
+    listKey.value = new Date().getTime()
   })
 </script>
 
@@ -163,7 +159,7 @@ interface queryState {
         </base-card>
       </div>
       <!-- 文章列表 -->
-      <div class="article-item-wrap">
+      <div :key="listKey" class="article-item-wrap">
         <transition-group key="article-item-wrap" name="list">
           <div v-for="(item,) in articleList" :key="item.id" class="article-item">
             <figure>
