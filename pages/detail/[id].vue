@@ -200,7 +200,7 @@
           </div>
           <md-editor
             :key="mdKey"
-            v-model="ArticleInfo.contentHtml"
+            v-model="ArticleInfo.content"
             class="x-md-editor"
             preview-only
             :preview-theme="previewTheme"

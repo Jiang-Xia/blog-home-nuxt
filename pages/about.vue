@@ -6,7 +6,7 @@
     getArticleInfo({ id: 44, })
   )
   const theme = useTheme()
-  const content = articleData.value.info.contentHtml
+  const content = articleData.value.info.content
   const images = [{
     url: articleData.value.info.cover,
     title: '关于',
