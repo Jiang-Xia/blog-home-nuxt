@@ -84,12 +84,16 @@
   }
   onMounted(() => {
     console.log(localStorage.getItem('theme'))
-    const themeType = localStorage.getItem('theme')
+    const themeType = localStorage.getItem('theme') || '' as string
     if (themeType) {
       // 都有设置icon和选中
       setTheme(themeType)
     } else {
       getHour()
+    }
+    const isDark:boolean = matchMedia('(prefers-color-scheme: dark)').matches
+    if (isDark && (themeType === 'light' || !themeType)) {
+      setTheme('dark')
     }
   })
   // 点击icon直接切换
