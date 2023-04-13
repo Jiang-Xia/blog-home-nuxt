@@ -756,14 +756,14 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@kevinmarrec/nuxt-pwa@^0.14.1":
-  version "0.14.1"
-  resolved "https://registry.npmmirror.com/@kevinmarrec/nuxt-pwa/-/nuxt-pwa-0.14.1.tgz#1e399087805da77717cab1f9bfed499436c77d1f"
-  integrity sha512-nvT7vgdvlCWjbbkGVjx011+6YB3/wduUPoCjbEEmHcrpRHoJxzPEWn57Wok0l9HiRIbTg6I51UUKGivcIaaohA==
+"@kevinmarrec/nuxt-pwa@^0.17.0":
+  version "0.17.0"
+  resolved "https://registry.npmmirror.com/@kevinmarrec/nuxt-pwa/-/nuxt-pwa-0.17.0.tgz#384a7d63062b5b71a2c14cc53d0b8c4b449d7399"
+  integrity sha512-TI/0Fe30g6/VL2Y2jDLF/q5sov8UBE5K4/+CRPUnJbQPCXhCzTBM8EjllDUwslZ3bPtCk2TqwDFZOHaKtY/eoA==
   dependencies:
     hasha "^5.2.2"
     sharp "^0.31.3"
-    std-env "^3.3.1"
+    std-env "^3.3.2"
 
 "@mapbox/node-pre-gyp@^1.0.5":
   version "1.0.10"
@@ -6146,7 +6146,7 @@ statuses@2.0.1:
   resolved "https://registry.npmmirror.com/statuses/-/statuses-2.0.1.tgz"
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
-std-env@^3.2.1, std-env@^3.3.1:
+std-env@^3.2.1:
   version "3.3.1"
   resolved "https://registry.npmmirror.com/std-env/-/std-env-3.3.1.tgz"
   integrity sha512-3H20QlwQsSm2OvAxWIYhs+j01MzzqwMwGiiO1NQaJYZgJZFPuAbf95/DiKRBSTYIJ2FeGUc+B/6mPGcWP9dO3Q==

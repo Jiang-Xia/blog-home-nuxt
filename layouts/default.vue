@@ -44,26 +44,56 @@ onMounted(() => {
   }
 })
 
-/* 用于搜狗和百度网站校验 */
-
 useHead({
-  charset: 'utf-8', // 字符
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+  htmlAttrs: {
+    lang: 'zh-CN',
+  },
   meta: [
     // Meta Language
+    {
+      charset: 'utf-8',
+    },
+    {
+      name: 'viewport',
+      content: 'width=device-width, initial-scale=1, maximum-scale=1',
+    },
     {
       'http-equiv': 'Content-Type',
       content: 'text/html',
     },
     {
+      // 百度抓取不可转码
+      'http-equiv': 'Cache-Control',
+      content: 'no-transform',
+    },
+    {
+      'http-equiv': 'Cache-Control',
+      content: 'no-siteapp',
+    },
+    {
+      name: 'renderer',
+      content: 'webkit',
+    },
+    {
       name: 'Keywords',
-      content: '前端技术分享，工作心得分享，生活情感分享，个人的一片小天地！',
+      content: '前端、后端技术分享，工作心得分享，生活情感分享，个人的一片小天地！',
     },
     {
       name: 'description',
       content:
         '本站可以检索查看文章，网站留言，注册登录之后可以在本站自己发表文章评论文章等操作；个人博客，用于个人学习、工作、生活上的记录和分享。分享学习上难题与心得；分享工作上的技巧和困难；分享生活的各种点滴。记录生活记录你，互联网的记忆在这里。',
     },
+    {
+      // 爬虫使用
+      name: 'robots',
+      content: 'all',
+    },
+    {
+      // 网页制作
+      name: 'generator',
+      content: 'VS Code',
+    },
+    /* 用于搜狗和百度网站校验 */
     {
       name: 'sogou_site_verification',
       content: 'wlGpCfHqms',
@@ -81,7 +111,9 @@ useHead({
       content: '江夏, 963798512@qq.com',
     }
   ],
+  // 百度统计
   script: [{ src: 'https://hm.baidu.com/hm.js?9c1165af167360b492031753308c3878', }],
+  link: [{ rel: 'shortcut icon', href: 'https://jiang-xia.top/favicon.ico', }],
 })
 </script>
 <template>

@@ -23,7 +23,7 @@
 <template>
   <NuxtLayout name="main-content" :images="images">
     <div class="about-container">
-      <h1 class="hidden"> 关于我 - 江夏的个人博客 - 记录生活记录你~ </h1>
+      <h1 class="hidden"> 关于我 - 江夏的博客 </h1>
       <md-editor
         :key="mdKey"
         v-model="content"

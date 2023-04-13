@@ -5,21 +5,21 @@ export default defineNuxtConfig({
   debug: process.env.NODE_ENV !== 'production',
   modules: ['@vueuse/nuxt',
   '~/modules/sitemap',
-   '@tailvue/nuxt'
-  //  '@kevinmarrec/nuxt-pwa'
+   '@tailvue/nuxt',
+   '@kevinmarrec/nuxt-pwa'
   ],
   sitemap: {
     hostname: 'https://jiang-xia.top',
   },
-  // pwa: {
-  //   workbox: {
-  //     enabled: process.env.NODE_ENV === 'production',
-  //   },
-  //   manifest: {
-  //     name: 'Blog',
-  //     short_name: 'Blog',
-  //   },
-  // },
+  pwa: {
+    workbox: {
+      enabled: process.env.NODE_ENV === 'production',
+    },
+    manifest: {
+      name: 'Blog',
+      short_name: 'Blog',
+    },
+  },
   // app: {
   //   pageTransition: {
   //     name: 'scale',
