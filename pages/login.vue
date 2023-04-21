@@ -2,6 +2,7 @@
   import { reactive, onMounted } from 'vue'
   import request from '~~/api/request.js'
   import { messageDanger, messageSuccess } from '~~/utils/toast'
+  import { baseUrl } from '~~/config'
   let rsaEncrypt:any
   // 客户端才引入
   if (process.client) {
@@ -9,8 +10,16 @@
       rsaEncrypt = res.rsaEncrypt
     })
   }
+  const authCodeUrl = ref()
   // console.log(imagesData);
-  onMounted(() => {})
+  onMounted(async () => {
+    const headers = useRequestHeaders(['cookie'])
+    const res = await request.http(baseUrl + '/user/authCode', {
+      method: 'GET',
+      headers,
+    })
+    authCodeUrl.value = res
+  })
   const token = useToken()
   definePageMeta({
     layout: 'custom', // 不使用default布局
@@ -22,16 +31,21 @@
   interface formState extends StringKey {
     mobile: string;
     password: string;
+    authCode:string
   }
   const form: formState = reactive({
     mobile: '',
     password: '',
+    authCode: '',
   })
   /* 登录 */
   const okHandle = async () => {
+    const sessionId = useCookie('blog.connect.sid')
+    console.log(sessionId.value)
     const msg: formState = {
       mobile: '填写手机号',
       password: '填写密码',
+      authCode: '填写验证码',
     }
     for (const key in form) {
       if (!form[key]) {
@@ -45,12 +59,22 @@
     try {
       const params = { ...form, }
       params.password = rsaEncrypt(form.password)
+      const headers = useRequestHeaders(['cookie'])
       res = await request.post('/user/login', params)
+    //    res = await request.http(baseUrl + '/user/login', {
+    //   method: 'POST',
+    //   headers,
+    //   body: params,
+    // })
       token.value = res.data.info.token
       navigateTo('/')
       localStorage.setItem('x-token', token.value)
       messageSuccess('登录成功')
     } catch (err) {}
+  }
+  // 更换验证码
+  const changeAuthCode = () => {
+    authCodeUrl.value = baseUrl + '/user/authCode?t=' + new Date().getTime()
   }
 </script>
 <template>
@@ -83,6 +107,22 @@
               maxlength="16"
               placeholder="密码"
             >
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">验证码</span>
+            </label>
+            <input
+              v-model="form.authCode"
+              class="input"
+              maxlength="8"
+              placeholder="验证码"
+            >
+          </div>
+          <div class="form-control">
+            <div>
+              <img class="rounded-sm h-10" :src="authCodeUrl" alt="验证码" @click="changeAuthCode">
+            </div>
           </div>
           <div class="flex justify-between mt-1">
             <a

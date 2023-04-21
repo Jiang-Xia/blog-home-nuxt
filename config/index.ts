@@ -24,10 +24,10 @@ if (mode === 'production') {
   adminUrl = 'https://admin.jiang-xia.top/login'
 } else {
   // adminUrl = 'http://localhost:9856/login'
-  // baseUrl = 'http://127.0.0.1:5000/api/v1'
+  baseUrl = 'http://127.0.0.1:5000/api/v1'
 
   adminUrl = 'https://admin.jiang-xia.top/login'
-  baseUrl = 'https://jiang-xia.top/x-blog/api/v1'
+  // baseUrl = 'https://jiang-xia.top/x-blog/api/v1'
 }
 export { baseUrl, adminUrl }
 console.log('baseUrl: ', baseUrl)

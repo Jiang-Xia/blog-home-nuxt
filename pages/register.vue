@@ -3,7 +3,13 @@ import { reactive } from 'vue'
 import request from '~~/api/request.js'
 import { getRandomAvatar } from '~~/utils/common'
 import { messageDanger } from '~~/utils/toast'
-
+let rsaEncrypt:any
+  // 客户端才引入
+  if (process.client) {
+    import('~~/utils/crypto').then((res) => {
+      rsaEncrypt = res.rsaEncrypt
+    })
+  }
 definePageMeta({
   layout: 'custom', // 不使用default布局
 })

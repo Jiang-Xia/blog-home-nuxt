@@ -8,7 +8,7 @@ let errorResponse: ApiResponse = {
   data: null,
 }
 const $http = async (baseUrl: string, options: any): Promise<ApiResponse> => {
-  const { method = 'GET', params = {}, body = {}, } = options
+  const { method = 'GET', params = {}, body = {}, headers, } = options
   // console.log({
   //   method,
   //   params,
@@ -18,8 +18,10 @@ const $http = async (baseUrl: string, options: any): Promise<ApiResponse> => {
 
   const res: any = await $fetch<ApiResponse>(baseUrl, {
     headers: {
+      ...headers,
       Authorization: getToken(),
     },
+    credentials: 'same-origin', // session需要携带cookie
     method,
     /* fetch中 params和body不能同时存在 */
     params: ['GET', 'DELETE'].includes(method.toUpperCase()) ? params : undefined,
@@ -109,4 +111,4 @@ const put = async (url: string, params = {}): Promise<ApiResponse> => {
   }
 }
 
-export default { get, post, put, del, }
+export default { http: $http, get, post, put, del, }
