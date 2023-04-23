@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev --port 5050",
+    "build": "nuxt build --dotenv .env.production",
+    "dev": "nuxt dev --port 5050 --dotenv .env.development",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "lint": "eslint --fix --ext .ts,.js,tsx,.vue .",
@@ -55,12 +55,10 @@
       "eslint --fix"
     ],
     "*.vue": [
-      "stylelint --fix",
       "prettier --write",
       "eslint --fix"
     ],
     "*.{less,css}": [
-      "stylelint --fix",
       "prettier --write"
     ]
   }

@@ -1,25 +1,16 @@
 <script setup lang="ts">
-  import { reactive, onMounted } from 'vue'
+  import { reactive } from 'vue'
   import request from '~~/api/request.js'
   import { messageDanger, messageSuccess } from '~~/utils/toast'
-  import { baseUrl } from '~~/config'
-  let rsaEncrypt:any
+  let rsaEncrypt: any
   // 客户端才引入
   if (process.client) {
     import('~~/utils/crypto').then((res) => {
       rsaEncrypt = res.rsaEncrypt
     })
   }
-  const authCodeUrl = ref()
-  // console.log(imagesData);
-  onMounted(async () => {
-    const headers = useRequestHeaders(['cookie'])
-    const res = await request.http(baseUrl + '/user/authCode', {
-      method: 'GET',
-      headers,
-    })
-    authCodeUrl.value = res
-  })
+  const url = '/blog-api/user/authCode'
+  const authCodeUrl = ref(url)
   const token = useToken()
   definePageMeta({
     layout: 'custom', // 不使用default布局
@@ -29,9 +20,9 @@
     titleTemplate: title => `${title} - 江夏的个人博客-记录生活记录你~`,
   })
   interface formState extends StringKey {
-    mobile: string;
-    password: string;
-    authCode:string
+    mobile: string
+    password: string
+    authCode: string
   }
   const form: formState = reactive({
     mobile: '',
@@ -40,8 +31,6 @@
   })
   /* 登录 */
   const okHandle = async () => {
-    const sessionId = useCookie('blog.connect.sid')
-    console.log(sessionId.value)
     const msg: formState = {
       mobile: '填写手机号',
       password: '填写密码',
@@ -61,11 +50,6 @@
       params.password = rsaEncrypt(form.password)
       const headers = useRequestHeaders(['cookie'])
       res = await request.post('/user/login', params)
-    //    res = await request.http(baseUrl + '/user/login', {
-    //   method: 'POST',
-    //   headers,
-    //   body: params,
-    // })
       token.value = res.data.info.token
       navigateTo('/')
       localStorage.setItem('x-token', token.value)
@@ -74,7 +58,7 @@
   }
   // 更换验证码
   const changeAuthCode = () => {
-    authCodeUrl.value = baseUrl + '/user/authCode?t=' + new Date().getTime()
+    authCodeUrl.value = url + '?t=' + new Date().getTime()
   }
 </script>
 <template>
@@ -112,16 +96,16 @@
             <label class="label">
               <span class="label-text">验证码</span>
             </label>
-            <input
-              v-model="form.authCode"
-              class="input"
-              maxlength="8"
-              placeholder="验证码"
-            >
+            <input v-model="form.authCode" class="input" maxlength="8" placeholder="验证码">
           </div>
           <div class="form-control">
             <div>
-              <img class="rounded-sm h-10" :src="authCodeUrl" alt="验证码" @click="changeAuthCode">
+              <img
+                class="rounded-sm h-10"
+                :src="authCodeUrl"
+                alt="验证码"
+                @click="changeAuthCode"
+              >
             </div>
           </div>
           <div class="flex justify-between mt-1">
@@ -148,13 +132,16 @@
     background-image: url(@/assets/images/login/coding3.jpg);
     background-size: 100% 100%;
     background-repeat: no-repeat;
+
     // color: var(--text-color);
     .label .label-text {
       @apply text-gray-200;
     }
+
     .input {
       @apply bg-transparent text-gray-200 border border-gray-700 focus:border-gray-600;
     }
+
     .card {
       backdrop-filter: blur(40px);
     }

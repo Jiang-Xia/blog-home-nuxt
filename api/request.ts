@@ -1,6 +1,6 @@
-import { baseUrl } from '~~/config'
+// import { baseUrl } from '~~/config'
 import { messageDanger } from '~~/utils/toast'
-
+const baseUrl = '/blog-api'
 let errorResponse: ApiResponse = {
   success: false,
   code: 0,
@@ -21,7 +21,7 @@ const $http = async (baseUrl: string, options: any): Promise<ApiResponse> => {
       ...headers,
       Authorization: getToken(),
     },
-    credentials: 'same-origin', // session需要携带cookie
+    credentials: 'include', // session需要携带cookie
     method,
     /* fetch中 params和body不能同时存在 */
     params: ['GET', 'DELETE'].includes(method.toUpperCase()) ? params : undefined,

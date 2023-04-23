@@ -1,22 +1,24 @@
 interface configState {
-  iconfonrUrl: string,
-  gifError: string,
-  gif404: string,
+  iconfonrUrl: string
+  gifError: string
+  gif404: string
 }
 const config: configState = {
   // 阿里巴巴图标库链接，新添加图标需要重新生成 css 改成js
   // 新增图标记得批量去色，不然修改不了图标颜色
   iconfonrUrl: '//at.alicdn.com/t/c/font_3114416_yf6c649zhse.js',
   // 500 error页动图
-  gifError: 'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-09-12/nm2t4fs18ix5ld2w6g1j1b-error.gif',
+  gifError:
+    'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-09-12/nm2t4fs18ix5ld2w6g1j1b-error.gif',
   // 404 页动图
-  gif404: 'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-09-12/hoyusqf2d051wy59rhmr26-404.gif',
+  gif404:
+    'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-09-12/hoyusqf2d051wy59rhmr26-404.gif',
 }
 
 let baseUrl: string
 let adminUrl: string
 const mode = import.meta.env.MODE
-console.log(mode)
+console.log({ mode, })
 // x-api 后端服务
 if (mode === 'production') {
   // baseUrl = 'http://42.192.145.236:5000'
@@ -30,5 +32,5 @@ if (mode === 'production') {
   // baseUrl = 'https://jiang-xia.top/x-blog/api/v1'
 }
 export { baseUrl, adminUrl }
-console.log('baseUrl: ', baseUrl)
+// console.log('baseUrl: ', baseUrl)
 export default config
