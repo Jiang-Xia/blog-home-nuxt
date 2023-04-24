@@ -2,6 +2,7 @@
   import { reactive } from 'vue'
   import request from '~~/api/request.js'
   import { messageDanger, messageSuccess } from '~~/utils/toast'
+  import { baseUrl } from '~~/config'
   let rsaEncrypt: any
   // 客户端才引入
   if (process.client) {
@@ -9,8 +10,8 @@
       rsaEncrypt = res.rsaEncrypt
     })
   }
-  const url = '/blog-api/user/authCode'
-  const authCodeUrl = ref(url)
+  const codeUrl = baseUrl + '/user/authCode'
+  const authCodeUrl = ref(codeUrl)
   const token = useToken()
   definePageMeta({
     layout: 'custom', // 不使用default布局
@@ -48,7 +49,6 @@
     try {
       const params = { ...form, }
       params.password = rsaEncrypt(form.password)
-      const headers = useRequestHeaders(['cookie'])
       res = await request.post('/user/login', params)
       token.value = res.data.info.token
       navigateTo('/')
@@ -58,7 +58,7 @@
   }
   // 更换验证码
   const changeAuthCode = () => {
-    authCodeUrl.value = url + '?t=' + new Date().getTime()
+    authCodeUrl.value = codeUrl + '?t=' + new Date().getTime()
   }
 </script>
 <template>

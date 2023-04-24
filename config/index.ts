@@ -14,23 +14,16 @@ const config: configState = {
   gif404:
     'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-09-12/hoyusqf2d051wy59rhmr26-404.gif',
 }
-
+const metaEnv: any = import.meta.env
 let baseUrl: string
 let adminUrl: string
-const mode = import.meta.env.MODE
-console.log({ mode, })
-// x-api 后端服务
-if (mode === 'production') {
-  // baseUrl = 'http://42.192.145.236:5000'
-  baseUrl = 'https://jiang-xia.top/x-blog/api/v1'
-  adminUrl = 'https://admin.jiang-xia.top/login'
+console.log({ metaEnv, })
+if (metaEnv.MODE === 'production') {
+  baseUrl = metaEnv.VITE_NUXT_BASE_URL
+  adminUrl = metaEnv.VITE_NUXT_ADMIN_URL
 } else {
-  // adminUrl = 'http://localhost:9856/login'
-  baseUrl = 'http://127.0.0.1:5000/api/v1'
-
-  adminUrl = 'https://admin.jiang-xia.top/login'
-  // baseUrl = 'https://jiang-xia.top/x-blog/api/v1'
+  baseUrl = metaEnv.VITE_NUXT_BASE_URL
+  adminUrl = metaEnv.VITE_NUXT_ADMIN_URL
 }
 export { baseUrl, adminUrl }
-// console.log('baseUrl: ', baseUrl)
 export default config

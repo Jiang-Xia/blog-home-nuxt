@@ -1,6 +1,5 @@
-// import { baseUrl } from '~~/config'
+import { baseUrl } from '~~/config'
 import { messageDanger } from '~~/utils/toast'
-const baseUrl = '/blog-api'
 let errorResponse: ApiResponse = {
   success: false,
   code: 0,

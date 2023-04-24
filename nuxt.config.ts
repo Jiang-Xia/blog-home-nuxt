@@ -1,5 +1,8 @@
 import Icons from 'unplugin-icons/vite'
-console.log(process.env.BASE_URL, process.env.NODE_ENV === 'production')
+console.log({
+  BASE_URL: process.env.VITE_NUXT_BASE_URL,
+  当前环境: process.env.NODE_ENV,
+})
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
   // debug: process.env.NODE_ENV !== 'production',
@@ -37,6 +40,7 @@ export default defineNuxtConfig({
     },
   },
   vite: {
+    define: {},
     plugins: [
       Icons({
         // the feature below is experimental ⬇️
@@ -49,13 +53,14 @@ export default defineNuxtConfig({
   //   script: [{ src: '', }],
   // },
   router: {},
+  // 此文件只能用process
   nitro: {
     // 配置代理
     devProxy: {
-      '/blog-api': {
-        target: process.env.BASE_URL,
+      '/x-blog': {
+        target: process.env.VITE_NUXT_BASE_URL,
         changeOrigin: true,
-        rewrite: (path: string) => path.replace(/^\/blog-api/, ''),
+        rewrite: (path: string) => path.replace(/^\/x-blog/, ''),
       },
     },
   },

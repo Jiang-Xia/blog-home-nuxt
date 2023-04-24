@@ -1,48 +1,46 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import request from '~~/api/request'
-import { messageDanger, messageSuccess } from '~~/utils/toast'
+  import { ref } from 'vue'
+  import request from '~~/api/request'
+  import { messageDanger, messageSuccess } from '~~/utils/toast'
 
-interface LinkState {
-  icon: string,
-  url: string,
-  title: string,
-  desp: string,
-}
-
-const { data: linkList, } = await useAsyncData('link_Get', () =>
-  request.get('/link', { client: true, }).then(res => res.data)
-)
-const linkState = ref<LinkState>({
-  icon: '',
-  url: '',
-  title: '',
-  desp: '',
-})
-const okHandle = async () => {
-  if (Object.keys(linkState.value).some(v => !linkState.value[v as keyof LinkState])) {
-    messageDanger('请信息填写完整信息', 2)
-    return
+  interface LinkState {
+    icon: string
+    url: string
+    title: string
+    desp: string
   }
-  await request.post('/link', linkState.value)
-  messageSuccess('申请成功')
-  isOpen.value = false
-  linkState.value = {
+
+  const { data: linkList, } = await useAsyncData('link_Get', () =>
+    request.get('/link', { client: true, }).then(res => res.data)
+  )
+  const linkState = ref<LinkState>({
     icon: '',
     url: '',
     title: '',
     desp: '',
+  })
+  const okHandle = async () => {
+    if (Object.keys(linkState.value).some(v => !linkState.value[v as keyof LinkState])) {
+      messageDanger('请信息填写完整信息', 2)
+      return
+    }
+    await request.post('/link', linkState.value)
+    messageSuccess('申请成功')
+    isOpen.value = false
+    linkState.value = {
+      icon: '',
+      url: '',
+      title: '',
+      desp: '',
+    }
+    linkList.value = await request.get('/link', { client: true, }).then(res => res.data)
+    // console.log(linkList.value)
   }
-  linkList.value = await request
-    .get('/link', { client: true, })
-    .then(res => res.data)
-  console.log(linkList.value)
-}
-const isOpen = ref(false)
-useHead({
-  title: '友链',
-  titleTemplate: title => `${title} - 江夏的博客`,
-})
+  const isOpen = ref(false)
+  useHead({
+    title: '友链',
+    titleTemplate: title => `${title} - 江夏的博客`,
+  })
 </script>
 <template>
   <NuxtLayout name="main-content">
@@ -105,7 +103,7 @@ useHead({
       <!-- 友链列表 -->
       <div class="flex flex-wrap justify-around mt-6">
         <div
-          v-for="(item) in linkList"
+          v-for="item in linkList"
           class="card w-full lg:w-80 shadow-xl bg-base-100 mb-6 transition duration-700 ease-in-out hover:scale-105 border border-base-300"
         >
           <div class="card-body p-2 sm:p-4">
@@ -127,15 +125,15 @@ useHead({
   </NuxtLayout>
 </template>
 <style lang="less" scoped>
-.links-container {
-  min-height: 40vh;
+  .links-container {
+    min-height: 40vh;
 
-  .link-btn {
-    background-color: var(--minor-bgc);
-  }
+    .link-btn {
+      background-color: var(--minor-bgc);
+    }
 
-  .link-btn:hover {
-    animation: jump ease 1.5s 1;
+    .link-btn:hover {
+      animation: jump ease 1.5s 1;
+    }
   }
-}
 </style>
