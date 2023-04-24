@@ -1,7 +1,9 @@
 import Icons from 'unplugin-icons/vite'
-console.log({
+const prefixPath: any = process.env.VITE_NUXT_PREFIX_PATH
+console.warn({
   BASE_URL: process.env.VITE_NUXT_BASE_URL,
   当前环境: process.env.NODE_ENV,
+  prefixPath,
 })
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
@@ -57,10 +59,10 @@ export default defineNuxtConfig({
   nitro: {
     // 配置代理
     devProxy: {
-      '/x-blog': {
+      [prefixPath]: {
         target: process.env.VITE_NUXT_BASE_URL,
         changeOrigin: true,
-        rewrite: (path: string) => path.replace(/^\/x-blog/, ''),
+        rewrite: (path: string) => path.replace(new RegExp(`^${prefixPath}`), ''),
       },
     },
   },
