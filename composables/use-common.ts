@@ -7,8 +7,8 @@ export const defaultInfo: userInfoState = {
   uid: 0,
 }
 
-let userInfo: userInfoState = { ...defaultInfo, }
-const token = ''
+let userInfo = reactive<userInfoState>({ ...defaultInfo, })
+const token = ref('')
 
 // useState 的第一参数为 key，第二参数为初始化的工厂函数
 export const useUserInfo = () => useState('userInfo', () => userInfo)

@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url'
+import fs from 'fs'
 import Icons from 'unplugin-icons/vite'
 const prefixPath: any = process.env.VITE_NUXT_PREFIX_PATH
 console.warn({
@@ -12,7 +14,8 @@ export default defineNuxtConfig({
   modules: [
     '@vueuse/nuxt',
     '~/modules/sitemap',
-    '@tailvue/nuxt'
+    '@tailvue/nuxt',
+    '@pinia/nuxt'
     //  '@kevinmarrec/nuxt-pwa'
   ],
   sitemap: {

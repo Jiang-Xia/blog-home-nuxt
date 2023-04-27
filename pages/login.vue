@@ -3,6 +3,7 @@
   import request from '~~/api/request.js'
   import { messageDanger, messageSuccess } from '~~/utils/toast'
   import { baseUrl } from '~~/config'
+  // import { useMainStore } from '~/stores'
   let rsaEncrypt: any
   // 客户端才引入
   if (process.client) {
@@ -60,6 +61,7 @@
   const changeAuthCode = () => {
     authCodeUrl.value = codeUrl + '?t=' + new Date().getTime()
   }
+  // const counter = useMainStore()
 </script>
 <template>
   <div class="form-container">

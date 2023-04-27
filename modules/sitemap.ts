@@ -15,8 +15,8 @@ export default defineNuxtModule({
     hostname: 'http://localhost:5050',
   },
   setup (options, nuxt) {
-    function generateSitemap (routes:any, ids: []) {
-      let sitemapRoutes = routes.map((route:any) => route.path)
+    function generateSitemap (routes: any, ids: []) {
+      let sitemapRoutes = routes.map((route: any) => route.path)
       // console.log({sitemapRoutes,ids})
       const details = ids.map((v: any) => 'detail/' + v)
       sitemapRoutes = sitemapRoutes.concat(details)
@@ -27,7 +27,7 @@ export default defineNuxtModule({
       )
     }
 
-    function createSitemapFile (sitemap:string, filepath:string) {
+    function createSitemapFile (sitemap: string, filepath: string) {
       const dirPath = dirname(filepath)
       mkdirSync(dirPath, { recursive: true, })
       writeFileSync(filepath, sitemap)
@@ -46,6 +46,10 @@ export default defineNuxtModule({
     })
 
     nuxt.hook('pages:extend', async (pages) => {
+      // 开发环境不用生产xml
+      if (process.env.NODE_ENV === 'development') {
+        return
+      }
       try {
         const res: any = await ofetch('https://jiang-xia.top/x-blog/api/v1/article/list', {
           method: 'post',
@@ -57,7 +61,7 @@ export default defineNuxtModule({
         if (res.data.list) {
           console.log('准备生成sitemap，文章数为', res.data.list.length, '篇')
           const articleIds = res.data.list.map((v: any) => v.id)
-          const sitemap:string = await generateSitemap(pages, articleIds)
+          const sitemap: string = await generateSitemap(pages, articleIds)
           createSitemapFile(sitemap, filePath)
         }
       } catch (error) {
