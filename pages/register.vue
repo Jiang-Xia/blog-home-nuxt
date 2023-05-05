@@ -33,7 +33,7 @@
     avatar: getRandomAvatar() as string,
   })
   const codeUrl = baseUrl + '/user/authCode'
-  const authCodeUrl = ref(codeUrl)
+  const authCodeUrl = ref('')
   const token = useToken()
   /* 登录 */
   const okHandle = async () => {
@@ -61,6 +61,7 @@
   const changeAuthCode = () => {
     authCodeUrl.value = codeUrl + '?t=' + new Date().getTime()
   }
+  changeAuthCode()
 </script>
 <template>
   <div class="form-container">

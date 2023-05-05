@@ -12,7 +12,7 @@
     })
   }
   const codeUrl = baseUrl + '/user/authCode'
-  const authCodeUrl = ref(codeUrl)
+  const authCodeUrl = ref('')
   const token = useToken()
   definePageMeta({
     layout: 'custom', // 不使用default布局
@@ -61,6 +61,7 @@
   const changeAuthCode = () => {
     authCodeUrl.value = codeUrl + '?t=' + new Date().getTime()
   }
+  changeAuthCode()
   // const counter = useMainStore()
 </script>
 <template>
