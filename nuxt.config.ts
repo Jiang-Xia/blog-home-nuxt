@@ -60,13 +60,13 @@ export default defineNuxtConfig({
   router: {},
   // 此文件只能用process
   nitro: {
-    // 配置代理
-    // devProxy: {
-    //   [prefixPath]: {
-    //     target: process.env.VITE_NUXT_BASE_URL,
-    //     changeOrigin: true,
-    //     rewrite: (path: string) => path.replace(new RegExp(`^${prefixPath}`), ''),
-    //   },
-    // },
+    // 配置代理s
+    devProxy: {
+      [prefixPath]: {
+        target: process.env.VITE_NUXT_BASE_URL,
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(new RegExp(`^${prefixPath}`), ''),
+      },
+    },
   },
 })
