@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { getArticleList } from '@/api/article'
-import { categoryOptions, formactDate, getOptions, tagsOptions, updateLikesHandle, xBLogStore } from '@/utils/common'
-import { colorRgb } from '~~/utils/color'
+  import { computed, reactive, ref } from 'vue'
+  import { getArticleList } from '@/api/article'
+  import {
+    categoryOptions,
+    formactDate,
+    getOptions,
+    tagsOptions,
+    updateLikesHandle,
+    xBLogStore
+  } from '@/utils/common'
+  import { colorRgb } from '~~/utils/color'
 
-interface queryState {
+  interface queryState {
     page: number
     category: string
     tags: string[]
@@ -143,7 +150,7 @@ interface queryState {
       <div class="tag-card-wrap">
         <base-card icon="blog-tag" title="标签" min-height="110px" vertical>
           <div
-            v-for="(item,) of tagsOptions"
+            v-for="item of tagsOptions"
             :key="item.id"
             class="custom-tag"
             :class="item.checked ? 'active' : ''"
@@ -161,7 +168,7 @@ interface queryState {
       <!-- 文章列表 -->
       <div :key="listKey" class="article-item-wrap">
         <transition-group key="article-item-wrap" name="list">
-          <div v-for="(item,) in articleList" :key="item.id" class="article-item">
+          <div v-for="item in articleList" :key="item.id" class="article-item">
             <figure>
               <img
                 v-lazyImg="item.cover"
@@ -298,10 +305,10 @@ interface queryState {
           </button>
         </div>
       </base-card>
-
+      <base-card icon="" title="" min-height="110px"> 1 </base-card>
       <base-card icon="blog-category" title="分类" style="height: 110vh">
         <div
-          v-for="(item,) of categoryOptions"
+          v-for="item of categoryOptions"
           :key="item.id"
           class="category-item"
           :color="item.color"
@@ -345,7 +352,7 @@ interface queryState {
       margin-top: 8vh;
     }
     .tag-card-wrap {
-      @apply mx-3 mb-5;
+      @apply mx-3 mb-3;
     }
     // 右边卡片
     .info-tool {
@@ -409,11 +416,11 @@ interface queryState {
     }
     .article-item-wrap {
       transition: all 0.5s;
-      @apply flex justify-around flex-wrap px-3;
+      @apply flex justify-center flex-wrap;
     }
     .article-item {
       max-height: 408px;
-      @apply card w-full bg-base-100 mb-5 lg:w-4/5  xl:w-96 hover:drop-shadow-lg transition-all shadow-xl;
+      @apply card card-compact w-full m-3 bg-base-100 mb-5 lg:w-4/5  xl:w-2/5 2xl:w-80 hover:drop-shadow-lg transition-all shadow-xl;
     }
 
     .text-icon {

@@ -25,7 +25,7 @@
     :style="{ 'min-height': minHeight }"
   >
     <template v-if="!vertical">
-      <h4>
+      <h4 v-if="title">
         <slot name="header"><xia-icon :icon="icon" /> {{ title }}</slot>
       </h4>
       <div class="card-content"><slot /></div>

@@ -281,7 +281,7 @@
     }
     // padding-left: 10% !important;
     .reply-wrap {
-      background-color: var(--minor-bgc);
+      background: var(--minor-bgc);
       border-radius: var(--layout-border-radius);
       padding: 8px 10px;
     }

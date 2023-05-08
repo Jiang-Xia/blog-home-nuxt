@@ -129,7 +129,7 @@
     min-height: 40vh;
 
     .link-btn {
-      background-color: var(--minor-bgc);
+      background: var(--minor-bgc);
     }
 
     .link-btn:hover {

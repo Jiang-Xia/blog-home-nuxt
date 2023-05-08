@@ -95,6 +95,9 @@
     if (isDark && (themeType === 'light' || !themeType)) {
       setTheme('dark')
     }
+    document.addEventListener('click', () => {
+      checked.value = false
+    })
   })
   // 点击icon直接切换
   const clickIcon = () => {
@@ -157,29 +160,42 @@
     }
   }
   const goUrl = `${adminUrl}?ticket=${token.value}`
+  // 菜单控制
+  const checked = ref(false)
 </script>
 <template>
   <div class="navbar bg-transparent text-gray-100 dark:text-gray-300">
     <div class="navbar-start w-fit">
       <div class="dropdown">
-        <label tabindex="0" class="btn btn-ghost lg:hidden">
+        <label tabindex="0" class="btn btn-ghost swap swap-rotate lg:hidden" @click.stop="">
+          <input v-model="checked" type="checkbox" @click="checked = !checked">
           <svg
+            class="swap-off fill-current"
             xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+            width="32"
+            height="32"
+            viewBox="0 0 512 512"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h8m-8 6h16"
+            <path d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z" />
+          </svg>
+          <svg
+            class="swap-on fill-current"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 512 512"
+          >
+            <polygon
+              points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49"
             />
           </svg>
         </label>
         <ul
           tabindex="0"
+          :style="{
+            visibility: checked ? 'visible' : undefined,
+            opacity: Number(checked),
+          }"
           class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-zinc-500"
         >
           <li v-for="(item, index) in navList" :key="item.path + index">
@@ -191,7 +207,7 @@
         </ul>
       </div>
       <a
-        class="hidden sm:inline-flex btn btn-ghost normal-case text-xl gradient-text"
+        class="hidden sm:inline-flex btn btn-ghost normal-case text-3xl gradient-text"
         href="/"
       >Xia</a>
     </div>
@@ -237,129 +253,88 @@
 
       <xia-icon class="cursor-pointer px-3" :icon="iconClass" @click="clickIcon" />
 
-      <div>
-        <NuxtLink
-          v-if="!token"
-          class="btn btn-ghost inline-flex tracking-wide"
-          to="/login"
-          title="登录"
+      <NuxtLink
+        v-if="!token"
+        class="btn btn-ghost inline-flex tracking-wide"
+        to="/login"
+        title="登录"
+      >
+        登录
+      </NuxtLink>
+      <div v-else class="dropdown dropdown-end">
+        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+          <div class="w-10 rounded-full text-center leading-loose">
+            <img :src="userInfo.avatar || Yaya" :alt="userInfo.nickname">
+          </div>
+        </label>
+        <ul
+          tabindex="0"
+          class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-gray-500 text-xs"
         >
-          登录
-        </NuxtLink>
-
-        <div v-else class="dropdown dropdown-end">
-          <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-            <div class="w-10 rounded-full text-center leading-loose">
-              <img :src="userInfo.avatar || Yaya" :alt="userInfo.nickname">
-            </div>
-          </label>
-          <ul
-            tabindex="0"
-            class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-gray-500 text-xs"
-          >
-            <li>
-              <a :href="goUrl" target="_blank" class="leading-5 flex items-center py-2 px-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-                写文章
-              </a>
-            </li>
-            <li @click="clear">
-              <a class="leading-5 flex items-center py-2 px-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-                退出
-              </a>
-            </li>
-          </ul>
-        </div>
+          <li>
+            <a :href="goUrl" target="_blank" class="leading-5 flex items-center py-2 px-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+              写文章
+            </a>
+          </li>
+          <li @click="clear">
+            <a class="leading-5 flex items-center py-2 px-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              退出
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
 </template>
 
 <style lang="less" scoped>
-  /*
-  xs: '480px',
-  sm: '576px',
-  md: '768px',
-  lg: '992px',
-  xl: '1200px',
-  xxl: '1600px',
- */
-  .nav-container {
-    height: 100%;
-    @media (max-width: 768px) {
-      .logo,
-      .nav {
-        display: none;
-      }
-    }
-    display: flex;
-    justify-content: space-between;
-    transition: all 0.3s;
-    .logo {
-      width: 50px;
-    }
-    .nav {
-      flex: 1;
-      display: flex;
-      align-items: center;
-    }
-    .router-link-item {
-      font-size: 14px;
-      font-weight: 500;
-      padding: 0 12px;
-      // color: #fff;
-    }
-    .router-link-active {
-      color: var(--main-color) !important;
-    }
-    .router-link-item > span:hover {
-      color: var(--main-color);
-    }
-    .tool-bar {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      width: 2em;
-    }
-  }
+  // 'sm': '640px',
+  // // => @media (min-width: 640px) { ... }
+
+  // 'md': '768px',
+  // // => @media (min-width: 768px) { ... }
+
+  // 'lg': '1024px',
+  // // => @media (min-width: 1024px) { ... }
+
+  // 'xl': '1280px',
+  // // => @media (min-width: 1280px) { ... }
+
+  // '2xl': '1536px',
+  // // => @media (min-width: 1536px) { ... }
   .navbar {
     .router-link-active {
-      // color: var(--main-color) !important;
       border-radius: var(--rounded-btn, 0.5rem);
       background-color: hsl(0 0% 100% / var(--tw-bg-opacity));
       --tw-bg-opacity: 0.1;
     }
   }
-  // #app 容器外样式
-  // :global(.dropdown-menu__item.active) {
-  //   background-color: var(--main-color);
-  //   color: #fff;
-  // }
 </style>
