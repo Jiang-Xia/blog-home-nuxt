@@ -135,7 +135,7 @@
   })
 </script>
 <template>
-  <div class="article-detail main-bgc">
+  <div class="article-detail">
     <section class="banner-container">
       <div class="banner-content">
         <img
