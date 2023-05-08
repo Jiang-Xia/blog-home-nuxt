@@ -333,7 +333,7 @@
   .navbar {
     .router-link-active {
       border-radius: var(--rounded-btn, 0.5rem);
-      background-color: hsl(0 0% 100% / var(--tw-bg-opacity));
+      background: hsl(0 0% 100% / var(--tw-bg-opacity));
       --tw-bg-opacity: 0.1;
     }
   }

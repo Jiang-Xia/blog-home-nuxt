@@ -169,7 +169,8 @@
       // 会编译成和 & 同级类名即 app-layout-header__active
       &__active {
         // backdrop-filter: saturate(5) blur(20px);
-        background-color: var(--nav-color);
+        backdrop-filter: blur(10px);
+        background: var(--nav-color);
         border-color: var(--nav-color);
         padding: 0;
       }
@@ -187,7 +188,7 @@
       padding: 0px 1.5vw;
       line-height: 1.7;
       color: var(--text-color2);
-      background-color: var(--main-bgc);
+      // background: var(--main-bgc);
       height: 60px;
       font-size: 12px;
     }

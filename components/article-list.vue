@@ -305,7 +305,7 @@
           </button>
         </div>
       </base-card>
-      <base-card icon="" title="" min-height="110px"> 1 </base-card>
+      <!-- <base-card icon="" title="" min-height="110px"> 1 </base-card> -->
       <base-card icon="blog-category" title="分类" style="height: 110vh">
         <div
           v-for="item of categoryOptions"
@@ -394,7 +394,7 @@
         @apply border-b-2 border-base-300;
       }
       .category-item:hover {
-        background-color: var(--hover-color);
+        background: var(--hover-color);
       }
       .category__text {
         line-height: 1.8;

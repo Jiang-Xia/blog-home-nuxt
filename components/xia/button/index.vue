@@ -8,7 +8,10 @@
   })
 </script>
 <template>
-  <div class="gradient-border text-md sm:text-xl py-2 px-4 sm:py-3 sm:px-6 cursor-pointer" @click="emit('click')">
+  <div
+    class="gradient-border text-md sm:text-xl py-2 px-4 sm:py-3 sm:px-6 cursor-pointer"
+    @click="emit('click')"
+  >
     <!-- 回到首页 -->
     <slot>{{ text }}</slot>
   </div>
@@ -22,7 +25,7 @@
     background-size: 400% auto;
     border-radius: 0.5rem;
     bottom: 0;
-    content: "";
+    content: '';
     left: 0;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -44,6 +47,6 @@
     position: relative;
     border-radius: 0.5rem;
     position: relative;
-    background-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.3);
   }
 </style>

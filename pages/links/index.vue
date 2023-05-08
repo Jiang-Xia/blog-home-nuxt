@@ -127,9 +127,10 @@
 <style lang="less" scoped>
   .links-container {
     min-height: 40vh;
-
+    background: var(--main-bgc);
     .link-btn {
       background: var(--minor-bgc);
+      border: none;
     }
 
     .link-btn:hover {

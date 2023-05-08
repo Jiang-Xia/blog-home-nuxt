@@ -86,13 +86,13 @@
 </script>
 <style lang="less" scoped>
   .page-container {
-    background-color: var(--main-bgc);
+    background: var(--main-bgc);
     padding: 124px 24px 24px 24px;
     .iframe-wrap {
       padding-top: 25px;
       height: 100%;
       width: 100%;
-      background-color: #f8f8f8;
+      background: #f8f8f8;
     }
 
     .iframe {

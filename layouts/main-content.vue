@@ -84,7 +84,7 @@
   .custom-main {
     margin: 20px auto 0;
     min-height: 50vh;
-    background: var(--main-bgc);
+    // background: var(--main-bgc);
   }
   .paper-feeling {
     &::after {

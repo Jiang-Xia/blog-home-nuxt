@@ -1,14 +1,18 @@
 // css 变量定义主题 :root根元素html标签的伪类
 :root {
   --main-color: #00adb5;
-  --nav-color: rgba(49, 66, 84, 0.94);
+  --nav-color: linear-gradient(
+    45deg,
+    rgba(254, 172, 94, 0.5),
+    rgba(199, 121, 208, 0.5),
+    rgba(75, 192, 200, 0.5)
+  );
   --box-shadow: 0 4px 12px #000026;
-  // --main-bgc: #ffffff;
-  --main-bgc: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-  // --main-bgc:linear-gradient(45deg,rgba(254,172,94,0.5),rgba(199,121,208,0.5),rgba(75,192,200,0.5));
+  --main-bgc: #ffffff;
+  // --main-bgc: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
   // --minor-bgc: #f2f2f2;
-  --minor-bgc: linear-gradient(to right, #74ebd5, #acb6e5);
-  // --minor-bgc:linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  // --minor-bgc: linear-gradient(to right, #74ebd5, #acb6e5);
+  --minor-bgc: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
   --text-color: #1f2937;
   --text-color2: #1f2937b3;
   --hover-color: #f9f9f9;
@@ -35,7 +39,7 @@
 }
 
 .md {
-  background-color: var(--minor-bgc);
+  background: var(--minor-bgc);
 }
 .md-content .md-preview-wrapper {
   overflow: hidden;

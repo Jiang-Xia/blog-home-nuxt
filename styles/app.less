@@ -43,13 +43,13 @@ body {
 ::-webkit-scrollbar-thumb {
   border-radius: 0;
   border-radius: 0.5rem;
-  background-color: transparent;
+  background: transparent;
   transition: all 0.2s;
 }
 
 /* 滚动条滑块 hover */
 :hover::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-bgc);
+  background: var(--scrollbar-bgc);
 }
 ::-webkit-scrollbar-button,
 ::-webkit-scrollbar-corner {
@@ -67,7 +67,7 @@ body {
 // 富文本编辑器全局样式
 .editor {
   .w-e-text-container {
-    background-color: transparent;
+    background: transparent;
   }
 }
 
@@ -87,7 +87,7 @@ body {
 }
 
 .custom-tag.active {
-  // background-color: var(--main-color) !important;
+  // background: var(--main-color) !important;
   // border-color: var(--main-color);
   // color: #fff !important;
   transform: scale(1.05);
@@ -149,9 +149,7 @@ body {
 }
 .gradient-bar {
   &::after {
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-    background-size: 400% 400%;
-    animation: gradient 15s ease infinite;
+    background: var(--nav-color);
   }
 }
 .main-bgc {
