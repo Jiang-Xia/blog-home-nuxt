@@ -47,7 +47,10 @@
     <div class="links-container pt-3 rounded-box xl:p-4">
       <h1 class="hidden">友情链接 - 江夏的博客</h1>
       <div class="flex justify-end">
-        <label for="link-add-modal" class="btn modal-button link-btn btn-ghost">+ 申请外链</label>
+        <label
+          for="link-add-modal"
+          class="btn modal-button link-btn btn-ghost shake-rotate"
+        >+ 申请外链</label>
       </div>
 
       <!-- 新增弹框 -->
@@ -131,10 +134,6 @@
     .link-btn {
       background: var(--minor-bgc);
       border: none;
-    }
-
-    .link-btn:hover {
-      animation: jump ease 1.5s 1;
     }
   }
 </style>

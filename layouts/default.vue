@@ -136,7 +136,7 @@
       </p>
     </footer>
     <!-- 回到顶部 -->
-    <xia-backtop />
+    <xia-backtop class="shake-slow" />
   </div>
 </template>
 <style lang="less">

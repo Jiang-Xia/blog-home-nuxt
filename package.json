@@ -42,6 +42,7 @@
   "dependencies": {
     "copy-to-clipboard": "^3.3.2",
     "crypto-js": "^4.1.1",
+    "csshake": "^1.7.0",
     "daisyui": "^2.51.3",
     "dayjs": "^1.11.5",
     "js-cookie": "^3.0.1",

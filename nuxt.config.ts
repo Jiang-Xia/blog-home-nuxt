@@ -30,13 +30,18 @@ export default defineNuxtConfig({
   //     short_name: 'Blog',
   //   },
   // },
-  // app: {
-  //   pageTransition: {
-  //     name: 'scale',
-  //     appear: true,
-  //     mode: 'out-in',
-  //    },
-  // },
+  app: {
+    head: {
+      link: [
+        { rel: 'stylesheet', href: 'https://cdn.staticfile.org/csshake/1.5.3/csshake.min.css', }
+      ],
+    },
+    pageTransition: {
+      name: 'scale',
+      appear: true,
+      mode: 'out-in',
+    },
+  },
   css: ['~/assets/css/main.css', '~/assets/font/iconfont.css'],
   postcss: {
     plugins: {
