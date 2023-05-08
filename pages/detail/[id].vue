@@ -78,7 +78,7 @@
     })
   }
   const previewTheme = ref('default')
-  const previewThemeChange = (e:any) => {
+  const previewThemeChange = (e: any) => {
     previewTheme.value = e
     // console.log(previewTheme.value);
   }
@@ -104,9 +104,7 @@
 
   const getCommentHandle = async () => {
     const id: string = route.params.id as string
-    const { data: res, } = await useAsyncData('detail_GetComment', () =>
-        getComment(id)
-    )
+    const { data: res, } = await useAsyncData('detail_GetComment', () => getComment(id))
     comments.value = res.value.list
     let total = res.value.pagination.total
     res.value.list.map((v: any) => (total += v.allReplyCount))
@@ -236,7 +234,7 @@
         height: 100%;
         filter: blur(28px) brightness(0.95);
         transform: scale(1.1);
-        background-color: var(--nav-color);
+        background: var(--nav-color);
       }
     }
   }
@@ -253,7 +251,7 @@
     // backdrop-filter: blur(20px);
     // border-radius: 0.8rem;
     // box-shadow: 0 2px 15px rgb(0 0 0 / 30%);
-    // background-color: rgba(255, 255, 255, 0.4);
+    // background: rgba(255, 255, 255, 0.4);
     .title {
       font-size: 32px;
       font-weight: 600;

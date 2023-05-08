@@ -7,10 +7,12 @@
   )
   const theme = useTheme()
   const content = articleData.value.info.content
-  const images = [{
-    url: articleData.value.info.cover,
-    title: '关于',
-  }]
+  const images = [
+    {
+      url: articleData.value.info.cover,
+      title: '关于',
+    }
+  ]
   const mdKey = ref(new Date().getTime())
   onMounted(() => {
     mdKey.value = new Date().getTime()
@@ -37,6 +39,5 @@
 </template>
 <style lang="less" scoped>
   .about-container {
-    // background-color: var(--minor-bgc);
   }
 </style>

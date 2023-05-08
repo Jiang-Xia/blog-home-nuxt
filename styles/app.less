@@ -1,3 +1,33 @@
+// 自定义字体
+@font-face {
+  font-family: HarmonyOS-Sans;
+  src: url(@/assets/font/HarmonyOS_Sans_SC_Regular.woff2);
+}
+// @font-face {
+//   font-family: ZhuZiAWan;
+//   src: url(@/assets/font/ZhuZiAWan.tff);
+// }
+div,
+header,
+footer,
+nav,
+ul,
+li,
+ol,
+section,
+aside {
+  box-sizing: border-box;
+}
+body {
+  // overflow-y: overlay;
+  min-height: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: HarmonyOS-Sans, ZhuZiAWan, -apple-system, Helvetica Neue, Helvetica, PingFang SC,
+    Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -8,24 +38,22 @@
 ::-webkit-scrollbar-track {
   border-radius: 0;
   background: transparent;
-  // background: var(--main-bgc);
 }
 /* 滚动条滑块 */
 ::-webkit-scrollbar-thumb {
   border-radius: 0;
   border-radius: 0.5rem;
-  background-color: transparent;
+  background: transparent;
   transition: all 0.2s;
 }
 
 /* 滚动条滑块 hover */
 :hover::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-bgc);
+  background: var(--scrollbar-bgc);
 }
 ::-webkit-scrollbar-button,
 ::-webkit-scrollbar-corner {
   background: transparent;
-  // background: var(--main-bgc);
 }
 
 /* 不设置默认滚动的也是body元素 */
@@ -39,7 +67,7 @@
 // 富文本编辑器全局样式
 .editor {
   .w-e-text-container {
-    background-color: transparent;
+    background: transparent;
   }
 }
 
@@ -59,7 +87,7 @@
 }
 
 .custom-tag.active {
-  // background-color: var(--main-color) !important;
+  // background: var(--main-color) !important;
   // border-color: var(--main-color);
   // color: #fff !important;
   transform: scale(1.05);
@@ -92,7 +120,7 @@
   user-select: none;
 }
 
-.text-color{
+.text-color {
   color: var(--text-color);
 }
 
@@ -105,21 +133,25 @@
 }
 
 // 常用类名
-.text-color{
+.text-color {
   color: var(--text-color);
 }
-.main-color{
+.main-color {
   color: var(--main-color);
 }
-.padding-top-bar{
+.padding-top-bar {
   position: relative;
-  &::after{
+  &::after {
     content: '';
-    height: 64px;
+    height: 104px;
     @apply absolute left-0 top-0 w-full from-black bg-gradient-to-r to-gray-700;
   }
 }
-
-.main-bgc{
-  background-color: var(--main-bgc);
+.gradient-bar {
+  &::after {
+    background: var(--nav-color);
+  }
+}
+.main-bgc {
+  background: var(--main-bgc);
 }

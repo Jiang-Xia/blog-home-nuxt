@@ -1,7 +1,7 @@
 <template>
-  <div class="container m-auto">
+  <div class="page-container m-auto">
     <section>
-      <div class="navbar bg-base-300 mb-4 shadow-xl rounded-box">
+      <div class="navbar bg-base-100 mb-4 shadow-xl rounded-box">
         <div class="navbar-start">
           <label class="swap swap-flip text-3xl">
             <input type="checkbox">
@@ -13,12 +13,10 @@
           <a class="btn btn-ghost normal-case text-xl">Blog Admin</a>
         </div>
         <div class="navbar-end">
-          <button class="btn" @click="goTargetPage(1)">
-            GO
-          </button>
+          <button class="btn" @click="goTargetPage(1)"> GO </button>
         </div>
       </div>
-      <div class="mockup-window border bg-base-300">
+      <div class="mockup-window border bg-base-100">
         <div class="flex justify-center p-4 bg-base-200 h-full">
           <iframe class="iframe" :src="goUrl" />
         </div>
@@ -26,7 +24,7 @@
     </section>
 
     <section class="mt-10">
-      <div class="navbar bg-base-300 mb-4 shadow-xl rounded-box">
+      <div class="navbar bg-base-100 mb-4 shadow-xl rounded-box">
         <div class="navbar-start">
           <label class="swap swap-flip text-3xl">
             <input type="checkbox">
@@ -38,9 +36,7 @@
           <a class="btn btn-ghost normal-case text-xl">Zone</a>
         </div>
         <div class="navbar-end">
-          <button class="btn" @click="goTargetPage(2)">
-            GO
-          </button>
+          <button class="btn" @click="goTargetPage(2)"> GO </button>
         </div>
       </div>
 
@@ -74,48 +70,49 @@
   </div>
 </template>
 <script setup lang="ts">
-import { adminUrl } from '@/config'
-const token = useToken()
-const goUrl = `${adminUrl}?ticket=${token.value}`
-const zoneUrl = 'https://jiang-xia.top/zone/#/'
-const goTargetPage = (type:number) => {
-  let url = ''
-  if (type === 1) {
-    url = goUrl
-  } else if (type === 2) {
-    url = zoneUrl
+  import { adminUrl } from '@/config'
+  const token = useToken()
+  const goUrl = `${adminUrl}?ticket=${token.value}`
+  const zoneUrl = 'https://jiang-xia.top/zone/#/'
+  const goTargetPage = (type: number) => {
+    let url = ''
+    if (type === 1) {
+      url = goUrl
+    } else if (type === 2) {
+      url = zoneUrl
+    }
+    window.open(url, '_blank')
   }
-  window.open(url, '_blank')
-}
 </script>
 <style lang="less" scoped>
-.container {
-    padding-top: 84px;
-    // padding: 84px 24px 24px 24px;
+  .page-container {
+    background: var(--main-bgc);
+    padding: 124px 24px 24px 24px;
     .iframe-wrap {
-        padding-top: 25px;
-        height: 100%;
-        width: 100%;
-        background-color: #f8f8f8;
+      padding-top: 25px;
+      height: 100%;
+      width: 100%;
+      background: #f8f8f8;
     }
 
     .iframe {
-        height: 100%;
-        width: 100%;
-        border-radius: 10px;
-        border-width: none;
-        border-style: solid;
-        border-color: #555555;
-        border-image: none;
-        background: #ffffff;
+      height: 100%;
+      width: 100%;
+      border-radius: 10px;
+      border-width: none;
+      border-style: solid;
+      border-color: #555555;
+      border-image: none;
+      background: #ffffff;
     }
 
     .mockup-window {
-        .iframe {
-            min-height: 65vh;
-        }
+      .iframe {
+        min-height: 65vh;
+      }
     }
-    .mockup-phone{
+
+    .mockup-phone {
     }
-}
+  }
 </style>
