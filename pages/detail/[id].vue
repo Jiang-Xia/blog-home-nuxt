@@ -309,6 +309,10 @@
     margin-top: 76px;
     min-height: 30vh;
   }
+  .md-editor {
+    font-family: HarmonyOS-Sans, ZhuZiAWan, -apple-system, Helvetica Neue, Helvetica, PingFang SC,
+      Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+  }
   .md-dark {
     --md-bk-color: var(--main-bgc);
   }

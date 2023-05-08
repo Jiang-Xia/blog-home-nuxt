@@ -44,7 +44,7 @@
 </script>
 <template>
   <NuxtLayout name="main-content">
-    <div class="links-container pt-3 rounded-box p-4">
+    <div class="links-container pt-3 rounded-box xl:p-4">
       <h1 class="hidden">友情链接 - 江夏的博客</h1>
       <div class="flex justify-end">
         <label for="link-add-modal" class="btn modal-button link-btn btn-ghost">+ 申请外链</label>
@@ -101,10 +101,10 @@
       </div>
 
       <!-- 友链列表 -->
-      <div class="flex flex-wrap justify-around mt-6">
+      <div class="flex flex-wrap justify-start mt-6">
         <div
           v-for="item in linkList"
-          class="card w-full lg:w-80 shadow-xl bg-base-100 mb-6 transition duration-700 ease-in-out hover:scale-105 border border-base-300"
+          class="card w-full lg:w-80 shadow-xl bg-base-100 transition duration-700 ease-in-out hover:scale-105 border border-base-300 m-3"
         >
           <div class="card-body p-2 sm:p-4">
             <h2 class="card-title">

@@ -229,7 +229,6 @@
           </div>
         </transition-group>
       </div>
-
       <div class="w-full">
         <xia-empty
           v-show="!articleList.length"
@@ -352,7 +351,7 @@
       margin-top: 8vh;
     }
     .tag-card-wrap {
-      @apply mx-3 mb-3;
+      @apply mb-3 max-w-7xl mx-auto;
     }
     // 右边卡片
     .info-tool {
@@ -412,15 +411,46 @@
       color: var(--text-color2);
     }
     .main-content {
+      position: relative;
       margin-right: 0;
+      @apply px-3;
     }
     .article-item-wrap {
       transition: all 0.5s;
-      @apply flex justify-center flex-wrap;
+      @apply flex justify-center flex-wrap m-auto w-full max-w-7xl;
     }
+    // 卡片样式
     .article-item {
       max-height: 408px;
-      @apply card card-compact w-full m-3 bg-base-100 mb-5 lg:w-4/5  xl:w-2/5 2xl:w-80 hover:drop-shadow-lg transition-all shadow-xl;
+      @apply card card-compact mr-5 bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-xl;
+    }
+    .article-item-wrap {
+      @media (max-width: 1536px) {
+        //xl
+        .article-item {
+          width: calc(50% - 10px);
+          &:nth-of-type(2n) {
+            margin-right: 0;
+          }
+        }
+      }
+
+      @media (max-width: 1024px) {
+        //lg
+        .article-item {
+          width: 100%;
+          margin-right: 0;
+        }
+      }
+      @media (min-width: 1536px) {
+        //2xl
+        .article-item {
+          width: calc(33.3333% - 13.33px);
+          &:nth-of-type(3n) {
+            margin-right: 0;
+          }
+        }
+      }
     }
 
     .text-icon {
@@ -438,6 +468,11 @@
       }
       .info-tool {
         transform: translateX(0%);
+      }
+    }
+    @media (min-width: 1780px) {
+      .info-tool {
+        right: 100px;
       }
     }
 

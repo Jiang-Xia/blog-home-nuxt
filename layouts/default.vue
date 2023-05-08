@@ -115,7 +115,7 @@
   })
 </script>
 <template>
-  <div class="app-layout">
+  <div class="app-layout gradient-bar">
     <!-- 导航栏 -->
     <header class="app-layout-header" :class="{ 'app-layout-header__active': scrollTop > 98 }">
       <Nav />
@@ -146,7 +146,6 @@
     color: var(--text-color);
     min-height: 100vh;
 
-    // padding-top: 64px;
     // 会编译成和 & 同级类名即 app-layout-header
     &-header {
       box-sizing: border-box;
@@ -177,7 +176,7 @@
     }
 
     &-body {
-      min-height: calc(100vh - 60px);
+      min-height: calc(100vh - 120px);
     }
 
     &-footer {
@@ -189,7 +188,7 @@
       line-height: 1.7;
       color: var(--text-color2);
       // background: var(--main-bgc);
-      height: 60px;
+      height: 120px;
       font-size: 12px;
     }
   }
