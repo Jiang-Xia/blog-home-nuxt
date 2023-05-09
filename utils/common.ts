@@ -11,20 +11,18 @@ export const xBLogStore = useStorage('x-blog-store', { likes: [], })
 
 const getOptions = async (type: string) => {
   if (type === '分类') {
-    const { data: res, } = await useAsyncData('index_GetCategory', () =>
-        api.getAllCategory()
-    )
+    const { data: res, } = await useAsyncData('index_GetCategory', () => api.getAllCategory())
     // console.log('=>>>>>>>>>>>>>>>>>>>>>', res)
-    categoryOptions.value = res.value
+    categoryOptions.value = res.value.filter((v: any) => v.articleCount)
     // console.log(res)
   } else {
-    const { data: res, } = await useAsyncData('index_GetTag', () =>
-        api.getAllTag()
-    )
-    tagsOptions.value = res.value.map((v: any) => {
-      v.checked = false
-      return v
-    })
+    const { data: res, } = await useAsyncData('index_GetTag', () => api.getAllTag())
+    tagsOptions.value = res.value
+      .filter((v: any) => v.articleCount)
+      .map((v: any) => {
+        v.checked = false
+        return v
+      })
   }
 }
 const colors: string[] = [

@@ -425,7 +425,7 @@
       @apply card card-compact mr-5 bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-xl;
     }
     .article-item-wrap {
-      @media (max-width: 1536px) {
+      @media (max-width: 1535px) {
         //xl
         .article-item {
           width: calc(50% - 10px);
