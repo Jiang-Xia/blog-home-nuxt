@@ -50,7 +50,6 @@
     "jsencrypt": "^3.2.1",
     "md-editor-v3": "^2.9.0",
     "pinia": "^2.0.35",
-    "typeit": "^8.7.1",
     "vue": "^3.2.47"
   },
   "lint-staged": {

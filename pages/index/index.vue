@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import TypeIt, { TypeItOptions } from 'typeit'
   import { gushici } from '@/api/index'
 
   const banners = useBanners()
@@ -10,16 +9,6 @@
   })
 
   const { data: gushiciData, } = await useAsyncData('gushici_Get', () => gushici())
-  const initTypeit = () => {
-    const typeit = new (TypeIt as any)('#site-subtitle', {
-      speed: 200,
-      startDelay: 900,
-    })
-    typeit.go()
-  }
-  onMounted(() => {
-    initTypeit()
-  })
 </script>
 <template>
   <div class="home-container">
