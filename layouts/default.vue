@@ -41,7 +41,8 @@
       Cookies.set('browserId', dayjs().valueOf().toString(), { expires: 7, })
     }
   })
-
+  // 博客运行时间
+  const runTime = Math.ceil((dayjs().unix() - dayjs('2022-03-01').unix()) / (24 * 60 * 60))
   useHead({
     htmlAttrs: {
       lang: 'zh-CN',
@@ -127,6 +128,15 @@
     <!-- 页脚 -->
     <footer class="app-layout-footer">
       <p>
+        😁 博客已平稳运行 {{ runTime }} 天
+        <a
+          href="https://jiang-xia.top/sitemap.xml"
+          target="_blank"
+          class="link link-hover"
+        >SITEMAP</a>
+        😀
+      </p>
+      <p>
         <NuxtLink target="_blank" href="https://beian.miit.gov.cn/#/Integrated/recordQuery">
           桂ICP备2022001119号-1
         </NuxtLink>
@@ -136,7 +146,9 @@
       </p>
     </footer>
     <!-- 回到顶部 -->
-    <xia-backtop class="shake-slow" />
+    <xia-backtop class="shake-slow">
+      <xia-icon icon="blog-rocket4" width="34px" height="34px" />
+    </xia-backtop>
   </div>
 </template>
 <style lang="less">

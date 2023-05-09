@@ -16,6 +16,10 @@
       type: Boolean,
       default: false,
     },
+    noPadding: {
+      type: Boolean,
+      default: true,
+    },
   })
 </script>
 <template>
@@ -28,14 +32,14 @@
       <h4 v-if="title">
         <slot name="header"><xia-icon :icon="icon" /> {{ title }}</slot>
       </h4>
-      <div class="card-content"><slot /></div>
+      <div class="card-content" :class="{ padding: noPadding }"><slot /></div>
     </template>
 
     <template v-else>
       <h4 v-if="icon">
         <slot name="header"><xia-icon :icon="icon" /> {{ title }}</slot>
       </h4>
-      <div class="card-content"><slot /></div>
+      <div class="card-content" :class="{ padding: noPadding }"><slot /></div>
     </template>
   </div>
 </template>
@@ -54,6 +58,8 @@
     .card-content {
       height: calc(100% - 32px);
       overflow-y: auto;
+    }
+    .padding {
       padding: 0 20px;
     }
   }
