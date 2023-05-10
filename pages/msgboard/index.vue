@@ -9,10 +9,10 @@
     address: ''
     comment: ''
   }
-  const { data: msgboardList, } = await useAsyncData('msgboard_Get', () =>
+  const { data: msgboardList, refresh, } = await useAsyncData('msgboard_Get', () =>
     request.get('/msgboard').then(res => res.data)
   )
-  console.log(msgboardList.value)
+  // console.log(msgboardList.value)
   const showToast = ref(false)
   const msgForm: MsgInterFace = reactive({
     name: '',
@@ -26,13 +26,14 @@
       showToast.value = false
     }, 1500)
   }
-  const confirmHandle = () => {
+  const confirmHandle = async () => {
     const keys = Object.keys(msgForm)
     if (keys.every(v => !v)) {
       showTip()
     }
-    request.post('/msgboard', msgForm)
+    await request.post('/msgboard', msgForm)
     keys.forEach(k => (msgForm[k as keyof MsgInterFace] = ''))
+    refresh()
   }
 
   useHead({
