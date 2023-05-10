@@ -32,7 +32,7 @@
     z-index: 0;
   }
   .banner-container {
-    height: calc(100vh + 100px);
+    height: 100vh;
     @media screen and (max-width: 768px) {
       height: 60vh;
     }
