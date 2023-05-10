@@ -128,9 +128,9 @@
   }
 
   // 颜色转换
-  const toRgb = (color: string) => {
+  const toRgb = (color: string, alpha = 0.24) => {
     color = colorRgb(color)
-    color = color.replace(')', ',0.24)')
+    color = color.replace(')', `,${alpha})`)
     return color
   }
 
@@ -142,11 +142,20 @@
   onMounted(() => {
     listKey.value = new Date().getTime()
   })
+
+  // 分类标签设置hover样式
+  const categoryMouseenter = (e: any, item: any) => {
+    e.target.style.backgroundColor = toRgb(item.color, 0.08)
+  }
+  const categoryMouseleave = (e: any) => {
+    e.target.style.backgroundColor = ''
+  }
 </script>
 
 <template>
   <div class="article-list-page">
     <section class="main-content">
+      <!-- 标签筛选 -->
       <div class="tag-card-wrap">
         <base-card icon="blog-tag" title="标签" min-height="110px" vertical>
           <div
@@ -313,6 +322,8 @@
           :color="item.color"
           :class="item.id === queryPrams.category ? 'active' : ''"
           @click="clickTagHandle(item, '分类')"
+          @mouseenter="e => categoryMouseenter(e, item)"
+          @mouseleave="e => categoryMouseleave(e)"
         >
           <div
             class="category__inner flex justify-between items-center"
@@ -378,7 +389,7 @@
         @apply bg-base-100;
       }
       .category-item {
-        padding: 5px 0;
+        padding: 5px 20px;
       }
       .category__tag {
         border-radius: 7px;

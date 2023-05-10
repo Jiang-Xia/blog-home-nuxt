@@ -224,7 +224,7 @@
 </template>
 <style lang="less" scoped>
   .banner-container {
-    height: 60vh;
+    height: 50vh;
     .banner-content {
       position: relative;
       overflow: hidden;

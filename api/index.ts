@@ -15,11 +15,20 @@ const getUserInfo = async (): Promise<userInfoState> => {
     uid,
   }
 }
+// 古诗词
+export const gushici = async () => {
+  const res = await request.http('https://jiang-xia.top/x-zone/api/v1/third/gushici', {
+    method: 'GET',
+  })
+  return res.data
+}
+
 const api = {
   ...article,
   ...tag,
   ...category,
   getUserInfo,
+  gushici,
 }
 // https://gitee.com/api/v5/repos/jiang-xia/blog-home-nuxt/commits?access_token=53db1802db341bf994093cace04c275b&page=1&per_page=20
 export default api
