@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { computed, reactive, ref } from 'vue'
   import { getArticleList } from '@/api/article'
+  import { getWeather } from '@/api/index'
   import {
     categoryOptions,
     formactDate,
@@ -150,6 +151,10 @@
   const categoryMouseleave = (e: any) => {
     e.target.style.backgroundColor = ''
   }
+
+  // 天气
+  const { data: weatherData, } = await useAsyncData('weather_Get', () => getWeather())
+  console.log(weatherData.value)
 </script>
 
 <template>
@@ -313,7 +318,17 @@
           </button>
         </div>
       </base-card>
-      <!-- <base-card icon="" title="" min-height="110px"> 1 </base-card> -->
+      <!-- 天气 -->
+      <base-card icon="" title="" min-height="110px" class="weather-card" :no-padding="true">
+        <p>
+          {{ weatherData.city }} {{ weatherData.info.type }}
+          <span class="wendu">{{ weatherData.info.high + '/' + weatherData.info.low }}</span>
+        </p>
+        <div class="tip"> 😃 {{ weatherData.info.tip }} </div>
+        <div class="icon-wrap">
+          <xia-clock />
+        </div>
+      </base-card>
       <base-card icon="blog-category" title="分类" class="category-card">
         <div
           v-for="item of categoryOptions"
@@ -375,7 +390,24 @@
       .card-wrap {
         @apply mx-5 mb-5;
       }
-      // 分类
+      // 天气卡片
+      .weather-card {
+        p {
+          text-align: center;
+        }
+        .wendu {
+          font-size: 13px;
+        }
+        .tip {
+          padding-top: 12px;
+        }
+        .icon-wrap {
+          // display: flex;
+          // justify-content: center;
+        }
+      }
+
+      // 分类卡片
       .category-card {
         max-height: 110vh;
         min-height: 100vh;

@@ -7,8 +7,12 @@
     title: '文章列表',
     titleTemplate: title => `${title} - 江夏的博客`,
   })
-
+  // 古诗词
   const { data: gushiciData, } = await useAsyncData('gushici_Get', () => gushici())
+  // 下一页
+  const goToNextPage = () => {
+    window.scroll({ top: window.innerHeight, left: 0, behavior: 'smooth', })
+  }
 </script>
 <template>
   <div class="home-container">
@@ -25,7 +29,7 @@
         </div>
       </div>
       <!-- 向下提示箭头 -->
-      <div class="go-down">
+      <div class="go-down" @click="goToNextPage">
         <xia-icon icon="blog-double-down" height="32px" width="32px" />
       </div>
       <div class="banner-content">
@@ -57,6 +61,7 @@
     }
 
     .site-info {
+      pointer-events: none;
       position: absolute;
       width: 100%;
       top: 50%;
@@ -79,14 +84,15 @@
       }
     }
     .go-down {
+      cursor: pointer;
       position: absolute;
-      bottom: 106px;
+      bottom: 20px;
       left: 50%;
       transform: translate3d(-50%, 0, 0);
       z-index: 3;
       color: rgba(255, 255, 255, 0.3);
+      animation: arrow-down 2s infinite;
     }
-
     .banner-content {
       position: relative;
       height: 100%;
