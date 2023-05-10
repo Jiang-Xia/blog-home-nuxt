@@ -314,7 +314,7 @@
         </div>
       </base-card>
       <!-- <base-card icon="" title="" min-height="110px"> 1 </base-card> -->
-      <base-card icon="blog-category" title="分类" style="max-height: 110vh" :no-padding="false">
+      <base-card icon="blog-category" title="分类" class="category-card">
         <div
           v-for="item of categoryOptions"
           :key="item.id"
@@ -376,9 +376,10 @@
         @apply mx-5 mb-5;
       }
       // 分类
-      .category-wrap {
-        min-height: 270px;
-        padding: 0;
+      .category-card {
+        max-height: 110vh;
+        min-height: 100vh;
+        overflow-y: auto;
       }
       .category-title {
         border-radius: 8px 8px 0 0;

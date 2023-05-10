@@ -51,9 +51,7 @@
   }
 
   .banner-container {
-    position: relative;
-    height: calc(100vh + 100px);
-
+    height: 100vh;
     @media screen and (max-width: 768px) {
       height: 50vh;
     }
