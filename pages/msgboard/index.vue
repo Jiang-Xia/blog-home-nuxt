@@ -8,29 +8,17 @@
     eamil: ''
     address: ''
     comment: ''
-    // code: '',
   }
   const { data: msgboardList, } = await useAsyncData('msgboard_Get', () =>
     request.get('/msgboard').then(res => res.data)
   )
-  const authCode = ref('')
-  const authCodeRef = ref()
+  console.log(msgboardList.value)
   const showToast = ref(false)
-  const createCodeHandle = () => {
-    authCode.value = authCodeRef.value.createCode(4)
-  }
-  const createdHandle = (v: string) => {
-    authCode.value = v
-  }
   const msgForm: MsgInterFace = reactive({
     name: '',
     eamil: '',
     address: '',
     comment: '',
-    // code: '',
-  })
-  const isRight = computed(() => {
-    return authCode.value.toUpperCase() === msgForm.code.toUpperCase()
   })
   const showTip = () => {
     showToast.value = true
@@ -40,17 +28,9 @@
   }
   const confirmHandle = () => {
     const keys = Object.keys(msgForm)
-    // console.log(isRight, authCode.value.toUpperCase() === msgForm.code.toUpperCase())
-    // if (!isRight.value) {
-    //   // console.log("验证码错误！");
-    //   messageDanger('验证码错误！')
-    //   showTip()
-    //   return
-    // }
     if (keys.every(v => !v)) {
       showTip()
     }
-    console.log(msgForm)
     request.post('/msgboard', msgForm)
     keys.forEach(k => (msgForm[k as keyof MsgInterFace] = ''))
   }
@@ -117,19 +97,6 @@
             placeholder="您的评论"
           />
         </div>
-
-        <!-- <div class="form-control">
-          <label class="label">
-            <span class="label-text"><span class="text-red-600 px-2">*</span>验证码</span>
-          </label>
-          <div class="flex justify-between items-center mb-2">
-            <xia-auth-code ref="authCodeRef" class="bg-base-300 rounded-sm" @created="createdHandle" />
-
-            <span class="label-text-alt link link-secondary link-hover" @click="createCodeHandle">看不清？重新生成</span>
-          </div>
-          <input v-model="msgForm.code" class="input input-bordered" placeholder="请输入图片中的验证码">
-        </div> -->
-
         <div class="form-control mt-6">
           <button class="btn btn-primary" @click="confirmHandle">发表</button>
         </div>
@@ -137,23 +104,23 @@
       <!-- 留言内容列表 -->
       <div class="mt-6 max-w-3xl mx-auto">
         <div v-for="item in msgboardList" class="card card-compact card-side mb-3">
-          <figure>
-            <div class="avatar h-16 w-16 ml-3">
-              <div class="w-24 rounded-full bg-base-300" title="点击跳转他的主页！">
-                <a :href="item.address" target="_blank">
-                  <img :alt="item.name" :src="item.avatar">
-                </a>
+          <div class="card-body bg-base-100 rounded">
+            <h2 class="card-title text-sm font-normal">
+              <div class="avatar h-7 w-7">
+                <div class="w-7 rounded-full bg-base-300" title="点击跳转他的主页！">
+                  <a :href="item.address" target="_blank">
+                    <img v-lazyImg="item.avatar">
+                  </a>
+                </div>
               </div>
-            </div>
-          </figure>
-          <div class="card-body">
-            <h2 class="card-title">{{ item.name }}</h2>
+              {{ item.name }}
+            </h2>
             <p>{{ item.comment }}</p>
-            <div class="card-actions justify-end">
-              <!-- <div>111</div>
-              <div>2222</div>
-              <div>3333</div> -->
-              <div class="text-xs text-gray-400"> 发表于 {{ item.createAt }} </div>
+            <div class="card-actions justify-end text-xs text-gray-400">
+              <span> <xia-icon width="14px" icon="blog-dingwei" />{{ item.location }} </span>
+              <span> <xia-icon width="14px" icon="blog-os" /> {{ item.system }} </span>
+              <span> <xia-icon width="14px" icon="blog-browser" /> {{ item.browser }} </span>
+              <span> <xia-icon width="14px" icon="blog-shijian" /> {{ item.createAt }} </span>
             </div>
           </div>
         </div>
