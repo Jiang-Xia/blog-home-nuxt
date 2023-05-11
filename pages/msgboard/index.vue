@@ -104,7 +104,7 @@
       </div>
       <!-- 留言内容列表 -->
       <div class="mt-6 max-w-3xl mx-auto">
-        <div v-for="item in msgboardList" class="card card-compact card-side mb-3">
+        <div v-for="item in msgboardList" :key="item.id" class="card card-compact card-side mb-3">
           <div class="card-body bg-base-100 rounded">
             <h2 class="card-title text-sm font-normal">
               <div class="avatar h-7 w-7">

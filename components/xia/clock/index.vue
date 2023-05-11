@@ -52,6 +52,7 @@
   }
 
   .clock {
+    transform: translate3d(0, 0, 0);
     width: 200px;
     height: 200px;
     border: 1px solid #333;

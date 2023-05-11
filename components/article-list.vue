@@ -151,10 +151,13 @@
   const categoryMouseleave = (e: any) => {
     e.target.style.backgroundColor = ''
   }
-
   // 天气
-  const { data: weatherData, } = await useAsyncData('weather_Get', () => getWeather())
-  console.log(weatherData.value)
+  const weatherData = ref<any>({})
+  onMounted(async () => {
+    // 古诗词
+    weatherData.value = await getWeather()
+    //  console.log(weatherData.value)
+  })
 </script>
 
 <template>
@@ -319,12 +322,19 @@
         </div>
       </base-card>
       <!-- 天气 -->
-      <base-card icon="" title="" min-height="110px" class="weather-card" :no-padding="true">
+      <base-card
+        v-if="weatherData"
+        icon=""
+        title=""
+        min-height="110px"
+        class="weather-card"
+        :no-padding="true"
+      >
         <p>
-          {{ weatherData.city }} {{ weatherData.info.type }}
-          <span class="wendu">{{ weatherData.info.high + '/' + weatherData.info.low }}</span>
+          {{ weatherData.city }} {{ weatherData.info?.type }}
+          <span class="wendu">{{ weatherData.info?.high + '/' + weatherData.info?.low }}</span>
         </p>
-        <div class="tip"> 😃 {{ weatherData.info.tip }} </div>
+        <div class="tip"> 😃 {{ weatherData.info?.tip }} </div>
         <div class="icon-wrap">
           <xia-clock />
         </div>
@@ -402,8 +412,7 @@
           padding-top: 12px;
         }
         .icon-wrap {
-          // display: flex;
-          // justify-content: center;
+          position: relative;
         }
       }
 
