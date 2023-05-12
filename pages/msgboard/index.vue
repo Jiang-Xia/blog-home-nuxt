@@ -1,21 +1,36 @@
 <script setup lang="ts">
   import { reactive, ref, computed } from 'vue'
   import { messageDanger } from '@/utils/toast'
-
+  import { beforeTimeNow } from '@/utils'
   import request from '~~/api/request'
   interface MsgInterFace {
-    name: ''
-    eamil: ''
-    address: ''
-    comment: ''
+    name: string
+    eamil: string
+    address: string
+    comment: string
   }
   const { data: msgboardList, refresh, } = await useAsyncData('msgboard_Get', () =>
     request.get('/msgboard').then(res => res.data)
   )
-  // console.log(msgboardList.value)
+  // 分组
+  const buildTree = (list: any[], rootId = 0) => {
+    const tree: any[] = []
+    for (const v of list) {
+      if (v.pId === rootId) {
+        const child = buildTree(list, v.id)
+        if (child.length) {
+          v.children = child
+        }
+        tree.push(v)
+      }
+    }
+    return tree
+  }
+  msgboardList.value = buildTree(msgboardList.value)
+  const userInfo = useUserInfo()
   const showToast = ref(false)
   const msgForm: MsgInterFace = reactive({
-    name: '',
+    name: userInfo.value.nickname,
     eamil: '',
     address: '',
     comment: '',
@@ -31,6 +46,10 @@
       dialog.value = false
     })
   })
+  const getAllMsgboard = async () => {
+    const list = await request.get('/msgboard').then(res => res.data)
+    msgboardList.value = buildTree(list)
+  }
   const confirmHandle = async () => {
     try {
       const keys = Object.keys(msgForm)
@@ -41,7 +60,7 @@
       await request.post('/msgboard', msgForm)
       keys.forEach(k => (msgForm[k as keyof MsgInterFace] = ''))
       // refresh()
-      msgboardList.value = await request.get('/msgboard').then(res => res.data)
+      getAllMsgboard()
     } catch (error) {
       console.log(error)
     }
@@ -50,16 +69,21 @@
   const clickReplyHandle = (item: any) => {
     dialog.value = true
     currentItem.value = item
+    replyForm.value = {
+      name: userInfo.value.nickname,
+      comment: '',
+    }
   }
   const currentItem = ref<any>()
   const dialog = ref(false)
   const replyForm: any = ref({
-    name: '',
+    name: userInfo.value.nickname,
     comment: '',
   })
   const okHandle = async () => {
+    const pId = currentItem.value.pId
     await request.post('/msgboard', {
-      pId: currentItem.value.id,
+      pId: pId !== 0 ? pId : currentItem.value.id,
       name: replyForm.value.name,
       replyId: currentItem.value.id,
       respondent: currentItem.value.name,
@@ -68,6 +92,7 @@
       comment: replyForm.value.comment,
     })
     dialog.value = false
+    getAllMsgboard()
   }
   useHead({
     title: '留言板',
@@ -140,32 +165,80 @@
       </div>
       <!-- 留言内容列表 -->
       <div class="mt-6 max-w-3xl mx-auto">
-        <div v-for="item in msgboardList" :key="item.id" class="card card-compact card-side mb-3">
-          <div class="card-body bg-base-100 rounded">
-            <h2 class="card-title text-sm font-normal">
-              <div class="avatar h-7 w-7">
-                <div class="w-7 rounded-full bg-base-300" title="点击跳转他的主页！">
-                  <a :href="item.address" target="_blank">
-                    <img v-lazyImg="item.avatar">
-                  </a>
+        <section v-for="item in msgboardList" :key="item.id" class="bg-base-100 mb-3">
+          <div class="card card-compact card-side mb-3">
+            <div class="card-body bg-base-100 rounded">
+              <h2 class="card-title text-sm font-normal text-gray-400 flex">
+                <div class="avatar h-7 w-7">
+                  <div class="w-7 rounded-full bg-base-300" title="点击跳转他的主页！">
+                    <a :href="item.address" target="_blank">
+                      <img v-lazyImg="item.avatar">
+                    </a>
+                  </div>
                 </div>
+                {{ item.name }}
+                <span class="flex">
+                  <xia-icon width="14px" icon="blog-shijian" /> {{ beforeTimeNow(item.createAt) }}
+                </span>
+              </h2>
+              <p>{{ item.comment }}</p>
+              <div class="card-actions justify-end text-xs text-gray-400">
+                <button class="mr-auto" @click.stop="clickReplyHandle(item)">
+                  <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
+                </button>
+                <span> <xia-icon width="14px" icon="blog-dingwei" />{{ item.location }} </span>
+                <span> <xia-icon width="14px" icon="blog-os" /> {{ item.system }} </span>
+                <span> <xia-icon width="14px" icon="blog-browser" /> {{ item.browser }} </span>
               </div>
-              {{ item.name }}
-            </h2>
-            <p>{{ item.comment }}</p>
-            <div class="card-actions justify-end text-xs text-gray-400">
-              <button class="mr-auto" @click.stop="clickReplyHandle(item)">
-                <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
-              </button>
-              <span> <xia-icon width="14px" icon="blog-dingwei" />{{ item.location }} </span>
-              <span> <xia-icon width="14px" icon="blog-os" /> {{ item.system }} </span>
-              <span> <xia-icon width="14px" icon="blog-browser" /> {{ item.browser }} </span>
-              <span> <xia-icon width="14px" icon="blog-shijian" /> {{ item.createAt }} </span>
             </div>
           </div>
-        </div>
+          <!-- 回复框 -->
+          <div v-if="item.children?.length" class="reply-wrap md:ml-7">
+            <section v-for="replyItem in item.children" :key="replyItem.id" class="flex mt-4">
+              <!-- 头像 -->
+              <div class="w-10 mr-2">
+                <div
+                  class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100"
+                >
+                  <img
+                    v-if="replyItem.avatar"
+                    class="rounded-full"
+                    :src="replyItem.avatar"
+                    :alt="replyItem.name"
+                  >
+                  <xia-icon v-else icon="blog-yonghu" />
+                </div>
+              </div>
+              <div class="flex-1">
+                <span class="text-xs text-gray-400">
+                  {{ replyItem.name + ' @ ' + replyItem.respondent }}
+                </span>
+                <span class="text-xs pl-2 text-gray-400">{{
+                  beforeTimeNow(replyItem.createAt)
+                }}</span>
+                <div class="text-sm content">{{ replyItem.comment }}</div>
+
+                <div class="py-1 text-xs text-gray-400 flex justify-end">
+                  <button class="action mr-auto" @click.stop="clickReplyHandle(replyItem)">
+                    <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
+                  </button>
+                  <span class="hidden md:inline-block">
+                    <xia-icon width="14px" icon="blog-dingwei" />{{ replyItem.location }}
+                  </span>
+                  <span class="hidden md:inline-block">
+                    <xia-icon width="14px" icon="blog-os" /> {{ replyItem.system }}
+                  </span>
+                  <span class="hidden md:inline-block">
+                    <xia-icon width="14px" icon="blog-browser" /> {{ replyItem.browser }}
+                  </span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
       </div>
 
+      <!-- 回复弹框 -->
       <div class="modal" :class="{ 'dialog-show': dialog }" @click.stop="">
         <div class="modal-box relative">
           <div class="pl-8 pt-4">
@@ -204,6 +277,11 @@
     }
     .form-wrap {
       position: relative;
+    }
+    .reply-wrap {
+      background: var(--minor-bgc);
+      border-radius: var(--layout-border-radius);
+      padding: 8px 10px;
     }
   }
   .dialog-show {

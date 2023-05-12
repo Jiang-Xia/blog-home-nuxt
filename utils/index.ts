@@ -1,10 +1,7 @@
 import _copy from 'copy-to-clipboard'
 // import { ElMessage } from "element-plus";
 // 节流
-export function throttle (
-  fn: { apply: (arg0: any, arg1: any[]) => void },
-  t: number
-) {
+export function throttle (fn: { apply: (arg0: any, arg1: any[]) => void }, t: number) {
   let flag = true
   const interval = t || 500
   return function (this: any, ...args: any) {
@@ -22,10 +19,7 @@ export function throttle (
 }
 
 // 防抖
-export function debounce (
-  fn: { apply: (arg0: any, arg1: any) => void },
-  t: number
-) {
+export function debounce (fn: { apply: (arg0: any, arg1: any) => void }, t: number) {
   let timeId: any = null
   const delay = t || 500
   return function (this: any, ...args: any) {
@@ -44,9 +38,9 @@ export function copy (text: string) {
   return _copy(text)
 }
 export interface tocInter {
-  level: string;
-  id: string;
-  text: string;
+  level: string
+  id: string
+  text: string
 }
 
 // 生成目录
@@ -60,11 +54,14 @@ export function makeToc (html: string): tocInter[] {
   return toc
 }
 
-export function beforeTimeNow (updateTime: number) {
+export function beforeTimeNow (updateTime: number | string) {
   // console.log(updateTime)
   if (updateTime === null) {
     return ''
+  } else if (typeof updateTime === 'string') {
+    updateTime = new Date(updateTime).getTime()
   }
+  updateTime = Number(updateTime)
   const now = new Date().getTime()
   const second = Math.floor((now - updateTime) / 1000)
   const minute = Math.floor(second / 60)
@@ -103,7 +100,9 @@ export function beforeTimeNow (updateTime: number) {
 }
 // 判断封面中是否为url链接或者base64
 export function isTrueCoverLink (str = '') {
-  if (!str) { return }
+  if (!str) {
+    return
+  }
   const urlRegex = /(http:\/\/|https:\/\/)((\w|=|\?|\.|\/|&|-)+)/g
   // console.log(str.includes('base64'))
   if (urlRegex.test(str) || str.includes('base64')) {
