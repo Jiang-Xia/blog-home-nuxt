@@ -50,11 +50,17 @@
     const list = await request.get('/msgboard').then(res => res.data)
     msgboardList.value = buildTree(list)
   }
+  // 邮箱正则
   const confirmHandle = async () => {
     try {
       const keys = Object.keys(msgForm)
-      if (keys.every(k => !msgForm[k as keyof MsgInterFace])) {
+      if (keys.some(k => !msgForm[k as keyof MsgInterFace])) {
         showTip()
+        return
+      }
+      const eamilRegx = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
+      if (!eamilRegx.test(msgForm.eamil)) {
+        messageDanger('邮箱格式不正确哦！')
         return
       }
       await request.post('/msgboard', msgForm)
@@ -81,6 +87,13 @@
     comment: '',
   })
   const okHandle = async () => {
+    if (!replyForm.value) {
+      messageDanger('名称不能为空')
+      return
+    } else if (!replyForm.value.comment) {
+      messageDanger('内容不能为空')
+      return
+    }
     const pId = currentItem.value.pId
     await request.post('/msgboard', {
       pId: pId !== 0 ? pId : currentItem.value.id,
@@ -90,6 +103,7 @@
       eamil: '',
       address: '',
       comment: replyForm.value.comment,
+      avatar: userInfo.value.avatar,
     })
     dialog.value = false
     getAllMsgboard()
@@ -165,7 +179,7 @@
       </div>
       <!-- 留言内容列表 -->
       <div class="mt-6 max-w-3xl mx-auto">
-        <section v-for="item in msgboardList" :key="item.id" class="bg-base-100 mb-3">
+        <section v-for="item in msgboardList" :key="item.id" class="bg-base-100 mb-3 rounded">
           <div class="card card-compact card-side mb-3">
             <div class="card-body bg-base-100 rounded">
               <h2 class="card-title text-sm font-normal text-gray-400 flex">
@@ -186,15 +200,19 @@
                 <button class="mr-auto" @click.stop="clickReplyHandle(item)">
                   <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
                 </button>
-                <span> <xia-icon width="14px" icon="blog-dingwei" />{{ item.location }} </span>
-                <span> <xia-icon width="14px" icon="blog-os" /> {{ item.system }} </span>
-                <span> <xia-icon width="14px" icon="blog-browser" /> {{ item.browser }} </span>
+                <span><xia-icon width="14px" icon="blog-dingwei" />{{ item.location }}</span>
+                <span><xia-icon width="14px" icon="blog-os" /> {{ item.system }}</span>
+                <span><xia-icon width="14px" icon="blog-browser" /> {{ item.browser }}</span>
               </div>
             </div>
           </div>
           <!-- 回复框 -->
-          <div v-if="item.children?.length" class="reply-wrap md:ml-7">
-            <section v-for="replyItem in item.children" :key="replyItem.id" class="flex mt-4">
+          <div v-if="item.children?.length" class="reply-wrap md:ml-7 rounded">
+            <section
+              v-for="replyItem in item.children"
+              :key="replyItem.id"
+              class="flex mt-4 rounded"
+            >
               <!-- 头像 -->
               <div class="w-10 mr-2">
                 <div
@@ -218,7 +236,7 @@
                 }}</span>
                 <div class="text-sm content">{{ replyItem.comment }}</div>
 
-                <div class="py-1 text-xs text-gray-400 flex justify-end">
+                <div class="py-1 text-xs text-gray-400 flex justify-end gap-2">
                   <button class="action mr-auto" @click.stop="clickReplyHandle(replyItem)">
                     <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
                   </button>
@@ -226,10 +244,10 @@
                     <xia-icon width="14px" icon="blog-dingwei" />{{ replyItem.location }}
                   </span>
                   <span class="hidden md:inline-block">
-                    <xia-icon width="14px" icon="blog-os" /> {{ replyItem.system }}
+                    <xia-icon width="14px" icon="blog-os" />{{ replyItem.system }}
                   </span>
                   <span class="hidden md:inline-block">
-                    <xia-icon width="14px" icon="blog-browser" /> {{ replyItem.browser }}
+                    <xia-icon width="14px" icon="blog-browser" />{{ replyItem.browser }}
                   </span>
                 </div>
               </div>
@@ -239,8 +257,16 @@
       </div>
 
       <!-- 回复弹框 -->
-      <div class="modal" :class="{ 'dialog-show': dialog }" @click.stop="">
+      <div
+        class="modal transition duration-700 ease-in-out"
+        :class="{ 'dialog-show': dialog }"
+        @click.stop=""
+      >
         <div class="modal-box relative">
+          <label
+            class="btn btn-sm btn-circle absolute right-2 top-2"
+            @click="dialog = !dialog"
+          >✕</label>
           <div class="pl-8 pt-4">
             <div class="flex items-center mb-4">
               <span class="w-16"><span class="text-red-600">*</span>名称</span>
@@ -280,7 +306,6 @@
     }
     .reply-wrap {
       background: var(--minor-bgc);
-      border-radius: var(--layout-border-radius);
       padding: 8px 10px;
     }
   }
