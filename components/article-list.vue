@@ -153,6 +153,10 @@
   }
   // 天气
   const weatherData = ref<any>({})
+  const userInfo = useUserInfo()
+  const weatherUrl =
+    'https://api.vvhan.com/api/ipCard?tip=Hello ' + (userInfo.value.nickname || '亲爱的路人！')
+
   onMounted(async () => {
     // 古诗词
     weatherData.value = await getWeather()
@@ -321,24 +325,16 @@
           </button>
         </div>
       </base-card>
+      <base-card class="weather-card" icon="" title="" :no-padding="false" min-height="180px">
+        <img v-lazyImg="weatherUrl" class="rounded-lg">
+      </base-card>
       <!-- 天气 -->
-      <base-card
-        v-if="weatherData"
-        icon=""
-        title=""
-        min-height="110px"
-        class="weather-card"
-        :no-padding="true"
-      >
-        <p>
-          {{ weatherData.city }} {{ weatherData.info?.type }}
-          <span class="wendu">{{ weatherData.info?.high + '/' + weatherData.info?.low }}</span>
-        </p>
-        <div class="tip"> 😃 {{ weatherData.info?.tip }} </div>
+      <base-card icon="" title="" min-height="110px" :no-padding="false">
         <div class="icon-wrap">
           <xia-clock />
         </div>
       </base-card>
+
       <base-card icon="blog-category" title="分类" class="category-card">
         <div
           v-for="item of categoryOptions"
@@ -398,21 +394,14 @@
       transition: all 0.5s;
       transform: translateX(300%);
       .card-wrap {
-        @apply mx-5 mb-5;
+        @apply mx-4 mb-4;
       }
       // 天气卡片
       .weather-card {
-        p {
-          text-align: center;
-        }
-        .wendu {
-          font-size: 13px;
-        }
-        .tip {
-          padding-top: 12px;
-        }
-        .icon-wrap {
-          position: relative;
+        min-height: 180px;
+        img {
+          width: 100%;
+          height: 180px;
         }
       }
 

@@ -58,7 +58,7 @@
     border: 1px solid #333;
     border-radius: 50%;
     position: relative;
-    margin: 10px auto;
+    margin: 8px auto;
     background-image: url(https://idgrafica.com/wp-content/uploads/2023/02/quadrante-scuro.png);
     background-size: cover;
     background-position: center;

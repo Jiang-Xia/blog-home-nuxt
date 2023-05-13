@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { reactive, ref, computed } from 'vue'
-  import { messageDanger } from '@/utils/toast'
+  import { messageDanger, messageSuccess } from '@/utils/toast'
   import { beforeTimeNow } from '@/utils'
   import request from '~~/api/request'
   interface MsgInterFace {
@@ -108,6 +108,18 @@
     dialog.value = false
     getAllMsgboard()
   }
+  // 删除留言
+  const delComment = async (t: number, item: any) => {
+    let ids = [item.id]
+    if (t === 0 && item.children) {
+      ids = [...ids, ...item.children.map((v: any) => v.id)]
+    }
+    await request.post('/msgboard/delete', ids)
+    messageSuccess('删除成功')
+    getAllMsgboard()
+  }
+  const showDelBtn = computed(() => ['super', 'admin'].includes(userInfo.value.role))
+
   useHead({
     title: '留言板',
     titleTemplate: title => `${title} - 江夏的博客`,
@@ -130,6 +142,7 @@
             type="text"
             placeholder="您的昵称"
             class="input input-bordered"
+            maxlength="10"
           >
         </div>
         <div class="form-control">
@@ -141,6 +154,7 @@
             type="text"
             placeholder="您的邮件"
             class="input input-bordered"
+            maxlength="30"
           >
           <label class="label">
             <a
@@ -160,6 +174,7 @@
             type="text"
             placeholder="您的主页"
             class="input input-bordered"
+            maxlength="30"
           >
         </div>
 
@@ -171,6 +186,7 @@
             v-model="msgForm.comment"
             class="textarea textarea-bordered"
             placeholder="您的评论"
+            maxlength="800"
           />
         </div>
         <div class="form-control mt-6">
@@ -194,6 +210,13 @@
                 <span class="flex">
                   <xia-icon width="14px" icon="blog-shijian" /> {{ beforeTimeNow(item.createAt) }}
                 </span>
+                <xia-icon
+                  v-if="showDelBtn"
+                  width="14px"
+                  class="ml-auto cursor-pointer"
+                  icon="blog-shanchu"
+                  @click="delComment(0, item)"
+                />
               </h2>
               <p>{{ item.comment }}</p>
               <div class="card-actions justify-end text-xs text-gray-400">
@@ -234,6 +257,13 @@
                 <span class="text-xs pl-2 text-gray-400">{{
                   beforeTimeNow(replyItem.createAt)
                 }}</span>
+                <xia-icon
+                  v-if="showDelBtn"
+                  width="14px"
+                  class="text-gray-400 ml-auto cursor-pointer"
+                  icon="blog-shanchu"
+                  @click="delComment(1, replyItem)"
+                />
                 <div class="text-sm content">{{ replyItem.comment }}</div>
 
                 <div class="py-1 text-xs text-gray-400 flex justify-end gap-2">
@@ -275,6 +305,7 @@
                 type="text"
                 placeholder="你的名称"
                 class="input input-bordered input-sm max-w-xs w-5/6"
+                maxlength="10"
               >
             </div>
             <div class="flex items-center mb-4">
@@ -283,6 +314,7 @@
                 v-model="replyForm.comment"
                 class="textarea textarea-bordered max-w-xs w-5/6"
                 placeholder="您的评论"
+                maxlength="300"
               />
             </div>
             <div class="modal-action">

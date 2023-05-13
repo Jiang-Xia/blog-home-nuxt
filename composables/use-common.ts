@@ -5,6 +5,7 @@ export const defaultInfo: userInfoState = {
   intro: '',
   avatar: '',
   uid: 0,
+  role: '',
 }
 
 let userInfo = reactive<userInfoState>({ ...defaultInfo, })

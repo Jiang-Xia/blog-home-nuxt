@@ -24,9 +24,12 @@
 </script>
 <template>
   <div
-    class="card-wrap tag-wrap"
+    class="card-wrap"
     :class="{ 'card-wrap__vertical': vertical }"
-    :style="{ 'min-height': minHeight }"
+    :style="{
+      'min-height': minHeight,
+      'padding': noPadding ? '12px 0' : '',
+    }"
   >
     <template v-if="!vertical">
       <h4 v-if="title">
@@ -45,9 +48,7 @@
 </template>
 <style lang="less" scoped>
   .card-wrap {
-    @apply border border-base-300 shadow-lg bg-base-100;
-    padding: 12px 0;
-    border-radius: 8px;
+    @apply border border-base-300 shadow-lg bg-base-100 rounded-lg;
     & > h4 {
       line-height: 32px;
       font-size: 15px;
