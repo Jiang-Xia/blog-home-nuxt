@@ -104,3 +104,20 @@ export const getRandomAvatar = () => {
   const index = Math.floor(Math.random() * avatars.length)
   return avatars[index]
 }
+
+// 判断是否是pc设备
+export const isPC = () => {
+  const userAgentInfo: any = navigator.userAgent
+  const Agents = ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPod']
+  let flag = true
+  for (let v = 0; v < Agents.length; v++) {
+    if (userAgentInfo.indexOf(Agents[v]) > 0) {
+      flag = false
+      break
+    }
+  }
+  if (window.screen.width >= 768) {
+    flag = true
+  }
+  return flag
+}
