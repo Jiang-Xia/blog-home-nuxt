@@ -62,8 +62,8 @@
     authCodeUrl.value = codeUrl + '?t=' + new Date().getTime()
   }
   changeAuthCode()
-  const posterUrl2 = 'https://jiang-xia.top/x-zone/api/v1/public/uploads/2023-05/神经细胞-封面.jpg'
-  const videoUrl2 = 'https://jiang-xia.top/x-zone/api/v1/public/uploads/2023-05/神经细胞.mp4'
+  // const posterUrl2 = 'https://jiang-xia.top/x-zone/api/v1/public/uploads/2023-05/神经细胞-封面.jpg'
+  // const videoUrl2 = 'https://jiang-xia.top/x-zone/api/v1/public/uploads/2023-05/神经细胞.mp4'
   const isPcClient = ref(false)
   if (process.client) {
     if (isPC()) {
@@ -152,9 +152,9 @@
         </div>
       </div>
     </div>
-    <video class="video-bg" :poster="posterUrl2" autoplay loop :muted="true">
+    <!-- <video class="video-bg" :poster="posterUrl2" autoplay loop :muted="true">
       <source v-if="isPcClient" type="video/mp4" :src="videoUrl2">
-    </video>
+    </video> -->
   </div>
 </template>
 <style lang="less" scoped>
