@@ -13,7 +13,7 @@
           <a class="btn btn-ghost normal-case text-xl">Blog Admin</a>
         </div>
         <div class="navbar-end">
-          <button class="btn" @click="goTargetPage(1)"> GO </button>
+          <button class="btn btn-neutral" @click="goTargetPage(1)"> GO </button>
         </div>
       </div>
       <div class="mockup-window border bg-base-100">
@@ -36,7 +36,7 @@
           <a class="btn btn-ghost normal-case text-xl">Zone</a>
         </div>
         <div class="navbar-end">
-          <button class="btn" @click="goTargetPage(2)"> GO </button>
+          <button class="btn btn-neutral" @click="goTargetPage(2)"> GO </button>
         </div>
       </div>
 

@@ -10,7 +10,7 @@ module.exports = {
     './plugins/**/*.{js,ts}',
     './nuxt.config.{js,ts}',
     './app.vue',
-    'node_modules/tailvue/dist/tailvue.es.js'// tailvue 这里加上这个才不会所有css都被剔除
+    'node_modules/tailvue/dist/tailvue.es.js' // tailvue 这里加上这个才不会所有css都被剔除
   ],
   theme: {
     extend: {},
@@ -39,5 +39,6 @@ module.exports = {
     rtl: false,
     prefix: '',
     darkTheme: 'dark',
+    themeRoot: ':root',
   },
 }

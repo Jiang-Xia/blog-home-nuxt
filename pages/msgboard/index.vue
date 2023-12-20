@@ -294,7 +294,7 @@
       >
         <div class="modal-box relative">
           <label
-            class="btn btn-sm btn-circle absolute right-2 top-2"
+            class="btn btn-neutral btn-sm btn-circle absolute right-2 top-2"
             @click="dialog = !dialog"
           >✕</label>
           <div class="pl-8 pt-4">
@@ -318,7 +318,7 @@
               />
             </div>
             <div class="modal-action">
-              <label for="link-add-modal" class="btn" @click="okHandle">确 认</label>
+              <label for="link-add-modal" class="btn btn-neutral" @click="okHandle">确 认</label>
             </div>
           </div>
         </div>

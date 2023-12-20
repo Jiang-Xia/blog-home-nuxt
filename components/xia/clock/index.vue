@@ -1,12 +1,13 @@
 <script setup lang="ts">
+  let timer: any = null
   onMounted(() => {
-    // Get the hour, minute, and second hand elements from the HTML document
-    const hourHand: any = document.querySelector('.hour-hand')
-    const minuteHand: any = document.querySelector('.minute-hand')
-    const secondHand: any = document.querySelector('.second-hand')
-
     // Define a function that will be called repeatedly to update the clock hands
     function setDate () {
+      // Get the hour, minute, and second hand elements from the HTML document
+      const hourHand: any = document.querySelector('.hour-hand')
+      const minuteHand: any = document.querySelector('.minute-hand')
+      const secondHand: any = document.querySelector('.second-hand')
+
       // Get the current time as a Date object
       const now = new Date()
 
@@ -33,7 +34,12 @@
     }
 
     // Call the setDate function every 1000 milliseconds (1 second) to update the clock hands
-    setInterval(setDate, 1000)
+    timer = setInterval(setDate, 1000)
+  })
+  const router = useRouter()
+  router.afterEach(() => {
+    console.log('clearInterval==============>')
+    clearInterval(timer)
   })
 </script>
 <template>

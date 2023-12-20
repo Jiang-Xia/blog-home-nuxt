@@ -57,7 +57,10 @@
       <input id="link-add-modal" type="checkbox" class="modal-toggle">
       <div class="modal">
         <div class="modal-box relative">
-          <label for="link-add-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+          <label
+            for="link-add-modal"
+            class="btn btn-neutral btn-sm btn-circle absolute right-2 top-2"
+          >✕</label>
           <h3 class="text-lg font-bold">申请外链</h3>
           <div class="pl-8 pt-4">
             <div class="flex items-center mb-4">
@@ -97,7 +100,7 @@
               >
             </div>
             <div class="modal-action">
-              <label for="link-add-modal" class="btn" @click="okHandle">确 认</label>
+              <label for="link-add-modal" class="btn btn-neutral" @click="okHandle">确 认</label>
             </div>
           </div>
         </div>

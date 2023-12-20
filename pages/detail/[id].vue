@@ -1,12 +1,12 @@
 <script setup lang="ts">
   import { ref, reactive, computed } from 'vue'
-  import { MdEditor } from 'md-editor-v3'
+  import { MdPreview } from 'md-editor-v3'
 
   import { useScroll } from '@vueuse/core'
   import { getArticleInfo, getComment } from '@/api/article'
   import { updateViews, xBLogStore, updateLikesHandle, formactDate } from '@/utils/common'
   import defaultImg from '@/assets/images/create.webp'
-  import { tocInter, isTrueCoverLink } from '@/utils'
+  import { type tocInter, isTrueCoverLink } from '@/utils'
   import Qie from '@/assets/images/animal/qie.svg'
 
   const theme: any = useTheme()
@@ -184,11 +184,11 @@
               </div>
               <span class="text-color font-bold">{{ ArticleInfo.userInfo.nickname }}</span>
             </div>
-            <div class="dropdown ml-6">
-              <label tabindex="0" class="btn m-1">主 题</label>
+            <div class="dropdown dropdown-bottom ml-6">
+              <div tabindex="0" role="button" class="btn m-1 btn-neutral">主 题</div>
               <ul
                 tabindex="0"
-                class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
               >
                 <li v-for="item of themeList" @click="previewThemeChange(item)">
                   <a>{{ item }}</a>
@@ -196,7 +196,7 @@
               </ul>
             </div>
           </div>
-          <md-editor
+          <MdPreview
             :key="mdKey"
             v-model="ArticleInfo.content"
             class="x-md-editor"

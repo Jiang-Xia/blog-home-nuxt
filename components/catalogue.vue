@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import { PropType } from 'vue'
-  import { tocInter } from '@/utils'
+  import { type PropType } from 'vue'
+  import { type tocInter } from '@/utils'
   defineProps({
     topics: {
       type: Array as PropType<tocInter[]>,
@@ -26,7 +26,7 @@
   <div class="catalogue-wrap">
     <p class="heading">目录</p>
     <div
-      v-for="(item) in topics"
+      v-for="item in topics"
       :key="item.id"
       class="topic-item text-sm truncate"
       :style="{

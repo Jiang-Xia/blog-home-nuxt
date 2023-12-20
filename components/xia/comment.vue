@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { computed, PropType, ref } from 'vue'
+  import { computed, type PropType, ref } from 'vue'
   import { useRoute } from 'vue-router'
   import { useModal, useToast } from 'tailvue'
   import { beforeTimeNow } from '@/utils'
@@ -150,7 +150,7 @@
     <div class="tool-bar mt-1">
       <h4 class="font-bold text-sm">全部评论({{ total }})</h4>
       <button
-        class="btn btn-sm px-4 tracking-widest"
+        class="btn btn-neutral btn-sm px-4 tracking-widest"
         :disabled="!inputContent"
         @click="addCommentHandle"
       >

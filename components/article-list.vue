@@ -242,7 +242,7 @@
                     <span class="pt-2">{{ formactDate(item.createTime) }}</span>
                   </div>
                   <span @click="$router.push(`/detail/${item.id}`)">
-                    <button class="btn btn-xs xia-btn">Read</button>
+                    <button class="btn btn-neutral btn-xs xia-btn">Read</button>
                   </span>
                 </div>
               </div>
@@ -259,6 +259,8 @@
         <!-- 分页 -->
         <div class="flex justify-around">
           <xia-pagination
+            prev
+            next
             :current-page="current"
             :page-size="queryPrams.pageSize"
             :total="queryPrams.total"
@@ -271,10 +273,10 @@
     <!-- 右边筛选卡片 -->
     <section class="info-tool">
       <base-card icon="blog-filter" title="关键字" min-height="110px">
-        <div class="input-group input-group-sm w-full mt-2">
+        <div class="flex w-full mt-2">
           <button
             :title="queryPrams.sort === 'ASC' ? '升序' : '降序'"
-            class="btn btn-square w-10 btn-sm text-xs"
+            class="btn btn-neutral btn-square w-10 btn-sm text-xs"
             @click="changeSort"
           >
             <svg
@@ -304,10 +306,10 @@
             v-model="searchText"
             type="text"
             placeholder="输入标题或者摘要"
-            class="input input-bordered input-sm"
+            class="input input-bordered input-sm max-w-xs"
             @keyup.enter="onSearchHandle"
           >
-          <button class="btn btn-square w-10 btn-sm" @click="onSearchHandle">
+          <button class="btn btn-neutral btn-square w-10 btn-sm" @click="onSearchHandle">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"

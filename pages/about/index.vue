@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { ref } from 'vue'
-  import { MdEditor } from 'md-editor-v3'
+  import { MdPreview } from 'md-editor-v3'
   import { getArticleInfo } from '~~/api/article'
   const { data: articleData, } = await useAsyncData('about_GetInfo', () =>
     getArticleInfo({ id: 44, })
@@ -26,7 +26,7 @@
   <NuxtLayout name="main-content" :images="images">
     <div class="about-container">
       <h1 class="hidden"> 关于我 - 江夏的博客 </h1>
-      <md-editor
+      <MdPreview
         :key="mdKey"
         v-model="content"
         class="x-md-editor bg-transparent p-4 rounded-box shadow-xl"

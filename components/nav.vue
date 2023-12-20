@@ -196,10 +196,10 @@
             visibility: checked ? 'visible' : undefined,
             opacity: Number(checked),
           }"
-          class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-zinc-500"
+          class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-zinc-500"
         >
           <li v-for="(item, index) in navList" :key="item.path + index">
-            <NuxtLink class="py-2 px-4 flex" :to="item.path" :title="item.title">
+            <NuxtLink class="menu-link py-2 px-4 flex" :to="item.path" :title="item.title">
               <xia-icon :icon="item.icon" />
               <span>{{ item.title }}</span>
             </NuxtLink>
@@ -243,7 +243,7 @@
         <ul
           v-if="articleList.length"
           tabindex="0"
-          class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52 max-h-72 text-gray-500 text-xs overflow-auto"
+          class="mt-3 p-2 shadow menu menu-md dropdown-content bg-base-100 rounded-box w-52 max-h-72 text-gray-500 text-xs overflow-auto"
         >
           <li v-for="item in articleList" class="flex items-center">
             <NuxtLink class="py-2 px-4" :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
@@ -269,7 +269,7 @@
         </label>
         <ul
           tabindex="0"
-          class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-gray-500 text-xs"
+          class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-gray-500 text-xs"
         >
           <li>
             <a :href="goUrl" target="_blank" class="leading-5 flex items-center py-2 px-4">
@@ -335,6 +335,10 @@
       border-radius: var(--rounded-btn, 0.5rem);
       background: hsl(0 0% 100% / var(--tw-bg-opacity));
       --tw-bg-opacity: 0.1;
+      color: var(--b1);
+      .menu-link {
+        color: var(--b3);
+      }
     }
   }
 </style>
