@@ -1,6 +1,6 @@
-import MdEditor from 'md-editor-v3'
+import { config } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
-MdEditor.config({
+config({
   editorExtensions: {
     katex: {
       js: 'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-08-11/ic3osyz5xvtmnvp5h302cb-katex.min.js',

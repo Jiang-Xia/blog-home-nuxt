@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { ref } from 'vue'
-  import MdEditor from 'md-editor-v3'
+  import { MdEditor } from 'md-editor-v3'
   import { getArticleInfo } from '~~/api/article'
   const { data: articleData, } = await useAsyncData('about_GetInfo', () =>
     getArticleInfo({ id: 44, })

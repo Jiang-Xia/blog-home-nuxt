@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { ref, reactive, computed } from 'vue'
-  import MdEditor from 'md-editor-v3'
+  import { MdEditor } from 'md-editor-v3'
 
   import { useScroll } from '@vueuse/core'
   import { getArticleInfo, getComment } from '@/api/article'
@@ -310,8 +310,17 @@
     min-height: 30vh;
   }
   .md-editor {
-    font-family: HarmonyOS-Sans, ZhuZiAWan, -apple-system, Helvetica Neue, Helvetica, PingFang SC,
-      Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+    font-family:
+      HarmonyOS-Sans,
+      ZhuZiAWan,
+      -apple-system,
+      Helvetica Neue,
+      Helvetica,
+      PingFang SC,
+      Hiragino Sans GB,
+      Microsoft YaHei,
+      Arial,
+      sans-serif;
   }
   .md-dark {
     --md-bk-color: var(--main-bgc);

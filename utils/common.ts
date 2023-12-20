@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { LocationQueryValue } from 'vue-router'
+import type { LocationQueryValue } from 'vue-router'
 import dayjs from 'dayjs'
 import { useStorage } from '@vueuse/core'
 import api from '@/api/index'
@@ -17,6 +17,7 @@ const getOptions = async (type: string) => {
     // console.log(res)
   } else {
     const { data: res, } = await useAsyncData('index_GetTag', () => api.getAllTag())
+    // console.log({ res: res.value, })
     tagsOptions.value = res.value
       .filter((v: any) => v.articleCount)
       .map((v: any) => {
