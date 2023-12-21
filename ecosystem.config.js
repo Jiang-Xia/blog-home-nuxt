@@ -2,11 +2,13 @@ module.exports = {
   apps: [
     {
       name: 'BlogHomeNuxt',
+      port: '5050',
       script: '.output/server/index.mjs',
       args: '', // 传递给脚本的参数
       watch: true, // 开启监听文件变动重启
       ignore_watch: ['node_modules', 'public', 'logs'], // 不用监听的文件
-      exec_mode: 'cluster_mode', // 自家主机window cluster_mode 模式下启动失败
+      // exec_mode: 'cluster_mode', // 自家主机window cluster_mode 模式下启动失败
+      exec_mode: 'fork', // 目前服务cluster_mode模式启动会造成nuxt服务器访问不了
       instances: '2', // max表示最大的 应用启动实例个数，仅在 cluster 模式有效 默认为 fork
       autorestart: true, // 默认为 true, 发生异常的情况下自动重启
       max_memory_restart: '500M',

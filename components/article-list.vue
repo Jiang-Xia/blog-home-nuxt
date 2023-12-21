@@ -273,10 +273,10 @@
     <!-- 右边筛选卡片 -->
     <section class="info-tool">
       <base-card icon="blog-filter" title="关键字" min-height="110px">
-        <div class="flex w-full mt-2">
+        <div class="join w-full mt-2">
           <button
             :title="queryPrams.sort === 'ASC' ? '升序' : '降序'"
-            class="btn btn-neutral btn-square w-10 btn-sm text-xs"
+            class="join-item btn btn-neutral btn-square w-10 btn-sm text-xs"
             @click="changeSort"
           >
             <svg
@@ -306,10 +306,10 @@
             v-model="searchText"
             type="text"
             placeholder="输入标题或者摘要"
-            class="input input-bordered input-sm max-w-xs"
+            class="join-item input input-bordered input-sm max-w-xs"
             @keyup.enter="onSearchHandle"
           >
-          <button class="btn btn-neutral btn-square w-10 btn-sm" @click="onSearchHandle">
+          <button class="join-item btn btn-neutral btn-square w-10 btn-sm" @click="onSearchHandle">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
