@@ -3,11 +3,7 @@
     <div class="pt-4 px-4">
       <ul class="flex">
         <li v-for="item in menuList" :key="item.path">
-          <NuxtLink
-            :to="item.path"
-            :title="item.title"
-            class="link-item"
-          >
+          <NuxtLink :to="item.path" :title="item.title" class="link-item">
             <xia-icon v-if="item.icon" width="40px" height="40px" :icon="item.icon" />
 
             <span class="mt-2">{{ item.title }}</span>
@@ -43,7 +39,7 @@
 </script>
 <style lang="less" scoped>
   .xia-page {
-    padding-top: 64px;
+    padding-top: 104px;
     .link-item {
       @apply transition border border-base-300 h-36 w-36 text-sm rounded-lg flex flex-col justify-center items-center mr-2 hover:bg-base-200;
       @apply hover:scale-105 active:bg-base-300;

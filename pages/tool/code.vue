@@ -1,37 +1,76 @@
 <template>
-  <div class="p-4">
+  <div class="p-4 flex">
     <div class="card card-compact w-96 bg-base-100 shadow-xl border border-base-300">
-      <figure> <canvas id="barcode" /></figure>
       <div class="card-body">
         <h2 class="card-title">条形码</h2>
-        <div class="card-actions justify-end">
-          <button class="btn btn-primary" @click="createBarcode">重新生成</button>
+        <div class="card-actions">
+          <div class="join">
+            <input v-model="barcodeVal" class="input input-bordered join-item" placeholder="text">
+            <button class="btn join-item" @click="createBarcode(1)">测试</button>
+            <button class="btn join-item rounded-r-full" @click="createBarcode()">生成</button>
+          </div>
         </div>
       </div>
+      <figure class="h-44"> <canvas id="barcode" /></figure>
+    </div>
+    <div class="card card-compact w-96 bg-base-100 shadow-xl border border-base-300 ml-16">
+      <div class="card-body">
+        <h2 class="card-title">二维码</h2>
+        <div class="card-actions">
+          <div class="join w-full">
+            <input
+              v-model="qrcodeVal"
+              class="input w-full input-bordered join-item"
+              placeholder="text"
+            >
+            <button class="btn join-item rounded-r-full" @click="createQrcode()">生成</button>
+          </div>
+        </div>
+      </div>
+      <figure>
+        <vue-qrcode :value="qrcodeVal" :options="options" />
+        <vue-qr text="Hello world!" />
+      </figure>
     </div>
   </div>
 </template>
 <script setup>
   import JsBarcode from 'jsbarcode'
+  import VueQrcode from '@chenfengyuan/vue-qrcode'
   import { onBeforeUnmount, onActivated } from 'vue'
   definePageMeta({
     keepalive: true, // nuxt 默认缓存所有页面
   })
   onBeforeUnmount(() => {})
   onMounted(() => {})
-  const createBarcode = () => {
+  const getCode = () => 'NO ' + Math.floor(Math.random() * 100000000000).toString()
+  const barcodeVal = ref('')
+  const qrcodeVal = ref('https://jiang-xia.top')
+  const createBarcode = (random) => {
+    if (random) {
+      barcodeVal.value = getCode()
+    }
     /* 路由默认为缓存的 需要在onActivated才能获取到dom */
     JsBarcode('#barcode', '1234', {
-      text: 'Hi!' + Math.random(),
+      text: barcodeVal.value,
       format: 'pharmacode',
-      lineColor: '#0aa',
+      lineColor: '#37cdbe',
       width: 4,
-      height: 40,
+      height: 60,
       displayValue: true,
     })
   }
+
+  const options = {
+    width: 200,
+    color: {
+      // dark: '#0074d9',
+      // light: '#7fdbff',
+    },
+  }
+  const createQrcode = (random) => {}
   // 路由激活事件
   onActivated(() => {
-    createBarcode()
+    createBarcode(1)
   })
 </script>
