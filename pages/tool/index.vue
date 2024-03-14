@@ -1,6 +1,6 @@
 <template>
   <div />
 </template>
-  <script setup lang="ts">
-    navigateTo('/tool/code')
-  </script>
+<script setup lang="ts">
+  navigateTo('/tool/codes')
+</script>

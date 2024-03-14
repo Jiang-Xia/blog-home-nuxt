@@ -29,7 +29,6 @@
       </div>
       <figure>
         <vue-qrcode :value="qrcodeVal" :options="options" />
-        <vue-qr text="Hello world!" />
       </figure>
     </div>
   </div>

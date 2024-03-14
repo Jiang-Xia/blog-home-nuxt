@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2023-01-10 21:26:28
+ * @LastEditTime: 2024-03-14 11:14:18
  * @Description:
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -45,17 +45,17 @@
       path: '/projects',
       title: '项目',
       icon: 'blog-xiangmu',
-    }
+    },
     // {
     //   path: '/au-vi',
     //   title: '音视频',
     //   icon: 'blog-shipin',
     // },
-    // {
-    //   path: '/tool',
-    //   title: '工具箱',
-    //   icon: 'blog-tool',
-    // }
+    {
+      path: '/tool',
+      title: '工具箱',
+      icon: 'blog-tool',
+    }
   ])
 
   const token = useToken()

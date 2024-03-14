@@ -1,4 +1,3 @@
-
 export const publicKey = `
 -----BEGIN PUBLIC KEY-----
 MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMbhQdr30GxvE3SYAJVILYLo7/6XqAnm

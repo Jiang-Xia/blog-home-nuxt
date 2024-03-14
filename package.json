@@ -37,7 +37,8 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.4.2",
     "unplugin-icons": "^0.18.5",
-    "vconsole": "^3.15.1"
+    "vconsole": "^3.15.1",
+    "vite-plugin-top-level-await": "^1.4.1"
   },
   "dependencies": {
     "@chenfengyuan/vue-qrcode": "^2.0.0",
@@ -50,8 +51,11 @@
     "jsbarcode": "^3.11.6",
     "jsencrypt": "^3.3.2",
     "md-editor-v3": "^4.12.1",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^4.0.379",
     "pinia": "^2.1.7",
     "qrcode": "^1.5.3",
+    "smooth-signature": "^1.0.14",
     "vue": "^3.4.21"
   },
   "lint-staged": {

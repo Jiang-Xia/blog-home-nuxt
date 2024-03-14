@@ -1,6 +1,8 @@
 import { fileURLToPath } from 'node:url'
 import fs from 'fs'
 import Icons from 'unplugin-icons/vite'
+import topLevelAwait from 'vite-plugin-top-level-await'
+
 const prefixPath: any = process.env.VITE_NUXT_PREFIX_PATH
 console.warn({
   BASE_URL: process.env.VITE_NUXT_BASE_URL,
@@ -55,7 +57,8 @@ export default defineNuxtConfig({
       Icons({
         // the feature below is experimental ⬇️
         autoInstall: true,
-      })
+      }),
+      topLevelAwait()
     ],
   },
   // head: {
