@@ -27,3 +27,8 @@ interface userInfoState {
 }
 
 declare module 'js-cookie'
+
+// pdf.js全局对象
+declare const pdfjsLib: any
+// pdf-lib全局对象
+declare const PDFLib: any

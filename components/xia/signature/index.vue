@@ -37,9 +37,6 @@
 <script setup>
   import { ref, onMounted } from 'vue'
   import SmoothSignature from 'smooth-signature'
-  import * as pdfjsLib from 'pdfjs-dist'
-  import * as pdfWorkerMin from 'pdfjs-dist/build/pdf.worker.min?url'
-  import { PDFDocument } from 'pdf-lib'
   import dayjs from 'dayjs'
   const emits = defineEmits(['success'])
   const props = defineProps({
@@ -56,9 +53,6 @@
       default: () => ({}),
     },
   })
-  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerMin.default
-  console.log(pdfjsLib, pdfWorkerMin.default)
-
   const smoothSignatureCanvas = ref('')
   const signature = ref('')
   const signaturePng = ref('')
@@ -138,6 +132,7 @@
     }
   }
   const editPdf = async () => {
+    const PDFDocument = PDFLib.PDFDocument
     // showToast.loading('加载中')
     // const fontBytes = await fetch('https://jiang-xia.top/x-blog/api/v1/static/uploads/2023-12/ga0hqzh5lek2ntyxtzebx0-华文中宋.ttf').then((res) => res.arrayBuffer())
     const pdfBuffer = await fetch(props.pdfSrc).then(res => res.arrayBuffer())
