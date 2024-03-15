@@ -23,7 +23,9 @@ if (metaEnv.MODE === 'production') {
   baseUrl = metaEnv.VITE_NUXT_BASE_URL
   adminUrl = metaEnv.VITE_NUXT_ADMIN_URL
 } else {
-  baseUrl = metaEnv.VITE_NUXT_PREFIX_PATH
+  // 开代理本地报错非常多
+  // baseUrl = metaEnv.VITE_NUXT_PREFIX_PATH
+  baseUrl = metaEnv.VITE_NUXT_BASE_URL
   adminUrl = metaEnv.VITE_NUXT_ADMIN_URL
 }
 export { baseUrl, adminUrl, isEnv }

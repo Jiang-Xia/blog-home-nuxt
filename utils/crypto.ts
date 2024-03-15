@@ -1,8 +1,8 @@
-'use-client'
+// 'use-client'
 /* eslint-disable */
 import CryptoJS, { enc, mode, AES, pad } from 'crypto-js'
 import JSEncrypt from 'jsencrypt'
-import { publicKey, privateKey,serverPublicKey } from '~~/config/ssh'
+import { publicKey, privateKey, serverPublicKey } from '~~/config/ssh'
 // 加密密钥（长度必须是 16 的整数倍，此处为 32 位）
 const secretKey = '54050000778e380000fe5a120000b4ce'
 // 偏移量
@@ -71,7 +71,7 @@ export function aesDecrypt(encryptedWord: any, key = secretKey, offset = iv) {
 export function rsaEncrypt(word = '非对称加解密', pubKey = serverPublicKey) {
   const encrypt = new JSEncrypt()
   /* 公钥加密 */
-  encrypt.setPublicKey(pubKey)// base64编码字符串
+  encrypt.setPublicKey(pubKey) // base64编码字符串
   const encrypted = encrypt.encrypt(word) as string // 返回结果可能是false
   // 转为 16进制字符串
   const hex = enc.Hex.stringify(enc.Base64.parse(encrypted)).toUpperCase()
@@ -93,7 +93,7 @@ export function rsaDecrypt(encryptedWord: any, priKey = privateKey, offset = iv)
   // 转为 base64字符串
   const base64 = enc.Base64.stringify(enc.Hex.parse(encryptedWord))
   const uncrypted = decrypt.decrypt(base64)
-  return uncrypted|| encryptedWord;
+  return uncrypted || encryptedWord
 }
 // const en = rsaEncrypt('彩票中奖号码:666',publicKey)
 // console.log(en)

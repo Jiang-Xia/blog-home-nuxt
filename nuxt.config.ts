@@ -1,5 +1,5 @@
-import { fileURLToPath } from 'node:url'
-import fs from 'fs'
+// import { fileURLToPath } from 'node:url'
+// import fs from 'fs'
 import Icons from 'unplugin-icons/vite'
 import topLevelAwait from 'vite-plugin-top-level-await'
 
@@ -37,6 +37,11 @@ export default defineNuxtConfig({
       link: [
         { rel: 'stylesheet', href: 'https://cdn.staticfile.org/csshake/1.5.3/csshake.min.css', }
       ],
+      script: [
+        // { defer: true, src: 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js', },
+        // { defer: true, src: 'https://cdn.jsdelivr.net/npm/pdfjs-dist/build/pdf.min.js', },
+        // { defer: true, src: 'https://cdn.jsdelivr.net/npm/pdfjs-dist/build/pdf.worker.min.js', }
+      ],
     },
     pageTransition: {
       name: 'scale',
@@ -44,13 +49,15 @@ export default defineNuxtConfig({
       mode: 'out-in',
     },
   },
-  css: ['~/assets/css/main.css', '~/assets/font/iconfont.css'],
+  // '~/assets/font/iconfont.css'
+  css: ['~/assets/css/main.css'],
   postcss: {
     plugins: {
       tailwindcss: {},
       autoprefixer: {},
     },
   },
+  js: [],
   vite: {
     define: {},
     plugins: [
@@ -68,7 +75,7 @@ export default defineNuxtConfig({
   router: {},
   // 此文件只能用process
   nitro: {
-    // 配置代理s
+    // 配置代理
     devProxy: {
       [prefixPath]: {
         target: process.env.VITE_NUXT_BASE_URL,

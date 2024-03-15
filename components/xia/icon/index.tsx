@@ -5,15 +5,16 @@ import './index.less'
 // import '../../assets/font/iconfont';
 
 interface propsState {
-  icon: string;
-  height: string;
-  width: string;
+  icon: string
+  height: string
+  width: string
 }
 // 加载iconfont 图标字体文件
 const createIconfont = () => {
   const scriptUrl = config.iconfonrUrl
   const script = document.createElement('script')
   script.src = scriptUrl
+  script.setAttribute('defer', 'defer')
   document.body.appendChild(script)
 }
 if (process.client) {
