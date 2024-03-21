@@ -32,6 +32,16 @@
       icon: 'blog-pdf1',
     },
     {
+      path: '/tool/audio-visualized',
+      title: '音频可视化',
+      icon: 'blog-yinpin1',
+    },
+    {
+      path: '/tool/upload-slice',
+      title: '切片上传',
+      icon: 'blog-upload',
+    },
+    {
       path: '/tool/other',
       title: '其他工具',
       icon: 'blog-qita',

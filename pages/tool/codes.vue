@@ -33,7 +33,7 @@
     </div>
   </div>
 </template>
-<script setup>
+<script setup lang="ts">
   import JsBarcode from 'jsbarcode'
   import VueQrcode from '@chenfengyuan/vue-qrcode'
   import { onBeforeUnmount } from 'vue'
@@ -44,7 +44,7 @@
   const getCode = () => 'NO ' + Math.floor(Math.random() * 100000000000).toString()
   const barcodeVal = ref('')
   const qrcodeVal = ref('https://jiang-xia.top')
-  const createBarcode = (random) => {
+  const createBarcode = (random?: any) => {
     if (random) {
       barcodeVal.value = getCode()
     }
