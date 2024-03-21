@@ -10,14 +10,14 @@
     },
   })
   if (props.error.statusCode) {
-    navigateTo('/404')
+    await navigateTo('/404')
   }
   const handleError = () => clearError({ redirect: '/', })
   // console.log(props.error)
 </script>
 <template>
   <div class="common-page">
-    <div class="img-wrap" :style="{ 'background-image':`url(${config.gifError})` }" />
+    <div class="img-wrap" :style="{ 'background-image': `url(${config.gifError})` }" />
     <div class="b-text text-center">
       <div class="gradient-text flex justify-center">
         <span class="mr-2">{{ error.statusCode }}</span>

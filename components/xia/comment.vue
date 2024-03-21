@@ -75,8 +75,8 @@
         primary: {
           label: '去登录',
           theme: 'red',
-          action: () => {
-            navigateTo('/login')
+          action: async () => {
+            await navigateTo('/login')
           },
         },
         secondary: {

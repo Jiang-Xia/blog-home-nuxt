@@ -53,7 +53,7 @@
       params.password = rsaEncrypt(form.password)
       res = await request.post('/user/login', params)
       token.value = res.data.info.token
-      navigateTo('/')
+      await navigateTo('/')
       localStorage.setItem('x-token', token.value)
       messageSuccess('登录成功')
     } catch (err) {}

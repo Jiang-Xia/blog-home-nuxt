@@ -53,8 +53,8 @@
     }
     await request.post('/user/register', form).then(res => res.data.info)
     messageDanger('注册成功')
-    setTimeout(() => {
-      navigateTo('/login')
+    setTimeout(async () => {
+      await navigateTo('/login')
     }, 500)
   }
   // 更换验证码

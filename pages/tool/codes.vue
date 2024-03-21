@@ -36,12 +36,11 @@
 <script setup>
   import JsBarcode from 'jsbarcode'
   import VueQrcode from '@chenfengyuan/vue-qrcode'
-  import { onBeforeUnmount, onActivated } from 'vue'
+  import { onBeforeUnmount } from 'vue'
   definePageMeta({
     keepalive: true, // nuxt 默认缓存所有页面
   })
   onBeforeUnmount(() => {})
-  onMounted(() => {})
   const getCode = () => 'NO ' + Math.floor(Math.random() * 100000000000).toString()
   const barcodeVal = ref('')
   const qrcodeVal = ref('https://jiang-xia.top')
@@ -67,9 +66,7 @@
       // light: '#7fdbff',
     },
   }
-  const createQrcode = (random) => {}
-  // 路由激活事件
-  onActivated(() => {
-    createBarcode(1)
+  onMounted(() => {
+    createBarcode()
   })
 </script>
