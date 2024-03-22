@@ -32,10 +32,8 @@ export const getWeather = async () => {
 
 // 上传文件
 export const uploadFileRequest = (formData: any) => {
-  return request.http(baseUrl + '/resources/uploadBigFile', {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+  // !不需要手动设置'Content-Type': 'multipart/form-data; 设置了反而上传失败
+  return request.http(baseUrl + '/file/uploadBigFile', {
     method: 'POST',
     body: formData,
   })

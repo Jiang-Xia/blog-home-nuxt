@@ -1,8 +1,9 @@
 <template>
   <div class="p-4 overflow-hidden flex justify-center">
+    <!-- multiple -->
     <input
-      id="file"
       type="file"
+      name="fileContents"
       class="file-input file-input-bordered w-full max-w-xs"
       @change="changeHandle"
     >
@@ -107,7 +108,7 @@
         const end = start + chunkSize >= file.size ? file.size : start + chunkSize
         const sliceFile = blobSlice.call(file, start, end)
         chunkList.push({
-          file: sliceFile,
+          fileContents: sliceFile,
           index: currentChunk,
           hash: '',
           fileName,
@@ -140,8 +141,11 @@
     fileName = file.name
     // 获取文件hash值
     chunks = await createChunks(file)
-    console.log(chunks, fileName)
+    // console.log(chunks, fileName)
     await uploadChunks(chunks)
+    // const fd = new FormData()
+    // fd.append('fileContents', file)
+    // await uploadHandler(fd)
   }
 
   onMounted(() => {})
