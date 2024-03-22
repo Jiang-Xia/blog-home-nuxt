@@ -53,6 +53,7 @@
     "pinia": "^2.1.7",
     "qrcode": "^1.5.3",
     "smooth-signature": "^1.0.14",
+    "spark-md5": "^3.0.2",
     "vue": "^3.4.21"
   },
   "lint-staged": {
