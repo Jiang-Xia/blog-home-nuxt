@@ -1,6 +1,6 @@
 <template>
   <div class="p-4 overflow-hidden flex justify-center">
-    <div class="w-3/5">
+    <div class="w-full md:w-3/5">
       <xia-signature :pdf-src="pdfSrc" />
     </div>
   </div>

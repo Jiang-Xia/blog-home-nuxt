@@ -2,7 +2,7 @@
   import { reactive } from 'vue'
   import request from '~~/api/request.js'
   import { getRandomAvatar } from '~~/utils/common'
-  import { messageDanger } from '~~/utils/toast'
+  import { messageDanger, messageSuccess } from '~~/utils/toast'
   import { baseUrl } from '~~/config'
   let rsaEncrypt: any
   // 客户端才引入
@@ -52,7 +52,7 @@
       }
     }
     await request.post('/user/register', form).then(res => res.data.info)
-    messageDanger('注册成功')
+    messageSuccess('注册成功')
     setTimeout(async () => {
       await navigateTo('/login')
     }, 500)

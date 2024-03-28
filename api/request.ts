@@ -38,6 +38,7 @@ const $http = async (baseUrl: string, options: any): Promise<ApiResponse> => {
           console.error(ctx.response._data.message)
         }
         messageDanger(ctx.response._data.message || '')
+        // 返回错误信息，各接口自行处理
         return Promise.reject(ctx.response._data)
       } catch (error) {
         // console.log("onRequestError", error);
@@ -45,7 +46,8 @@ const $http = async (baseUrl: string, options: any): Promise<ApiResponse> => {
       }
     },
   })
-  // console.log({ type: "$http ", res });
+  // console.log({ type: '$http ', res, })
+  // 200 成功才会返回
   return res
 }
 // 获取 token

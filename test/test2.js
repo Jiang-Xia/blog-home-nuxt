@@ -1,34 +1,29 @@
-// 模拟您的请求函数
-function makeRequest (index) {
-  console.log('Making request', index)
-  // 这里可以是您的实际请求逻辑，返回一个Promise
-  return new Promise((resolve) => {
+const timeOut = (item, time = 1000) => {
+  return new Promise((resolve, reject) => {
     setTimeout(() => {
-      console.log('Request', index, 'completed')
-      resolve()
-    }, 1000) // 这里模拟请求花费的时间，您需要根据实际情况调整
+      resolve(item)
+    }, time)
   })
 }
-
-async function sendRequests () {
-  const maxConcurrency = 6
-  const totalRequests = 100
-
-  const requestPromises = []
-  let currentIndex = 1
-
-  while (currentIndex <= totalRequests) {
-    const promises = []
-    for (let i = 0; i < maxConcurrency && currentIndex <= totalRequests; i++) {
-      const requestPromise = makeRequest(currentIndex++)
-      promises.push(requestPromise)
-    }
-    const finishedPromise = await Promise.race(promises)
-    requestPromises.push(finishedPromise)
-  }
-
-  // 等待所有请求完成
-  await Promise.all(requestPromises)
+const timeOut2 = (item, time = 1000) => {
+  return item
 }
+const dataArr = [1, 2, 3, 4, 5]
 
-sendRequests()
+const forofTest = async () => {
+  for (const item of dataArr) {
+    const res = await timeOut(item)
+    console.log(res)
+  }
+}
+// forofTest() // 同步依次输出 1 2 3 4 5
+// 数组就是一个可迭代对象
+const asyncIterable = [timeOut(2, 2000), timeOut(3, 5000), timeOut(1, 10000)]
+const forAwaitOfTest = async () => {
+  // 异步迭代
+  for await (const item of asyncIterable) {
+    console.log(asyncIterable)
+    console.log(item)
+  }
+}
+forAwaitOfTest() // 同步依次输出 2 3 1

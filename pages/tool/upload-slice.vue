@@ -1,36 +1,42 @@
 <template>
   <div class="p-4 overflow-hidden flex justify-center">
     <!-- multiple -->
-    <input
-      type="file"
-      name="fileContents"
-      class="file-input file-input-bordered w-full max-w-xs"
-      @change="changeHandle"
-    >
+    <section>
+      <input
+        type="file"
+        name="fileContents"
+        class="file-input file-input-bordered w-full max-w-xs"
+        @change="changeHandle"
+      >
+      <!-- <button class="btn join-item rounded-r-full" @click="mergeFileHandle">合成</button> -->
+      <progress v-show="starting" class="progress w-full" :value="progressValue" max="100" />
+    </section>
   </div>
 </template>
 <script setup lang="js">
   import SparkMD5 from 'spark-md5'
-  import { uploadFileRequest } from '~~/api/index'
-
+  import { uploadFileRequest, mergeFile } from '@/api/tool'
+  import { messageDanger, messageSuccess } from '@/utils/toast'
   // 限制请求并发数 while实现
   async function limitRequests (chunks) {
     const maxConcurrency = MaxRequest
     const totalRequests = chunks.length
-
-    const requestPromises = []
     let currentIndex = 0
+    const requestPromises = []
 
     while (currentIndex < totalRequests) {
       // console.log('currentIndex-totalRequests====>', currentIndex, totalRequests)
       const promises = []
       for (let i = 0; i < maxConcurrency && currentIndex < totalRequests; i++) {
-        const requestPromise = uploadHandler(toFormData(chunks[currentIndex++]))
+        currentIndex++
+        curProgress.value = currentIndex
+        // console.log('curProgress.value====>', curProgress.value)
+        const requestPromise = uploadHandler(toFormData(chunks[currentIndex - 1]))
         promises.push(requestPromise)
       }
       // console.log('promises====>', promises.length)
       // finishedPromise多个响应 得用all race一个成功整个都成功
-      const finishedPromise = await Promise.race(promises)
+      const finishedPromise = await Promise.all(promises)
       requestPromises.push(finishedPromise)
     }
     // console.log('requestPromises====>', requestPromises)
@@ -64,11 +70,18 @@
     await Promise.all(requestPromises)
   }
 
-  let chunks = []
+  const chunks = []
   let fileName = ''
+  const starting = ref(false)
   const MaxRequest = 2
   const ChunkSize = 2097152 // 131072 // 2097152
+  const curProgress = ref(0)
+  const progressValue = computed(() => {
+    return (curProgress.value / chunks.length) * 100
+  })
   const changeHandle = async (e) => {
+    curProgress.value = 0
+    starting.value = true
     await uploadFile(e.target.files[0])
   }
   // 创建切片
@@ -94,7 +107,7 @@
           const hash = spark.end()
           console.info('computed hash', hash) // Compute hash
           chunkList.forEach(v => (v.hash = hash))
-          resolve(chunkList)
+          resolve({ chunkList, hash, })
         }
       }
 
@@ -140,14 +153,19 @@
     // 设置文件名
     fileName = file.name
     // 获取文件hash值
-    chunks = await createChunks(file)
+    const { chunkList, hash, } = await createChunks(file)
     // console.log(chunks, fileName)
-    await uploadChunks(chunks)
-    // const fd = new FormData()
-    // fd.append('fileContents', file)
-    // await uploadHandler(fd)
+    await uploadChunks(chunkList)
+    const res = await mergeFile({ fileName, hash, })
+    if (res) {
+      messageSuccess('上传成功')
+    }
+    curProgress.value = 0
+    starting.value = false
   }
-
+  const mergeFileHandle = () => {
+    mergeFile({ fileName: '江南-林俊杰.128.mp3', hash: 'b9772f96f761fb7c899ee12a64be319b', })
+  }
   onMounted(() => {})
 </script>
 <style lang="less" scoped></style>

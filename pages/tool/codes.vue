@@ -1,11 +1,15 @@
 <template>
-  <div class="p-4 flex">
-    <div class="card card-compact w-96 bg-base-100 shadow-xl border border-base-300">
+  <div class="p-4 flex flex-wrap justify-around">
+    <div class="mt-4 card card-compact w-96 bg-base-100 shadow-xl border border-base-300">
       <div class="card-body">
         <h2 class="card-title">条形码</h2>
         <div class="card-actions">
-          <div class="join">
-            <input v-model="barcodeVal" class="input input-bordered join-item" placeholder="text">
+          <div class="join w-full">
+            <input
+              v-model="barcodeVal"
+              class="input w-full input-bordered join-item"
+              placeholder="text"
+            >
             <button class="btn join-item" @click="createBarcode(1)">测试</button>
             <button class="btn join-item rounded-r-full" @click="createBarcode()">生成</button>
           </div>
@@ -13,7 +17,7 @@
       </div>
       <figure class="h-44"> <canvas id="barcode" /></figure>
     </div>
-    <div class="card card-compact w-96 bg-base-100 shadow-xl border border-base-300 ml-16">
+    <div class="mt-4 card card-compact w-96 bg-base-100 shadow-xl border border-base-300">
       <div class="card-body">
         <h2 class="card-title">二维码</h2>
         <div class="card-actions">
@@ -23,7 +27,7 @@
               class="input w-full input-bordered join-item"
               placeholder="text"
             >
-            <button class="btn join-item rounded-r-full" @click="createQrcode()">生成</button>
+            <button class="btn join-item rounded-r-full">生成</button>
           </div>
         </div>
       </div>

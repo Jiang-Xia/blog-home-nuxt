@@ -1,7 +1,7 @@
 <template>
   <div class="padding-top-bar xia-page">
     <div class="pt-4 px-4">
-      <ul class="flex flex-wrap">
+      <ul class="flex flex-wrap justify-center md:justify-start">
         <li v-for="item in menuList" :key="item.path">
           <NuxtLink :to="item.path" :title="item.title" class="link-item">
             <xia-icon v-if="item.icon" width="40px" height="40px" :icon="item.icon" />
@@ -63,6 +63,9 @@
     }
     .tool-children-pages {
       // min-height: 60vh
+    }
+    .router-link-active {
+      // background: #000;
     }
   }
 </style>
