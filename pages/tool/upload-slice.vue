@@ -10,12 +10,13 @@
       >
       <!-- <button class="btn join-item rounded-r-full" @click="mergeFileHandle">合成</button> -->
       <progress v-show="starting" class="progress w-full" :value="progressValue" max="100" />
+      <span v-if="loading" class="loading loading-dots loading-md bg-accent" />
     </section>
   </div>
 </template>
 <script setup lang="js">
   import SparkMD5 from 'spark-md5'
-  import { uploadFileRequest, mergeFile } from '@/api/tool'
+  import { uploadFileRequest, mergeFile, checkFile } from '@/api/tool'
   import { messageDanger, messageSuccess } from '@/utils/toast'
   // 限制请求并发数 while实现
   async function limitRequests (chunks) {
@@ -69,19 +70,24 @@
     // 这里需要 Promise.all全部都是成功
     await Promise.all(requestPromises)
   }
-
+  const loading = ref(false)
   const chunks = []
   let fileName = ''
   const starting = ref(false)
-  const MaxRequest = 2
+  const MaxRequest = 6
   const ChunkSize = 2097152 // 131072 // 2097152
   const curProgress = ref(0)
   const progressValue = computed(() => {
-    return (curProgress.value / chunks.length) * 100
+    // console.log(curProgress.value, chunks.length)
+    return (curProgress.value / chunks.length) * 100 || 0
   })
   const changeHandle = async (e) => {
+    if (!e.target.files.length) {
+      return
+    }
     curProgress.value = 0
     starting.value = true
+    loading.value = true
     await uploadFile(e.target.files[0])
   }
   // 创建切片
@@ -97,7 +103,7 @@
       const fileReader = new FileReader()
 
       fileReader.onload = function (e) {
-        console.log('read chunk nr', currentChunk + 1, 'of', chunks)
+        // console.log('read chunk nr', currentChunk + 1, 'of', chunks)
         spark.append(e.target.result) // Append array buffer
         currentChunk++
         if (currentChunk < chunks) {
@@ -106,6 +112,7 @@
           console.log('finished loading')
           const hash = spark.end()
           console.info('computed hash', hash) // Compute hash
+          console.info('chunkList.length', chunkList.length)
           chunkList.forEach(v => (v.hash = hash))
           resolve({ chunkList, hash, })
         }
@@ -155,16 +162,25 @@
     // 获取文件hash值
     const { chunkList, hash, } = await createChunks(file)
     // console.log(chunks, fileName)
-    await uploadChunks(chunkList)
-    const res = await mergeFile({ fileName, hash, })
-    if (res) {
-      messageSuccess('上传成功')
+    const { isExist, chunks, } = await checkFile({ hash, })
+    if (isExist) {
+      messageSuccess('文件已存在')
+      loading.value = false
+      return
     }
+    // 只上传没上传成功的
+    const filterChunkList = chunkList.filter(v => !chunks.includes(v.index))
+    await uploadChunks(filterChunkList)
+    // const res = await mergeFile({ fileName, hash, })
+    // if (res) {
+    //   messageSuccess('上传成功')
+    // }
     curProgress.value = 0
     starting.value = false
+    loading.value = false
   }
   const mergeFileHandle = () => {
-    mergeFile({ fileName: '江南-林俊杰.128.mp3', hash: 'b9772f96f761fb7c899ee12a64be319b', })
+    mergeFile({ fileName: '驱动.exe', hash: '8a4d8facd96c5fdce27fe08ad058bce4', })
   }
   onMounted(() => {})
 </script>

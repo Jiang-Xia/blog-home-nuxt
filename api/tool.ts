@@ -39,3 +39,9 @@ export const mergeFile = async (data: any) => {
   const res = await request.post('/file/uploadBigFile/merge', data)
   return res.data
 }
+
+// 检查文件
+export const checkFile = async (data: any) => {
+  const res = await request.get('/file/uploadBigFile/checkFile', data)
+  return res.data
+}
