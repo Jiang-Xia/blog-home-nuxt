@@ -10,7 +10,7 @@
           class="join-item file-input file-input-bordered w-full max-w-xs"
           @change="changeHandle"
         >
-        <button class="btn join-item" @click="mergeFileHandle">合成文件</button>
+        <!-- <button class="btn join-item" @click="mergeFileHandle">合成文件</button> -->
       </div>
 
       <div v-show="fileBlob" class="flex items-center mt-4 bg-base-100 rounded-sm p-4">
@@ -32,74 +32,118 @@
   </div>
 </template>
 <script setup lang="js">
-  import { watch } from 'vue'
+  import { watch, stop } from 'vue'
   import { uploadFileRequest, mergeFile, checkFile } from '@/api/tool'
   import { messageDanger, messageSuccess } from '@/utils/toast'
 
-  /*
-  限制请求并发数 while实现
-  是maxConcurrency一批完成再到一批
-*/
   let currentIndex = 0
-  async function limitRequests (chunks) {
-    const maxConcurrency = MaxRequest
-    const totalRequests = chunks.length
-    // let currentIndex = 0
-    const requestPromises = []
-    currentIndex = 0
-    while (currentIndex < totalRequests) {
-      // console.log('currentIndex-totalRequests====>', currentIndex, totalRequests)
-      const promises = []
-      for (let i = 0; i < maxConcurrency && currentIndex < totalRequests; i++) {
-        currentIndex++
-        curProgress.value++
-        const requestPromise = uploadHandler(toFormData(chunks[currentIndex - 1]))
-        promises.push(requestPromise)
-      }
-      // console.log('promises====>', promises.length)
-      const finishedPromise = await Promise.race(promises)
-      requestPromises.push(finishedPromise)
-    }
-    // console.log('requestPromises====>', requestPromises)
-    // 等待所有请求完成
-    // return await Promise.all(requestPromises)
-    return requestPromises
-  }
+  let stopUpload = false
+  let requests = []
   /*
   限制请求并发数 递归实现
+  浏览器递归深度大概在9500左右，超出会报栈溢出
   完成一个请求追加一个请求
+  暂停开始操作实现不了
 */
-  async function limitRequests2 (chunks) {
+  async function limitRequests1 (chunks) {
+    requests = [...chunks]
     const maxConcurrency = MaxRequest
     currentIndex = 0
     // 第一次并发MaxRequest=6次
     const requestPromises = []
     async function sendNextRequest () {
+      if (stopUpload) {
+        throw new Error('停止')
+      }
       // 递归临界判断
-      if (currentIndex < chunks.length) {
-        // currentIndex++先使用在加
-        curProgress.value++
-        await uploadHandler(toFormData(chunks[currentIndex++]))
-        // 第一次并发MaxRequest=6请求数中,任意一个完成之后接着调用递归
-        return sendNextRequest() // 返回递归调用的Promise
+      if (currentIndex < requests.length) {
+        const chunk = requests[currentIndex++]
+        try {
+          // currentIndex++先使用在加
+          await uploadHandler(toFormData(chunk))
+          curProgress.value++
+          return sendNextRequest()
+          // 第一次并发MaxRequest=6请求数中,任意一个完成之后接着调用递归
+          // 每次调用 sendNextRequest() 都会返回一个 Promise 对象
+        } catch (error) {
+          // 只会重试一次
+          await uploadHandler(toFormData(chunk))
+          curProgress.value++
+          return sendNextRequest()
+        }
       }
     }
 
     for (let i = 0; i < maxConcurrency; i++) {
-      requestPromises.push(sendNextRequest())
+      // sendNextRequest() 因为一直在递归，一个promise完成又会返回一个新的promise
+      const promise = sendNextRequest()
+      requestPromises.push(promise)
     }
 
     // 等待所有请求完成
-    // console.log('requestPromises====>', requestPromises)
-    // 这里需要 Promise.all全部都是成功
+    console.log('requestPromises1====>', requestPromises)
+    if (stopUpload) {
+      await Promise.reject(new Error('停止'))
+      return
+    }
+    // 这里需要 Promise.all全部完成
     await Promise.all(requestPromises)
+    console.log('requestPromises2====>', requestPromises)
+  }
+  /*
+    限制请求并发数 队列实现
+    首次最大并发数请求，后续一个请求完成则继续从队列取出数据接着请求，先进先出
+  */
+  function limitRequests2 (chunks, fn, maxRequest) {
+    requests = [...chunks]
+    const totalRequests = chunks.length
+    const requestFn = fn
+    let errorNum = 0 // 错误数
+    currentIndex = 0
+    return new Promise((resolve, reject) => {
+      const makeRequest = async (chunk) => {
+        if (stopUpload) {
+          reject(new Error('停止'))
+          return
+        }
+        try {
+          await requestFn(toFormData(chunk))
+          currentIndex++
+          curProgress.value++
+          // console.log('Request to completed', response)
+        } catch (error) {
+          errorNum++
+          // 请求失败重试逻辑
+          if (errorNum < 10) {
+            console.log('Retrying request to', errorNum)
+            await makeRequest(chunk) // 重新发起请求
+          }
+        } finally {
+          // await之后执行
+          // 如果还有待处理的请求，则发起下一个请求
+          if (requests.length > 0) {
+            await makeRequest(requests.shift())
+          }
+          if (errorNum > 10) {
+            reject(new Error('错误数太多'))
+          }
+          if (requests.length === 0 && currentIndex === totalRequests) {
+            resolve(true)
+          }
+        }
+      }
+      // 初始化拿出最大最大并发数请求
+      for (let i = 0; i < maxRequest; i++) {
+        makeRequest(requests.shift())
+      }
+    })
   }
   const fileName = ref('')
   const fileHash = ref('')
   const loading = ref(false)
-  const chunkTotal = ref(10)
+  const chunkTotal = ref(0)
   const starting = ref(false)
-  const MaxRequest = 2
+  const MaxRequest = 3
   const ChunkSize = 2097152 // 131072 // 2097152
   const curProgress = ref(0)
   let fileBlob = '' // 文件内容
@@ -139,7 +183,9 @@
   const startingHandle = () => {
     if (starting.value) {
       currentIndex = chunkTotal.value
+      stopUpload = true
     } else {
+      stopUpload = false
       uploadFile(fileBlob)
     }
     starting.value = !starting.value
@@ -147,8 +193,14 @@
   }
   // 批量上传切片
   const uploadChunks = async (chunks) => {
-    const resList = await limitRequests2(chunks)
-    console.log('resList====>', resList)
+    try {
+      const resList = await limitRequests2(chunks, uploadHandler, MaxRequest)
+      // const resList = await limitRequests1(chunks)
+      console.log('resList====>', resList)
+      return resList
+    } catch (error) {
+      //  console.log(error)
+    }
   }
   // 转为formData
   const toFormData = (chunk) => {
@@ -184,7 +236,7 @@
     chunkTotal.value = chunkList.length
     // console.log(chunks, fileName)
     const { isExist, chunks = [], } = await checkFile({ hash, })
-    curProgress.value = curProgress.value + chunks.length
+    curProgress.value = chunks.length
     console.log(
       'curProgress==================>',
       curProgress.value,
@@ -198,16 +250,18 @@
     }
     // 只上传没上传成功的
     const filterChunkList = chunkList.filter(v => !chunks.includes(v.index))
-    await uploadChunks(filterChunkList)
-    currentIndex = 0
-    // const res = await mergeFile({ fileName: fileName.value, hash, })
-    // if (res) {
-    //   messageSuccess('上传成功')
-    // }
-    setTimeout(() => {
-      starting.value = false
-      loading.value = false
-    }, 1000)
+    const uploaded = await uploadChunks(filterChunkList)
+    if (uploaded) {
+      currentIndex = 0
+      const res = await mergeFile({ chunks: chunkTotal.value, fileName: fileName.value, hash, })
+      if (res) {
+        messageSuccess('上传成功')
+      }
+      setTimeout(() => {
+        starting.value = false
+        loading.value = false
+      }, 1000)
+    }
   }
   const mergeFileHandle = async () => {
     await mergeFile({ fileName: fileName.value, hash: fileHash.value, })
