@@ -2,13 +2,12 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-17 16:28:36
- * @LastEditTime: 2024-04-05 19:24:37
+ * @LastEditTime: 2024-04-05 23:15:43
  * @Description:
  * @FilePath: \blog-home-nuxt\utils\cookie.ts
  */
 import Cookies from 'js-cookie'
-export const TokenKey = 'x-token'
-// export const TokenKey = 'x-accessToken'
+export const TokenKey = 'x-accessToken'
 export const RefreshTokenKey = 'x-refreshToken'
 export const InfoKey = 'x-userInfo'
 

@@ -53,7 +53,7 @@
       const params = { ...form, }
       params.password = rsaEncrypt(form.password)
       res = await request.post('/user/login', params)
-      token.value = res.info.token
+      token.value = res.info.accessToken
       await navigateTo('/')
       localStorage.setItem(TokenKey, token.value)
       localStorage.setItem(RefreshTokenKey, res.info.refreshToken)

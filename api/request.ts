@@ -10,7 +10,7 @@ import { TokenKey, RefreshTokenKey } from '@/utils/cookie'
 interface PendingTask {
   config: any
   url: string
-  resolve: Function
+  fn: Function
 }
 
 // 无感刷新token
@@ -44,58 +44,63 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
       ctx.options.headers.Authorization = getToken()
     },
   }
-
-  const res = await apiFetch<ApiResponse>(url, {
-    ...config,
-    async onResponseError (ctx: any) {
-      console.log('onResponseError', ctx)
-      // console.log('status', ctx.response)
-      const status: number = ctx.response.status
-      const { url, } = ctx.response
-      if (refreshing) {
-        return new Promise((resolve) => {
+  return await new Promise((resolve, reject) => {
+    apiFetch<ApiResponse>(url, {
+      ...config,
+      onResponse (ctx) {
+        const status: number = ctx.response.status
+        if (status === 200 || status === 201) {
+          resolve(ctx.response._data)
+        }
+      },
+      async onResponseError (ctx: any) {
+        console.log('onResponseError', ctx)
+        // console.log('status', ctx.response)
+        const status: number = ctx.response.status
+        const { url, } = ctx.response
+        if (refreshing) {
           queue.push({
             config,
-            url: baseUrl,
-            resolve,
+            url,
+            // 作用是把当前状态为pending的promise放进全局数组中
+            // 刷新完token之后再把对应的promise状态改为fulfilled，
+            // 这样之前报401响应的请求没有变更状态，刷新token再变为fulfilled响应后执行等待的相关操作
+            fn: resolve,
           })
-        })
-      }
-      try {
-        if (status === 401 && !url.includes('/user/refresh')) {
-          refreshing = true
-          const res = await refreshToken()
-          refreshing = false
-          if (res) {
-            queue.forEach(({ config, url, resolve, }) => {
-              config.headers.Authorization = getToken()
-              resolve(apiFetch(url, config))
-            })
-            console.log('queue', queue)
-            queue = []
-            config.headers.Authorization = getToken()
-            apiFetch(url, config)
-          } else {
-            // 清除token
-            const token = useToken()
-            token.value = ''
-            localStorage.setItem(TokenKey, '')
-            console.error(ctx.response._data.message)
-          }
-        } else {
-          messageDanger(ctx.response._data.message || '')
+          // return为关键，不执行下面代码，不然下面resolve变更promise状态，
+          // 造成每个promise都会执行foreach请求多个
+          return
         }
-        // 返回错误信息，各接口自行处理
-        return await Promise.reject(ctx.response._data)
-      } catch (error) {
-        // console.log("onRequestError", error);
-        return await Promise.reject(error)
-      }
-    },
+        try {
+          if (status === 401 && !url.includes('/user/refresh')) {
+            refreshing = true
+            const res = await refreshToken()
+            refreshing = false
+            if (res) {
+              queue.forEach(({ config, url, fn, }) => {
+                fn(apiFetch(url, config))
+              })
+              console.log('queue', queue)
+              queue = []
+              resolve(apiFetch(url, config))
+            } else {
+              // 清除token
+              const token = useToken()
+              token.value = ''
+              localStorage.setItem(TokenKey, '')
+              console.error(ctx.response._data.message)
+            }
+          } else {
+            // 其他状态码直接变为reject
+            messageDanger(ctx.response._data.message || '')
+            reject(ctx.response._data)
+          }
+        } catch (error) {
+          reject(error)
+        }
+      },
+    })
   })
-  // console.log({ type: '$http ', res, })
-  // 200 成功才会返回
-  return res
 }
 // 获取 token
 const getToken = () => {
@@ -131,7 +136,7 @@ async function refreshToken () {
   localStorage.setItem(TokenKey, res.accessToken)
   localStorage.setItem(RefreshTokenKey, res.refreshToken)
   token.value = res.accessToken
-  const { nickname, homepage, intro, avatar, id: uid, role, } = await get('/user/info')
+  const { nickname, homepage, intro, avatar, id: uid, role, } = res.user
   userInfo.value = {
     nickname,
     homepage,
