@@ -235,8 +235,13 @@
     fileHash.value = hash
     chunkTotal.value = chunkList.length
     // console.log(chunks, fileName)
-    const { isExist, chunks = [], } = await checkFile({ hash, })
+    const [err, data] = await checkFile({ hash, })
+    const { isExist, chunks = [], } = data
     curProgress.value = chunks.length
+    if (err) {
+      console.log(err, data)
+      return
+    }
     console.log(
       'curProgress==================>',
       curProgress.value,
@@ -253,8 +258,12 @@
     const uploaded = await uploadChunks(filterChunkList)
     if (uploaded) {
       currentIndex = 0
-      const res = await mergeFile({ chunks: chunkTotal.value, fileName: fileName.value, hash, })
-      if (res) {
+      const [err, data] = await mergeFile({
+        chunks: chunkTotal.value,
+        fileName: fileName.value,
+        hash,
+      })
+      if (!err) {
         messageSuccess('上传成功')
       }
       setTimeout(() => {

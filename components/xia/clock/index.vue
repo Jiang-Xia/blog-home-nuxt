@@ -1,53 +1,49 @@
 <script setup lang="ts">
+  import { ref, onBeforeUnmount } from 'vue'
   let timer: any = null
+  const hourHand: any = ref('')
+  const minuteHand: any = ref('')
+  const secondHand: any = ref('')
+  // Define a function that will be called repeatedly to update the clock hands
+  function setDate () {
+    // Get the current time as a Date object
+    const now = new Date()
+
+    // Calculate the angle in degrees for the second hand based on the current seconds
+    const seconds = now.getSeconds()
+    const secondsDegrees = (seconds / 60) * 360 + 90
+
+    // Set the transform style of the second hand element to rotate it to the correct angle
+    secondHand.value && (secondHand.value.style.transform = `rotate(${secondsDegrees}deg)`)
+
+    // Calculate the angle in degrees for the minute hand based on the current minutes and seconds
+    const minutes = now.getMinutes()
+    const minutesDegrees = (minutes / 60) * 360 + (seconds / 60) * 6 + 90
+
+    // Set the transform style of the minute hand element to rotate it to the correct angle
+    minuteHand.value && (minuteHand.value.style.transform = `rotate(${minutesDegrees}deg)`)
+
+    // Calculate the angle in degrees for the hour hand based on the current hours, minutes, and seconds
+    const hours = now.getHours()
+    const hoursDegrees = (hours / 12) * 360 + (minutes / 60) * 30 + 90
+
+    // Set the transform style of the hour hand element to rotate it to the correct angle
+    hourHand.value && (hourHand.value.style.transform = `rotate(${hoursDegrees}deg)`)
+  }
   onMounted(() => {
-    // Define a function that will be called repeatedly to update the clock hands
-    function setDate () {
-      // Get the hour, minute, and second hand elements from the HTML document
-      const hourHand: any = document.querySelector('.hour-hand')
-      const minuteHand: any = document.querySelector('.minute-hand')
-      const secondHand: any = document.querySelector('.second-hand')
-
-      // Get the current time as a Date object
-      const now = new Date()
-
-      // Calculate the angle in degrees for the second hand based on the current seconds
-      const seconds = now.getSeconds()
-      const secondsDegrees = (seconds / 60) * 360 + 90
-
-      // Set the transform style of the second hand element to rotate it to the correct angle
-      secondHand.style.transform = `rotate(${secondsDegrees}deg)`
-
-      // Calculate the angle in degrees for the minute hand based on the current minutes and seconds
-      const minutes = now.getMinutes()
-      const minutesDegrees = (minutes / 60) * 360 + (seconds / 60) * 6 + 90
-
-      // Set the transform style of the minute hand element to rotate it to the correct angle
-      minuteHand.style.transform = `rotate(${minutesDegrees}deg)`
-
-      // Calculate the angle in degrees for the hour hand based on the current hours, minutes, and seconds
-      const hours = now.getHours()
-      const hoursDegrees = (hours / 12) * 360 + (minutes / 60) * 30 + 90
-
-      // Set the transform style of the hour hand element to rotate it to the correct angle
-      hourHand.style.transform = `rotate(${hoursDegrees}deg)`
-    }
-
     // Call the setDate function every 1000 milliseconds (1 second) to update the clock hands
     timer = setInterval(setDate, 1000)
   })
-  const router = useRouter()
-  router.afterEach(() => {
-    console.log('clearInterval==============>')
+  onBeforeUnmount(() => {
     clearInterval(timer)
   })
 </script>
 <template>
   <div class="clock-wrap">
     <div class="clock">
-      <div class="hand hour-hand" />
-      <div class="hand minute-hand" />
-      <div class="hand second-hand" />
+      <div ref="hourHand" class="hand hour-hand" />
+      <div ref="minuteHand" class="hand minute-hand" />
+      <div ref="secondHand" class="hand second-hand" />
       <div class="center-dot" />
     </div>
   </div>

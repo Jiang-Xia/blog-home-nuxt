@@ -1,4 +1,4 @@
-import request from '~~/api/request.js'
+import request, { awaitWrap } from '~~/api/request.js'
 import { baseUrl } from '~~/config'
 
 // 上传文件
@@ -35,13 +35,11 @@ export const uploadFileRequest = (formData: any) => {
   // })
 }
 // 合并文件
-export const mergeFile = async (data: any) => {
-  const res = await request.post('/file/uploadBigFile/merge', data)
-  return res.data
+export const mergeFile = (data: any) => {
+  return awaitWrap(request.post('/file/uploadBigFile/merge', data))
 }
 
 // 检查文件
-export const checkFile = async (data: any) => {
-  const res = await request.get('/file/uploadBigFile/checkFile', data)
-  return res.data
+export const checkFile = (data: any) => {
+  return awaitWrap(request.get('/file/uploadBigFile/checkFile', data))
 }

@@ -51,7 +51,7 @@
         return
       }
     }
-    await request.post('/user/register', form).then(res => res.data.info)
+    await request.post('/user/register', form)
     messageSuccess('注册成功')
     setTimeout(async () => {
       await navigateTo('/login')

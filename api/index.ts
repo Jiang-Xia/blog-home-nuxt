@@ -6,7 +6,7 @@ import request from '~~/api/request.js'
 
 // 获取用户信息
 const getUserInfo = async (): Promise<userInfoState> => {
-  const { data = {}, } = await request.get('/user/info')
+  const data: any = await request.get('/user/info')
   const { nickname, homepage, intro, avatar, id: uid, role, } = data
   return {
     nickname,
@@ -19,15 +19,15 @@ const getUserInfo = async (): Promise<userInfoState> => {
 }
 // 古诗词
 export const gushici = async () => {
-  const res = await request.http('https://jiang-xia.top/x-zone/api/v1/third/gushici', {
-    method: 'GET',
-  })
-  return res.data
+  return await request
+    .http('https://jiang-xia.top/x-zone/api/v1/third/gushici', {
+      method: 'GET',
+    })
+    .then(res => res.data)
 }
 // 获取天气
-export const getWeather = async () => {
-  const res = await request.get('/resources/weather')
-  return res.data
+export const getWeather = () => {
+  return request.get('/resources/weather')
 }
 
 const api = {

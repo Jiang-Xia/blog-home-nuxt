@@ -11,7 +11,7 @@
   }
 
   const { data: linkList, } = await useAsyncData('link_Get', () =>
-    request.get('/link', { client: true, }).then(res => res.data)
+    request.get('/link', { client: true, })
   )
   const linkState = ref<LinkState>({
     icon: '',
@@ -33,7 +33,7 @@
       title: '',
       desp: '',
     }
-    linkList.value = await request.get('/link', { client: true, }).then(res => res.data)
+    linkList.value = await request.get('/link', { client: true, })
     // console.log(linkList.value)
   }
   const isOpen = ref(false)

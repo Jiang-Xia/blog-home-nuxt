@@ -1,10 +1,13 @@
 import { baseUrl } from '~~/config'
 import { messageDanger } from '~~/utils/toast'
-let errorResponse: ApiResponse = {
-  success: false,
-  code: 0,
-  message: '',
-  data: null,
+// const errorResponse: ApiResponse = {
+//   success: false,
+//   code: 0,
+//   message: '',
+//   data: null,
+// }
+export const awaitWrap = <T, U = any>(promise: Promise<T>): Promise<[U | null, T | null]> => {
+  return promise.then<[null, T]>((data: T) => [null, data]).catch<[U, null]>(err => [err, null])
 }
 const $http = async (baseUrl: string, options: any): Promise<ApiResponse> => {
   const { method = 'GET', params = {}, body = {}, headers, } = options
@@ -60,56 +63,20 @@ const getToken = () => {
   // console.log({ token });
   return token
 }
-const get = async (url: string, params = {}): Promise<ApiResponse> => {
-  try {
-    const res = await $http(baseUrl + url, {
-      method: 'GET',
-      params,
-    })
-    return res
-  } catch (error: any) {
-    errorResponse = { ...error, }
-    return errorResponse
-  }
+const get = async (url: string, params = {}): Promise<any> => {
+  return await $http(baseUrl + url, { method: 'GET', params, }).then(res => res.data)
 }
 
-const del = async (url: string, params = {}): Promise<ApiResponse> => {
-  try {
-    const res = await $http(baseUrl + url, {
-      method: 'DELETE',
-      params,
-    })
-    return res
-  } catch (error: any) {
-    errorResponse = { ...error, }
-    return errorResponse
-  }
+const del = async (url: string, params = {}): Promise<any> => {
+  return await $http(baseUrl + url, { method: 'DELETE', params, }).then(res => res.data)
 }
 
-const post = async (url: string, params = {}): Promise<ApiResponse> => {
-  try {
-    const res = await $http(baseUrl + url, {
-      method: 'POST',
-      body: params,
-    })
-    return res
-  } catch (error: any) {
-    errorResponse = { ...error, }
-    return errorResponse
-  }
+const post = async (url: string, params = {}): Promise<any> => {
+  return await $http(baseUrl + url, { method: 'POST', body: params, }).then(res => res.data)
 }
 
-const put = async (url: string, params = {}): Promise<ApiResponse> => {
-  try {
-    const res = await $http(baseUrl + url, {
-      method: 'PUT',
-      body: params,
-    })
-    return res
-  } catch (error: any) {
-    errorResponse = { ...error, }
-    return errorResponse
-  }
+const put = async (url: string, params = {}): Promise<any> => {
+  return await $http(baseUrl + url, { method: 'PUT', body: params, }).then(res => res.data)
 }
 
-export default { http: $http, get, post, put, del, }
+export default { http: $http, get, post, put, del, awaitWrap, }

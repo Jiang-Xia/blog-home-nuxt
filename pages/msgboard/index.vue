@@ -10,7 +10,7 @@
     comment: string
   }
   const { data: msgboardList, refresh, } = await useAsyncData('msgboard_Get', () =>
-    request.get('/msgboard').then(res => res.data)
+    request.get('/msgboard')
   )
   // 分组
   const buildTree = (list: any[], rootId = 0) => {
@@ -47,7 +47,7 @@
     })
   })
   const getAllMsgboard = async () => {
-    const list = await request.get('/msgboard').then(res => res.data)
+    const list = await request.get('/msgboard')
     msgboardList.value = buildTree(list)
   }
   // 邮箱正则
