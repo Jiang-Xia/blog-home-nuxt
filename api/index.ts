@@ -5,7 +5,7 @@ import * as tool from './tool'
 import request from '~~/api/request.js'
 
 // 获取用户信息
-const getUserInfo = async (): Promise<userInfoState> => {
+export const getUserInfo = async (): Promise<userInfoState> => {
   const data: any = await request.get('/user/info')
   const { nickname, homepage, intro, avatar, id: uid, role, } = data
   return {

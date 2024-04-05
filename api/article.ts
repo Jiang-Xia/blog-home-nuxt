@@ -5,7 +5,7 @@ export const getArticleList = (data: any) => {
 export const getArticleInfo = (params: any) => {
   // console.log(params.id)
   if (!params.id) {
-    return
+    return Promise.reject(Error('id不能为空'))
   }
   return request.get('/article/info', params)
 }

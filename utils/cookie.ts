@@ -1,14 +1,17 @@
 /*
  * @Author: 酱
- * @LastEditors: 酱
+ * @LastEditors: jx
  * @Date: 2021-11-17 16:28:36
- * @LastEditTime: 2022-06-19 13:33:09
+ * @LastEditTime: 2024-04-05 19:24:37
  * @Description:
  * @FilePath: \blog-home-nuxt\utils\cookie.ts
  */
 import Cookies from 'js-cookie'
-const TokenKey = 'nuxt_blog_token'
-const InfoKey = 'nuxt_blog_info'
+export const TokenKey = 'x-token'
+// export const TokenKey = 'x-accessToken'
+export const RefreshTokenKey = 'x-refreshToken'
+export const InfoKey = 'x-userInfo'
+
 let day = 1 // 一天时间
 export function getToken () {
   return Cookies.get(TokenKey)
