@@ -261,7 +261,7 @@
       min-height: 100vh;
       width: calc(var(--scale-factor) * 612px);
       height: calc(var(--scale-factor) * 792px);
-      transition: all 0.5 ease-in;
+      transition: all 0.5s ease-in;
       .pdf-container {
         canvas {
           width: 100%;
