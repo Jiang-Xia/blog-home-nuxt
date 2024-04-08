@@ -1,9 +1,30 @@
 <template>
   <div class="m-signature">
     <!-- <canvas id="canvasImg"></canvas> -->
-    <div ref="pdfWrap" class="pdf-wrap">
-      <span v-if="loading" class="loading loading-spinner loading-lg" />
-      <div ref="pdfContainer" class="pdf-container" />
+    <div class="tool-wrap flex items-center justify-between p-3 w-full">
+      <button class="btn btn-sm">{{ currentPage }}/{{ totalPageCount }}</button>
+      <div class="join">
+        <button
+          class="btn btn-sm join-item"
+          :disabled="minScale === scaleFactor"
+          @click="changeScale('-')"
+        >
+          -
+        </button>
+        <button
+          class="btn btn-sm join-item"
+          :disabled="minScale * 4 === scaleFactor"
+          @click="changeScale('+')"
+        >
+          +
+        </button>
+      </div>
+    </div>
+    <div ref="scrollContainer" class="scroll-container">
+      <div ref="pdfWrap" class="pdf-wrap" :style="{ '--scale-factor': scaleFactor }">
+        <span v-if="loading" class="loading loading-spinner loading-lg" />
+        <div ref="pdfContainer" class="pdf-container" />
+      </div>
     </div>
 
     <div v-show="showSmoothSignatureWrap" class="smoothSignatureWrap">
@@ -66,9 +87,11 @@
         clearInterval(timer)
       }
     }, 1000)
-    const { width, height, } = pdfWrap.value.getBoundingClientRect()
+    const { width, height, } = scrollContainer.value.getBoundingClientRect()
+    minScale.value = width / 612
+    console.log(width, height)
     const options = {
-      width: width - 60,
+      width: width - 24,
       height: height / 3 - 50,
       minWidth: 3,
       maxWidth: 10,
@@ -76,7 +99,16 @@
       bgColor: '#ffffff',
       // bgColor: '#f6f6f6',
     }
+    scaleFactor.value = width / 612
     signature.value = new SmoothSignature(smoothSignatureCanvas.value, options)
+    document.querySelector('.scroll-container').addEventListener('scroll', (e) => {
+      const scrollTop = e.target.scrollTop
+      // console.log(scrollTop, pageHeight.value, Math.ceil((scrollTop + 306) / pageHeight.value))
+      currentPage.value = Math.ceil((scrollTop + 306) / pageHeight.value)
+      if (currentPage.value >= totalPageCount.value) {
+        currentPage.value = totalPageCount
+      }
+    })
     reloadPdf()
   })
   const handleClear = () => {
@@ -103,21 +135,44 @@
     handleClear()
     showSmoothSignatureWrap.value = true
   }
-
+  const scrollContainer = ref('')
   const pdfContainer = ref('')
+  const totalPageCount = ref(1)
+  // 页数和缩放相关
+  const currentPage = ref(1)
+  const pageWidth = ref(0)
+  const pageHeight = ref(0)
+  const scaleFactor = ref(1)
+  const minScale = ref(1)
+  const changeScale = (t) => {
+    let num = scaleFactor.value
+    if (t === '-') {
+      num = num - num * 0.1
+      if (num <= 1) {
+        num = minScale.value
+      }
+    } else if (t === '+') {
+      num = num + num * 0.1
+      if (num >= 4) {
+        num = minScale.value * 4
+      }
+    }
+    scaleFactor.value = num
+  }
   const reloadPdf = async (pdfData = props.pdfSrc) => {
     loading.value = true
     const pdfDocument = await pdfjsLib.getDocument(pdfData).promise
     // console.log(pdfDocument)
     pdfContainer.value.innerHTML = '' // 清空PDF容器
-
+    totalPageCount.value = pdfDocument.numPages
     for (let pageIndex = 1; pageIndex <= pdfDocument.numPages; pageIndex++) {
       const page = await pdfDocument.getPage(pageIndex)
       const viewport = page.getViewport({ scale: 2, })
+      pageWidth.value = viewport.width / 2
+      pageHeight.value = viewport.height / 2
       // console.log(page)
       const canvas = document.createElement('canvas')
       pdfContainer.value.appendChild(canvas)
-
       const context = canvas.getContext('2d')
       canvas.width = viewport.width
       canvas.height = viewport.height
@@ -145,7 +200,6 @@
       console.log('pageIndex', pageIndex, pages[pageIndex])
       const width = pages[pageIndex].getWidth()
       const height = pages[pageIndex].getHeight()
-
       if (pageIndex === pages.length - 1) {
         const emblemImageBytes = await fetch(signaturePng.value).then(res => res.arrayBuffer())
         const img = await pdfDoc.embedPng(emblemImageBytes)
@@ -188,11 +242,26 @@
 
 <style lang="less">
   .m-signature {
+    // padding-top: 68px;
     padding-bottom: 70px;
     position: relative;
     background-color: #fff;
+    position: relative;
+    .scroll-container {
+      overflow: auto;
+    }
+    .tool-wrap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      // background-color: #fff;
+      z-index: 1;
+    }
     .pdf-wrap {
       min-height: 100vh;
+      width: calc(var(--scale-factor) * 612px);
+      height: calc(var(--scale-factor) * 792px);
+      transition: all 0.5 ease-in;
       .pdf-container {
         canvas {
           width: 100%;
@@ -200,16 +269,16 @@
       }
     }
     .smoothSignatureWrap {
-      margin: 24px;
       .actions {
-        padding: 16px;
         text-align: center;
+        padding: 12px 12px 0;
       }
       .mb-canvas {
         button {
           font-size: 18px;
         }
         canvas {
+          margin: 12px auto;
           border-radius: 10px;
           border: 2px dashed #ccc;
         }
