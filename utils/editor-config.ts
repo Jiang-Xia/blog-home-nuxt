@@ -21,7 +21,13 @@ config({
       },
     },
     mermaid: {
-      js: 'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-08-11/m03uups84sxorl2ckyln97-mermaid.min.js',
+      js: 'https://jiang-xia.top/x-blog/api/v1/static/uploads/2024-04/fd20c758948743f0addd3e9f31fb946c-mermaid.min.js',
     },
+  },
+  mermaidConfig (base: any) {
+    return {
+      ...base,
+      logLevel: 'error',
+    }
   },
 })

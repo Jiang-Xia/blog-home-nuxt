@@ -38,7 +38,7 @@
   const ArticleInfo = reactive({ ...defaultForm, })
   // console.log(route)
   const params = route.params
-  console.log({ '文章id:': params.id, })
+  // console.log({ '文章id:': params.id, })
   // 响应式声明
   const { data: articleData, refresh, } = await useAsyncData('detail_GetInfo', () =>
     getArticleInfo(params)
