@@ -52,6 +52,11 @@
       path: '/au-vi',
       title: '音视频',
       icon: 'blog-shipin1',
+    },
+    {
+      path: '/tool/test',
+      title: '测试',
+      icon: 'blog-ceshi1',
     }
   ]
   const menuList = ref(dataList)

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import { reactive, ref } from 'vue'
   const props = defineProps({
     // 渐变开始和结束颜色
     gradient: {
