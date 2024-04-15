@@ -37,8 +37,7 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.4.2",
     "unplugin-icons": "^0.18.5",
-    "vconsole": "^3.15.1",
-    "vite-plugin-top-level-await": "^1.4.1"
+    "vconsole": "^3.15.1"
   },
   "dependencies": {
     "@chenfengyuan/vue-qrcode": "^2.0.0",
