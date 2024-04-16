@@ -105,7 +105,9 @@
     document.querySelector('.scroll-container').addEventListener('scroll', (e) => {
       const scrollTop = e.target.scrollTop
       // console.log(scrollTop, pageHeight.value, Math.ceil((scrollTop + 306) / pageHeight.value))
-      currentPage.value = Math.ceil((scrollTop + 306) / pageHeight.value)
+      currentPage.value = Math.ceil(
+        ((scrollTop + 100) * window.devicePixelRatio) / pageHeight.value
+      )
       if (currentPage.value >= totalPageCount.value) {
         currentPage.value = totalPageCount
       }

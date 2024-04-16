@@ -12,6 +12,7 @@ console.warn({
 export default defineNuxtConfig({
   // debug: process.env.NODE_ENV !== 'production',
   debug: false,
+  devtools: { enabled: false, },
   modules: [
     '@vueuse/nuxt',
     '~/modules/sitemap',
