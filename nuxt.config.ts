@@ -48,7 +48,11 @@ export default defineNuxtConfig({
       mode: 'out-in',
     },
   },
-  // '~/assets/font/iconfont.css'
+  // build: {
+  //   // 打开分析报告
+  //   analyze: true,
+  // },
+  // buildDir: 'dist',
   css: ['~/assets/css/main.css'],
   postcss: {
     plugins: {

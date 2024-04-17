@@ -1,7 +1,9 @@
 @charset "UTF-8";
+/* 下划线开头的文件，不会被编译成单独的CSS文件，用于被导入到其他 Less 文件中。 */
+@import './base/_theme.less';
+@import './base/animation.less';
+@import './base/transition.less';
+@import './base/_reset.less';
+@import './base/app.less';
 
-@import './_theme.less';
-@import './animation.less';
-@import './transition.less';
-@import './_reset.less';
-@import './app.less';
+@import './common/index.less';
