@@ -12,6 +12,7 @@ console.warn({
 export default defineNuxtConfig({
   // debug: process.env.NODE_ENV !== 'production',
   debug: false,
+  devtools: { enabled: false, },
   modules: [
     '@vueuse/nuxt',
     '~/modules/sitemap',
@@ -47,7 +48,11 @@ export default defineNuxtConfig({
       mode: 'out-in',
     },
   },
-  // '~/assets/font/iconfont.css'
+  // build: {
+  //   // 打开分析报告
+  //   analyze: true,
+  // },
+  // buildDir: 'dist',
   css: ['~/assets/css/main.css'],
   postcss: {
     plugins: {

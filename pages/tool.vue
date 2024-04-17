@@ -2,12 +2,11 @@
   <div class="padding-top-bar xia-page">
     <div class="pt-4 px-4">
       <ul class="flex flex-wrap justify-center md:justify-start">
-        <li v-for="item in menuList" :key="item.path">
-          <NuxtLink :to="item.path" :title="item.title" class="link-item">
-            <xia-icon v-if="item.icon" width="40px" height="40px" :icon="item.icon" />
-
-            <span class="mt-2">{{ item.title }}</span>
-          </NuxtLink>
+        <li v-for="item in menuList" :key="item.path" class="li-item">
+          <xia-button-border v-if="item.path === route.path" :animation-duration="1" rx="8">
+            <LinkItem :item="item" />
+          </xia-button-border>
+          <LinkItem v-else :item="item" />
         </li>
       </ul>
     </div>
@@ -20,6 +19,9 @@
 
 <script setup lang="ts">
   import { ref } from 'vue'
+  import { useRoute } from 'vue-router'
+  import { LinkItem } from './tool/components/LinkItem'
+  const route = useRoute()
   const dataList = [
     {
       path: '/tool/codes',
@@ -50,6 +52,11 @@
       path: '/au-vi',
       title: '音视频',
       icon: 'blog-shipin1',
+    },
+    {
+      path: '/tool/test',
+      title: '测试',
+      icon: 'blog-ceshi1',
     }
   ]
   const menuList = ref(dataList)
@@ -57,15 +64,14 @@
 <style lang="less" scoped>
   .xia-page {
     padding-top: 104px;
-    .link-item {
-      @apply transition border border-base-300 h-36 w-36 text-sm rounded-lg flex flex-col justify-center items-center mr-2 mb-2 hover:bg-base-200;
-      @apply hover:scale-105 active:bg-base-300;
+    .li-item {
+      @apply mr-2 mb-2;
     }
     .tool-children-pages {
       // min-height: 60vh
     }
     .router-link-active {
-      // background: #000;
+      @apply border-none;
     }
   }
 </style>

@@ -59,6 +59,7 @@
   import { ref, onMounted } from 'vue'
   import SmoothSignature from 'smooth-signature'
   import dayjs from 'dayjs'
+  import sealLogo from '@/assets/images/logo/person/jiang.png'
   const emits = defineEmits(['success'])
   const props = defineProps({
     pdfSrc: {
@@ -89,14 +90,14 @@
     }, 1000)
     const { width, height, } = scrollContainer.value.getBoundingClientRect()
     minScale.value = width / 612
-    console.log(width, height)
+    // console.log(width, height)
     const options = {
       width: width - 24,
       height: height / 3 - 50,
       minWidth: 3,
       maxWidth: 10,
       color: '#333333',
-      bgColor: '#ffffff',
+      bgColor: 'transparent',
       // bgColor: '#f6f6f6',
     }
     scaleFactor.value = width / 612
@@ -104,7 +105,9 @@
     document.querySelector('.scroll-container').addEventListener('scroll', (e) => {
       const scrollTop = e.target.scrollTop
       // console.log(scrollTop, pageHeight.value, Math.ceil((scrollTop + 306) / pageHeight.value))
-      currentPage.value = Math.ceil((scrollTop + 306) / pageHeight.value)
+      currentPage.value = Math.ceil(
+        ((scrollTop + 100) * window.devicePixelRatio) / pageHeight.value
+      )
       if (currentPage.value >= totalPageCount.value) {
         currentPage.value = totalPageCount
       }
@@ -197,14 +200,27 @@
     const pages = pdfDoc.getPages()
     console.log('签名设置————————开始')
     for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
-      console.log('pageIndex', pageIndex, pages[pageIndex])
+      console.log('pageIndex', pageIndex)
       const width = pages[pageIndex].getWidth()
       const height = pages[pageIndex].getHeight()
       if (pageIndex === pages.length - 1) {
         const emblemImageBytes = await fetch(signaturePng.value).then(res => res.arrayBuffer())
         const img = await pdfDoc.embedPng(emblemImageBytes)
+        // pdf(0,0)再左上角
         const x = width - 260
         const y = height / 2 - 100
+
+        // 印章图片
+        const sealImageBytes = await fetch(sealLogo).then(res => res.arrayBuffer())
+        const sealImg = await pdfDoc.embedPng(sealImageBytes)
+        pages[pageIndex].drawImage(sealImg, {
+          x,
+          y: y - 40,
+          width: 140,
+          height: 140,
+          opacity: 1, // 设置图片透明度
+        })
+
         // 签名图片
         pages[pageIndex].drawImage(img, {
           x,
@@ -212,7 +228,7 @@
           width: 160,
           height: 60,
         })
-        // 日期
+        // 签名日期
         const dateText = dayjs().format('YYYY MM DD')
         console.log(dateText)
         pages[pageIndex].drawText(dateText, {

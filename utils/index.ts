@@ -1,15 +1,20 @@
 import _copy from 'copy-to-clipboard'
 // import { ElMessage } from "element-plus";
+
+interface Fn {
+  apply: (arg0: any, arg1: any[]) => void
+}
+
 // 节流
-export function throttle (fn: { apply: (arg0: any, arg1: any[]) => void }, t: number) {
+export function throttle (fn: Fn, t: number) {
   let flag = true
   const interval = t || 500
-  return function (this: any, ...args: any) {
+  return function (this: any, ...args: any[]) {
     if (flag) {
       // 每个函数都有apply方法，调用apply可以改变当前函数的this和参数
       fn.apply(this, args)
       // 修改传入的函数this指向以及传递参数
-      // console.log(this, args)
+      // console.log('=>>>>>>>>>>>>>', flag, args)
       flag = false
       setTimeout(() => {
         flag = true
@@ -19,10 +24,10 @@ export function throttle (fn: { apply: (arg0: any, arg1: any[]) => void }, t: nu
 }
 
 // 防抖
-export function debounce (fn: { apply: (arg0: any, arg1: any) => void }, t: number) {
+export function debounce (fn: Fn, t: number) {
   let timeId: any = null
   const delay = t || 500
-  return function (this: any, ...args: any) {
+  return function (this: any, ...args: any[]) {
     if (timeId) {
       clearTimeout(timeId)
     }
