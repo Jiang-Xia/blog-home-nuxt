@@ -2,14 +2,13 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2024-04-05 16:12:35
+ * @LastEditTime: 2024-04-17 14:51:05
  * @Description:
- * @FilePath: \blog-home-nuxt\components\nav.vue
+ * @FilePath: /blog-home-nuxt/components/nav.vue
 -->
 
 <script setup lang="ts">
   import { ref, reactive } from 'vue'
-  import dayjs from 'dayjs'
   import Yaya from '../assets/images/animal/yaya.svg'
   import { getArticleList } from '@/api/article'
   import { throttle } from '~~/utils'
@@ -66,37 +65,7 @@
   /* 切换主题 开始 */
   const theme = useTheme()
 
-  const iconClass = ref('blog-light')
-  const setTheme = (type: string) => {
-    iconClass.value = 'blog-' + type
-    document.documentElement.className = type
-    document.documentElement.setAttribute('data-theme', type)
-    localStorage.setItem('theme', type)
-    theme.value = type
-  }
-  const getHour = () => {
-    const time = dayjs().hour()
-    // 白天
-    if (time > 6 && time < 18) {
-      theme.value = 'light'
-    } else {
-      theme.value = 'dark'
-    }
-    setTheme(theme.value)
-  }
   onMounted(() => {
-    console.log(localStorage.getItem('theme'))
-    const themeType = localStorage.getItem('theme') || ('' as string)
-    if (themeType) {
-      // 都有设置icon和选中
-      setTheme(themeType)
-    } else {
-      getHour()
-    }
-    const isDark: boolean = matchMedia('(prefers-color-scheme: dark)').matches
-    if (isDark && (themeType === 'light' || !themeType)) {
-      setTheme('dark')
-    }
     document.addEventListener('click', () => {
       checked.value = false
     })
@@ -104,10 +73,11 @@
   // 点击icon直接切换
   const clickIcon = () => {
     if (theme.value === 'light') {
-      setTheme('dark')
+      theme.value = 'dark'
     } else {
-      setTheme('light')
+      theme.value = 'light'
     }
+    // console.log('setTheme========》', theme.value)
   }
   /* 切换主题 结束 */
 
@@ -253,7 +223,7 @@
         </ul>
       </div>
 
-      <xia-icon class="cursor-pointer px-3" :icon="iconClass" @click="clickIcon" />
+      <xia-icon class="cursor-pointer px-3" :icon="'blog-'+theme" @click="clickIcon" />
 
       <NuxtLink
         v-if="!token"

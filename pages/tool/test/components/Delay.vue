@@ -1,6 +1,7 @@
 <template>
   <div>
     <input
+      id="inputField"
       type="text"
       placeholder="input here"
       class="input input-bordered input-secondary w-full max-w-xs"
