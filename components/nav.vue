@@ -2,9 +2,9 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2024-04-17 14:51:05
+ * @LastEditTime: 2024-04-18 13:44:51
  * @Description:
- * @FilePath: /blog-home-nuxt/components/nav.vue
+ * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
 
 <script setup lang="ts">
@@ -63,8 +63,35 @@
   const userInfo = useUserInfo()
   // init()
   /* 切换主题 开始 */
+  // 要监听变化得useTheme使用
   const theme = useTheme()
-
+  const followOs = () => {
+    const bool = matchMedia('(prefers-color-scheme: dark)').matches
+    if (bool) {
+      theme.value = 'dark'
+    } else {
+      theme.value = 'light'
+    }
+    setTheme()
+  }
+  const setTheme = () => {
+    const type: string = theme.value
+    document.documentElement.className = type
+    document.documentElement.setAttribute('data-theme', type)
+    localStorage.setItem('theme', type)
+  }
+  if (process.client) {
+    // 监听系统主题变化
+    const match = matchMedia('(prefers-color-scheme: dark)')
+    match.addEventListener('change', followOs)
+    // console.log('match========》', match)
+  }
+  // 副作用函数
+  watchEffect(() => {
+    if (process.client) {
+      setTheme()
+    }
+  })
   onMounted(() => {
     document.addEventListener('click', () => {
       checked.value = false
@@ -223,7 +250,7 @@
         </ul>
       </div>
 
-      <xia-icon class="cursor-pointer px-3" :icon="'blog-'+theme" @click="clickIcon" />
+      <xia-icon class="cursor-pointer px-3" :icon="'blog-' + theme" @click="clickIcon" />
 
       <NuxtLink
         v-if="!token"
