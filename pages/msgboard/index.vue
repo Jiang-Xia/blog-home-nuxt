@@ -10,7 +10,7 @@
     comment: string
   }
   const { data: msgboardList, refresh, } = await useAsyncData('msgboard_Get', () =>
-    request.get('/msgboard')
+    request.get('/msgboard').then((res: any) => res.list)
   )
   // 分组
   const buildTree = (list: any[], rootId = 0) => {
