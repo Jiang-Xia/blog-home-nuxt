@@ -47,11 +47,6 @@
       title: '项目',
       icon: 'blog-xiangmu',
     },
-    // {
-    //   path: '/au-vi',
-    //   title: '音视频',
-    //   icon: 'blog-shipin',
-    // },
     {
       path: '/tool',
       title: '工具箱',

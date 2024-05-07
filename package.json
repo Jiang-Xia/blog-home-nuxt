@@ -3,6 +3,7 @@
   "scripts": {
     "build": "nuxt build --dotenv .env.production",
     "dev": "nuxt dev --port 5050 --dotenv .env.development",
+    "dev:mobile": "nuxt dev --port 5050 --host --dotenv .env.development",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "lint": "eslint --fix --ext .ts,.js,tsx,.vue .",

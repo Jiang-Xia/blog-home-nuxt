@@ -128,3 +128,15 @@ export const isPC = () => {
   }
   return flag
 }
+
+// 下载文件
+export const downloadFile = (url: string) => {
+  const a = document.createElement('a')
+  a.href = url
+  a.download = '' // 设置为空字符串以触发下载
+
+  document.body.appendChild(a)
+  a.click()
+
+  document.body.removeChild(a)
+}

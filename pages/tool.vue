@@ -49,8 +49,8 @@
       icon: 'blog-qita',
     },
     {
-      path: '/au-vi',
-      title: '音视频',
+      path: '/tool/webrtc',
+      title: 'WebRTC',
       icon: 'blog-shipin1',
     },
     {
