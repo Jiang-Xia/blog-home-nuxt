@@ -130,11 +130,10 @@ export const isPC = () => {
 }
 
 // 下载文件
-export const downloadFile = (url: string) => {
+export const downloadFile = (url: string, name = '') => {
   const a = document.createElement('a')
   a.href = url
-  a.download = '' // 设置为空字符串以触发下载
-
+  a.download = name
   document.body.appendChild(a)
   a.click()
 
