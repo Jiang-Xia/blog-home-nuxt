@@ -21,6 +21,8 @@ let queue: PendingTask[] = []
 export const awaitWrap = <T, U = any>(promise: Promise<T>): Promise<[U | null, T | null]> => {
   return promise.then<[null, T]>((data: T) => [null, data]).catch<[U, null]>(err => [err, null])
 }
+// 防止重复请求
+const requestMap = new Map()
 // 创建一个实例
 const apiFetch = $fetch.create({ baseURL: baseUrl, })
 const $http = async (url: string, options: any): Promise<ApiResponse> => {
@@ -45,16 +47,28 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
     },
   }
   return await new Promise((resolve, reject) => {
+    const requestId = `${url}_${JSON.stringify(options)}`
+    if (requestMap.has(requestId)) {
+      console.log('正在请求中 requestId-------------->', requestId)
+      reject(new Error('防抖，禁止重复请求！'))
+      return
+    } else {
+      requestMap.set(requestId, options)
+    }
     apiFetch<ApiResponse>(url, {
       ...config,
       onResponse (ctx) {
         const status: number = ctx.response.status
         if (status === 200 || status === 201) {
           resolve(ctx.response._data)
+          console.log('请求结束 response -------------->', ctx.response._data)
+          requestMap.delete(requestId)
         }
       },
       async onResponseError (ctx: any) {
         console.log('onResponseError', ctx)
+        console.log('请求结束 fail -------------->', ctx.response._data)
+        requestMap.delete(requestId)
         // console.log('status', ctx.response)
         const status: number = ctx.response.status
         const { url, } = ctx.response

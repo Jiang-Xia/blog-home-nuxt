@@ -88,6 +88,6 @@ export default defineNuxtConfig({
   },
   devServer: {
     // 证书安装 https://zhuanlan.zhihu.com/p/678165318
-    https: true,
+    https: false,
   },
 })
