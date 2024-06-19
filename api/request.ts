@@ -50,6 +50,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
     const requestId = `${url}_${JSON.stringify(options)}`
     if (requestMap.has(requestId)) {
       console.log('正在请求中 requestId-------------->', requestId)
+      console.warn('防抖，禁止重复请求！-------------->')
       reject(new Error('防抖，禁止重复请求！'))
       return
     } else {

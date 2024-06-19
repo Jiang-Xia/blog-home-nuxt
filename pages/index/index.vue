@@ -8,7 +8,11 @@
     titleTemplate: title => `${title} - 江夏的博客`,
   })
   // 古诗词
-  const { data: gushiciData, } = await useAsyncData('gushici_Get', () => gushici())
+  // const { data: gushiciData, } = await useAsyncData('gushici_Get', () => gushici())
+  const gushiciData = ref({})
+  gushici().then(({ data, }) => {
+    gushiciData.value = data
+  })
   // 下一页
   const goToNextPage = () => {
     window.scroll({ top: window.innerHeight, left: 0, behavior: 'smooth', })
