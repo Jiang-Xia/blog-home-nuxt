@@ -9,9 +9,9 @@
   })
   // 古诗词
   // const { data: gushiciData, } = await useAsyncData('gushici_Get', () => gushici())
-  const gushiciData = ref({})
-  gushici().then(({ data, }) => {
-    gushiciData.value = data
+  const gushiciData = ref<any>({})
+  gushici().then((res) => {
+    gushiciData.value = res
   })
   // 下一页
   const goToNextPage = () => {

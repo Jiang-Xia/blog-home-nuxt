@@ -1,6 +1,13 @@
 import { baseUrl } from '~~/config'
 import { messageDanger } from '~~/utils/toast'
 import { TokenKey, RefreshTokenKey } from '@/utils/cookie'
+const openRequestLog = true
+const log = (msg: string, type = 'log') => {
+  if (openRequestLog) {
+    // @ts-ignore:
+    console[type](msg)
+  }
+}
 // const errorResponse: ApiResponse = {
 //   success: false,
 //   code: 0,
@@ -27,7 +34,7 @@ const requestMap = new Map()
 const apiFetch = $fetch.create({ baseURL: baseUrl, })
 const $http = async (url: string, options: any): Promise<ApiResponse> => {
   const { method = 'GET', params = {}, body = {}, headers, } = options
-  // console.log({
+  // log({
   //   method,
   //   params,
   //   body,
@@ -48,9 +55,10 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
   }
   return await new Promise((resolve, reject) => {
     const requestId = `${url}_${JSON.stringify(options)}`
+    log(`请求开始 req --------------> ${url}`)
     if (requestMap.has(requestId)) {
-      console.log('正在请求中 requestId-------------->', requestId)
-      console.warn('防抖，禁止重复请求！-------------->')
+      // log('正在请求中 requestId-------------->', requestId)
+      log(`防抖，禁止重复请求！--------------> ${url}`, 'warn')
       reject(new Error('防抖，禁止重复请求！'))
       return
     } else {
@@ -62,17 +70,16 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
         const status: number = ctx.response.status
         if (status === 200 || status === 201) {
           resolve(ctx.response._data)
-          console.log('请求结束 response -------------->', ctx.response._data)
+          log(`请求结束 res --------------> ${url}`)
           requestMap.delete(requestId)
         }
       },
       async onResponseError (ctx: any) {
-        console.log('onResponseError', ctx)
-        console.log('请求结束 fail -------------->', ctx.response._data)
-        requestMap.delete(requestId)
-        // console.log('status', ctx.response)
-        const status: number = ctx.response.status
         const { url, } = ctx.response
+        log(`请求结束 fail onResponseError --------------> ${url}`)
+        requestMap.delete(requestId)
+        // log('status', ctx.response)
+        const status: number = ctx.response.status
         if (refreshing) {
           queue.push({
             config,
@@ -103,7 +110,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
               const token = useToken()
               token.value = ''
               localStorage.setItem(TokenKey, '')
-              console.error(ctx.response._data.message)
+              console.log(ctx.response._data.message)
             }
           } else {
             // 其他状态码直接变为reject
@@ -124,7 +131,7 @@ const getToken = () => {
   if (tk.value) {
     token = 'Bearer ' + tk.value
   }
-  // console.log({ token });
+  // log({ token });
   return token
 }
 const get = async (url: string, params = {}): Promise<any> => {
