@@ -2,6 +2,7 @@
   <div class="page-container p-12">
     <div>主题切换=====>{{ theme }}</div>
     <Delay />
+    <XiaCardBorderLightTest />
   </div>
 </template>
 <script setup>

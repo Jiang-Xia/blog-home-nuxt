@@ -162,6 +162,7 @@
     weatherData.value = await getWeather()
     //  console.log(weatherData.value)
   })
+  const theme = useTheme()
 </script>
 
 <template>
@@ -191,11 +192,14 @@
         <transition-group key="article-item-wrap" name="list">
           <div v-for="item in articleList" :key="item.id" class="article-item">
             <figure>
+              <XiaCardBorderLight v-if="theme === 'dark'" :pic="item.cover" />
               <img
+                v-else
                 v-lazyImg="item.cover"
                 class="h-52 w-full bg-gray-900"
                 :alt="item.category.label"
               >
+              <!-- <XiaCardBorderLight :pic="item.cover" /> -->
             </figure>
             <div class="card-body">
               <h2 class="card-title">
