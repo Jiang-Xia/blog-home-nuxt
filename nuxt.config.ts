@@ -38,8 +38,8 @@ export default defineNuxtConfig({
         { rel: 'stylesheet', href: 'https://cdn.staticfile.org/csshake/1.5.3/csshake.min.css', }
       ],
       script: [
-        { defer: true, src: 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js', },
-        { defer: true, src: 'https://cdn.jsdelivr.net/npm/pdfjs-dist/build/pdf.min.js', }
+        { defer: true, src: 'https://cdn.staticfile.net/pdf-lib/1.17.1/pdf-lib.min.js', },
+        { defer: true, src: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js', }
       ],
     },
     pageTransition: {
