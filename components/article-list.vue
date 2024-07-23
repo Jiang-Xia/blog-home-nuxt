@@ -146,7 +146,8 @@
 
   // 分类标签设置hover样式
   const categoryMouseenter = (e: any, item: any) => {
-    e.target.style.backgroundColor = toRgb(item.color, 0.08)
+    e.target.style.backgroundColor = toRgb(item.color, 0.12)
+    e.target.style.setProperty('--current-color', `${item.color}`)
   }
   const categoryMouseleave = (e: any) => {
     e.target.style.backgroundColor = ''
@@ -355,7 +356,7 @@
           <div
             class="category__inner flex justify-between items-center"
             :style="{
-              borderColor: item.id === queryPrams.category ? item.color : '',
+              borderColor: item.id === queryPrams.category ? 'transparent' : '',
             }"
           >
             <span class="category__text">{{ item['label'] }}</span>
@@ -425,7 +426,44 @@
         @apply bg-base-100;
       }
       .category-item {
+        --current-color: #e5e6e6;
         padding: 5px 20px;
+        transition: all 0.5s;
+        border-radius: 2px 2px;
+        .category__inner {
+          cursor: pointer;
+          position: relative;
+          border-bottom: 1px solid #e5e6e6;
+          &:after {
+            // background: none repeat scroll 0 0 transparent;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            content: '';
+            display: block;
+            border-bottom-width: 1px;
+            border-bottom-style: solid;
+            border-bottom-color: var(--current-color);
+            width: 0;
+            // height: 2px;
+            // border-radius: 2px;
+            // background: var(--current-color);
+            // transition: width 0.3s ease 0s, left 0.3s ease 0s;
+            transition: width 0.5s ease 0s;
+          }
+        }
+      }
+      .category-item:hover {
+        .category__inner:after {
+          width: 100%;
+          left: 0;
+        }
+      }
+      .category-item.active {
+        .category__inner:after {
+          width: 100%;
+          left: 0;
+        }
       }
       .category__tag {
         border-radius: 7px;
@@ -435,14 +473,11 @@
         color: #fff;
         padding: 0 9px;
       }
-      .category__inner {
-        cursor: pointer;
-        transition: all 0.5s;
-        @apply border-b-2 border-base-300;
-      }
-      .category-item:hover {
-        background: var(--hover-color);
-      }
+      // .category__inner {
+      //   cursor: pointer;
+      //   transition: all 0.5s;
+      //   @apply border-b-2 border-base-300;
+      // }
       .category__text {
         line-height: 1.8;
         flex: 1;
