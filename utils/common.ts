@@ -139,3 +139,20 @@ export const downloadFile = (url: string, name = '') => {
 
   document.body.removeChild(a)
 }
+
+// URL获取查询参数
+export const getUrlParams = (key: string) => {
+  const queryString = window.location.search.substring(1)
+  const params: any = {}
+  // https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace#%E6%8C%87%E5%AE%9A%E5%87%BD%E6%95%B0%E4%BD%9C%E4%B8%BA%E6%9B%BF%E6%8D%A2%E9%A1%B9
+  queryString.replace(/([^&=]+)=([^&]+)/g, (_: string, key: string, value: string) => {
+    // (match,p1,p2,offset, string) match-匹配项 p1,p2 捕获项 offset偏移量 string-原字符串
+    params[key] = decodeURIComponent(value)
+    return _
+  })
+  if (key) {
+    return params[key]
+  } else {
+    return params
+  }
+}
