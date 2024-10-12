@@ -122,12 +122,12 @@
 
   useHead({
     title: '留言板',
-    titleTemplate: title => `${title} - 江夏的博客`,
+    titleTemplate: title => `${title} - 酱的秘密基地`,
   })
 </script>
 <template>
   <NuxtLayout name="main-content">
-    <h1 class="hidden">网站留言板 - 江夏的博客</h1>
+    <h1 class="hidden">网站留言板 - 酱的秘密基地</h1>
     <div class="msgboard-container">
       <div class="form-wrap max-w-3xl mx-auto">
         <div v-show="showToast" class="alert alert-info absolute top-0 left-0">

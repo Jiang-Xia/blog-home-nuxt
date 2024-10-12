@@ -10,7 +10,7 @@
 
   useHead({
     title: '归档',
-    titleTemplate: title => `${title} - 江夏的博客`,
+    titleTemplate: title => `${title} - 酱的秘密基地`,
   })
 </script>
 
@@ -18,7 +18,7 @@
   <!-- default布局和custom布局只能二选一 -->
   <NuxtLayout name="main-content">
     <div class="archives-container">
-      <h1 class="hidden"> 文章归档 - 江夏的博客 </h1>
+      <h1 class="hidden"> 文章归档 - 酱的秘密基地 </h1>
       <div
         v-for="(archive, idx) in archivesList"
         :key="idx"

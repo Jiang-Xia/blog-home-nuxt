@@ -25,7 +25,7 @@
 <template>
   <NuxtLayout name="main-content" :images="images">
     <div class="about-container">
-      <h1 class="hidden"> 关于我 - 江夏的博客 </h1>
+      <h1 class="hidden"> 关于我 - 酱的秘密基地 </h1>
       <MdPreview
         :key="mdKey"
         v-model="content"

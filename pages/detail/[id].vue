@@ -131,7 +131,7 @@
 
   useHead({
     title: ArticleInfo.title + ' - 文章详情',
-    titleTemplate: title => `${title} - 江夏的博客`,
+    titleTemplate: title => `${title} - 酱的秘密基地`,
   })
 </script>
 <template>
