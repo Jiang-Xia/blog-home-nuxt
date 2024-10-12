@@ -2,6 +2,7 @@
   import { ref } from 'vue'
   import { MdPreview } from 'md-editor-v3'
   import { getArticleInfo } from '~~/api/article'
+  import { SiteTitle } from '@/utils/constant'
   const { data: articleData, } = await useAsyncData('about_GetInfo', () =>
     getArticleInfo({ id: 44, })
   )
@@ -19,13 +20,13 @@
   })
   useHead({
     title: '关于',
-    titleTemplate: title => `${title} - 江夏的个人博客-记录生活记录你~`,
+    titleTemplate: title => `${title} - ${SiteTitle}`,
   })
 </script>
 <template>
   <NuxtLayout name="main-content" :images="images">
     <div class="about-container">
-      <h1 class="hidden"> 关于我 - 酱的秘密基地 </h1>
+      <h1 class="hidden"> 关于我 - {{ SiteTitle }} </h1>
       <MdPreview
         :key="mdKey"
         v-model="content"

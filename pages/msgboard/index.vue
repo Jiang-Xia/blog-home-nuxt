@@ -3,6 +3,8 @@
   import { messageDanger, messageSuccess } from '@/utils/toast'
   import { beforeTimeNow } from '@/utils'
   import request from '~~/api/request'
+  import { SiteTitle } from '@/utils/constant'
+
   interface MsgInterFace {
     name: string
     eamil: string
@@ -122,12 +124,12 @@
 
   useHead({
     title: '留言板',
-    titleTemplate: title => `${title} - 酱的秘密基地`,
+    titleTemplate: title => `${title} - ${SiteTitle}`,
   })
 </script>
 <template>
   <NuxtLayout name="main-content">
-    <h1 class="hidden">网站留言板 - 酱的秘密基地</h1>
+    <h1 class="hidden">网站留言板 - {{ SiteTitle }}</h1>
     <div class="msgboard-container">
       <div class="form-wrap max-w-3xl mx-auto">
         <div v-show="showToast" class="alert alert-info absolute top-0 left-0">

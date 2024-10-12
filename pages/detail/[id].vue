@@ -8,6 +8,7 @@
   import defaultImg from '@/assets/images/create.webp'
   import { type tocInter, isTrueCoverLink } from '@/utils'
   import Qie from '@/assets/images/animal/qie.svg'
+  import { SiteTitle } from '@/utils/constant'
 
   const theme: any = useTheme()
   interface FormState {
@@ -131,7 +132,7 @@
 
   useHead({
     title: ArticleInfo.title + ' - 文章详情',
-    titleTemplate: title => `${title} - 酱的秘密基地`,
+    titleTemplate: title => `${title} - ${SiteTitle}`,
   })
 </script>
 <template>
