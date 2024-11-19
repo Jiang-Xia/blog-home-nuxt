@@ -1,11 +1,12 @@
 <script setup lang="ts">
   import { gushici } from '@/api/index'
+  import { SiteTitle } from '@/utils/constant'
 
   const banners = useBanners()
   // console.log(imagesData);
   useHead({
     title: '文章列表',
-    titleTemplate: title => `${title} - 江夏的博客`,
+    titleTemplate: title => `${title} - ${SiteTitle}`,
   })
   // 古诗词
   // const { data: gushiciData, } = await useAsyncData('gushici_Get', () => gushici())
@@ -20,7 +21,7 @@
 </script>
 <template>
   <div class="home-container">
-    <h1 class="hidden">首页 - 江夏的博客</h1>
+    <h1 class="hidden">首页 - {{ SiteTitle }}</h1>
     <!-- 全局共享布局 -->
     <section class="banner-container">
       <!-- 文字信息 -->

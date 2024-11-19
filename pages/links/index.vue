@@ -2,6 +2,7 @@
   import { ref } from 'vue'
   import request from '~~/api/request'
   import { messageDanger, messageSuccess } from '~~/utils/toast'
+  import { SiteTitle } from '@/utils/constant'
 
   interface LinkState {
     icon: string
@@ -39,13 +40,13 @@
   const isOpen = ref(false)
   useHead({
     title: '友链',
-    titleTemplate: title => `${title} - 江夏的博客`,
+    titleTemplate: title => `${title} - ${SiteTitle}`,
   })
 </script>
 <template>
   <NuxtLayout name="main-content">
     <div class="links-container pt-3 rounded-box xl:p-4">
-      <h1 class="hidden">友情链接 - 江夏的博客</h1>
+      <h1 class="hidden">友情链接 - {{ SiteTitle }}</h1>
       <div class="flex justify-end">
         <label
           for="link-add-modal"
