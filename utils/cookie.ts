@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-17 16:28:36
- * @LastEditTime: 2024-04-05 23:15:43
+ * @LastEditTime: 2024-11-19 14:55:21
  * @Description:
  * @FilePath: \blog-home-nuxt\utils\cookie.ts
  */
@@ -11,46 +11,46 @@ export const TokenKey = 'x-accessToken'
 export const RefreshTokenKey = 'x-refreshToken'
 export const InfoKey = 'x-userInfo'
 
-let day = 1 // 一天时间
-export function getToken () {
-  return Cookies.get(TokenKey)
+const DAY: number = 1 // 一天时间
+export function getToken (key = TokenKey) {
+  // console.log(`${key}======>`, Cookies.get(key))
+  return Cookies.get(key)
 }
 
-export function setToken (type: string, token: string, time = 28800000) {
-  day = time / (1000 * 60 * 60 * 24) // 一天时间
-  return Cookies.set(TokenKey, type + ' ' + token, { expires: day, })
+export function setToken (key = TokenKey, token: string, type: string = '', day = DAY) {
+  return Cookies.set(key, type + token, { expires: day, })
 }
 
-export function removeToken () {
-  return Cookies.remove(TokenKey)
+export function removeToken (key = TokenKey) {
+  return Cookies.remove(key)
 }
 
-export function getInfo () {
-  const userInfo = Cookies.get(InfoKey) || '{}'
+export function getInfo (key = InfoKey) {
+  const userInfo = Cookies.get(key) || '{}'
   if (userInfo) {
     return JSON.parse(unescape(userInfo))
   }
 }
-export function setInfo (userData = {}) {
+export function setInfo (userData = {}, key = InfoKey, day = DAY) {
   userData = JSON.stringify(userData)
-  return Cookies.set(InfoKey, userData, { expires: day, })
+  return Cookies.set(key, userData, { expires: day, })
 }
 
-export function removeInfo () {
+export function removeInfo (key = InfoKey) {
   return Cookies.remove(InfoKey)
 }
 export function setNormalToken (
   type: string,
   token: string,
   time: number,
-  tokenKey = 'access_token'
+  tokenKey = 'access_token',
+  day = DAY
 ) {
-  day = time / (1000 * 60 * 60 * 24) // 一天时间
+  // day = time / (1000 * 60 * 60 * 24) // 一天时间
   return Cookies.set(tokenKey, type + ' ' + token, { expires: day, })
 }
 // cookie 过期时间 expires_at
-export function setExpires (expiresAt: string, time: number) {
-  day = time / (1000 * 60 * 60 * 24)
+export function setExpires (expiresAt: string, day = DAY) {
   return Cookies.set('expires_at', expiresAt, { expires: day, })
 }
 

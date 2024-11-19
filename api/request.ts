@@ -1,6 +1,8 @@
+import type { ApiResponse } from './ApiResponse'
 import { baseUrl } from '~~/config'
 import { messageDanger } from '~~/utils/toast'
-import { TokenKey, RefreshTokenKey } from '@/utils/cookie'
+import { setToken, getToken, removeToken, TokenKey, RefreshTokenKey } from '@/utils/cookie'
+
 const openRequestLog = true
 const log = (msg: string, type = 'log') => {
   if (openRequestLog) {
@@ -50,7 +52,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
     params: ['GET', 'DELETE'].includes(method.toUpperCase()) ? params : undefined,
     body: ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) ? body : undefined,
     onRequest (ctx: any) {
-      ctx.options.headers.Authorization = getToken()
+      // ctx.options.headers.Authorization = 'Bearer ' + getToken()
     },
   }
   return await new Promise((resolve, reject) => {
@@ -66,6 +68,10 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
     }
     apiFetch<ApiResponse>(url, {
       ...config,
+      headers: {
+        ...config.headers,
+        Authorization: 'Bearer ' + getToken(),
+      },
       onResponse (ctx) {
         const status: number = ctx.response.status
         if (status === 200 || status === 201) {
@@ -109,7 +115,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
               // 清除token
               const token = useToken()
               token.value = ''
-              localStorage.setItem(TokenKey, '')
+              removeToken(TokenKey)
               console.log(ctx.response._data.message)
             }
           } else {
@@ -124,16 +130,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
     })
   })
 }
-// 获取 token
-const getToken = () => {
-  const tk = useToken()
-  let token = ''
-  if (tk.value) {
-    token = 'Bearer ' + tk.value
-  }
-  // log({ token });
-  return token
-}
+
 const get = async (url: string, params = {}): Promise<any> => {
   return await $http(url, { method: 'GET', params, }).then(res => res.data)
 }
@@ -153,10 +150,12 @@ const put = async (url: string, params = {}): Promise<any> => {
 async function refreshToken () {
   const token = useToken()
   const userInfo = useUserInfo()
-  const accessToken = localStorage.getItem(RefreshTokenKey) || ''
-  const res = await get('/user/refresh', { token: accessToken, })
-  localStorage.setItem(TokenKey, res.accessToken)
-  localStorage.setItem(RefreshTokenKey, res.refreshToken)
+  const refreshToken = getToken(RefreshTokenKey)
+
+  const res = await get('/user/refresh', { token: refreshToken, })
+  setToken(TokenKey, res.accessToken)
+  setToken(RefreshTokenKey, res.refreshToken, '', 7)
+
   token.value = res.accessToken
   const { nickname, homepage, intro, avatar, id: uid, role, } = res.user
   userInfo.value = {

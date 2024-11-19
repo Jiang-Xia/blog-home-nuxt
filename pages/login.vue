@@ -4,7 +4,7 @@
   import { messageDanger, messageSuccess } from '~~/utils/toast'
   import { baseUrl } from '~~/config'
   import { isPC } from '~/utils/common'
-  import { TokenKey, RefreshTokenKey } from '@/utils/cookie'
+  import { setToken, TokenKey, RefreshTokenKey } from '@/utils/cookie'
   // import { useMainStore } from '~/stores'
   let rsaEncrypt: any
   // 客户端才引入
@@ -55,8 +55,8 @@
       res = await request.post('/user/login', params)
       token.value = res.info.accessToken
       await navigateTo('/')
-      localStorage.setItem(TokenKey, token.value)
-      localStorage.setItem(RefreshTokenKey, res.info.refreshToken)
+      setToken(TokenKey, res.info.accessToken)
+      setToken(RefreshTokenKey, res.info.refreshToken, '', 7)
       messageSuccess('登录成功')
     } catch (err) {}
   }

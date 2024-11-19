@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2024-04-18 13:44:51
+ * @LastEditTime: 2024-11-19 15:11:07
  * @Description:
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -14,7 +14,7 @@
   import { throttle } from '~~/utils'
   import api from '@/api'
   import { adminUrl } from '@/config'
-  import { TokenKey } from '@/utils/cookie'
+  import { TokenKey, getToken, removeToken } from '@/utils/cookie'
 
   const navList = ref([
     {
@@ -140,11 +140,11 @@
 
   const clear = () => {
     token.value = ''
-    localStorage.setItem(TokenKey, '')
+    removeToken(TokenKey)
     useClearUserInfo()
   }
   if (process.client) {
-    token.value = localStorage.getItem(TokenKey) || ('' as string)
+    token.value = getToken(TokenKey)
     if (token.value) {
       api.getUserInfo().then((res: any) => {
         userInfo.value = res
