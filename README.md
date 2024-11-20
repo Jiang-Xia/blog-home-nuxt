@@ -27,7 +27,7 @@ Blog Home Nuxt 是一个基于 Vue3、Vite4、TypeScript、Nuxt3、Tailwindcss�
 - **代码规范**：丰富的规范插件及极高的代码规范
 
 ## 推荐IDE
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+- [VSCode](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
 
 
 ## 在线预览
@@ -49,7 +49,8 @@ Blog Home Nuxt 是一个基于 Vue3、Vite4、TypeScript、Nuxt3、Tailwindcss�
 - 安装依赖
 
 ```bash
-npm install
+yarn install
+# npm install 安装暂时有问题
 ```
 
 ## 开发服务
