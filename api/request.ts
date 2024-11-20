@@ -66,11 +66,12 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
     } else {
       requestMap.set(requestId, options)
     }
+    const token = getToken()
     apiFetch<ApiResponse>(url, {
       ...config,
       headers: {
         ...config.headers,
-        Authorization: 'Bearer ' + getToken(),
+        Authorization: token ? 'Bearer ' + token : '',
       },
       onResponse (ctx) {
         const status: number = ctx.response.status
