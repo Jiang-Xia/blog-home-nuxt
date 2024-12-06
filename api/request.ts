@@ -42,7 +42,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
   //   body,
   //   bool: ["POST", "PUT", "PATCH"].includes(method.toUpperCase()),
   // });
-  const config: any = {
+  const defaultConfig: any = {
     headers: {
       ...headers,
     },
@@ -66,13 +66,17 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
     } else {
       requestMap.set(requestId, options)
     }
-    const token = getToken()
+    const getTk = () => {
+      const token = getToken()
+      return token ? 'Bearer ' + token : ''
+    }
+    const getDTconfig = () => {
+      const config = defaultConfig
+      config.headers.Authorization = getTk()
+      return config
+    }
     apiFetch<ApiResponse>(url, {
-      ...config,
-      headers: {
-        ...config.headers,
-        Authorization: token ? 'Bearer ' + token : '',
-      },
+      ...getDTconfig(),
       onResponse (ctx) {
         const status: number = ctx.response.status
         if (status === 200 || status === 201) {
@@ -89,7 +93,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
         const status: number = ctx.response.status
         if (refreshing) {
           queue.push({
-            config,
+            config: getDTconfig(),
             url,
             // 作用是把当前状态为pending的promise放进全局数组中
             // 刷新完token之后再把对应的promise状态改为fulfilled，
@@ -107,11 +111,13 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
             refreshing = false
             if (res) {
               queue.forEach(({ config, url, fn, }) => {
+                // 需动态重装config 查询获取本地的token
+                config.headers.Authorization = getTk()
                 fn(apiFetch(url, config))
               })
               console.log('queue', queue)
               queue = []
-              resolve(apiFetch(url, config))
+              resolve(apiFetch(url, getDTconfig()))
             } else {
               // 清除token
               const token = useToken()
