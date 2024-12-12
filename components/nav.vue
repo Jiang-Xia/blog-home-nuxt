@@ -14,7 +14,7 @@
   import { throttle } from '~~/utils'
   import api from '@/api'
   import { adminUrl } from '@/config'
-  import { TokenKey, getToken, removeToken } from '@/utils/cookie'
+  import { TokenKey, RefreshTokenKey, getToken, removeToken } from '@/utils/cookie'
 
   const navList = ref([
     {
@@ -141,6 +141,7 @@
   const clear = () => {
     token.value = ''
     removeToken(TokenKey)
+    removeToken(RefreshTokenKey)
     useClearUserInfo()
   }
   if (process.client) {

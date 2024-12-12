@@ -151,6 +151,10 @@
 </template>
 <style lang="less">
   /* 这样写法好像也怎么只管看到类名，也不利于根据类名搜索 */
+  body {
+    background: var(--main-bgc);
+    color: var(--hover-color);
+  }
   .app-layout {
     background: var(--main-bgc);
     color: var(--text-color);

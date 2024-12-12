@@ -27,8 +27,8 @@
         'microphones.value',
         microphones.value.map(c => c.deviceId)
       )
-      currentCamera.value = cameras.value[0].deviceId
-      currentMicrophone.value = microphones.value[0].deviceId
+      currentCamera.value = cameras.value[0]?.deviceId
+      currentMicrophone.value = microphones.value[0]?.deviceId
     }
   )
   const changeCamera: any = (e: any) => {

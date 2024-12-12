@@ -71,9 +71,9 @@
   // 下一页
   const getArticleListHandle = async (val = 1) => {
     queryPrams.page = val
-    const { data: res, } = await useAsyncData('index_GetList', () => getArticleList(queryPrams))
-    articleList.value = res.value.list
-    queryPrams.total = res.value.pagination.total
+    const res = await getArticleList(queryPrams)
+    articleList.value = res.list
+    queryPrams.total = res.pagination.total
   }
   // 获取标签名(暂时没有用)
   const getTagLabel = (arr: []): string => {
@@ -158,11 +158,14 @@
   const weatherUrl =
     'https://api.vvhan.com/api/ipCard?tip=Hello ' + (userInfo.value.nickname || '亲爱的路人！')
 
-  onMounted(async () => {
-    // 古诗词
-    weatherData.value = await getWeather()
-    //  console.log(weatherData.value)
-  })
+  onMounted(
+    /* async */ () => {
+      // 古诗词
+      // weatherData.value = await getWeather()
+      //  console.log(weatherData.value)
+      // messageDanger('请输入你的评论！')
+    }
+  )
   const theme = useTheme()
 </script>
 
