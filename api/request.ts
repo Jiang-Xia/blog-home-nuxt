@@ -5,8 +5,7 @@ import { setToken, getToken, removeToken, TokenKey, RefreshTokenKey } from '@/ut
 import { aesEncrypt, aesDecrypt } from '~~/utils/crypto'
 
 const openRequestLog = true
-const openEncrypt = import.meta.env.VITE_NUXT_OPEN_ENCRYPT
-console.log(openEncrypt)
+const openEncrypt = import.meta.env.VITE_NUXT_OPEN_ENCRYPT === 'true'
 const log = (msg: string, type = 'log') => {
   if (openRequestLog) {
     // @ts-ignore:
