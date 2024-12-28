@@ -12,7 +12,9 @@ console.warn({
 export default defineNuxtConfig({
   // debug: process.env.NODE_ENV !== 'production',
   debug: false,
+
   devtools: { enabled: false, },
+
   modules: [
     '@vueuse/nuxt',
     '~/modules/sitemap',
@@ -20,9 +22,11 @@ export default defineNuxtConfig({
     '@pinia/nuxt'
     //  '@kevinmarrec/nuxt-pwa'
   ],
+
   sitemap: {
     hostname: 'https://jiang-xia.top',
   },
+
   // pwa: {
   //   workbox: {
   //     enabled: process.env.NODE_ENV === 'production',
@@ -48,19 +52,23 @@ export default defineNuxtConfig({
       mode: 'out-in',
     },
   },
+
   // build: {
   //   // 打开分析报告
   //   analyze: true,
   // },
   // buildDir: 'dist',
   css: ['~/assets/css/main.css'],
+
   postcss: {
     plugins: {
       tailwindcss: {},
       autoprefixer: {},
     },
   },
+
   js: [],
+
   vite: {
     define: {},
     plugins: [
@@ -70,11 +78,13 @@ export default defineNuxtConfig({
       })
     ],
   },
+
   // head: {
   //   // 这里配置不生效
   //   script: [{ src: '', }],
   // },
   router: {},
+
   // 此文件只能用process
   nitro: {
     // 配置代理
@@ -86,8 +96,11 @@ export default defineNuxtConfig({
       },
     },
   },
+
   devServer: {
     // 证书安装 https://zhuanlan.zhihu.com/p/678165318
     https: false,
   },
+
+  compatibilityDate: '2024-12-28',
 })

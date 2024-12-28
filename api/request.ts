@@ -2,8 +2,11 @@ import type { ApiResponse } from './ApiResponse'
 import { baseUrl } from '~~/config'
 import { messageDanger } from '~~/utils/toast'
 import { setToken, getToken, removeToken, TokenKey, RefreshTokenKey } from '@/utils/cookie'
+import { aesEncrypt, aesDecrypt } from '~~/utils/crypto'
 
 const openRequestLog = true
+const openEncrypt = import.meta.env.VITE_NUXT_OPEN_ENCRYPT
+console.log(openEncrypt)
 const log = (msg: string, type = 'log') => {
   if (openRequestLog) {
     // @ts-ignore:
@@ -32,16 +35,51 @@ export const awaitWrap = <T, U = any>(promise: Promise<T>): Promise<[U | null, T
 }
 // 防止重复请求
 const requestMap = new Map()
+
+// 加密请求 body
+const encryptMsg = (body: any, url: string) => {
+  const bool = url.includes('encrypt')
+  if (bool && body) {
+    // console.log('encryptMsg-body====>', JSON.stringify(body))
+    body = aesEncrypt(JSON.stringify(body))
+    // console.log('encryptMsg-body====>', body)
+    // console.log('encryptMsg-body====>', { content: body, })
+    return {
+      content: body,
+    }
+  } else {
+    return body
+  }
+}
+
+// 解密响应 body
+const decryptMsg = (body: any, url: string) => {
+  const bool = url.includes('encrypt')
+  if (bool && body) {
+    body = aesDecrypt(body.content)
+    body = JSON.parse(body)
+    // console.log('decryptMsg-body', body)
+    return body
+  } else {
+    return body
+  }
+}
+
 // 创建一个实例
 const apiFetch = $fetch.create({ baseURL: baseUrl, })
 const $http = async (url: string, options: any): Promise<ApiResponse> => {
-  const { method = 'GET', params = {}, body = {}, headers, } = options
+  const { method = 'GET', params = {}, headers, } = options
   // log({
   //   method,
   //   params,
   //   body,
   //   bool: ["POST", "PUT", "PATCH"].includes(method.toUpperCase()),
   // });
+  if (openEncrypt && !url.includes('http')) {
+    url = '/encrypt' + url
+  }
+  const body = encryptMsg(options.body, url)
+
   const defaultConfig: any = {
     headers: {
       ...headers,
@@ -58,14 +96,16 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
   return await new Promise((resolve, reject) => {
     const requestId = `${url}_${JSON.stringify(options)}`
     log(`请求开始 req --------------> ${url}`)
-    if (requestMap.has(requestId)) {
-      // log('正在请求中 requestId-------------->', requestId)
-      log(`防抖，禁止重复请求！--------------> ${url}`, 'warn')
-      reject(new Error('防抖，禁止重复请求！'))
-      return
-    } else {
-      requestMap.set(requestId, options)
-    }
+    try {
+      if (requestMap.has(requestId)) {
+        // log('正在请求中 requestId-------------->', requestId)
+        log(`防抖，禁止重复请求！--------------> ${url}`, 'warn')
+        reject(new Error('防抖，禁止重复请求！'))
+        return
+      } else {
+        requestMap.set(requestId, options)
+      }
+    } catch (error) {}
     const getTk = () => {
       const token = getToken()
       return token ? 'Bearer ' + token : ''
@@ -78,11 +118,14 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
     apiFetch<ApiResponse>(url, {
       ...getDTconfig(),
       onResponse (ctx) {
+        log(`请求结束 res --------------> ${url}`)
+        requestMap.delete(requestId)
         const status: number = ctx.response.status
+        const body = decryptMsg(ctx.response._data, url)
+        // console.log('onResponse =====>', ctx.response._data)
+
         if (status === 200 || status === 201) {
-          resolve(ctx.response._data)
-          log(`请求结束 res --------------> ${url}`)
-          requestMap.delete(requestId)
+          resolve(body)
         }
       },
       async onResponseError (ctx: any) {
