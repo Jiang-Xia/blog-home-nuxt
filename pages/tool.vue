@@ -57,6 +57,11 @@
       path: '/tool/test',
       title: '测试',
       icon: 'blog-ceshi1',
+    },
+    {
+      path: '/tool/des',
+      title: 'RSA加解密工具',
+      icon: 'blog-jiami',
     }
   ]
   const menuList = ref(dataList)
