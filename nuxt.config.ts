@@ -43,7 +43,8 @@ export default defineNuxtConfig({
       ],
       script: [
         { defer: true, src: 'https://cdn.staticfile.net/pdf-lib/1.17.1/pdf-lib.min.js', },
-        { defer: true, src: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js', }
+        { defer: true, src: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js', },
+        { defer: true, src: 'jsencrypt.min.js', }
       ],
     },
     pageTransition: {

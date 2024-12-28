@@ -132,6 +132,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
         const { url, } = ctx.response
         log(`请求结束 fail onResponseError --------------> ${url}`)
         requestMap.delete(requestId)
+        const body = decryptMsg(ctx.response._data, url)
         // log('status', ctx.response)
         const status: number = ctx.response.status
         if (refreshing) {
@@ -166,12 +167,12 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
               const token = useToken()
               token.value = ''
               removeToken(TokenKey)
-              console.log(ctx.response._data.message)
+              console.log(body.message)
             }
           } else {
             // 其他状态码直接变为reject
-            messageDanger(ctx.response._data.message || '')
-            reject(ctx.response._data)
+            messageDanger(body.message || '')
+            reject(body)
           }
         } catch (error) {
           reject(error)

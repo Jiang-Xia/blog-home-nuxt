@@ -9,7 +9,7 @@
   let rsaEncrypt: any
   // 客户端才引入
   if (process.client) {
-    import('~~/utils/crypto').then((res) => {
+    import('~~/utils/jsencrypt').then((res) => {
       rsaEncrypt = res.rsaEncrypt
     })
   }

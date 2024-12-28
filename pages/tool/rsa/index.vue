@@ -101,9 +101,8 @@
   </div>
 </template>
 <script setup lang="ts">
-  import JSEncrypt from 'jsencrypt'
   import { publicKey as pubkey, privateKey as priKey } from '~~/config/ssh'
-  import { rsaEncrypt, rsaDecrypt } from '~~/utils/crypto'
+  import { rsaEncrypt, rsaDecrypt } from '~~/utils/jsencrypt'
   import { messageDanger } from '~~/utils/toast'
 
   definePageMeta({
@@ -114,7 +113,7 @@
   const privateKey = ref('')
   const publicKey = ref('')
   const createKey = () => {
-    const encryptor = new JSEncrypt({ default_key_size: keySize.value, })
+    const encryptor = new window.JSEncrypt({ default_key_size: keySize.value, })
     publicKey.value = encryptor.getPublicKey()
     privateKey.value = encryptor.getPrivateKey()
   }

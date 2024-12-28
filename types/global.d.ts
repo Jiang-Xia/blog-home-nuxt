@@ -32,3 +32,5 @@ declare module 'tailvue'
 declare const pdfjsLib: any
 // pdf-lib全局对象
 declare const PDFLib: any
+// rsa加密库全剧对象
+declare const JSEncrypt: any
