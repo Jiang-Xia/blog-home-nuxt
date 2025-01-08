@@ -54,7 +54,8 @@ const encryptMsg = (body: any, url: string) => {
 // 解密响应 body
 const decryptMsg = (body: any, url: string) => {
   const bool = url.includes('encrypt')
-  if (bool && body) {
+  if (bool && body && body.content) {
+    // console.log('decryptMsg-body', body)
     body = aesDecrypt(body.content)
     body = JSON.parse(body)
     // console.log('decryptMsg-body', body)
