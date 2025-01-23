@@ -48,6 +48,7 @@
     "dayjs": "^1.11.13",
     "js-cookie": "^3.0.5",
     "jsbarcode": "^3.11.6",
+    "jszip": "^3.10.1",
     "md-editor-v3": "^5.0.2",
     "pinia": "^2.2.6",
     "qrcode": "^1.5.4",

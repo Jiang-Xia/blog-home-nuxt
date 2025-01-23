@@ -34,6 +34,11 @@
       icon: 'blog-pdf1',
     },
     {
+      path: '/tool/watermark',
+      title: '水印',
+      icon: 'blog-yinzhang',
+    },
+    {
       path: '/tool/audio-visualized',
       title: '音频可视化',
       icon: 'blog-yinpin1',
