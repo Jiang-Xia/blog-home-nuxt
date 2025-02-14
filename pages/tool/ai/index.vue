@@ -56,17 +56,17 @@
             </div>
             <div class="chat-bubble">
               <div class="opacity-50 text-xs mb-3">
-                <p class="font-semibold">深度思考：</p>
-                {{ item.reasoning_content }}
+                <p class="font-semibold">深度思{{ loading ? '中' : '' }}：</p>
+                {{ item.reasoning_content || '' }}
               </div>
-              <div>{{ item.content }}</div>
+              <div>{{ item.content || '' }}</div>
             </div>
             <!-- <div class="chat-footer opacity-50">Delivered</div> -->
           </div>
 
           <div v-if="item.role === 'user'" class="chat chat-end">
             <div class="chat-bubble bg-blue-200 text-accent-content">
-              {{ item.content }}
+              {{ item.content || '' }}
             </div>
           </div>
         </template>
