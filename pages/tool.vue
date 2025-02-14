@@ -72,6 +72,11 @@
       path: '/tool/des',
       title: '对称加密工具',
       icon: 'blog-encrypted',
+    },
+    {
+      path: '/tool/ai',
+      title: 'AI',
+      icon: 'blog-AI',
     }
   ]
   const menuList = ref(dataList)

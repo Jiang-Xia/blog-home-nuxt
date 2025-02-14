@@ -54,6 +54,7 @@
     "qrcode": "^1.5.4",
     "smooth-signature": "^1.0.15",
     "spark-md5": "^3.0.2",
+    "sse.js": "^2.5.0",
     "tailvue": "^1.0.0",
     "vue": "^3.5.13"
   },

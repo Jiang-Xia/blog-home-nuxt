@@ -150,7 +150,7 @@
   }
   const isViewerOpen = ref(false)
   const initialIndex = ref(0)
-  const openViewer = (index) => {
+  const openViewer = (index: any) => {
     isViewerOpen.value = true
     initialIndex.value = index
   }
