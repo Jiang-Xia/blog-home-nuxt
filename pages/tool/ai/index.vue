@@ -15,12 +15,19 @@
           </div>
           <div class="flex items-center mb-4">
             <span class="w-20"><span class="text-red-600">*</span>model</span>
-            <input
+            <!-- <input
               v-model="model"
               type="text"
-              placeholder="模型"
+              placeholder="deepseek-reasoner或者deepseek-chat"
               class="input input-bordered input-md max-w-xs w-5/6"
+            > -->
+            <select
+              v-model="model"
+              placeholder="模型"
+              class="select select-accent select-bordered max-w-xs w-5/6"
             >
+              <option v-for="item in modelList" :value="item.value">{{ item.label }}</option>
+            </select>
           </div>
           <div class="flex items-center mb-4">
             <span class="w-20"><span class="text-red-600">*</span>apiKey</span>
@@ -47,19 +54,18 @@
                 <xia-icon width="30px" height="30px" icon="blog-jiqiren" />
               </div>
             </div>
-            <div class="chat-header">
-              <span
-                v-if="index === chatList.length - 1 && loading"
-                class="loading loading-infinity loading-md"
-              />
-              <!-- <time class="text-xs opacity-50">12:45</time> -->
-            </div>
             <div class="chat-bubble">
-              <div class="opacity-50 text-xs mb-3">
-                <p class="font-semibold">深度思{{ loading ? '中' : '' }}：</p>
+              <div v-if="model === 'deepseek-reasoner'" class="opacity-50 text-xs mb-3">
+                <p class="font-semibold">深度思考{{ loading ? '中' : '' }}：</p>
                 {{ item.reasoning_content || '' }}
               </div>
               <div>{{ item.content || '' }}</div>
+              <div>
+                <span
+                  v-if="index === chatList.length - 1 && loading"
+                  class="loading loading-infinity loading-md"
+                />
+              </div>
             </div>
             <!-- <div class="chat-footer opacity-50">Delivered</div> -->
           </div>
@@ -89,11 +95,22 @@
 <script setup lang="ts">
   import { SSE } from 'sse.js'
   import { messageDanger } from '~~/utils/toast'
+  const modelList = ref([
+    {
+      value: 'deepseek-reasoner',
+      label: 'deepseek-reasoner',
+    },
+    {
+      value: 'deepseek-chat',
+      label: 'deepseek-chat',
+    }
+  ])
   const chatList = ref<any[]>([])
-  const inputText = ref('给我写一篇关于爬墙出学校的300字检讨书')
+  const inputText = ref('你好，给我讲个关于程序员的冷笑话吧')
   const baseURL = ref('https://api.deepseek.com')
-  const model = ref('deepseek-reasoner')
-  // const model = ref('deepseek-chat')
+  // const baseURL = ref('https://api.openai.com/v1')
+  // const model = ref('deepseek-reasoner')
+  const model = ref('deepseek-chat')
 
   // const baseURL = ref('http://localhost:11434/api/chat')
   // const model = ref('deepseek-r1:1.5b')
@@ -142,8 +159,8 @@
         // 完成时，可以做一些处理
       } else {
         const chunk = JSON.parse(event.data)
-        const reasoningContent = chunk.choices[0].delta.reasoning_content
-        const content = chunk.choices[0].delta.content
+        const reasoningContent = chunk.choices[0].delta.reasoning_content || ''
+        const content = chunk.choices[0].delta.content || ''
         if (chunk.choices[0].delta.reasoning_content) {
           chatList.value[chatList.value.length - 1].reasoning_content =
             chatList.value[chatList.value.length - 1].reasoning_content + reasoningContent
