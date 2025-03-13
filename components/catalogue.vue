@@ -1,20 +1,21 @@
 <script setup lang="ts">
-  import { type PropType } from 'vue'
-  import { type tocInter } from '@/utils'
-  defineProps({
-    topics: {
-      type: Array as PropType<tocInter[]>,
-      default: () => [],
-    },
-  })
-  const goTopicItem = (item: tocInter) => {
-    const dom: HTMLElement | null = document.getElementById(item.id)
-    if (dom) {
-      const wh = window.innerHeight * 0.4 + 20 // 20为margin值
-      const top = dom.offsetTop
-      document.documentElement.scrollTop = wh + top - 58
-    }
+import type { PropType } from 'vue';
+import type { tocInter } from '@/utils';
+
+defineProps({
+  topics: {
+    type: Array as PropType<tocInter[]>,
+    default: () => [],
+  },
+});
+const goTopicItem = (item: tocInter) => {
+  const dom: HTMLElement | null = document.getElementById(item.id);
+  if (dom) {
+    const wh = window.innerHeight * 0.4 + 20; // 20为margin值
+    const top = dom.offsetTop;
+    document.documentElement.scrollTop = wh + top - 58;
   }
+};
   // 滚动高亮目录没有做
   // const currentActive = ref(null)
   // const scrollHandle = (e: any) => {
@@ -22,9 +23,12 @@
   // }
   // window.addEventListener('scroll', throttle(scrollHandle, 100), true)
 </script>
+
 <template>
   <div class="catalogue-wrap">
-    <p class="heading">目录</p>
+    <p class="heading">
+      目录
+    </p>
     <div
       v-for="item in topics"
       :key="item.id"
@@ -38,6 +42,7 @@
     </div>
   </div>
 </template>
+
 <style lang="less" scoped>
   .catalogue-wrap {
     width: 100%;

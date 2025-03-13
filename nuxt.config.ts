@@ -1,50 +1,41 @@
-// import { fileURLToPath } from 'node:url'
-// import fs from 'fs'
-import Icons from 'unplugin-icons/vite'
+// https://nuxt.com/docs/api/configuration/nuxt-config
+import Icons from 'unplugin-icons/vite';
 
-const prefixPath: any = process.env.VITE_NUXT_PREFIX_PATH
+const prefixPath: any = process.env.VITE_NUXT_PREFIX_PATH;
 console.warn({
   BASE_URL: process.env.VITE_NUXT_BASE_URL,
   当前环境: process.env.NODE_ENV,
   prefixPath,
-})
-// https://v3.nuxtjs.org/api/configuration/nuxt.config
+});
 export default defineNuxtConfig({
-  // debug: process.env.NODE_ENV !== 'production',
-  debug: false,
-
-  devtools: { enabled: false, },
-
   modules: [
+    '@nuxt/eslint',
+    '@nuxtjs/stylelint-module',
+    '@nuxtjs/tailwindcss',
     '@vueuse/nuxt',
     '~/modules/sitemap',
     '@tailvue/nuxt',
-    '@pinia/nuxt'
-    //  '@kevinmarrec/nuxt-pwa'
+    '@pinia/nuxt',
   ],
-
-  sitemap: {
-    hostname: 'https://jiang-xia.top',
-  },
-
-  // pwa: {
-  //   workbox: {
-  //     enabled: process.env.NODE_ENV === 'production',
-  //   },
-  //   manifest: {
-  //     name: 'Blog',
-  //     short_name: 'Blog',
-  //   },
-  // },
+  devtools: { enabled: true },
   app: {
     head: {
       link: [
-        { rel: 'stylesheet', href: 'https://cdn.staticfile.org/csshake/1.5.3/csshake.min.css', }
+        {
+          rel: 'stylesheet',
+          href: 'https://cdn.staticfile.org/csshake/1.5.3/csshake.min.css',
+        },
       ],
       script: [
-        { defer: true, src: 'https://cdn.staticfile.net/pdf-lib/1.17.1/pdf-lib.min.js', },
-        { defer: true, src: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js', },
-        { defer: true, src: 'jsencrypt.min.js', }
+        {
+          defer: true,
+          src: 'https://cdn.staticfile.net/pdf-lib/1.17.1/pdf-lib.min.js',
+        },
+        {
+          defer: true,
+          src: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js',
+        },
+        { defer: true, src: 'jsencrypt.min.js' },
       ],
     },
     pageTransition: {
@@ -53,39 +44,13 @@ export default defineNuxtConfig({
       mode: 'out-in',
     },
   },
-
-  // build: {
-  //   // 打开分析报告
-  //   analyze: true,
-  // },
-  // buildDir: 'dist',
   css: ['~/assets/css/main.css'],
 
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
+  devServer: {
+    // 证书安装 https://zhuanlan.zhihu.com/p/678165318
+    https: false,
   },
-
-  js: [],
-
-  vite: {
-    define: {},
-    plugins: [
-      Icons({
-        // the feature below is experimental ⬇️
-        autoInstall: true,
-      })
-    ],
-  },
-
-  // head: {
-  //   // 这里配置不生效
-  //   script: [{ src: '', }],
-  // },
-  router: {},
-
+  compatibilityDate: '2024-11-01',
   // 此文件只能用process
   nitro: {
     // 配置代理
@@ -97,11 +62,31 @@ export default defineNuxtConfig({
       },
     },
   },
-
-  devServer: {
-    // 证书安装 https://zhuanlan.zhihu.com/p/678165318
-    https: false,
+  vite: {
+    plugins: [
+      Icons({
+        // the feature below is experimental ⬇️
+        autoInstall: true,
+      }),
+    ],
   },
-
-  compatibilityDate: '2024-12-28',
-})
+  eslint: {
+    config: {
+      stylistic: {
+        indent: 2, // 缩进
+        semi: true, // 分号
+        quotes: 'single', // 单引号
+        jsx: true, // 支持jsx
+      },
+    },
+  },
+  sitemap: {
+    hostname: 'https://jiang-xia.top',
+  },
+  stylelint: {
+    /* module options */
+  },
+  tailwindcss: {
+    cssPath: '~/assets/css/main.css',
+  },
+});

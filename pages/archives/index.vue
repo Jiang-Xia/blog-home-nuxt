@@ -1,26 +1,28 @@
 <script setup lang="ts">
-  import { ref } from 'vue'
-  import dayjs from 'dayjs'
-  import { getArchives } from '@/api/article'
-  import { SiteTitle } from '@/utils/constant'
+import { ref } from 'vue';
+import dayjs from 'dayjs';
+import { getArchives } from '@/api/article';
+import { SiteTitle } from '@/utils/constant';
 
-  // 默认展开当前年
-  const activeArr: string[] = [String(dayjs().year())]
-  const defaultActiveKey = ref(activeArr)
-  const { data: archivesList, } = await useAsyncData('archives_GetList', () => getArchives())
-  defaultActiveKey.value = Object.keys(archivesList.value)
+// 默认展开当前年
+const activeArr: string[] = [String(dayjs().year())];
+const defaultActiveKey = ref(activeArr);
+const { data: archivesList } = await useAsyncData('archives_GetList', () => getArchives());
+defaultActiveKey.value = Object.keys(archivesList.value);
 
-  useHead({
-    title: '归档',
-    titleTemplate: title => `${title} - ${SiteTitle}`,
-  })
+useHead({
+  title: '归档',
+  titleTemplate: title => `${title} - ${SiteTitle}`,
+});
 </script>
 
 <template>
   <!-- default布局和custom布局只能二选一 -->
   <NuxtLayout name="main-content">
     <div class="archives-container">
-      <h1 class="hidden"> 文章归档 - {{ SiteTitle }} </h1>
+      <h1 class="hidden">
+        文章归档 - {{ SiteTitle }}
+      </h1>
       <div
         v-for="(archive, idx) in archivesList"
         :key="idx"
@@ -28,18 +30,31 @@
         class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box shadow-xl mb-4"
       >
         <!-- 设置选择就勾选了 -->
-        <input type="checkbox" checked>
+        <input
+          type="checkbox"
+          checked
+        >
         <div class="collapse-title text-xl font-medium">
           {{ archive.year }}
         </div>
         <div class="collapse-content">
-          <div v-for="(value2, key2) in archive.data" :key="key2">
+          <div
+            v-for="(value2, key2) in archive.data"
+            :key="key2"
+          >
             <h4 class="month">
               {{ key2 }}
             </h4>
             <ul class="menu menu-md lg:menu-lg lg:w-4/5 bg-base-100 p-2 rounded-box">
-              <li v-for="(item, index) in value2" :key="index" class="font-semibold">
-                <nuxt-link :to="'/detail/' + item.id" class="flex">
+              <li
+                v-for="(item, index) in value2"
+                :key="index"
+                class="font-semibold"
+              >
+                <nuxt-link
+                  :to="'/detail/' + item.id"
+                  class="flex"
+                >
                   <span class="badge badge-neutral badge-md min-w-fit">{{
                     dayjs(item.createTime).format('YYYY-MM-DD')
                   }}</span>
@@ -55,6 +70,7 @@
     </div>
   </NuxtLayout>
 </template>
+
 <style lang="less" scoped>
   .archives-container {
     min-height: 100%;

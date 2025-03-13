@@ -1,44 +1,66 @@
 <script setup lang="ts">
-  import { gushici } from '@/api/index'
-  import { SiteTitle } from '@/utils/constant'
+import { gushici } from '@/api/index';
+import { SiteTitle } from '@/utils/constant';
 
-  const banners = useBanners()
-  // console.log(imagesData);
-  useHead({
-    title: '文章列表',
-    titleTemplate: title => `${title} - ${SiteTitle}`,
-  })
-  // 古诗词
-  // const { data: gushiciData, } = await useAsyncData('gushici_Get', () => gushici())
-  const gushiciData = ref<any>({})
-  gushici().then((res) => {
-    gushiciData.value = res
-  })
-  // 下一页
-  const goToNextPage = () => {
-    window.scroll({ top: window.innerHeight, left: 0, behavior: 'smooth', })
-  }
+const banners = useBanners();
+// console.log(imagesData);
+useHead({
+  title: '文章列表',
+  titleTemplate: title => `${title} - ${SiteTitle}`,
+});
+// 古诗词
+// const { data: gushiciData, } = await useAsyncData('gushici_Get', () => gushici())
+const gushiciData = ref<any>({});
+gushici().then((res) => {
+  gushiciData.value = res;
+});
+// 下一页
+const goToNextPage = () => {
+  window.scroll({ top: window.innerHeight, left: 0, behavior: 'smooth' });
+};
 </script>
+
 <template>
   <div class="home-container">
-    <h1 class="hidden">首页 - {{ SiteTitle }}</h1>
+    <h1 class="hidden">
+      首页 - {{ SiteTitle }}
+    </h1>
     <!-- 全局共享布局 -->
     <section class="banner-container">
       <!-- 文字信息 -->
       <div class="site-info">
         <!-- <div id="site-title" class="site-title">江夏</div> -->
-        <div id="site-subtitle" class="site-subtitle">
-          <p class="content">{{ gushiciData.content }}</p>
+        <div
+          id="site-subtitle"
+          class="site-subtitle"
+        >
+          <p class="content">
+            {{ gushiciData.content }}
+          </p>
           <br>
-          <p class="author-info">{{ gushiciData.author }}-[{{ gushiciData.origin }}]</p>
+          <p class="author-info">
+            {{ gushiciData.author }}-[{{ gushiciData.origin }}]
+          </p>
         </div>
       </div>
       <!-- 向下提示箭头 -->
-      <div class="go-down" @click="goToNextPage">
-        <xia-icon icon="blog-double-down" height="32px" width="32px" />
+      <div
+        class="go-down"
+        @click="goToNextPage"
+      >
+        <xia-icon
+          icon="blog-double-down"
+          height="32px"
+          width="32px"
+        />
       </div>
       <div class="banner-content">
-        <xia-carousel :images="banners" :duration="60000" interval arrow />
+        <xia-carousel
+          :images="banners"
+          :duration="60000"
+          interval
+          arrow
+        />
       </div>
     </section>
     <section class="home-content">
@@ -46,6 +68,7 @@
     </section>
   </div>
 </template>
+
 <style lang="less" scoped>
   .grayscale {
     filter: grayscale(0.95);

@@ -3,7 +3,6 @@
 	<h1>Blog Home Nuxt</h1>
 </div>
 
-
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 
 ## 简介
@@ -18,8 +17,7 @@ Blog Home Nuxt 是一个基于 Vue3、Vite4、TypeScript、Nuxt3、Tailwindcss�
 - [Nuxt3](https://v3.nuxtjs.org/getting-started/quick-start)
 - [Tailwindcss](https://tailwindcss.com/docs/installation)
 - [Daisyui UI](https://daisyui.com/)
-   
-  
+
 ## 特性
 
 - **最新技术栈**：使用 Vue3/vite2 等前端前沿技术开发, 使用高效率的npm包管理器
@@ -27,20 +25,16 @@ Blog Home Nuxt 是一个基于 Vue3、Vite4、TypeScript、Nuxt3、Tailwindcss�
 - **代码规范**：丰富的规范插件及极高的代码规范
 
 ## 推荐IDE
-- [VSCode](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
 
+- [VSCode](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
 
 ## 在线预览
 
 - [Blog Home Nuxt](https://jiang-xia.top/)
 
-  
-
 ## 代码仓库
 
 - [blog-home-nuxt](https://gitee.com/jiang-xia/blog-home-nuxt)
-
-
 
 <!-- ## 项目示例图 -->
 
@@ -55,11 +49,12 @@ yarn install
 
 ## 开发服务
 
-
 - 运行
+
 ```bash
 yarn dev
 ```
+
 - [http://localhost:5050](http://localhost:5050)
 
 ## 生产打包

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-  const props = defineProps({
-    value: {
-      type: Number,
-      default: 0,
-    },
-  })
+const props = defineProps({
+  value: {
+    type: Number,
+    default: 0,
+  },
+});
 </script>
+
 <template>
   <div class="xia-progress">
     <div
@@ -21,6 +22,7 @@
     />
   </div>
 </template>
+
 <style lang="less" scoped>
   .xia-progress {
     padding: 4px 0;

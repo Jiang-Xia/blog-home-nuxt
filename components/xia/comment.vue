@@ -1,145 +1,149 @@
 <script setup lang="ts">
-  import { computed, type PropType, ref } from 'vue'
-  import { useRoute } from 'vue-router'
-  import { useModal, useToast } from 'tailvue'
-  import { beforeTimeNow } from '@/utils'
-  import { addComment, addReply, delComment, delReply } from '@/api/article'
+import { computed, type PropType, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { useModal, useToast } from 'tailvue';
+import { beforeTimeNow } from '@/utils';
+import { addComment, addReply, delComment, delReply } from '@/api/article';
 
-  import { messageDanger, messageSuccess } from '~~/utils/toast'
-  defineProps({
-    comments: {
-      type: Array as PropType<any[]>,
-      default: () => [],
-    },
-    total: {
-      type: Number,
-      default: 0,
-    },
-  })
-  const emits = defineEmits(['commented'])
-  const userInfo = useUserInfo()
-  const route = useRoute()
-  const formactTime = (item: any) => {
-    const time = new Date(item.createTime).getTime()
-    return beforeTimeNow(time)
-  }
+import { messageDanger, messageSuccess } from '~~/utils/toast';
 
-  /* 评论功能 开始 */
-  const inputContent = ref('')
-  const addCommentHandle = async () => {
-    const toast = useToast()
-    if (!inputContent.value) {
-      toast.warning('请输入你的评论！')
-    }
-    const params = {
-      uid: uid.value,
-      content: inputContent.value,
-      articleId: Number(route.params.id),
-    }
-    const res = await addComment(params)
-    if (res) {
-      messageSuccess('评论成功')
-      emits('commented')
-      inputContent.value = ''
-    }
+defineProps({
+  comments: {
+    type: Array as PropType<any[]>,
+    default: () => [],
+  },
+  total: {
+    type: Number,
+    default: 0,
+  },
+});
+const emits = defineEmits(['commented']);
+const userInfo = useUserInfo();
+const route = useRoute();
+const formactTime = (item: any) => {
+  const time = new Date(item.createTime).getTime();
+  return beforeTimeNow(time);
+};
+
+/* 评论功能 开始 */
+const inputContent = ref('');
+const addCommentHandle = async () => {
+  const toast = useToast();
+  if (!inputContent.value) {
+    toast.warning('请输入你的评论！');
   }
-  const delCommentHandle = async (id: string) => {
-    await delComment(id)
-    messageSuccess('删除成功')
-    emits('commented')
+  const params = {
+    uid: uid.value,
+    content: inputContent.value,
+    articleId: Number(route.params.id),
+  };
+  const res = await addComment(params);
+  if (res) {
+    messageSuccess('评论成功');
+    emits('commented');
+    inputContent.value = '';
   }
-  const uid = computed(() => {
-    return userInfo.value.uid
-  })
+};
+const delCommentHandle = async (id: string) => {
+  await delComment(id);
+  messageSuccess('删除成功');
+  emits('commented');
+};
+const uid = computed(() => {
+  return userInfo.value.uid;
+});
   // 当前点击回复的id评论
-  const currentReplyBoxId = ref('')
-  // 当前点击评论id（父级）
-  const currentParentId = ref('')
+const currentReplyBoxId = ref('');
+// 当前点击评论id（父级）
+const currentParentId = ref('');
 
-  // 点击回复按钮
+// 点击回复按钮
 
-  /**
+/**
    * @description: 点击回复按钮回调
    * @param {*} type 区分评论/回复
    * @param {*} item /当前评论/回复的信息
    * @param {*} pId 当点击回复时才有
    * @return {*}
    */
-  const clickReplyHandle = (type: string, item: any, pId?: string) => {
-    const $modal = useModal()
-    if (!uid.value) {
-      $modal.show({
-        type: 'danger',
-        title: '提示',
-        body: '需要登录才能评论哦',
-        primary: {
-          label: '去登录',
-          theme: 'red',
-          action: async () => {
-            await navigateTo('/login')
-          },
+const clickReplyHandle = (type: string, item: any, pId?: string) => {
+  const $modal = useModal();
+  if (!uid.value) {
+    $modal.show({
+      type: 'danger',
+      title: '提示',
+      body: '需要登录才能评论哦',
+      primary: {
+        label: '去登录',
+        theme: 'red',
+        action: async () => {
+          await navigateTo('/login');
         },
-        secondary: {
-          label: '关闭',
-          theme: 'white',
-          action: () => {},
-        },
-      })
-      return
-    }
-    currentReplyBoxId.value = item.id
-    if (type === 'comment') {
-      currentParentId.value = item.id
-      targetUser.value = item.userInfo
-    } else {
-      currentParentId.value = pId as string // 自己断言一定有且为string
-      targetUser.value = item.userInfo
-    }
+      },
+      secondary: {
+        label: '关闭',
+        theme: 'white',
+        action: () => {},
+      },
+    });
+    return;
   }
+  currentReplyBoxId.value = item.id;
+  if (type === 'comment') {
+    currentParentId.value = item.id;
+    targetUser.value = item.userInfo;
+  }
+  else {
+    currentParentId.value = pId as string; // 自己断言一定有且为string
+    targetUser.value = item.userInfo;
+  }
+};
   /* 评论功能 结束 */
 
-  /* 回复功能 开始 */
-  // 当前回复的目标用户
-  const targetUser: any = ref({})
-  const targetUsername = computed(() => {
-    const { nickname, } = targetUser.value
-    return nickname
-  })
+/* 回复功能 开始 */
+// 当前回复的目标用户
+const targetUser: any = ref({});
+const targetUsername = computed(() => {
+  const { nickname } = targetUser.value;
+  return nickname;
+});
   // 回复输入框实例
-  const commentRefs = ref([])
-  const replyRefs = ref([])
+const commentRefs = ref([]);
+const replyRefs = ref([]);
 
-  const addReplytHandle = async (content: string) => {
-    // console.log(targetUser.value);
-    try {
-      if (inputContent.value) {
-        messageDanger('请输入你的评论！')
-      }
-      const params = {
-        parentId: currentParentId.value, // 评论id 所有回复的父级id
-        uid: uid.value, // 当前评论人uid
-        content, // 评论内容
-        replyUid: targetUser.value.id, // 目标用户uid
-      }
-      await addReply(params)
-      messageSuccess('评论成功')
-      currentReplyBoxId.value = ''
-      emits('commented')
-    } catch (error) {
-      console.error(error)
+const addReplytHandle = async (content: string) => {
+  // console.log(targetUser.value);
+  try {
+    if (inputContent.value) {
+      messageDanger('请输入你的评论！');
     }
+    const params = {
+      parentId: currentParentId.value, // 评论id 所有回复的父级id
+      uid: uid.value, // 当前评论人uid
+      content, // 评论内容
+      replyUid: targetUser.value.id, // 目标用户uid
+    };
+    await addReply(params);
+    messageSuccess('评论成功');
+    currentReplyBoxId.value = '';
+    emits('commented');
   }
-  const delReplytHandle = async (id: string) => {
-    await delReply(id)
-    messageSuccess('删除成功')
-    emits('commented')
+  catch (error) {
+    console.error(error);
   }
+};
+const delReplytHandle = async (id: string) => {
+  await delReply(id);
+  messageSuccess('删除成功');
+  emits('commented');
+};
   // 回复确定按钮回调
-  const replyedHandle = (content: string) => {
-    addReplytHandle(content)
-  }
+const replyedHandle = (content: string) => {
+  addReplytHandle(content);
+};
   /* 回复功能 结束 */
 </script>
+
 <template>
   <div class="comment-container">
     <textarea
@@ -148,7 +152,9 @@
       placeholder="动动你的双手吧~"
     />
     <div class="tool-bar mt-1">
-      <h4 class="font-bold text-sm">全部评论({{ total }})</h4>
+      <h4 class="font-bold text-sm">
+        全部评论({{ total }})
+      </h4>
       <button
         class="btn btn-neutral btn-sm px-4 tracking-widest"
         :disabled="!inputContent"
@@ -157,7 +163,11 @@
         确 认
       </button>
     </div>
-    <section v-for="commentItem in comments" :key="commentItem.id" class="flex mt-4">
+    <section
+      v-for="commentItem in comments"
+      :key="commentItem.id"
+      class="flex mt-4"
+    >
       <!-- 头像 -->
       <div class="w-10 mr-2">
         <div
@@ -169,14 +179,19 @@
             :src="commentItem.userInfo.avatar"
             :alt="commentItem.userInfo.nickname"
           >
-          <xia-icon v-else icon="blog-yonghu" />
+          <xia-icon
+            v-else
+            icon="blog-yonghu"
+          />
         </div>
       </div>
-      <!-- 评论内容主体-->
+      <!-- 评论内容主体 -->
       <div class="flex-1">
         <span class="text-xs">{{ commentItem.userInfo && commentItem.userInfo.nickname }}</span>
         <span class="text-xs pl-2">{{ formactTime(commentItem) }}</span>
-        <div class="text-sm content">{{ commentItem.content }}</div>
+        <div class="text-sm content">
+          {{ commentItem.content }}
+        </div>
 
         <div class="py-1">
           <button
@@ -184,7 +199,11 @@
             class="action"
             @click="clickReplyHandle('comment', commentItem)"
           >
-            <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
+            <xia-icon
+              icon="blog-pinglun"
+              width="14px"
+              class="mr-1"
+            />回复
           </button>
           <button
             v-if="commentItem.id === currentReplyBoxId"
@@ -198,7 +217,11 @@
             class="action"
             @click="delCommentHandle(commentItem.id)"
           >
-            <xia-icon icon="blog-shanchu" width="14px" class="mr-1" />删除
+            <xia-icon
+              icon="blog-shanchu"
+              width="14px"
+              class="mr-1"
+            />删除
           </button>
         </div>
         <!-- 回复输入框  -->
@@ -208,9 +231,16 @@
           :name="targetUsername"
           @replyed="replyedHandle"
         />
-        <!-- 回复内容主体-->
-        <div v-if="commentItem.replys && commentItem.replys.length" class="reply-wrap mt-2">
-          <section v-for="replyItem in commentItem.replys" :key="replyItem.id" class="flex mt-4">
+        <!-- 回复内容主体 -->
+        <div
+          v-if="commentItem.replys && commentItem.replys.length"
+          class="reply-wrap mt-2"
+        >
+          <section
+            v-for="replyItem in commentItem.replys"
+            :key="replyItem.id"
+            class="flex mt-4"
+          >
             <!-- 头像 -->
             <div class="w-10 mr-2">
               <div
@@ -222,18 +252,23 @@
                   :src="replyItem.userInfo.avatar"
                   :alt="replyItem.userInfo.nickname"
                 >
-                <xia-icon v-else icon="blog-yonghu" />
+                <xia-icon
+                  v-else
+                  icon="blog-yonghu"
+                />
               </div>
             </div>
             <div class="flex-1">
               <span class="text-xs">
                 {{
-                  commentItem.userInfo &&
-                    replyItem.userInfo.nickname + ' @ ' + replyItem.tUserInfo.nickname
+                  commentItem.userInfo
+                    && replyItem.userInfo.nickname + ' @ ' + replyItem.tUserInfo.nickname
                 }}
               </span>
               <span class="text-xs pl-2">{{ formactTime(replyItem) }}</span>
-              <div class="text-sm content">{{ replyItem.content }}</div>
+              <div class="text-sm content">
+                {{ replyItem.content }}
+              </div>
 
               <div class="py-1">
                 <button
@@ -241,7 +276,11 @@
                   class="action"
                   @click="clickReplyHandle('reply', replyItem, commentItem.id)"
                 >
-                  <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
+                  <xia-icon
+                    icon="blog-pinglun"
+                    width="14px"
+                    class="mr-1"
+                  />回复
                 </button>
                 <button
                   v-if="replyItem.id === currentReplyBoxId"
@@ -255,7 +294,11 @@
                   class="action"
                   @click="delReplytHandle(replyItem.id)"
                 >
-                  <xia-icon icon="blog-shanchu" width="14px" class="mr-1" />删除
+                  <xia-icon
+                    icon="blog-shanchu"
+                    width="14px"
+                    class="mr-1"
+                  />删除
                 </button>
               </div>
               <XiaReply
@@ -271,6 +314,7 @@
     </section>
   </div>
 </template>
+
 <style scoped lang="less">
   .comment-container {
     color: var(--text-color2);

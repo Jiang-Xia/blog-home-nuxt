@@ -1,5 +1,6 @@
-import { config } from 'md-editor-v3'
-import 'md-editor-v3/lib/style.css'
+import { config } from 'md-editor-v3';
+import 'md-editor-v3/lib/style.css';
+
 config({
   editorExtensions: {
     katex: {
@@ -24,10 +25,10 @@ config({
       js: 'https://jiang-xia.top/x-blog/api/v1/static/uploads/2024-04/fd20c758948743f0addd3e9f31fb946c-mermaid.min.js',
     },
   },
-  mermaidConfig (base: any) {
+  mermaidConfig(base: any) {
     return {
       ...base,
       logLevel: 'error',
-    }
+    };
   },
-})
+});

@@ -15,4 +15,4 @@ export default defineNuxtPlugin(() => {
   使用组件都会报错 vue-qr本身不支持nuxt3
   const qr = nuxtApp.vueApp.use(vueQr)
   nuxtApp.vueApp.component(vueQr.name, vueQr) */
-})
+});

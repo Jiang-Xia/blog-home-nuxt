@@ -1,47 +1,27 @@
 {
+  "name": "blog-home-nuxt",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "nuxt build --dotenv .env.production",
     "dev": "nuxt dev --port 5050 --dotenv .env.development",
-    "dev:mobile": "nuxt dev --port 5050 --host --dotenv .env.development",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "lint": "eslint --fix --ext .ts,.js,tsx,.vue .",
-    "pm2:prod": "pm2 start ecosystem.config.js --env production",
-    "pm2:dev": "pm2 start ecosystem.config.js --env development",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky",
     "lint-staged": "lint-staged",
-    "prepare": "husky install"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "^19.6.0",
-    "@commitlint/config-conventional": "^19.6.0",
-    "@iconify/vue": "^4.1.2",
-    "@kevinmarrec/nuxt-pwa": "^0.17.0",
-    "@nuxtjs/eslint-config-typescript": "^12.1.0",
-    "@pinia/nuxt": "^0.7.0",
-    "@tailvue/nuxt": "^1.0.0",
-    "@types/crypto-js": "^4.2.2",
-    "@types/js-cookie": "^3.0.6",
-    "@vueuse/core": "^11.2.0",
-    "@vueuse/nuxt": "^11.2.0",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "husky": "^9.1.7",
-    "less": "^4.2.0",
-    "lint-staged": "^15.2.10",
-    "nuxt": "^3.14.1592",
-    "postcss": "^8.4.49",
-    "prettier": "^3.3.3",
-    "sitemap": "^8.0.0",
-    "tailwindcss": "^3.4.15",
-    "typescript": "^5.6.3",
-    "unplugin-icons": "^0.20.1",
-    "vconsole": "^3.15.1"
+    "prettier": "prettier . --write",
+    "pm2:prod": "pm2 start ecosystem.config.js --env production",
+    "pm2:dev": "pm2 start ecosystem.config.js --env development"
   },
   "dependencies": {
     "@chenfengyuan/vue-qrcode": "^2.0.0",
+    "@nuxtjs/tailwindcss": "^6.13.2",
+    "@pinia/nuxt": "^0.10.1",
+    "@vueuse/core": "^13.0.0",
+    "@vueuse/nuxt": "^13.0.0",
     "copy-to-clipboard": "^3.3.3",
     "crypto-js": "^4.2.0",
     "daisyui": "^4.12.14",
@@ -49,26 +29,49 @@
     "js-cookie": "^3.0.5",
     "jsbarcode": "^3.11.6",
     "jszip": "^3.10.1",
-    "md-editor-v3": "^5.0.2",
-    "pinia": "^2.2.6",
+    "md-editor-v3": "^5.3.2",
+    "nuxt": "^3.16.0",
+    "pinia": "^3.0.1",
     "qrcode": "^1.5.4",
     "smooth-signature": "^1.0.15",
     "spark-md5": "^3.0.2",
-    "sse.js": "^2.5.0",
+    "sse.js": "^2.6.0",
     "tailvue": "^1.0.0",
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@nuxt/eslint": "^1.2.0",
+    "@nuxtjs/stylelint-module": "^5.2.0",
+    "@tailvue/nuxt": "^1.0.0",
+    "@types/crypto-js": "^4.2.2",
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "husky": "^9.1.7",
+    "less": "^4.2.2",
+    "lint-staged": "^15.5.0",
+    "prettier": "^3.5.3",
+    "sitemap": "^8.0.0",
+    "typescript": "^5.8.2",
+    "unplugin-icons": "^22.1.0",
+    "vconsole": "^3.15.1",
+    "vue-tsc": "^2.2.8"
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": [
       "prettier --write",
-      "eslint --fix"
+      "eslint . --fix"
     ],
     "*.vue": [
       "prettier --write",
       "eslint --fix"
     ],
     "*.{less,css}": [
-      "prettier --write"
+      "prettier --write",
+      "eslint . --fix"
     ]
   }
 }

@@ -1,172 +1,175 @@
 <script setup lang="ts">
-  import { computed, reactive, ref } from 'vue'
-  import { getArticleList } from '@/api/article'
-  import { getWeather } from '@/api/index'
-  import {
-    categoryOptions,
-    formactDate,
-    getOptions,
-    tagsOptions,
-    updateLikesHandle,
-    xBLogStore
-  } from '@/utils/common'
-  import { colorRgb } from '~~/utils/color'
+import { computed, reactive, ref } from 'vue';
+import { getArticleList } from '@/api/article';
+import { getWeather } from '@/api/index';
+import {
+  categoryOptions,
+  formactDate,
+  getOptions,
+  tagsOptions,
+  updateLikesHandle,
+  xBLogStore,
+} from '@/utils/common';
+import { colorRgb } from '~~/utils/color';
 
-  interface queryState {
-    page: number
-    category: string
-    tags: string[]
-    pageSize: number
-    total: number
-    title?: string
-    description?: string
-    content?: string
-    sort: string
-  }
-  interface itemState {
-    id: string
-    checked: boolean
-    [x: string]: string | boolean
-  }
-  // const store = useStore()
-  // 文章列表中的每一项item都为any
-  const articleListDefault: any[] = []
-  const articleList = ref(articleListDefault)
+interface queryState {
+  page: number;
+  category: string;
+  tags: string[];
+  pageSize: number;
+  total: number;
+  title?: string;
+  description?: string;
+  content?: string;
+  sort: string;
+}
+interface itemState {
+  id: string;
+  checked: boolean;
+  [x: string]: string | boolean;
+}
+// const store = useStore()
+// 文章列表中的每一项item都为any
+const articleListDefault: any[] = [];
+const articleList = ref(articleListDefault);
 
-  const queryPrams: queryState = reactive({
-    page: 1,
-    category: '',
-    tags: [],
-    pageSize: 12,
-    total: 0,
-    title: '',
-    description: '',
-    content: '',
-    client: true,
-    sort: 'DESC', // 降序
-  })
+const queryPrams: queryState = reactive({
+  page: 1,
+  category: '',
+  tags: [],
+  pageSize: 12,
+  total: 0,
+  title: '',
+  description: '',
+  content: '',
+  client: true,
+  sort: 'DESC', // 降序
+});
 
-  /*
+/*
    * 第一个参数为唯一key
    * ！注意：如果有使用useAsyncData时，会最先执行此函数，也是是如此，
    * 分类和标签才会在服务渲染(useAsyncData后执行的函数)
    */
 
-  const {
-    // 这样生命的变量时响应式的，不这样声明请求回来复制不然渲染到模板上
-    data: articleData,
-  } = await useAsyncData('index_GetList', () => getArticleList(queryPrams))
-  if (articleData.value) {
-    articleList.value = articleData.value.list
-    queryPrams.total = articleData.value.pagination.total
-    console.log('文章列表总文章======>', articleData.value.pagination.total)
-  }
-  // console.log({articleData:articleData.value})
-  // 此测试印证上面描述
-  // const { data: articleData } = await useAsyncData("index_GetList", () =>
-  //   Promise.resolve()
-  // );
-  getOptions('标签')
-  getOptions('分类')
-  // 下一页
-  const getArticleListHandle = async (val = 1) => {
-    queryPrams.page = val
-    const res = await getArticleList(queryPrams)
-    articleList.value = res.list
-    queryPrams.total = res.pagination.total
-  }
+const {
+  // 这样生命的变量时响应式的，不这样声明请求回来复制不然渲染到模板上
+  data: articleData,
+} = await useAsyncData('index_GetList', () => getArticleList(queryPrams));
+if (articleData.value) {
+  articleList.value = articleData.value.list;
+  queryPrams.total = articleData.value.pagination.total;
+  console.log('文章列表总文章======>', articleData.value.pagination.total);
+}
+// console.log({articleData:articleData.value})
+// 此测试印证上面描述
+// const { data: articleData } = await useAsyncData("index_GetList", () =>
+//   Promise.resolve()
+// );
+getOptions('标签');
+getOptions('分类');
+// 下一页
+const getArticleListHandle = async (val = 1) => {
+  queryPrams.page = val;
+  const res = await getArticleList(queryPrams);
+  articleList.value = res.list;
+  queryPrams.total = res.pagination.total;
+};
   // 获取标签名(暂时没有用)
-  const getTagLabel = (arr: []): string => {
-    // 如果是js的话，这个方法会写得很简单
-    //  ts的话，它会提前对各种值进行类型推导，避免了一些取值的错误（比如在undefined和null取属性值）
-    return arr.map((v: any) => v.label).join()
-  }
+const getTagLabel = (arr: []): string => {
+  // 如果是js的话，这个方法会写得很简单
+  //  ts的话，它会提前对各种值进行类型推导，避免了一些取值的错误（比如在undefined和null取属性值）
+  return arr.map((v: any) => v.label).join();
+};
 
-  // 点击tag
-  const clickTagHandle = (item: itemState, type: string) => {
-    if (type === '分类') {
-      if (queryPrams.category === item.id) {
-        // 清空选中
-        queryPrams.category = ''
-      } else {
-        queryPrams.category = item.id
-      }
-    } else {
-      // 标签
-      item.checked = !item.checked
-
-      const list: any = [...queryPrams.tags]
-      if (!item.checked) {
-        list.splice(list.indexOf(item.id), 1)
-      } else if (!list.includes(item.id)) {
-        list.push(item.id)
-      }
-      queryPrams.tags = list
-      // console.log(queryPrams.tags);
+// 点击tag
+const clickTagHandle = (item: itemState, type: string) => {
+  if (type === '分类') {
+    if (queryPrams.category === item.id) {
+      // 清空选中
+      queryPrams.category = '';
     }
-    getArticleListHandle(1)
+    else {
+      queryPrams.category = item.id;
+    }
   }
+  else {
+    // 标签
+    item.checked = !item.checked;
+
+    const list: any = [...queryPrams.tags];
+    if (!item.checked) {
+      list.splice(list.indexOf(item.id), 1);
+    }
+    else if (!list.includes(item.id)) {
+      list.push(item.id);
+    }
+    queryPrams.tags = list;
+    // console.log(queryPrams.tags);
+  }
+  getArticleListHandle(1);
+};
   // 分页
-  const current = ref(1)
-  const currentChangeHandle = (val: number) => {
-    getArticleListHandle(val)
-  }
+const current = ref(1);
+const currentChangeHandle = (val: number) => {
+  getArticleListHandle(val);
+};
 
-  // 模糊搜索
-  const searchText = ref('')
-  const onSearchHandle = () => {
-    queryPrams.page = 1
-    queryPrams.category = ''
-    queryPrams.tags = []
-    queryPrams.title = searchText.value
-    queryPrams.description = searchText.value
-    queryPrams.content = searchText.value
-    getArticleListHandle(1)
-  }
-  const changeSort = () => {
-    queryPrams.sort === 'ASC' ? (queryPrams.sort = 'DESC') : (queryPrams.sort = 'ASC')
-    getArticleListHandle()
-  }
+// 模糊搜索
+const searchText = ref('');
+const onSearchHandle = () => {
+  queryPrams.page = 1;
+  queryPrams.category = '';
+  queryPrams.tags = [];
+  queryPrams.title = searchText.value;
+  queryPrams.description = searchText.value;
+  queryPrams.content = searchText.value;
+  getArticleListHandle(1);
+};
+const changeSort = () => {
+  queryPrams.sort === 'ASC' ? (queryPrams.sort = 'DESC') : (queryPrams.sort = 'ASC');
+  getArticleListHandle();
+};
 
-  // 颜色转换
-  const toRgb = (color: string, alpha = 0.24) => {
-    color = colorRgb(color)
-    color = color.replace(')', `,${alpha})`)
-    return color
-  }
+// 颜色转换
+const toRgb = (color: string, alpha = 0.24) => {
+  color = colorRgb(color);
+  color = color.replace(')', `,${alpha})`);
+  return color;
+};
 
-  // 客户端执行
-  // 本地点赞记录
-  const localLikes = computed<number[]>(() => xBLogStore.value.likes)
-  const listKey = ref()
-  // 客户端徐根据缓存需重新渲染
-  onMounted(() => {
-    listKey.value = new Date().getTime()
-  })
+// 客户端执行
+// 本地点赞记录
+const localLikes = computed<number[]>(() => xBLogStore.value.likes);
+const listKey = ref();
+// 客户端徐根据缓存需重新渲染
+onMounted(() => {
+  listKey.value = new Date().getTime();
+});
 
-  // 分类标签设置hover样式
-  const categoryMouseenter = (e: any, item: any) => {
-    e.target.style.backgroundColor = toRgb(item.color, 0.12)
-    e.target.style.setProperty('--current-color', `${item.color}`)
-  }
-  const categoryMouseleave = (e: any) => {
-    e.target.style.backgroundColor = ''
-  }
+// 分类标签设置hover样式
+const categoryMouseenter = (e: any, item: any) => {
+  e.target.style.backgroundColor = toRgb(item.color, 0.12);
+  e.target.style.setProperty('--current-color', `${item.color}`);
+};
+const categoryMouseleave = (e: any) => {
+  e.target.style.backgroundColor = '';
+};
   // 天气
-  const weatherData = ref<any>({})
-  const userInfo = useUserInfo()
-  const weatherUrl =
-    'https://api.vvhan.com/api/ipCard?tip=Hello ' + (userInfo.value.nickname || '亲爱的路人！')
+const weatherData = ref<any>({});
+const userInfo = useUserInfo();
+const weatherUrl
+    = 'https://api.vvhan.com/api/ipCard?tip=Hello ' + (userInfo.value.nickname || '亲爱的路人！');
 
-  onMounted(
-    /* async */ () => {
-      // 古诗词
-      // weatherData.value = await getWeather()
-      //  console.log(weatherData.value)
-      // messageDanger('请输入你的评论！')
-    }
-  )
-  const theme = useTheme()
+onMounted(
+  /* async */ () => {
+    // 古诗词
+    // weatherData.value = await getWeather()
+    //  console.log(weatherData.value)
+    // messageDanger('请输入你的评论！')
+  },
+);
+const theme = useTheme();
 </script>
 
 <template>
@@ -174,7 +177,12 @@
     <section class="main-content">
       <!-- 标签筛选 -->
       <div class="tag-card-wrap">
-        <base-card icon="blog-tag" title="标签" min-height="110px" vertical>
+        <base-card
+          icon="blog-tag"
+          title="标签"
+          min-height="110px"
+          vertical
+        >
           <div
             v-for="item of tagsOptions"
             :key="item.id"
@@ -192,11 +200,24 @@
         </base-card>
       </div>
       <!-- 文章列表 -->
-      <div :key="listKey" class="article-item-wrap">
-        <transition-group key="article-item-wrap" name="list">
-          <div v-for="item in articleList" :key="item.id" class="article-item">
+      <div
+        :key="listKey"
+        class="article-item-wrap"
+      >
+        <transition-group
+          key="article-item-wrap"
+          name="list"
+        >
+          <div
+            v-for="item in articleList"
+            :key="item.id"
+            class="article-item"
+          >
             <figure>
-              <XiaCardBorderLight v-if="theme === 'dark'" :pic="item.cover" />
+              <XiaCardBorderLight
+                v-if="theme === 'dark'"
+                :pic="item.cover"
+              />
               <img
                 v-else
                 v-lazyImg="item.cover"
@@ -208,25 +229,50 @@
             <div class="card-body">
               <h2 class="card-title">
                 {{ item.title }}
-                <div v-if="item.topping" class="badge badge-secondary">TOP</div>
+                <div
+                  v-if="item.topping"
+                  class="badge badge-secondary"
+                >
+                  TOP
+                </div>
               </h2>
-              <p class="text-sm">{{ item.description }}</p>
+              <p class="text-sm">
+                {{ item.description }}
+              </p>
               <div class="card-actions justify-start text-xs flex-wrap">
                 <div class="flex items-center">
                   <!-- 分类 -->
-                  <span class="text-icon" :style="{ color: item.category.color }">
-                    <xia-icon icon="blog-category" class="mr-1" />
+                  <span
+                    class="text-icon"
+                    :style="{ color: item.category.color }"
+                  >
+                    <xia-icon
+                      icon="blog-category"
+                      class="mr-1"
+                    />
                     {{ item.category.label }}
                   </span>
                   <!-- 标签 -->
-                  <span class="text-icon" :style="{ color: item.tags[0]?.color }">
-                    <xia-icon icon="blog-tag" class="mr-1" />
+                  <span
+                    class="text-icon"
+                    :style="{ color: item.tags[0]?.color }"
+                  >
+                    <xia-icon
+                      icon="blog-tag"
+                      class="mr-1"
+                    />
                     {{ getTagLabel(item.tags) }}
                   </span>
                   <!-- 阅读量 -->
-                  <span class="text-icon pointer"><xia-icon icon="blog-view" class="mr-1" />{{ item.views }}</span>
+                  <span class="text-icon pointer"><xia-icon
+                    icon="blog-view"
+                    class="mr-1"
+                  />{{ item.views }}</span>
                   <!-- 点赞数 -->
-                  <span class="text-icon pointer" @click.stop="updateLikesHandle(item)">
+                  <span
+                    class="text-icon pointer"
+                    @click.stop="updateLikesHandle(item)"
+                  >
                     <xia-icon
                       :icon="localLikes.includes(item.id) ? 'blog-like-solid' : 'blog-like'"
                       class="mr-1"
@@ -235,7 +281,10 @@
                   </span>
                   <!-- 评论数 -->
                   <span class="text-icon">
-                    <xia-icon icon="blog-pinglun" class="mr-1" />
+                    <xia-icon
+                      icon="blog-pinglun"
+                      class="mr-1"
+                    />
                     {{ item.commentCount }}
                   </span>
                 </div>
@@ -243,7 +292,10 @@
                   <div class="flex items-center">
                     <div class="avatar btn btn-ghost btn-circle btn-xs">
                       <div class="rounded-full">
-                        <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
+                        <img
+                          :src="item.userInfo.avatar"
+                          :alt="item.userInfo.nickname"
+                        >
                       </div>
                     </div>
                     <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
@@ -280,7 +332,11 @@
     </section>
     <!-- 右边筛选卡片 -->
     <section class="info-tool">
-      <base-card icon="blog-filter" title="关键字" min-height="110px">
+      <base-card
+        icon="blog-filter"
+        title="关键字"
+        min-height="110px"
+      >
         <div class="join w-full mt-2">
           <button
             :title="queryPrams.sort === 'ASC' ? '升序' : '降序'"
@@ -317,7 +373,10 @@
             class="join-item input input-bordered input-sm max-w-xs"
             @keyup.enter="onSearchHandle"
           >
-          <button class="join-item btn btn-neutral btn-square w-10 btn-sm" @click="onSearchHandle">
+          <button
+            class="join-item btn btn-neutral btn-square w-10 btn-sm"
+            @click="onSearchHandle"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
@@ -335,17 +394,35 @@
           </button>
         </div>
       </base-card>
-      <base-card class="weather-card" icon="" title="" :no-padding="false" min-height="180px">
-        <img v-lazyImg="weatherUrl" class="rounded-lg">
+      <base-card
+        class="weather-card"
+        icon=""
+        title=""
+        :no-padding="false"
+        min-height="180px"
+      >
+        <img
+          v-lazyImg="weatherUrl"
+          class="rounded-lg"
+        >
       </base-card>
       <!-- 天气 -->
-      <base-card icon="" title="" min-height="110px" :no-padding="false">
+      <base-card
+        icon=""
+        title=""
+        min-height="110px"
+        :no-padding="false"
+      >
         <div class="icon-wrap">
           <xia-clock />
         </div>
       </base-card>
 
-      <base-card icon="blog-category" title="分类" class="category-card">
+      <base-card
+        icon="blog-category"
+        title="分类"
+        class="category-card"
+      >
         <div
           v-for="item of categoryOptions"
           :key="item.id"
@@ -353,8 +430,8 @@
           :color="item.color"
           :class="item.id === queryPrams.category ? 'active' : ''"
           @click="clickTagHandle(item, '分类')"
-          @mouseenter="e => categoryMouseenter(e, item)"
-          @mouseleave="e => categoryMouseleave(e)"
+          @mouseenter="(e) => categoryMouseenter(e, item)"
+          @mouseleave="(e) => categoryMouseleave(e)"
         >
           <div
             class="category__inner flex justify-between items-center"

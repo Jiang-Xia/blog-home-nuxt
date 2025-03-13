@@ -1,77 +1,83 @@
 <script setup lang="ts">
-  import { type PropType } from 'vue'
-  const props = defineProps({
-    images: {
-      type: Array as PropType<BannerState[]>,
-      default: () => [],
-    },
-    duration: {
-      type: Number,
-      default: 60000, // 默认一分钟
-    },
-    interval: {
-      type: Boolean,
-      default: false,
-    },
-    arrow: {
-      type: Boolean,
-      default: false,
-    },
-  })
-  let timer: any // 清楚定时器
-  let isHover = false // hover时不轮播
-  onMounted(() => {
-    // console.log(carouselRef);
-    startTimer()
-  })
-  onUnmounted(() => {
-    clearTimer()
-  })
-  const clearTimer = () => {
-    isHover = true
-    clearInterval(timer)
-  }
-  const startTimer = () => {
-    isHover = false
-    timer = setInterval(() => {
-      if (isHover) {
-        return
-      }
-      next()
-    }, props.duration)
-  }
+import type { PropType } from 'vue';
 
-  const carouselRef = ref()
-  // 多个ref就绑定为数组
-  const itemRefs = ref([])
-  const currentIndex = ref(0)
-  // 设置滚动条
-  const setScrollLeft = () => {
-    const dom: HTMLElement = itemRefs.value[currentIndex.value]
-    const left = dom?.offsetWidth
-    // console.log(currentIndex.value, left);
-    carouselRef.value.scrollLeft = currentIndex.value * left
-  }
+const props = defineProps({
+  images: {
+    type: Array as PropType<BannerState[]>,
+    default: () => [],
+  },
+  duration: {
+    type: Number,
+    default: 60000, // 默认一分钟
+  },
+  interval: {
+    type: Boolean,
+    default: false,
+  },
+  arrow: {
+    type: Boolean,
+    default: false,
+  },
+});
+let timer: any; // 清楚定时器
+let isHover = false; // hover时不轮播
+onMounted(() => {
+  // console.log(carouselRef);
+  startTimer();
+});
+onUnmounted(() => {
+  clearTimer();
+});
+const clearTimer = () => {
+  isHover = true;
+  clearInterval(timer);
+};
+const startTimer = () => {
+  isHover = false;
+  timer = setInterval(() => {
+    if (isHover) {
+      return;
+    }
+    next();
+  }, props.duration);
+};
 
-  const len = computed(() => props.images.length)
-  const next = () => {
-    currentIndex.value++
-    if (currentIndex.value >= len.value) {
-      currentIndex.value = 0
-    }
-    setScrollLeft()
+const carouselRef = ref();
+// 多个ref就绑定为数组
+const itemRefs = ref([]);
+const currentIndex = ref(0);
+// 设置滚动条
+const setScrollLeft = () => {
+  const dom: HTMLElement = itemRefs.value[currentIndex.value];
+  const left = dom?.offsetWidth;
+  // console.log(currentIndex.value, left);
+  carouselRef.value.scrollLeft = currentIndex.value * left;
+};
+
+const len = computed(() => props.images.length);
+const next = () => {
+  currentIndex.value++;
+  if (currentIndex.value >= len.value) {
+    currentIndex.value = 0;
   }
-  const prev = () => {
-    currentIndex.value--
-    if (currentIndex.value <= 0) {
-      currentIndex.value = len.value - 1
-    }
-    setScrollLeft()
+  setScrollLeft();
+};
+const prev = () => {
+  currentIndex.value--;
+  if (currentIndex.value <= 0) {
+    currentIndex.value = len.value - 1;
   }
+  setScrollLeft();
+};
 </script>
+
 <script lang="ts"></script>
+
 <template>
-  <div ref="carouselRef" class="xia-carousel">
+  <div
+    ref="carouselRef"
+    class="xia-carousel"
+  >
     <div
       v-for="(image, index) in images"
       :key="image.title + index"
@@ -86,12 +92,20 @@
         v-if="arrow"
         class="absolute flex justify-between transform -translate-y-1/2 left-0 right-0 top-1/2"
       >
-        <span class="arrow-btn rounded-tr-md rounded-br-md" @click="prev">❮</span>
-        <span href="#" class="arrow-btn rounded-tl-md rounded-bl-md" @click="next">❯</span>
+        <span
+          class="arrow-btn rounded-tr-md rounded-br-md"
+          @click="prev"
+        >❮</span>
+        <span
+          href="#"
+          class="arrow-btn rounded-tl-md rounded-bl-md"
+          @click="next"
+        >❯</span>
       </div>
     </div>
   </div>
 </template>
+
 <style lang="less" scoped>
   .xia-carousel {
     height: 100px;

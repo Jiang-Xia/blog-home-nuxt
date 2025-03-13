@@ -1,5 +1,0 @@
-packages:
-  # 所有在 packages/ 子目录下的 package
-  # - 'packages/**'
-  # 这里一个项目就填根目录
-    - './**'

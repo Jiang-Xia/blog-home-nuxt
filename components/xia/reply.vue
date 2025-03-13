@@ -1,32 +1,36 @@
 <script setup lang="ts">
-  import { computed, ref } from 'vue'
-  import { messageDanger } from '~~/utils/toast'
+import { computed, ref } from 'vue';
+import { messageDanger } from '~~/utils/toast';
 
-  const props = defineProps({
-    name: {
-      type: String,
-      default: '',
-    },
-  })
-  const emits = defineEmits(['replyed'])
-  const inputContent = ref('')
-  const addReplytHandle = () => {
-    if (!inputContent.value) {
-      messageDanger('请输入你的回复！')
-    }
-    emits('replyed', inputContent.value)
+const props = defineProps({
+  name: {
+    type: String,
+    default: '',
+  },
+});
+const emits = defineEmits(['replyed']);
+const inputContent = ref('');
+const addReplytHandle = () => {
+  if (!inputContent.value) {
+    messageDanger('请输入你的回复！');
   }
-  const placeholder = computed(() => {
-    return '@' + props.name
-  })
+  emits('replyed', inputContent.value);
+};
+const placeholder = computed(() => {
+  return '@' + props.name;
+});
   // const replyClear = () => {
   //   inputContent.value = ''
   // }
   // clear
 </script>
+
 <template>
   <transition-group name="fade">
-    <div key="reply-container" class="reply-container">
+    <div
+      key="reply-container"
+      class="reply-container"
+    >
       <textarea
         v-model="inputContent"
         class="textarea textarea-ghost w-full bg-base-300"
@@ -45,6 +49,7 @@
     </div>
   </transition-group>
 </template>
+
 <style scoped lang="less">
   .reply-container {
     .tool-bar {

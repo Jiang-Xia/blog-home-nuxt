@@ -1,27 +1,28 @@
 <script setup lang="ts">
-  defineProps({
-    title: {
-      type: String,
-      default: '',
-    },
-    icon: {
-      type: String,
-      default: '',
-    },
-    minHeight: {
-      type: String,
-      default: '310px',
-    },
-    vertical: {
-      type: Boolean,
-      default: false,
-    },
-    noPadding: {
-      type: Boolean,
-      default: true,
-    },
-  })
+defineProps({
+  title: {
+    type: String,
+    default: '',
+  },
+  icon: {
+    type: String,
+    default: '',
+  },
+  minHeight: {
+    type: String,
+    default: '310px',
+  },
+  vertical: {
+    type: Boolean,
+    default: false,
+  },
+  noPadding: {
+    type: Boolean,
+    default: true,
+  },
+});
 </script>
+
 <template>
   <div
     class="card-wrap"
@@ -33,19 +34,34 @@
   >
     <template v-if="!vertical">
       <h4 v-if="title">
-        <slot name="header"><xia-icon :icon="icon" /> {{ title }}</slot>
+        <slot name="header">
+          <xia-icon :icon="icon" /> {{ title }}
+        </slot>
       </h4>
-      <div class="card-content" :class="{ padding: noPadding }"><slot /></div>
+      <div
+        class="card-content"
+        :class="{ padding: noPadding }"
+      >
+        <slot />
+      </div>
     </template>
 
     <template v-else>
       <h4 v-if="icon">
-        <slot name="header"><xia-icon :icon="icon" /> {{ title }}</slot>
+        <slot name="header">
+          <xia-icon :icon="icon" /> {{ title }}
+        </slot>
       </h4>
-      <div class="card-content" :class="{ padding: noPadding }"><slot /></div>
+      <div
+        class="card-content"
+        :class="{ padding: noPadding }"
+      >
+        <slot />
+      </div>
     </template>
   </div>
 </template>
+
 <style lang="less" scoped>
   .card-wrap {
     @apply border border-base-300 shadow-lg bg-base-100 rounded-lg;

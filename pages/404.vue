@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import config from '~~/config'
-definePageMeta({
-  layout: 'custom', // 不使用default布局
-})
-const route = useRoute()
+import config from '~~/config';
+// definePageMeta({
+//   layout: 'custom', // 不使用default布局
+// })
+const route = useRoute();
 </script>
+
 <template>
   <div class="common-page">
-    <img :src="config.gif404" alt="404">
+    <img
+      :src="config.gif404"
+      alt="404"
+    >
     <div class="b-text">
       <div
         class="gradient-text text-xl px-8 sm:px-0 sm:text-4xl md:mb-6 font-light h-11 leading-none"
@@ -22,6 +26,7 @@ const route = useRoute()
     </div>
   </div>
 </template>
+
 <style lang="less" scoped>
   .common-page {
     width: 100%;

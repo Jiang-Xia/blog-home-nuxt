@@ -1,9 +1,19 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 w-full flex justify-center items-center z-50">
+  <div
+    v-if="isOpen"
+    class="fixed inset-0 w-full flex justify-center items-center z-50"
+  >
     <!-- 完全覆盖整个屏幕的背景蒙版，点击蒙版关闭查看器 -->
-    <div class="absolute inset-0 bg-black opacity-75 z-40" @click="closeViewer" />
+    <div
+      class="absolute inset-0 bg-black opacity-75 z-40"
+      @click="closeViewer"
+    />
 
-    <div ref="viewer" class="relative z-50" :class="{ fullscreen: isFullscreen }">
+    <div
+      ref="viewer"
+      class="relative z-50"
+      :class="{ fullscreen: isFullscreen }"
+    >
       <img
         :src="currentImage"
         alt="Image Viewer"
@@ -15,156 +25,209 @@
 
     <!-- 按钮固定在屏幕中间下方 -->
     <div class="fixed bottom-10 left-1/2 transform -translate-x-1/2 flex gap-2 z-50">
-      <button class="btn btn-primary btn-xs" @click="rotateLeft">Rotate Left</button>
-      <button class="btn btn-primary btn-xs" @click="rotateRight">Rotate Right</button>
-      <button class="btn btn-secondary btn-xs" @click="prevImage">Prev</button>
-      <button class="btn btn-secondary btn-xs" @click="nextImage">Next</button>
-      <button class="btn btn-accent btn-xs" @click="resetTransform">Reset</button>
-      <button class="btn btn-warning btn-xs" @click="flipVerticalImage">Flip Vertically</button>
-      <button class="btn btn-warning btn-xs" @click="flipHorizontalImage">Flip Horizontally</button>
-      <button class="btn btn-secondary btn-xs" @click="zoomIn">Zoom In</button>
-      <button class="btn btn-secondary btn-xs" @click="zoomOut">Zoom Out</button>
-      <button class="btn btn-info btn-xs" @click="toggleFullscreen">
+      <button
+        class="btn btn-primary btn-xs"
+        @click="rotateLeft"
+      >
+        Rotate Left
+      </button>
+      <button
+        class="btn btn-primary btn-xs"
+        @click="rotateRight"
+      >
+        Rotate Right
+      </button>
+      <button
+        class="btn btn-secondary btn-xs"
+        @click="prevImage"
+      >
+        Prev
+      </button>
+      <button
+        class="btn btn-secondary btn-xs"
+        @click="nextImage"
+      >
+        Next
+      </button>
+      <button
+        class="btn btn-accent btn-xs"
+        @click="resetTransform"
+      >
+        Reset
+      </button>
+      <button
+        class="btn btn-warning btn-xs"
+        @click="flipVerticalImage"
+      >
+        Flip Vertically
+      </button>
+      <button
+        class="btn btn-warning btn-xs"
+        @click="flipHorizontalImage"
+      >
+        Flip Horizontally
+      </button>
+      <button
+        class="btn btn-secondary btn-xs"
+        @click="zoomIn"
+      >
+        Zoom In
+      </button>
+      <button
+        class="btn btn-secondary btn-xs"
+        @click="zoomOut"
+      >
+        Zoom Out
+      </button>
+      <button
+        class="btn btn-info btn-xs"
+        @click="toggleFullscreen"
+      >
         {{ isFullscreen ? 'Exit Fullscreen' : 'Fullscreen' }}
       </button>
     </div>
 
     <!-- 关闭按钮 - 使用 daisyUI btn-warning 样式并统一按钮大小 -->
-    <button class="btn btn-warning btn-xs absolute top-4 right-4 z-50" @click="closeViewer">
+    <button
+      class="btn btn-warning btn-xs absolute top-4 right-4 z-50"
+      @click="closeViewer"
+    >
       Close
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, defineProps, computed, watch, defineEmits, onMounted, nextTick } from 'vue'
+import { ref, defineProps, computed, watch, defineEmits, onMounted, nextTick } from 'vue';
 
-  const props = defineProps({
-    images: {
-      type: Array as () => string[],
-      required: true,
-    },
-    initialIndex: {
-      type: Number,
-      default: 0,
-    },
-  })
+const props = defineProps({
+  images: {
+    type: Array as () => string[],
+    required: true,
+  },
+  initialIndex: {
+    type: Number,
+    default: 0,
+  },
+});
   // 触发关闭事件
-  const emit = defineEmits(['close'])
+const emit = defineEmits(['close']);
 
-  const isOpen = ref(true)
-  const currentIndex = ref(props.initialIndex)
-  const currentImage = ref(props.images[currentIndex.value])
-  const scale = ref(1)
-  const isFullscreen = ref(false)
-  const flipVertical = ref(false)
-  const flipHorizontal = ref(false) // 新增：左右反转
-  const rotation = ref(0) // 记录旋转角度
+const isOpen = ref(true);
+const currentIndex = ref(props.initialIndex);
+const currentImage = ref(props.images[currentIndex.value]);
+const scale = ref(1);
+const isFullscreen = ref(false);
+const flipVertical = ref(false);
+const flipHorizontal = ref(false); // 新增：左右反转
+const rotation = ref(0); // 记录旋转角度
 
-  // 更新当前图片
-  watch(currentIndex, () => {
-    currentImage.value = props.images[currentIndex.value]
-  })
+// 更新当前图片
+watch(currentIndex, () => {
+  currentImage.value = props.images[currentIndex.value];
+});
 
-  // 确保在打开查看器时正确设置当前图片
-  onMounted(() => {
-    currentImage.value = props.images[currentIndex.value]
-    lockScroll(true) // 打开查看器时锁定页面滚动
-  })
+// 确保在打开查看器时正确设置当前图片
+onMounted(() => {
+  currentImage.value = props.images[currentIndex.value];
+  lockScroll(true); // 打开查看器时锁定页面滚动
+});
 
-  // 关闭查看器
-  const closeViewer = () => {
-    emit('close') // 触发关闭事件
-    isOpen.value = false
-    lockScroll(false) // 关闭查看器时解锁页面滚动
+// 关闭查看器
+const closeViewer = () => {
+  emit('close'); // 触发关闭事件
+  isOpen.value = false;
+  lockScroll(false); // 关闭查看器时解锁页面滚动
+};
+
+// 锁定和解锁页面滚动
+const lockScroll = (lock: boolean) => {
+  if (lock) {
+    document.body.style.overflow = 'hidden'; // 禁用页面滚动
   }
-
-  // 锁定和解锁页面滚动
-  const lockScroll = (lock: boolean) => {
-    if (lock) {
-      document.body.style.overflow = 'hidden' // 禁用页面滚动
-    } else {
-      document.body.style.overflow = '' // 恢复页面滚动
-    }
+  else {
+    document.body.style.overflow = ''; // 恢复页面滚动
   }
+};
 
-  // 缩放图片
-  const zoomIn = () => {
-    scale.value += 0.1
-  }
+// 缩放图片
+const zoomIn = () => {
+  scale.value += 0.1;
+};
 
-  const zoomOut = () => {
-    scale.value -= 0.1
-  }
+const zoomOut = () => {
+  scale.value -= 0.1;
+};
 
-  // 恢复图片为 1:1 比例
-  const resetScale = () => {
-    scale.value = 1
-  }
+// 恢复图片为 1:1 比例
+const resetScale = () => {
+  scale.value = 1;
+};
 
-  // 翻转图片（上下翻转）
-  const flipVerticalImage = () => {
-    flipVertical.value = !flipVertical.value
-  }
+// 翻转图片（上下翻转）
+const flipVerticalImage = () => {
+  flipVertical.value = !flipVertical.value;
+};
 
-  // 左右翻转图片
-  const flipHorizontalImage = () => {
-    flipHorizontal.value = !flipHorizontal.value
-  }
+// 左右翻转图片
+const flipHorizontalImage = () => {
+  flipHorizontal.value = !flipHorizontal.value;
+};
 
-  // 切换全屏
-  const toggleFullscreen = () => {
-    isFullscreen.value = !isFullscreen.value
-    nextTick(() => {
-      const viewer = document.querySelector('.fullscreen')
-      if (viewer) {
-        if (isFullscreen.value) {
-          viewer.requestFullscreen()
-        } else {
-          document.exitFullscreen()
-        }
+// 切换全屏
+const toggleFullscreen = () => {
+  isFullscreen.value = !isFullscreen.value;
+  nextTick(() => {
+    const viewer = document.querySelector('.fullscreen');
+    if (viewer) {
+      if (isFullscreen.value) {
+        viewer.requestFullscreen();
       }
-    })
-  }
+      else {
+        document.exitFullscreen();
+      }
+    }
+  });
+};
 
-  // 旋转左
-  const rotateLeft = () => {
-    rotation.value -= 90
-  }
+// 旋转左
+const rotateLeft = () => {
+  rotation.value -= 90;
+};
 
-  // 旋转右
-  const rotateRight = () => {
-    rotation.value += 90
-  }
+// 旋转右
+const rotateRight = () => {
+  rotation.value += 90;
+};
 
-  // 切换到上一张图片
-  const prevImage = () => {
-    currentIndex.value = (currentIndex.value - 1 + props.images.length) % props.images.length
-  }
+// 切换到上一张图片
+const prevImage = () => {
+  currentIndex.value = (currentIndex.value - 1 + props.images.length) % props.images.length;
+};
 
-  // 切换到下一张图片
-  const nextImage = () => {
-    currentIndex.value = (currentIndex.value + 1) % props.images.length
-  }
+// 切换到下一张图片
+const nextImage = () => {
+  currentIndex.value = (currentIndex.value + 1) % props.images.length;
+};
 
-  // 复原图片所有变换
-  const resetTransform = () => {
-    scale.value = 1
-    rotation.value = 0
-    flipVertical.value = false
-    flipHorizontal.value = false // 清除左右反转
-  }
+// 复原图片所有变换
+const resetTransform = () => {
+  scale.value = 1;
+  rotation.value = 0;
+  flipVertical.value = false;
+  flipHorizontal.value = false; // 清除左右反转
+};
 
-  // 图片样式（缩放、翻转、旋转）
-  const imgStyle = computed(() => {
-    return {
-      transform: `scale(${scale.value}) rotate(${rotation.value}deg) 
+// 图片样式（缩放、翻转、旋转）
+const imgStyle = computed(() => {
+  return {
+    transform: `scale(${scale.value}) rotate(${rotation.value}deg) 
                 ${flipVertical.value ? 'rotateX(180deg)' : ''}
                 ${flipHorizontal.value ? 'rotateY(180deg)' : ''}`,
-      maxWidth: '90vw',
-      maxHeight: '90vh',
-    }
-  })
+    maxWidth: '90vw',
+    maxHeight: '90vh',
+  };
+});
 </script>
 
 <style scoped>

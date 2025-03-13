@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 // eslint-disable-next-line
-const colors = require('tailwindcss/colors')
+const colors = require('tailwindcss/colors');
 module.exports = {
   // darkMode: "class", // 启动暗黑模式 class支持手动切换 media跟随操作系统
   content: [
@@ -10,7 +10,7 @@ module.exports = {
     './plugins/**/*.{js,ts}',
     './nuxt.config.{js,ts}',
     './app.vue',
-    'node_modules/tailvue/dist/tailvue.es.js' // tailvue 这里加上这个才不会所有css都被剔除
+    'node_modules/tailvue/dist/tailvue.es.js', // tailvue 这里加上这个才不会所有css都被剔除
   ],
   theme: {
     extend: {},
@@ -41,4 +41,4 @@ module.exports = {
     darkTheme: 'dark',
     themeRoot: ':root',
   },
-}
+};

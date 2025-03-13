@@ -8,162 +8,175 @@
 -->
 
 <script setup lang="ts">
-  import { ref, reactive } from 'vue'
-  import Yaya from '../assets/images/animal/yaya.svg'
-  import { getArticleList } from '@/api/article'
-  import { throttle } from '~~/utils'
-  import api from '@/api'
-  import { adminUrl } from '@/config'
-  import { TokenKey, RefreshTokenKey, getToken, removeToken } from '@/utils/cookie'
+import { ref, reactive } from 'vue';
+import Yaya from '../assets/images/animal/yaya.svg';
+import { getArticleList } from '@/api/article';
+import { throttle } from '~~/utils';
+import api from '@/api';
+import { adminUrl } from '@/config';
+import { TokenKey, RefreshTokenKey, getToken, removeToken } from '@/utils/cookie';
 
-  const navList = ref([
-    {
-      path: '/',
-      title: '首页',
-      icon: 'blog-shouye',
-    },
-    {
-      path: '/archives',
-      title: '归档',
-      icon: 'blog-guidang',
-    },
-    {
-      path: '/links',
-      title: '友链',
-      icon: 'blog-lianjie',
-    },
-    {
-      path: '/msgboard',
-      title: '留言板',
-      icon: 'blog-liuyanguanli',
-    },
-    {
-      path: '/about',
-      title: '关于',
-      icon: 'blog-about',
-    },
-    {
-      path: '/projects',
-      title: '项目',
-      icon: 'blog-xiangmu',
-    },
-    {
-      path: '/tool',
-      title: '工具箱',
-      icon: 'blog-tool',
-    }
-  ])
+const navList = ref([
+  {
+    path: '/',
+    title: '首页',
+    icon: 'blog-shouye',
+  },
+  {
+    path: '/archives',
+    title: '归档',
+    icon: 'blog-guidang',
+  },
+  {
+    path: '/links',
+    title: '友链',
+    icon: 'blog-lianjie',
+  },
+  {
+    path: '/msgboard',
+    title: '留言板',
+    icon: 'blog-liuyanguanli',
+  },
+  {
+    path: '/about',
+    title: '关于',
+    icon: 'blog-about',
+  },
+  {
+    path: '/projects',
+    title: '项目',
+    icon: 'blog-xiangmu',
+  },
+  {
+    path: '/tool',
+    title: '工具箱',
+    icon: 'blog-tool',
+  },
+]);
 
-  const token = useToken()
-  const userInfo = useUserInfo()
-  // init()
-  /* 切换主题 开始 */
-  // 要监听变化得useTheme使用
-  const theme = useTheme()
-  const followOs = () => {
-    const bool = matchMedia('(prefers-color-scheme: dark)').matches
-    if (bool) {
-      theme.value = 'dark'
-    } else {
-      theme.value = 'light'
-    }
-    setTheme()
+const token = useToken();
+const userInfo = useUserInfo();
+// init()
+/* 切换主题 开始 */
+// 要监听变化得useTheme使用
+const theme = useTheme();
+const followOs = () => {
+  const bool = matchMedia('(prefers-color-scheme: dark)').matches;
+  if (bool) {
+    theme.value = 'dark';
   }
-  const setTheme = () => {
-    const type: string = theme.value
-    document.documentElement.className = type
-    document.documentElement.setAttribute('data-theme', type)
-    localStorage.setItem('theme', type)
+  else {
+    theme.value = 'light';
   }
-  if (process.client) {
-    // 监听系统主题变化
-    const match = matchMedia('(prefers-color-scheme: dark)')
-    match.addEventListener('change', followOs)
-    // console.log('match========》', match)
+  setTheme();
+};
+const setTheme = () => {
+  const type: string = theme.value;
+  document.documentElement.className = type;
+  document.documentElement.setAttribute('data-theme', type);
+  localStorage.setItem('theme', type);
+};
+if (import.meta.client) {
+  // 监听系统主题变化
+  const match = matchMedia('(prefers-color-scheme: dark)');
+  match.addEventListener('change', followOs);
+  // console.log('match========》', match)
+}
+// 副作用函数
+watchEffect(() => {
+  if (import.meta.client) {
+    setTheme();
   }
-  // 副作用函数
-  watchEffect(() => {
-    if (process.client) {
-      setTheme()
-    }
-  })
-  onMounted(() => {
-    document.addEventListener('click', () => {
-      checked.value = false
-    })
-  })
-  // 点击icon直接切换
-  const clickIcon = () => {
-    if (theme.value === 'light') {
-      theme.value = 'dark'
-    } else {
-      theme.value = 'light'
-    }
-    // console.log('setTheme========》', theme.value)
+});
+onMounted(() => {
+  document.addEventListener('click', () => {
+    checked.value = false;
+  });
+});
+// 点击icon直接切换
+const clickIcon = () => {
+  if (theme.value === 'light') {
+    theme.value = 'dark';
   }
+  else {
+    theme.value = 'light';
+  }
+  // console.log('setTheme========》', theme.value)
+};
   /* 切换主题 结束 */
 
-  /* 搜索文章 */
+/* 搜索文章 */
 
-  // 搜索文章
-  const queryPrams = reactive<queryState>({
-    page: 1,
-    pageSize: 20,
-    title: '',
-    description: '',
-    content: '',
-  })
-  const searchText = ref('')
-  const articleList: any = ref([])
-  const getArticleListHandle = async () => {
-    const res = await getArticleList(queryPrams)
-    articleList.value = res.list.map((v: any) => {
-      return {
-        value: v.title,
-        label: v.title,
-        id: v.id,
-      }
-    })
-  }
+// 搜索文章
+const queryPrams = reactive<queryState>({
+  page: 1,
+  pageSize: 20,
+  title: '',
+  description: '',
+  content: '',
+});
+const searchText = ref('');
+const articleList: any = ref([]);
+const getArticleListHandle = async () => {
+  const res = await getArticleList(queryPrams);
+  articleList.value = res.list.map((v: any) => {
+    return {
+      value: v.title,
+      label: v.title,
+      id: v.id,
+    };
+  });
+};
 
-  const onSearchHandle = throttle(() => {
-    if (searchText.value) {
-      queryPrams.page = 1
-      queryPrams.title = searchText.value
-      queryPrams.description = searchText.value
-      queryPrams.content = searchText.value
-      getArticleListHandle()
-    } else {
-      articleList.value = []
-    }
-  }, 500)
+const onSearchHandle = throttle(() => {
+  if (searchText.value) {
+    queryPrams.page = 1;
+    queryPrams.title = searchText.value;
+    queryPrams.description = searchText.value;
+    queryPrams.content = searchText.value;
+    getArticleListHandle();
+  }
+  else {
+    articleList.value = [];
+  }
+}, 500);
 
-  const clear = () => {
-    token.value = ''
-    removeToken(TokenKey)
-    removeToken(RefreshTokenKey)
-    useClearUserInfo()
+const clear = () => {
+  token.value = '';
+  removeToken(TokenKey);
+  removeToken(RefreshTokenKey);
+  useClearUserInfo();
+};
+if (import.meta.client) {
+  token.value = getToken(TokenKey);
+  if (token.value) {
+    api.getUserInfo().then((res: any) => {
+      userInfo.value = res;
+    });
   }
-  if (process.client) {
-    token.value = getToken(TokenKey)
-    if (token.value) {
-      api.getUserInfo().then((res: any) => {
-        userInfo.value = res
-      })
-    } else {
-      clear()
-    }
+  else {
+    clear();
   }
-  const goUrl = `${adminUrl}?ticket=${token.value}`
-  // 菜单控制
-  const checked = ref(false)
+}
+const goUrl = `${adminUrl}?ticket=${token.value}`;
+// 菜单控制
+const checked = ref(false);
 </script>
+
 <template>
   <div class="navbar bg-transparent text-gray-100 dark:text-gray-300">
     <div class="navbar-start w-fit">
       <div class="dropdown">
-        <label tabindex="0" class="btn btn-ghost swap swap-rotate lg:hidden" @click.stop="">
-          <input v-model="checked" type="checkbox" @click="checked = !checked">
+        <label
+          tabindex="0"
+          class="btn btn-ghost swap swap-rotate lg:hidden"
+          @click.stop=""
+        >
+          <input
+            v-model="checked"
+            type="checkbox"
+            @click="checked = !checked"
+          >
           <svg
             class="swap-off fill-current"
             xmlns="http://www.w3.org/2000/svg"
@@ -193,8 +206,15 @@
           }"
           class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-zinc-500"
         >
-          <li v-for="(item, index) in navList" :key="item.path + index">
-            <NuxtLink class="menu-link py-2 px-4 flex" :to="item.path" :title="item.title">
+          <li
+            v-for="(item, index) in navList"
+            :key="item.path + index"
+          >
+            <NuxtLink
+              class="menu-link py-2 px-4 flex"
+              :to="item.path"
+              :title="item.title"
+            >
               <xia-icon :icon="item.icon" />
               <span>{{ item.title }}</span>
             </NuxtLink>
@@ -208,13 +228,20 @@
     </div>
     <div class="navbar-center hidden md:flex">
       <ul class="menu menu-horizontal p-0">
-        <li v-for="(item, index) in navList" :key="item.path + index" class="mr-2">
+        <li
+          v-for="(item, index) in navList"
+          :key="item.path + index"
+          class="mr-2"
+        >
           <NuxtLink
             :to="item.path"
             class="router-link-item leading-6 flex items-center px-4 py-3 rounded-lg"
             :title="item.title"
           >
-            <xia-icon class="hidden md:flex" :icon="item.icon" />
+            <xia-icon
+              class="hidden md:flex"
+              :icon="item.icon"
+            />
             <span class="hidden xl:flex">{{ item.title }}</span>
           </NuxtLink>
         </li>
@@ -240,13 +267,23 @@
           tabindex="0"
           class="mt-3 p-2 shadow menu menu-md dropdown-content bg-base-100 rounded-box w-52 max-h-72 text-gray-500 text-xs overflow-auto"
         >
-          <li v-for="item in articleList" class="flex items-center">
-            <NuxtLink class="py-2 px-4" :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
+          <li
+            v-for="item in articleList"
+            class="flex items-center"
+          >
+            <NuxtLink
+              class="py-2 px-4"
+              :to="'/detail/' + item.id"
+            >{{ item.value }}</NuxtLink>
           </li>
         </ul>
       </div>
 
-      <xia-icon class="cursor-pointer px-3" :icon="'blog-' + theme" @click="clickIcon" />
+      <xia-icon
+        class="cursor-pointer px-3"
+        :icon="'blog-' + theme"
+        @click="clickIcon"
+      />
 
       <NuxtLink
         v-if="!token"
@@ -256,10 +293,19 @@
       >
         登录
       </NuxtLink>
-      <div v-else class="dropdown dropdown-end">
-        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+      <div
+        v-else
+        class="dropdown dropdown-end"
+      >
+        <label
+          tabindex="0"
+          class="btn btn-ghost btn-circle avatar"
+        >
           <div class="w-10 rounded-full text-center leading-loose">
-            <img :src="userInfo.avatar || Yaya" :alt="userInfo.nickname">
+            <img
+              :src="userInfo.avatar || Yaya"
+              :alt="userInfo.nickname"
+            >
           </div>
         </label>
         <ul
@@ -267,7 +313,11 @@
           class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-gray-500 text-xs"
         >
           <li>
-            <a :href="goUrl" target="_blank" class="leading-5 flex items-center py-2 px-4">
+            <a
+              :href="goUrl"
+              target="_blank"
+              class="leading-5 flex items-center py-2 px-4"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-5 w-5"
