@@ -33,6 +33,6 @@ module.exports = {
         // 环境参数,当前为测试环境
         NODE_ENV: 'test',
       },
-    }
+    },
   ],
-}
+};

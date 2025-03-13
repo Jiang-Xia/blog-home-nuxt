@@ -1,1 +1,1 @@
-export const SiteTitle = '江夏的Blog'
+export const SiteTitle = '江夏的Blog';

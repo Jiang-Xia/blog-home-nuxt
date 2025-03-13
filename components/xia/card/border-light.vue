@@ -5,48 +5,54 @@
     @mousemove="onmousemoveHandle"
     @mouseout="mouseoutHandle"
   >
-    <div ref="cardFilter" class="card-filter" />
-    <div ref="cardImg" class="card-img" />
+    <div
+      ref="cardFilter"
+      class="card-filter"
+    />
+    <div
+      ref="cardImg"
+      class="card-img"
+    />
   </div>
 </template>
 
 <script setup>
-  import { onMounted } from 'vue'
-  import loadingImg from '@/assets/images/gif/loading3-min.gif'
+import { onMounted } from 'vue';
+import loadingImg from '@/assets/images/gif/loading3-min.gif';
 
-  const props = defineProps({
-    pic: {
-      type: String,
-      default: `url("${loadingImg}")`,
-    },
-  })
-  const cardContainer = ref()
-  const cardFilter = ref()
-  const cardImg = ref()
-  const onmousemoveHandle = (event) => {
-    cardImg.value.style.visibility = 'visible'
+const props = defineProps({
+  pic: {
+    type: String,
+    default: `url("${loadingImg}")`,
+  },
+});
+const cardContainer = ref();
+const cardFilter = ref();
+const cardImg = ref();
+const onmousemoveHandle = (event) => {
+  cardImg.value.style.visibility = 'visible';
 
-    const target = event.target
-    const rect = target.getBoundingClientRect()
+  const target = event.target;
+  const rect = target.getBoundingClientRect();
 
-    const offsetX = event.clientX - rect.left
-    const offsetY = event.clientY - rect.top
+  const offsetX = event.clientX - rect.left;
+  const offsetY = event.clientY - rect.top;
 
-    const percentX = (Math.min(Math.max(offsetX / rect.width, 0), 1) * 100).toFixed(2)
-    const percentY = (Math.min(Math.max(offsetY / rect.height, 0), 1) * 100).toFixed(2)
+  const percentX = (Math.min(Math.max(offsetX / rect.width, 0), 1) * 100).toFixed(2);
+  const percentY = (Math.min(Math.max(offsetY / rect.height, 0), 1) * 100).toFixed(2);
 
-    // console.log('X: ' + percentX + '%')
-    // console.log('Y: ' + percentY + '%')
+  // console.log('X: ' + percentX + '%')
+  // console.log('Y: ' + percentY + '%')
 
-    cardContainer.value.style.setProperty('--x', `${percentX}%`)
-    cardContainer.value.style.setProperty('--y', `${percentY}%`)
-  }
-  const mouseoutHandle = () => {
-    cardImg.value.style.visibility = 'hidden'
-  }
-  onMounted(() => {
-    cardContainer.value.style.setProperty('--pic', `url(${props.pic})`)
-  })
+  cardContainer.value.style.setProperty('--x', `${percentX}%`);
+  cardContainer.value.style.setProperty('--y', `${percentY}%`);
+};
+const mouseoutHandle = () => {
+  cardImg.value.style.visibility = 'hidden';
+};
+onMounted(() => {
+  cardContainer.value.style.setProperty('--pic', `url(${props.pic})`);
+});
 </script>
 
 <style lang="less" scoped>

@@ -1,18 +1,19 @@
 <script setup lang="ts">
-  const emits = defineEmits(['click', 'input'])
-  const props = defineProps({
-    config: {
-      type: Object,
-      default: () => ({}),
-    },
-  })
-  const clickTab = (index:number) => {
-    active.value = index
-    emits('click', props.config.list[index])
-    emits('input', index)
-  }
-  const active = ref(0)
+const emits = defineEmits(['click', 'input']);
+const props = defineProps({
+  config: {
+    type: Object,
+    default: () => ({}),
+  },
+});
+const clickTab = (index: number) => {
+  active.value = index;
+  emits('click', props.config.list[index]);
+  emits('input', index);
+};
+const active = ref(0);
 </script>
+
 <template>
   <div class="xia-tabs">
     <div class="tabs">
@@ -23,20 +24,26 @@
         @click="clickTab(index)"
       >{{ tab.label }}</a>
     </div>
-    <div v-for="(tab, index) in config.list" v-show="active === index" class="tab-pane">
+    <div
+      v-for="(tab, index) in config.list"
+      v-show="active === index"
+      class="tab-pane"
+    >
       <div
-        :style="
-          {
-            'border-top-left-radius':active===0?'0px': ''
-          }
-        "
+        :style="{
+          'border-top-left-radius': active === 0 ? '0px' : '',
+        }"
         class="tab-pane__content bg-base-300 rounded-b-lg rounded-tr-lg rounded-tl-lg min-h-16"
       >
-        <slot :tab="tab" :index="index" />
+        <slot
+          :tab="tab"
+          :index="index"
+        />
       </div>
     </div>
   </div>
 </template>
+
 <style lang="less" scoped>
   .xia-tabs {
     .tab-lifted {

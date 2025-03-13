@@ -6,13 +6,12 @@
  * @Description:
  * @FilePath: \blog-home-nuxt\layouts\custom.vue
 -->
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
+
 <template>
   <div>
     <NuxtPage />
   </div>
 </template>
 
-<style lang="less" scoped>
-</style>
+<style lang="less" scoped></style>

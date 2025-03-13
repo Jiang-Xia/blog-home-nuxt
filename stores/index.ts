@@ -1,6 +1,6 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 // 延迟函数 delay(1000)
-const delay = (t: number) => new Promise(resolve => setTimeout(resolve, t))
+const delay = (t: number) => new Promise(resolve => setTimeout(resolve, t));
 export const useMainStore = defineStore('main', {
   state: () => ({
     counter: 0,
@@ -9,13 +9,19 @@ export const useMainStore = defineStore('main', {
     double: state => state.counter * 2,
   },
   actions: {
-    increment () {
+    increment() {
       // `this` is the store instance
-      this.counter++
+      this.counter++;
     },
   },
-})
+});
 
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useMainStore, import.meta.hot))
-}
+export const useWebsiteStore = defineStore('websiteStore', {
+  state: () => ({
+    name: '',
+    description: '',
+  }),
+  actions: {
+    async fetch() {},
+  },
+});

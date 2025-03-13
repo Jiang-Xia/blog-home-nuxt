@@ -1,31 +1,32 @@
-import { defineComponent, h, SetupContext } from 'vue'
-import config from '@/config'
-import './index.less'
+import type { SetupContext } from 'vue';
+import { defineComponent, h } from 'vue';
+import config from '@/config';
+import './index.less';
 // 本地引入 阿里云图标库不能更新url了
 // import '../../assets/font/iconfont';
 
 interface propsState {
-  icon: string
-  height: string
-  width: string
+  icon: string;
+  height: string;
+  width: string;
 }
 // 加载iconfont 图标字体文件
 const createIconfont = () => {
-  const scriptUrl = config.iconfonrUrl
-  const script = document.createElement('script')
-  script.src = scriptUrl
-  script.setAttribute('defer', 'defer')
-  document.body.appendChild(script)
-}
-if (process.client) {
-  createIconfont()
+  const scriptUrl = config.iconfonrUrl;
+  const script = document.createElement('script');
+  script.src = scriptUrl;
+  script.setAttribute('defer', 'defer');
+  document.body.appendChild(script);
+};
+if (import.meta.client) {
+  createIconfont();
 }
 
 // 创建icon 函数式组件
 const createIcon = (props: propsState, context: SetupContext) => {
   const svg = (
     <svg
-      style={{ width: props.width, height: props.height, }}
+      style={{ width: props.width, height: props.height }}
       fill="currentColor"
       aria-hidden="true"
       focusable="false"
@@ -33,14 +34,14 @@ const createIcon = (props: propsState, context: SetupContext) => {
     >
       <use xlinkHref={`#${props.icon}`}></use>
     </svg>
-  )
+  );
   const html = (
     <span class="x-icon" {...context.attrs}>
       {svg}
     </span>
-  )
-  return h(html, context.attrs, context.slots)
-}
+  );
+  return h(html, context.attrs, context.slots);
+};
 
 // 创建 XIcon组件
 export default defineComponent({
@@ -59,7 +60,7 @@ export default defineComponent({
       default: '',
     },
   },
-  setup (props: propsState, context: SetupContext) {
-    return () => createIcon(props, context)
+  setup(props: propsState, context: SetupContext) {
+    return () => createIcon(props, context);
   },
-})
+});

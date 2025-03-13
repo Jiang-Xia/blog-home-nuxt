@@ -1,37 +1,38 @@
-import { ref } from 'vue'
-import type { LocationQueryValue } from 'vue-router'
-import dayjs from 'dayjs'
-import { useStorage } from '@vueuse/core'
-import api from '@/api/index'
+import { ref } from 'vue';
+import type { LocationQueryValue } from 'vue-router';
+import dayjs from 'dayjs';
+import { useStorage } from '@vueuse/core';
+import api from '@/api/index';
 // 分类
-const categoryOptions: any = ref([])
+const categoryOptions: any = ref([]);
 // 标签
-const tagsOptions: any = ref([])
-export const xBLogStore = useStorage('x-blog-store', { likes: [], })
+const tagsOptions: any = ref([]);
+export const xBLogStore = useStorage('x-blog-store', { likes: [] });
 
 const getOptions = async (type: string) => {
   if (type === '分类') {
-    let { data: res, } = await useAsyncData('index_GetCategory', () => api.getAllCategory())
+    let { data: res } = await useAsyncData('index_GetCategory', () => api.getAllCategory());
     if (!res.value) {
-      res = ref([]) // 仅为了解决开发环境报错
+      res = ref([]); // 仅为了解决开发环境报错
     }
     // console.log('=>>>>>>>>>>>>>>>>>>>>>', res.value)
-    categoryOptions.value = res.value.filter((v: any) => v.articleCount)
+    categoryOptions.value = res.value.filter((v: any) => v.articleCount);
     // console.log(res)
-  } else {
-    let { data: res, } = await useAsyncData('index_GetTag', () => api.getAllTag())
+  }
+  else {
+    let { data: res } = await useAsyncData('index_GetTag', () => api.getAllTag());
     // console.log({ res: res.value, })
     if (!res.value) {
-      res = ref([]) // 仅为了解决开发环境报错
+      res = ref([]); // 仅为了解决开发环境报错
     }
     tagsOptions.value = res.value
       .filter((v: any) => v.articleCount)
       .map((v: any) => {
-        v.checked = false
-        return v
-      })
+        v.checked = false;
+        return v;
+      });
   }
-}
+};
 const colors: string[] = [
   '#4ea397',
   '#22c3aa',
@@ -49,48 +50,49 @@ const colors: string[] = [
   '#73b9bc',
   '#7289ab',
   '#91ca8c',
-  '#f49f42'
-]
+  '#f49f42',
+];
 // 随机获取一种颜色
 const getRandomClor = () => {
-  const index = Math.floor(Math.random() * colors.length)
-  return colors[index]
-}
-export { categoryOptions, tagsOptions, getOptions, colors, getRandomClor }
+  const index = Math.floor(Math.random() * colors.length);
+  return colors[index];
+};
+export { categoryOptions, tagsOptions, getOptions, colors, getRandomClor };
 
 export const updateViews = async (id: LocationQueryValue | LocationQueryValue[]) => {
-  await api.updateViews({ id, })
-}
+  await api.updateViews({ id });
+};
 export const updateLikes = async (data: any) => {
-  return await api.updateLikes(data)
-}
+  return await api.updateLikes(data);
+};
 
 // const store = useStore()
 // 更新点赞数
 export const updateLikesHandle = async (item: any) => {
-  const { uid, } = useUserInfo().value
-  const id = item.id as never
+  const { uid } = useUserInfo().value;
+  const id = item.id as never;
   const send = {
     articleId: item.id,
     uid,
     status: 1,
-  }
-  const likes = xBLogStore.value.likes
+  };
+  const likes = xBLogStore.value.likes;
   if (likes.includes(id)) {
-    send.status = 0
-    likes.splice(likes.indexOf(id), 1)
-    item.likes = --item.likes
-  } else {
-    send.status = 1
-    !likes.includes(id) && likes.push(id)
-    item.likes = ++item.likes
+    send.status = 0;
+    likes.splice(likes.indexOf(id), 1);
+    item.likes = --item.likes;
   }
-  await updateLikes(send)
-}
+  else {
+    send.status = 1;
+    !likes.includes(id) && likes.push(id);
+    item.likes = ++item.likes;
+  }
+  await updateLikes(send);
+};
 
 export const formactDate = (str: string) => {
-  return dayjs(str).format('YYYY-MM-DD HH:mm:ss')
-}
+  return dayjs(str).format('YYYY-MM-DD HH:mm:ss');
+};
 
 const avatars = [
   'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-08-26/2tp9sykqn11a6b41yodlzz-头像_天秤座.png',
@@ -104,55 +106,56 @@ const avatars = [
   'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-08-26/sca06wy3ht6mgu839y9x95-头像_摩羯座.png',
   'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-08-26/2tp9sykqn11a6b41yodlk8-头像_双鱼座.png',
   'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-08-26/2tp9sykqn11a6b41yodl9q-头像_金牛座.png',
-  'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-08-26/sca06wy3ht6mgu839y9x6d-头像_射手座.png'
-]
+  'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-08-26/sca06wy3ht6mgu839y9x6d-头像_射手座.png',
+];
 // 获取十二星座随机头像
 export const getRandomAvatar = () => {
-  const index = Math.floor(Math.random() * avatars.length)
-  return avatars[index]
-}
+  const index = Math.floor(Math.random() * avatars.length);
+  return avatars[index];
+};
 
 // 判断是否是pc设备
 export const isPC = () => {
-  const userAgentInfo: any = navigator.userAgent
-  const Agents = ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPod']
-  let flag = true
+  const userAgentInfo: any = navigator.userAgent;
+  const Agents = ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPod'];
+  let flag = true;
   for (let v = 0; v < Agents.length; v++) {
     if (userAgentInfo.indexOf(Agents[v]) > 0) {
-      flag = false
-      break
+      flag = false;
+      break;
     }
   }
   if (window.screen.width >= 768) {
-    flag = true
+    flag = true;
   }
-  return flag
-}
+  return flag;
+};
 
 // 下载文件
 export const downloadFile = (url: string, name = '') => {
-  const a = document.createElement('a')
-  a.href = url
-  a.download = name
-  document.body.appendChild(a)
-  a.click()
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
 
-  document.body.removeChild(a)
-}
+  document.body.removeChild(a);
+};
 
 // URL获取查询参数
 export const getUrlParams = (key: string) => {
-  const queryString = window.location.search.substring(1)
-  const params: any = {}
+  const queryString = window.location.search.substring(1);
+  const params: any = {};
   // https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace#%E6%8C%87%E5%AE%9A%E5%87%BD%E6%95%B0%E4%BD%9C%E4%B8%BA%E6%9B%BF%E6%8D%A2%E9%A1%B9
   queryString.replace(/([^&=]+)=([^&]+)/g, (_: string, key: string, value: string) => {
     // (match,p1,p2,offset, string) match-匹配项 p1,p2 捕获项 offset偏移量 string-原字符串
-    params[key] = decodeURIComponent(value)
-    return _
-  })
+    params[key] = decodeURIComponent(value);
+    return _;
+  });
   if (key) {
-    return params[key]
-  } else {
-    return params
+    return params[key];
   }
-}
+  else {
+    return params;
+  }
+};

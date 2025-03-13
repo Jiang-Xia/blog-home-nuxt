@@ -1,42 +1,51 @@
 <script setup lang="ts">
-  const props = defineProps({
-    // 渐变开始和结束颜色
-    gradient: {
-      type: Object,
-      default: () => ({
-        start: '#FFD75A',
-        stop: '#ED424B',
-      }),
-    },
-    // 矩形圆角半径
-    rx: {
-      type: [String, Number],
-      default: 16,
-    },
-    // 边框大小
-    strokeWidth: {
-      type: [String, Number],
-      default: 2,
-    },
-    // 开启动画
-    animation: {
-      type: Boolean,
-      default: true,
-    },
-    animationDuration: {
-      type: Number,
-      default: 0.3,
-    },
-    // 文本颜色
-    color: {
-      type: String,
-      default: '',
-    },
-  })
+const props = defineProps({
+  // 渐变开始和结束颜色
+  gradient: {
+    type: Object,
+    default: () => ({
+      start: '#FFD75A',
+      stop: '#ED424B',
+    }),
+  },
+  // 矩形圆角半径
+  rx: {
+    type: [String, Number],
+    default: 16,
+  },
+  // 边框大小
+  strokeWidth: {
+    type: [String, Number],
+    default: 2,
+  },
+  // 开启动画
+  animation: {
+    type: Boolean,
+    default: true,
+  },
+  animationDuration: {
+    type: Number,
+    default: 0.3,
+  },
+  // 文本颜色
+  color: {
+    type: String,
+    default: '',
+  },
+});
 </script>
+
 <template>
-  <button class="border-button" :style="{ color: color }">
-    <svg width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <button
+    class="border-button"
+    :style="{ color: color }"
+  >
+    <svg
+      width="100%"
+      height="100%"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <rect
         class="rect"
         x="2"
@@ -61,13 +70,17 @@
           gradientUnits="userSpaceOnUse"
         >
           <stop :stop-color="gradient.start" />
-          <stop :stop-color="gradient.stop" offset="1" />
+          <stop
+            :stop-color="gradient.stop"
+            offset="1"
+          />
         </linearGradient>
       </defs>
     </svg>
     <slot>Text</slot>
   </button>
 </template>
+
 <style lang="less" scoped>
   .border-button {
     border: 0;

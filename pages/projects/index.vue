@@ -13,12 +13,20 @@
           <a class="btn btn-ghost normal-case text-xl">Blog Admin</a>
         </div>
         <div class="navbar-end">
-          <button class="btn btn-neutral" @click="goTargetPage(1)"> GO </button>
+          <button
+            class="btn btn-neutral"
+            @click="goTargetPage(1)"
+          >
+            GO
+          </button>
         </div>
       </div>
       <div class="mockup-window border bg-base-100">
         <div class="flex justify-center p-4 bg-base-200 h-full">
-          <iframe class="iframe" :src="goUrl" />
+          <iframe
+            class="iframe"
+            :src="goUrl"
+          />
         </div>
       </div>
     </section>
@@ -36,7 +44,12 @@
           <a class="btn btn-ghost normal-case text-xl">Zone</a>
         </div>
         <div class="navbar-end">
-          <button class="btn btn-neutral" @click="goTargetPage(2)"> GO </button>
+          <button
+            class="btn btn-neutral"
+            @click="goTargetPage(2)"
+          >
+            GO
+          </button>
         </div>
       </div>
 
@@ -46,22 +59,39 @@
           <div class="display">
             <div class="artboard artboard-demo phone-1">
               <div class="iframe-wrap">
-                <iframe class="iframe" :src="zoneUrl" />
+                <iframe
+                  class="iframe"
+                  :src="zoneUrl"
+                />
               </div>
             </div>
           </div>
         </div>
         <div class="card card-compact w-96 bg-base-100 shadow-xl sm:w-60 md:w-96">
-          <figure><img src="@/assets/images/other/app-code.png" alt="code"></figure>
+          <figure>
+            <img
+              src="@/assets/images/other/app-code.png"
+              alt="code"
+            >
+          </figure>
           <div class="card-body">
-            <h2 class="card-title">APP</h2>
+            <h2 class="card-title">
+              APP
+            </h2>
             <p>扫码下载安装即可体验App</p>
           </div>
         </div>
         <div class="card card-compact w-96 mt-4 bg-base-100 shadow-xl sm:w-60 md:w-96 md:mt-0">
-          <figure><img src="@/assets/images/other/mini-program-code.jpg" alt="code"></figure>
+          <figure>
+            <img
+              src="@/assets/images/other/mini-program-code.jpg"
+              alt="code"
+            >
+          </figure>
           <div class="card-body">
-            <h2 class="card-title">微信小程序</h2>
+            <h2 class="card-title">
+              微信小程序
+            </h2>
             <p>微信扫码即可体验微信小程序！</p>
           </div>
         </div>
@@ -69,21 +99,25 @@
     </section>
   </div>
 </template>
+
 <script setup lang="ts">
-  import { adminUrl } from '@/config'
-  const token = useToken()
-  const goUrl = `${adminUrl}?ticket=${token.value}`
-  const zoneUrl = 'https://jiang-xia.top/zone/#/'
-  const goTargetPage = (type: number) => {
-    let url = ''
-    if (type === 1) {
-      url = goUrl
-    } else if (type === 2) {
-      url = zoneUrl
-    }
-    window.open(url, '_blank')
+import { adminUrl } from '@/config';
+
+const token = useToken();
+const goUrl = `${adminUrl}?ticket=${token.value}`;
+const zoneUrl = 'https://jiang-xia.top/zone/#/';
+const goTargetPage = (type: number) => {
+  let url = '';
+  if (type === 1) {
+    url = goUrl;
   }
+  else if (type === 2) {
+    url = zoneUrl;
+  }
+  window.open(url, '_blank');
+};
 </script>
+
 <style lang="less" scoped>
   .page-container {
     background: var(--main-bgc);

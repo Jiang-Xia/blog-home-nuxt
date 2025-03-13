@@ -7,15 +7,16 @@
  * @FilePath: \blog-home-nuxt\layouts\main-content.vue
 -->
 <script setup lang="ts">
-  const banners = useBanners()
-  defineProps({
-    // 页面自定义banner
-    images: {
-      type: Array<BannerState>,
-      default: () => [],
-    },
-  })
+const banners = useBanners();
+defineProps({
+  // 页面自定义banner
+  images: {
+    type: Array<BannerState>,
+    default: () => [],
+  },
+});
 </script>
+
 <template>
   <div class="custom-layout-contaier paper-feeling">
     <!-- 全局共享布局 -->

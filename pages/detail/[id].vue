@@ -1,140 +1,148 @@
 <script setup lang="ts">
-  import { ref, reactive, computed } from 'vue'
-  import { MdPreview } from 'md-editor-v3'
+import { ref, reactive, computed } from 'vue';
+import { MdPreview } from 'md-editor-v3';
 
-  import { useScroll } from '@vueuse/core'
-  import { getArticleInfo, getComment } from '@/api/article'
-  import { updateViews, xBLogStore, updateLikesHandle, formactDate } from '@/utils/common'
-  import defaultImg from '@/assets/images/create.webp'
-  import { type tocInter, isTrueCoverLink } from '@/utils'
-  import Qie from '@/assets/images/animal/qie.svg'
-  import { SiteTitle } from '@/utils/constant'
+import { useScroll } from '@vueuse/core';
+import { getArticleInfo, getComment } from '@/api/article';
+import { updateViews, xBLogStore, updateLikesHandle, formactDate } from '@/utils/common';
+import defaultImg from '@/assets/images/create.webp';
+import { type tocInter, isTrueCoverLink } from '@/utils';
+import Qie from '@/assets/images/animal/qie.svg';
+import { SiteTitle } from '@/utils/constant';
 
-  const theme: any = useTheme()
-  interface FormState {
-    [propName: string]: any
-  }
-  const defaultForm: FormState = {
-    id: '',
-    title: '',
-    description: '',
-    content: '',
-    contentHtml: '',
-    cover: '',
-    uTime: '',
-    category: {
-      label: '',
-    },
-    tags: [],
-    views: 0,
-    checked: 0,
-    likes: 0,
-    uid: 0,
-    userInfo: {},
-  }
-  const route = useRoute()
-  // 先定义默认数组类型
-  const topicsDefault: tocInter[] = []
-  const topics = ref(topicsDefault)
-  const ArticleInfo = reactive({ ...defaultForm, })
-  // console.log(route)
-  const params = route.params
-  // console.log({ '文章id:': params.id, })
-  // 响应式声明
-  const { data: articleData, refresh, } = await useAsyncData('detail_GetInfo', () =>
-    getArticleInfo(params)
-  )
-  const setArticleData = () => {
-    if (articleData) {
-      Object.keys(defaultForm).forEach((v: string) => {
-        if (articleData.value.info[v]) {
-          ArticleInfo[v] = articleData.value.info[v]
-        }
-      })
-    }
-  }
-  setArticleData()
-
-  // onBeforeMount(async () => {
-  //   console.log('onBeforeMount')
-  //   await refresh()
-  //   setArticleData()
-  // })
-  updateViews(params.id)
-
-  const getTagLabel = (arr: any): string => {
-    const text = arr.map((v: any) => v.label).join()
-    return text
-  }
-
-  const tagLabel = computed(() => {
-    return getTagLabel(ArticleInfo.tags)
-  })
-
-  // 获取文章目录
-  const onGetCatalogHandle = (list: any) => {
-    topics.value = list.map((v: any) => {
-      v.id = v.text
-      return v
-    })
-  }
-  const previewTheme = ref('default')
-  const previewThemeChange = (e: any) => {
-    previewTheme.value = e
-    // console.log(previewTheme.value);
-  }
-  const scrollElement = ref<HTMLElement>()
-  const themeList: any = ref(['default', 'github', 'vuepress', 'mk-cute', 'smart-blue', 'cyanosis'])
-  // 为了客户端时重新渲染才能设置为缓存的暗黑模式，themeLocal 另设置一个变量会导致签署数据两次
-  const mdKey = ref(new Date().getTime())
-  const likes = ref([])
-  // 本地点赞记录
-
-  onMounted(() => {
-    scrollElement.value = document.documentElement
-    mdKey.value = new Date().getTime()
-    // 点赞的
-    likes.value = xBLogStore.value.likes
-    ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never)
-    // getCommentHandle();
-  })
-
-  /* 评论回复功能 */
-  const comments = ref([])
-  const commentTotal = ref(0)
-
-  const getCommentHandle = async () => {
-    const id: string = route.params.id as string
-    const { data: res, } = await useAsyncData('detail_GetComment', () => getComment(id))
-    comments.value = res.value.list
-    let total = res.value.pagination.total
-    res.value.list.map((v: any) => (total += v.allReplyCount))
-    commentTotal.value = total
-    // console.log({ comments, total });
-  }
-  getCommentHandle()
-
-  // 目录吸顶
-  const mainViewArea = ref<HTMLElement>()
-  let fixedAsideBar = ref<boolean>()
-  if (process.client) {
-    // 都是响应式的
-    const { y, } = useScroll(window, {})
-    fixedAsideBar = computed(() => {
-      let top = 0
-      if (mainViewArea.value) {
-        top = mainViewArea.value.offsetTop - 66
+const theme: any = useTheme();
+interface FormState {
+  [propName: string]: any;
+}
+const defaultForm: FormState = {
+  id: '',
+  title: '',
+  description: '',
+  content: '',
+  contentHtml: '',
+  cover: '',
+  uTime: '',
+  category: {
+    label: '',
+  },
+  tags: [],
+  views: 0,
+  checked: 0,
+  likes: 0,
+  uid: 0,
+  userInfo: {},
+};
+const route = useRoute();
+// 先定义默认数组类型
+const topicsDefault: tocInter[] = [];
+const topics = ref(topicsDefault);
+const ArticleInfo = reactive({ ...defaultForm });
+// console.log(route)
+const params = route.params;
+// console.log({ '文章id:': params.id, })
+// 响应式声明
+const { data: articleData, refresh } = await useAsyncData('detail_GetInfo', () =>
+  getArticleInfo(params),
+);
+const setArticleData = () => {
+  if (articleData) {
+    Object.keys(defaultForm).forEach((v: string) => {
+      if (articleData.value.info[v]) {
+        ArticleInfo[v] = articleData.value.info[v];
       }
-      return !!y.value && y.value > top
-    })
+    });
   }
-  // 侧边栏吸顶
+};
+setArticleData();
 
-  useHead({
-    title: ArticleInfo.title + ' - 文章详情',
-    titleTemplate: title => `${title} - ${SiteTitle}`,
-  })
+// onBeforeMount(async () => {
+//   console.log('onBeforeMount')
+//   await refresh()
+//   setArticleData()
+// })
+updateViews(params.id);
+
+const getTagLabel = (arr: any): string => {
+  const text = arr.map((v: any) => v.label).join();
+  return text;
+};
+
+const tagLabel = computed(() => {
+  return getTagLabel(ArticleInfo.tags);
+});
+
+// 获取文章目录
+const onGetCatalogHandle = (list: any) => {
+  topics.value = list.map((v: any) => {
+    v.id = v.text;
+    return v;
+  });
+};
+const previewTheme = ref('default');
+const previewThemeChange = (e: any) => {
+  previewTheme.value = e;
+  // console.log(previewTheme.value);
+};
+const scrollElement = ref<HTMLElement>();
+const themeList: any = ref([
+  'default',
+  'github',
+  'vuepress',
+  'mk-cute',
+  'smart-blue',
+  'cyanosis',
+]);
+  // 为了客户端时重新渲染才能设置为缓存的暗黑模式，themeLocal 另设置一个变量会导致签署数据两次
+const mdKey = ref(new Date().getTime());
+const likes = ref([]);
+// 本地点赞记录
+
+onMounted(() => {
+  scrollElement.value = document.documentElement;
+  mdKey.value = new Date().getTime();
+  // 点赞的
+  likes.value = xBLogStore.value.likes;
+  ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never);
+  // getCommentHandle();
+});
+
+/* 评论回复功能 */
+const comments = ref([]);
+const commentTotal = ref(0);
+
+const getCommentHandle = async () => {
+  const id: string = route.params.id as string;
+  const { data: res } = await useAsyncData('detail_GetComment', () => getComment(id));
+  comments.value = res.value.list;
+  let total = res.value.pagination.total;
+  res.value.list.map((v: any) => (total += v.allReplyCount));
+  commentTotal.value = total;
+  // console.log({ comments, total });
+};
+getCommentHandle();
+
+// 目录吸顶
+const mainViewArea = ref<HTMLElement>();
+let fixedAsideBar = ref<boolean>();
+if (import.meta.client) {
+  // 都是响应式的
+  const { y } = useScroll(window, {});
+  fixedAsideBar = computed(() => {
+    let top = 0;
+    if (mainViewArea.value) {
+      top = mainViewArea.value.offsetTop - 66;
+    }
+    return !!y.value && y.value > top;
+  });
+}
+// 侧边栏吸顶
+
+useHead({
+  title: ArticleInfo.title + ' - 文章详情',
+  titleTemplate: title => `${title} - ${SiteTitle}`,
+});
 </script>
+
 <template>
   <div class="article-detail">
     <section class="banner-container">
@@ -145,11 +153,16 @@
         >
         <!-- <div>文章详情</div> -->
         <div class="article-header text-gray-200">
-          <h1 class="title">{{ ArticleInfo.title }}</h1>
+          <h1 class="title">
+            {{ ArticleInfo.title }}
+          </h1>
           <p class="detail inline-flex items-center justify-center">
             <xia-icon icon="blog-category" />
             {{ ArticleInfo.category.label }}
-            <xia-icon class="ml-3" icon="blog-tag" />
+            <xia-icon
+              class="ml-3"
+              icon="blog-tag"
+            />
             {{ tagLabel }}
           </p>
           <p class="detail flex items-center justify-center">
@@ -173,7 +186,10 @@
         </div>
       </div>
     </section>
-    <div ref="mainViewArea" class="main-view-area">
+    <div
+      ref="mainViewArea"
+      class="main-view-area"
+    >
       <section class="main-content">
         <section class="module-wrap__detail article-info">
           <div class="flex items-center">
@@ -186,12 +202,21 @@
               <span class="text-color font-bold">{{ ArticleInfo.userInfo.nickname }}</span>
             </div>
             <div class="dropdown dropdown-bottom ml-6">
-              <div tabindex="0" role="button" class="btn m-1 btn-neutral">主 题</div>
+              <div
+                tabindex="0"
+                role="button"
+                class="btn m-1 btn-neutral"
+              >
+                主 题
+              </div>
               <ul
                 tabindex="0"
                 class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
               >
-                <li v-for="item of themeList" @click="previewThemeChange(item)">
+                <li
+                  v-for="item of themeList"
+                  @click="previewThemeChange(item)"
+                >
                   <a>{{ item }}</a>
                 </li>
               </ul>
@@ -215,7 +240,11 @@
         />
       </section>
 
-      <aside ref="aside" class="aside-bar" :class="{ 'aside-bar__fixed': fixedAsideBar }">
+      <aside
+        ref="aside"
+        class="aside-bar"
+        :class="{ 'aside-bar__fixed': fixedAsideBar }"
+      >
         <div class="sticky-box">
           <Catalogue :topics="topics" />
         </div>
@@ -223,6 +252,7 @@
     </div>
   </div>
 </template>
+
 <style lang="less" scoped>
   .banner-container {
     height: 50vh;

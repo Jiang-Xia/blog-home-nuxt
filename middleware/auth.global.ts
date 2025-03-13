@@ -8,4 +8,4 @@ export default defineNuxtRouteMiddleware((to, from) => {
   //     console.log('===========================================>')
   //     console.log(to, from)
   //     console.log('<===========================================')
-})
+});

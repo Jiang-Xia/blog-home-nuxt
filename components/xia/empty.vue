@@ -1,5 +1,5 @@
 <script setup lang="ts">
- defineProps({
+defineProps({
   color: {
     type: String,
     default: '',
@@ -8,9 +8,11 @@
     type: String,
     default: '空空如也',
   },
-})
+});
 </script>
+
 <script lang="ts"></script>
+
 <template>
   <div class="m-auto text-center xia-empty">
     <!-- 可以使用插槽 -->
@@ -33,14 +35,15 @@
           p-id="1865"
         />
       </svg>
-      <span
-        class="text-sm text-gray-500 dark:text-gray-700 mt-2 inline-block"
-      >{{ description }}</span>
+      <span class="text-sm text-gray-500 dark:text-gray-700 mt-2 inline-block">{{
+        description
+      }}</span>
     </slot>
   </div>
 </template>
+
 <style lang="less" scoped>
-.xia-empty {
-  height: 100px;
-}
+  .xia-empty {
+    height: 100px;
+  }
 </style>
