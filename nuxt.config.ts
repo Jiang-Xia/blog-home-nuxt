@@ -10,7 +10,6 @@ console.warn({
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@nuxtjs/stylelint-module',
     '@nuxtjs/tailwindcss',
     '@vueuse/nuxt',
     '~/modules/sitemap',

@@ -20,3 +20,15 @@ export function debounce(fn, delay) {
     }, delay);
   };
 }
+
+const array = [
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' },
+  { id: 1, name: 'Alice' }, // 重复的对象
+];
+
+const uniqueArray = array.filter((item, index, arr) => {
+  return arr.findIndex(obj => obj.id === item.id) === index; // 使用对象的某个唯一属性进行判断
+});
+
+// console.log(uniqueArray);
