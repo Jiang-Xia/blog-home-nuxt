@@ -129,6 +129,7 @@
 <script setup lang="ts">
 import { SSE } from 'sse.js';
 import { messageDanger } from '~~/utils/toast';
+import { baseUrl } from '~~/config';
 
 const modelList = ref([
   {
@@ -141,11 +142,11 @@ const modelList = ref([
   },
 ]);
 const chatList = ref<any[]>([]);
-const inputText = ref('你好，给我讲个关于程序员的冷笑话吧');
+const inputText = ref('你好，给我讲个冷笑话~');
 const baseURL = ref('https://api.deepseek.com');
 // const baseURL = ref('https://api.openai.com/v1')
-// const model = ref('deepseek-reasoner')
-const model = ref('deepseek-chat');
+const model = ref('deepseek-reasoner');
+// const model = ref('deepseek-chat');
 
 // const baseURL = ref('http://localhost:11434/api/chat')
 // const model = ref('deepseek-r1:1.5b')
@@ -180,34 +181,43 @@ const send = () => {
     model: model.value,
     apiKey: apiKey.value,
   };
-  const source: any = new SSE('http://127.0.0.1:5000/api/v1/pub/ai-stream', {
-    headers: { 'Content-Type': 'application/json' },
-    payload: JSON.stringify(payload), // 请求体
-    method: 'POST',
-    start: false,
-    debug: true,
-  });
-  chatList.value.push({ role: 'assistant', content: '', reasoning_content: '' });
-  source.addEventListener('message', (event: any) => {
-    if (event.data === '[DONE]') {
-      loading.value = false;
-      // 完成时，可以做一些处理
-    }
-    else {
-      const chunk = JSON.parse(event.data);
-      const reasoningContent = chunk.choices[0].delta.reasoning_content || '';
-      const content = chunk.choices[0].delta.content || '';
-      if (chunk.choices[0].delta.reasoning_content) {
-        chatList.value[chatList.value.length - 1].reasoning_content
-            = chatList.value[chatList.value.length - 1].reasoning_content + reasoningContent;
+  try {
+    const source: any = new SSE(baseUrl + '/pub/ai-stream', {
+      headers: { 'Content-Type': 'application/json' },
+      payload: JSON.stringify(payload), // 请求体
+      method: 'POST',
+      start: false,
+      debug: true,
+    });
+    chatList.value.push({ role: 'assistant', content: '', reasoning_content: '' });
+    source.addEventListener('message', (event: any) => {
+      if (event.data === '[DONE]') {
+        loading.value = false;
+        // 完成时，可以做一些处理
       }
       else {
-        chatList.value[chatList.value.length - 1].content
-            = chatList.value[chatList.value.length - 1].content + content;
+        const chunk = JSON.parse(event.data);
+        const reasoningContent = chunk.choices[0].delta.reasoning_content || '';
+        const content = chunk.choices[0].delta.content || '';
+        if (chunk.choices[0].delta.reasoning_content) {
+          chatList.value[chatList.value.length - 1].reasoning_content
+              = chatList.value[chatList.value.length - 1].reasoning_content + reasoningContent;
+        }
+        else {
+          chatList.value[chatList.value.length - 1].content
+              = chatList.value[chatList.value.length - 1].content + content;
+        }
       }
-    }
-  });
-  source.stream(); // 开始连接
+    });
+    source.stream(); // 开始连接
+
+    source.addEventListener('error', (event: any) => {
+      loading.value = false;
+    });
+  }
+  catch (error) {
+    loading.value = false;
+  }
 };
 
 onMounted(() => {});

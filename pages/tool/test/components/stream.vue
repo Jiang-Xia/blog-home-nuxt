@@ -23,6 +23,7 @@
 
 <script setup>
 import { SSE } from 'sse.js';
+import { baseUrl } from '~~/config';
 
 const input = ref('');
 const allInput = ref('');
@@ -30,9 +31,7 @@ const content = ref('');
 const onChange = () => {
   content.value = '';
   allInput.value = allInput.value + input.value;
-  const eventSource = new EventSource(
-    'http://127.0.0.1:5000/api/v1/pub/ai-stream?content=' + allInput.value,
-  );
+  const eventSource = new EventSource(baseUrl + '/pub/ai-stream?content=' + allInput.value);
   eventSource.onmessage = (event) => {
     console.log(event);
     if (event.data === '[DONE]') {
@@ -53,7 +52,7 @@ const onChange = () => {
 const typedText = ref('');
 
 const startTyping = () => {
-  const eventSource = new EventSource('http://127.0.0.1:5000/api/v1/pub/stream'); // 连接后端的 SSE 接口
+  const eventSource = new EventSource(baseUrl + '/pub/stream'); // 连接后端的 SSE 接口
 
   eventSource.onmessage = (event) => {
     if (event.data === '[DONE]') {
@@ -79,7 +78,7 @@ const startTyping2 = () => {
     model: 'model.value',
     apiKey: 'apiKey.value',
   };
-  const source = new SSE('http://127.0.0.1:5000/api/v1/pub/stream', {
+  const source = new SSE(baseUrl + '/pub/stream', {
     headers: { 'Content-Type': 'application/json' },
     payload: JSON.stringify(payload), // 请求体
     method: 'POST',
