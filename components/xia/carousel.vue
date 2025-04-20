@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
+import { useSlots } from 'vue';
 
 const props = defineProps({
   images: {
@@ -19,6 +20,7 @@ const props = defineProps({
     default: false,
   },
 });
+const slots = useSlots();
 let timer: any; // 清楚定时器
 let isHover = false; // hover时不轮播
 onMounted(() => {
@@ -71,8 +73,6 @@ const prev = () => {
 };
 </script>
 
-<script lang="ts"></script>
-
 <template>
   <div
     ref="carouselRef"
@@ -83,11 +83,21 @@ const prev = () => {
       :key="image.title + index"
       ref="itemRefs"
       class="xia-carousel-item"
-      :style="{ backgroundImage: `url(${image.url})` }"
+      :style="{ backgroundImage: !slots.default ? `url(${image.url})` : '' }"
       :title="image.title"
       @mouseout="clearTimer"
       @mouseleave="startTimer"
     >
+      <slot
+        v-if="slots.default"
+        :image="image"
+      >
+        <img
+          :src="image.url"
+          :alt="image.title"
+          class="w-full"
+        >
+      </slot>
       <div
         v-if="arrow"
         class="absolute flex justify-between transform -translate-y-1/2 left-0 right-0 top-1/2"
