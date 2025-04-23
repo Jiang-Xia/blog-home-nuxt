@@ -90,6 +90,11 @@ const dataList = [
     title: 'AI',
     icon: 'blog-AI',
   },
+  {
+    path: '/photos',
+    title: '摄影',
+    icon: 'blog-xiangji',
+  },
 ];
 const menuList = ref(dataList);
 </script>

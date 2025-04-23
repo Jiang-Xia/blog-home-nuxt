@@ -52,7 +52,6 @@ export default {
   aesDecrypt,
   rsaEncrypt,
   rsaDecrypt,
-  JSEncrypt,
 };
 // const en = rsaEncrypt('彩票中奖号码:666',publicKey)
 // console.log(en)

@@ -57,13 +57,7 @@ const deleteImage = (item: string) => {
         :radius="16"
       />
     </div>
-    <div class="mt-2 p-6">
-      <button
-        class="btn"
-        @click="add"
-      >
-        添加图片
-      </button>
+    <div>
       <input
         ref="fileContents"
         multiple
@@ -75,12 +69,38 @@ const deleteImage = (item: string) => {
       >
     </div>
     <div
-      class="container columns-3 sm:columns-4 md:columns-6 lg:columns-11 xlg:columns-13 gap-4 p-6"
+      class="container columns-3 sm:columns-4 md:columns-6 lg:columns-9 xlg:columns-11 gap-4 px-6 pt-2"
     >
+      <div class="mb-4 h-24 w-24">
+        <XiaButtonBorder
+          :animation-duration="1"
+          rx="8"
+        >
+          <div
+            class="h-24 w-24 flex items-center justify-center"
+            @click="add"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
+            </svg>
+          </div>
+        </XiaButtonBorder>
+      </div>
       <div
         v-for="(item, index) in imageSrcList"
         :key="item + String(index)"
-        class="item mb-4 cursor-pointer"
+        class="item h-24 w-24 mb-4 cursor-pointer"
         @click="selectImage(item)"
       >
         <div class="avatar relative">
@@ -91,7 +111,7 @@ const deleteImage = (item: string) => {
             X
           </div>
           <div
-            class="w-24 rounded"
+            class="w-24 rounded-lg"
             :class="{ selected: item === currentImage }"
           >
             <img :src="item">
