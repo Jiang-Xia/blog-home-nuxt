@@ -73,6 +73,16 @@ yarn preview
 
 查看更多信息 [部署文档](https://v3.nuxtjs.org/guide/deploy/presets)
 
+## Star History
+<a href="https://www.star-history.com/#jiang-xia/blog-home-nuxt&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jiang-xia/blog-home-nuxt&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jiang-xia/blog-home-nuxt&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jiang-xia/blog-home-nuxt&type=Date" />
+ </picture>
+</a>
+
+
 ## 开源作者
 
 **jiang-xia**

@@ -1,7 +1,36 @@
 <script setup lang="ts">
 import FilterBorder from './components/FilterBorder.vue';
+import FilterBorderCanvas from './components/FilterBorderCanvas.vue';
 import { messageDanger } from '~~/utils/toast';
 
+const logoImgNameList = [
+  'nikon',
+  'nikon_full',
+  'canon',
+  'sony',
+  'fujifilm',
+  'hasselblad',
+  'hasselblad-t',
+  'leica',
+  'leica_full',
+  'leica_red_full',
+  'red',
+  'red_full',
+  'dji',
+  'install360',
+  'kodak',
+  'lumix',
+  'mamiya',
+  'olympus',
+  'panasonic',
+  'pentax',
+  'phaseOne',
+  'ricoh',
+  'rolleiflex',
+  'sigma',
+  'tamron',
+  'zeiss_full',
+];
 const banners = useBanners();
 onMounted(() => {
   currentImage.value = banners.value.length ? banners.value[0].url : '';
@@ -50,12 +79,16 @@ const deleteImage = (item: string) => {
 
 <template>
   <div class="photos-container">
-    <div class="top-banner p-6">
-      <FilterBorder
-        :pic="currentImage"
-        :padding="36"
-        :radius="16"
-      />
+    <div class="top-banner p-6 flex justify-center items-start">
+      <section class="w-3/4 h-2/3">
+        <ClientOnly>
+          <FilterBorderCanvas
+            :pic="currentImage"
+            :padding="36"
+            :radius="16"
+          />
+        </ClientOnly>
+      </section>
     </div>
     <div>
       <input
@@ -75,11 +108,9 @@ const deleteImage = (item: string) => {
         <XiaButtonBorder
           :animation-duration="1"
           rx="8"
+          @click="add"
         >
-          <div
-            class="h-24 w-24 flex items-center justify-center"
-            @click="add"
-          >
+          <div class="h-24 w-24 flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -126,7 +157,7 @@ const deleteImage = (item: string) => {
   .photos-container {
     .top-banner {
       padding: 30px;
-      min-height: 500px;
+      height: 70vh;
     }
     .selected {
       @apply border-solid border-red-500 border-2;

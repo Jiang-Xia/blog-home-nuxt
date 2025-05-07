@@ -18,6 +18,7 @@ export default withNuxt(
       'no-undef': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
       'import/no-mutable-exports': 'off',
+      // '@stylistic/js/max-statements-per-line': ['error', { max: 2 }],
     },
   },
 )
