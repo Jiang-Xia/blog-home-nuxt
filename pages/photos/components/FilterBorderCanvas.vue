@@ -1,9 +1,9 @@
 <template>
-  <PhotoFrame :src="pic" />
+  <PhotoFrame2 :src="pic" />
 </template>
 
 <script setup>
-import PhotoFrame from './PhotoFrame2.vue';
+import PhotoFrame2 from './PhotoFrame2.vue';
 
 const props = defineProps({
   pic: {
