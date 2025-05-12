@@ -75,6 +75,12 @@ const deleteImage = (item: string) => {
         : '';
   });
 };
+
+const blobUrlList = ref<any>([]);
+const processedHandle = (data: any) => {
+  blobUrlList.value.push(data);
+  console.log(blobUrlList.value);
+};
 </script>
 
 <template>
@@ -86,6 +92,8 @@ const deleteImage = (item: string) => {
             :pic="currentImage"
             :padding="36"
             :radius="16"
+            :blob-url-list="blobUrlList"
+            @processed="processedHandle"
           />
         </ClientOnly>
       </section>
@@ -159,6 +167,7 @@ const deleteImage = (item: string) => {
       padding: 30px;
       height: 70vh;
     }
+
     .selected {
       @apply border-solid border-red-500 border-2;
     }

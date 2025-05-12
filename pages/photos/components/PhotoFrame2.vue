@@ -38,7 +38,13 @@ const props = defineProps({
       opacity: 0.7,
     }),
   },
+  blobUrlList: {
+    type: Array,
+    default: () => [],
+  },
 });
+
+const emit = defineEmits(['processed']);
 
 const containerRef = ref<HTMLDivElement | null>(null);
 let stage: Konva.Stage | null = null;
@@ -271,16 +277,34 @@ const calcImageData = async (src: string) => {
 };
   // 初始化
 const initCanvas = async (img: HTMLImageElement) => {
-  if (!stage || !mainLayer) return;
-  // 清除旧内容
-  mainLayer.destroyChildren();
-  // 创建各层级元素
-  mainLayer.add(createBackground());
-  mainLayer.add(createBlurLayer(img));
-  mainLayer.add(createMainImage(img));
-  mainLayer.add(createInfoLabel());
-  // mainLayer.add(createBorderSystem());
-  mainLayer.batchDraw();
+  try {
+    if (!stage || !mainLayer) return;
+    // 清除旧内容
+    mainLayer.destroyChildren();
+    // 创建各层级元素
+    mainLayer.add(createBackground());
+    mainLayer.add(createBlurLayer(img));
+    mainLayer.add(createMainImage(img));
+    mainLayer.add(createInfoLabel());
+    // mainLayer.add(createBorderSystem());
+    mainLayer.batchDraw();
+
+    // 先判断是否已生成
+    if (props.blobUrlList.some((v: any) => v.key === props.src)) {
+      return;
+    }
+    const canvas = stage.toCanvas(); // 转为canvas对象
+    canvas.toBlob((blob) => {
+      // 转为blob对象
+      if (blob) {
+        const blobUrl = URL.createObjectURL(blob); // 转为blob url
+        emit('processed', { key: props.src, blobUrl });
+      }
+    });
+  }
+  catch (error) {
+    console.error('图片处理失败', error);
+  }
 };
 
 onMounted(async () => {
