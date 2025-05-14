@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import JSZip from 'jszip';
 import FilterBorder from './components/FilterBorder.vue';
 import FilterBorderCanvas from './components/FilterBorderCanvas.vue';
 import { messageDanger } from '~~/utils/toast';
@@ -81,6 +82,36 @@ const processedHandle = (data: any) => {
   blobUrlList.value.push(data);
   console.log(blobUrlList.value);
 };
+
+const exportLoading = ref(false);
+// 导出全部图片
+const exportAll = () => {
+  if (!blobUrlList.value.length) {
+    messageDanger('请先选择图片');
+    return;
+  }
+  setTimeout(async () => {
+    exportLoading.value = true;
+    const zip = new JSZip(); // 使用 JSZip 来打包文件
+    let index = 0;
+    for (const item of blobUrlList.value) {
+      const blob = await fetch(item.blobUrl).then(res => res.blob());
+      console.log(blob);
+      const folder = zip.folder('images') as JSZip;
+      folder.file(`图片-${index + 1}.png`, blob, { base64: true });
+      index++;
+    }
+    // console.log('index', index);
+    // 生成并下载zip文件
+    zip.generateAsync({ type: 'blob' }).then(function (content) {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(content);
+      link.download = 'images.zip';
+      link.click();
+      exportLoading.value = false;
+    });
+  }, 10);
+};
 </script>
 
 <template>
@@ -88,15 +119,61 @@ const processedHandle = (data: any) => {
     <div class="top-banner p-6 flex justify-center items-start">
       <section class="w-3/4 h-2/3">
         <ClientOnly>
-          <FilterBorderCanvas
-            :pic="currentImage"
+          <!-- <FilterBorderCanvas
+            v-for="(item, index) in imageSrcList"
+            :key="item+index"
+            :pic="item"
             :padding="36"
             :radius="16"
             :blob-url-list="blobUrlList"
             @processed="processedHandle"
-          />
+          /> -->
+          <div class="carousel w-full">
+            <div
+              v-for="(item, index) in imageSrcList"
+              :id="'slide' + index"
+              :key="item + index"
+              class="carousel-item relative w-full"
+            >
+              <FilterBorderCanvas
+                class="w-full"
+                :pic="item"
+                :padding="36"
+                :radius="16"
+                :blob-url-list="blobUrlList"
+                @processed="processedHandle"
+              />
+              <div
+                class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between"
+              >
+                <a
+                  :href="'#slide' + (index - 1 < 0 ? imageSrcList.length : index - 1)"
+                  class="btn btn-circle"
+                >❮</a>
+                <a
+                  :href="
+                    '#slide' + (index + 1 > imageSrcList.length ? imageSrcList.length : index + 1)
+                  "
+                  class="btn btn-circle"
+                >❯</a>
+              </div>
+            </div>
+          </div>
         </ClientOnly>
       </section>
+    </div>
+    <div class="flex py-2 px-6">
+      <span
+        v-if="exportLoading"
+        class="loading loading-dots loading-md bg-accent"
+      />
+      <button
+        class="btn"
+        :disabled="exportLoading"
+        @click="exportAll"
+      >
+        全部导出
+      </button>
     </div>
     <div>
       <input
