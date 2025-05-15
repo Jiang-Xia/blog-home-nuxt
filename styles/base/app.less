@@ -151,14 +151,7 @@ body {
 .main-color {
   color: var(--main-color);
 }
-.padding-top-bar {
-  position: relative;
-  &::after {
-    content: '';
-    height: 104px;
-    @apply absolute left-0 top-0 w-full from-black bg-gradient-to-r to-gray-700;
-  }
-}
+
 .gradient-bar {
   &::after {
     background: var(--nav-color);
@@ -168,3 +161,10 @@ body {
   background: var(--main-bgc);
 }
 // img[src=''],img:not([src]) {visibility: hidden;}
+
+#toasts {
+  display: none;
+}
+.z-40fixed.inset-0.flex.pointer-events-none {
+  display: none;
+}

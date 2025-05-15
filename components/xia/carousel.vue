@@ -76,13 +76,13 @@ const prev = () => {
 <template>
   <div
     ref="carouselRef"
-    class="xia-carousel"
+    class="xia-carousel carousel w-full h-full from-black bg-gradient-to-r to-gray-700 relative"
   >
     <div
       v-for="(image, index) in images"
       :key="image.title + index"
       ref="itemRefs"
-      class="xia-carousel-item"
+      class="xia-carousel-item carousel-item w-full relative bg-cover"
       :style="{ backgroundImage: !slots.default ? `url(${image.url})` : '' }"
       :title="image.title"
       @mouseout="clearTimer"
@@ -103,12 +103,12 @@ const prev = () => {
         class="absolute flex justify-between transform -translate-y-1/2 left-0 right-0 top-1/2"
       >
         <span
-          class="arrow-btn rounded-tr-md rounded-br-md"
+          class="bg-black bg-opacity-20 h-16 px-4 py-2 cursor-pointer text-white flex justify-center items-center transition-transform scale-0 duration-500 hover:bg-black hover:bg-opacity-25 rounded-tr-md rounded-br-md"
           @click="prev"
         >❮</span>
         <span
           href="#"
-          class="arrow-btn rounded-tl-md rounded-bl-md"
+          class="bg-black bg-opacity-20 h-16 px-4 py-2 cursor-pointer text-white flex justify-center items-center transition-transform scale-0 duration-500 hover:bg-black hover:bg-opacity-25 rounded-tl-md rounded-bl-md"
           @click="next"
         >❯</span>
       </div>
@@ -120,17 +120,12 @@ const prev = () => {
   .xia-carousel {
     height: 100px;
     border-radius: 0 0 8px 8px;
-    @apply carousel w-full h-full from-black bg-gradient-to-r to-gray-700 relative;
   }
   .xia-carousel-item {
     object-fit: cover;
     background-position: center;
-    @apply carousel-item w-full relative bg-cover;
-  }
-  .arrow-btn {
-    @apply bg-black bg-opacity-20 h-16 px-4 py-2 cursor-pointer text-white flex justify-center items-center transition-transform scale-0 duration-500 hover:bg-black hover:bg-opacity-25;
   }
   .xia-carousel:hover .arrow-btn {
-    @apply scale-100;
+    transform: scale(1);
   }
 </style>

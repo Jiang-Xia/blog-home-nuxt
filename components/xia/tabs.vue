@@ -19,7 +19,7 @@ const active = ref(0);
     <div class="tabs">
       <a
         v-for="(tab, index) in config.list"
-        class="tab tab-lifted"
+        class="tab tab-lifted border-transparent"
         :class="active === index ? 'tab-active' : ''"
         @click="clickTab(index)"
       >{{ tab.label }}</a>
@@ -47,10 +47,9 @@ const active = ref(0);
 <style lang="less" scoped>
   .xia-tabs {
     .tab-lifted {
-      @apply border-transparent;
     }
     .tab-active {
-      @apply bg-base-300;
+      background-color: var(--color-base-300);
     }
     .tab-active::after,
     .tab-active::before {

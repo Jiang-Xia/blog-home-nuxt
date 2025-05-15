@@ -244,9 +244,5 @@ const exportAll = () => {
       padding: 30px;
       height: 70vh;
     }
-
-    .selected {
-      @apply border-solid border-red-500 border-2;
-    }
   }
 </style>

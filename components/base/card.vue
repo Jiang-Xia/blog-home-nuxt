@@ -25,8 +25,8 @@ defineProps({
 
 <template>
   <div
-    class="card-wrap"
-    :class="{ 'card-wrap__vertical': vertical }"
+    class="card-wrap border border-base-300 shadow-lg bg-base-100 rounded-lg"
+    :class="{ 'flex justify-between relative': vertical }"
     :style="{
       'min-height': minHeight,
       'padding': noPadding ? '12px 0' : '',
@@ -64,7 +64,6 @@ defineProps({
 
 <style lang="less" scoped>
   .card-wrap {
-    @apply border border-base-300 shadow-lg bg-base-100 rounded-lg;
     & > h4 {
       line-height: 32px;
       font-size: 15px;
@@ -81,8 +80,6 @@ defineProps({
     }
   }
   .card-wrap__vertical {
-    @apply flex justify-between relative;
-
     & > h4 {
       width: 40px;
       line-height: 1.6;
@@ -90,7 +87,7 @@ defineProps({
       padding-right: 0;
     }
     .card-content {
-      @apply flex-1;
+      flex: 1;
     }
   }
 </style>

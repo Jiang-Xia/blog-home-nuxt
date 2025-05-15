@@ -188,9 +188,9 @@ useHead({
     </section>
     <div
       ref="mainViewArea"
-      class="main-view-area"
+      class="main-view-area w-full xl:w-4/5"
     >
-      <section class="main-content">
+      <section class="main-content rounded-lg max-w-full p-3">
         <section class="module-wrap__detail article-info">
           <div class="flex items-center">
             <div class="flex items-center justify-between">
@@ -225,7 +225,7 @@ useHead({
           <MdPreview
             :key="mdKey"
             v-model="ArticleInfo.content"
-            class="x-md-editor"
+            class="x-md-editor rounded-lg p-3"
             preview-only
             :preview-theme="previewTheme"
             :theme="theme"
@@ -242,7 +242,7 @@ useHead({
 
       <aside
         ref="aside"
-        class="aside-bar"
+        class="w-80 absolute right-0 top-0 hidden lg:block rounded-lg h-full overflow-auto"
         :class="{ 'aside-bar__fixed': fixedAsideBar }"
       >
         <div class="sticky-box">
@@ -305,13 +305,8 @@ useHead({
   .main-view-area {
     margin: 20px auto 0;
     position: relative;
-    @apply w-full xl:w-4/5;
     .main-content {
       width: calc(100% - 324px);
-      @apply rounded-lg max-w-full p-3;
-    }
-    .aside-bar {
-      @apply w-80 absolute right-0 top-0 hidden lg:block rounded-lg h-full overflow-auto;
     }
   }
   .aside-bar__fixed {
@@ -331,9 +326,7 @@ useHead({
   .article-detail {
     position: relative;
   }
-  .x-md-editor {
-    @apply rounded-lg p-3;
-  }
+
   .article-info {
   }
   .comment-module {

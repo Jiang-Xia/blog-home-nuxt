@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import Icons from 'unplugin-icons/vite';
+import tailwindcss from '@tailwindcss/vite';
 
 const prefixPath: any = process.env.VITE_NUXT_PREFIX_PATH;
 console.warn({
@@ -8,14 +9,7 @@ console.warn({
   prefixPath,
 });
 export default defineNuxtConfig({
-  modules: [
-    '@nuxt/eslint',
-    '@nuxtjs/tailwindcss',
-    '@vueuse/nuxt',
-    '~/modules/sitemap',
-    '@tailvue/nuxt',
-    '@pinia/nuxt',
-  ],
+  modules: ['@nuxt/eslint', '@vueuse/nuxt', '~/modules/sitemap', '@tailvue/nuxt', '@pinia/nuxt'],
   devtools: { enabled: true },
   app: {
     head: {
@@ -63,6 +57,7 @@ export default defineNuxtConfig({
   },
   vite: {
     plugins: [
+      tailwindcss(),
       Icons({
         // the feature below is experimental ⬇️
         autoInstall: true,

@@ -5,7 +5,7 @@
         <li
           v-for="item in menuList"
           :key="item.path"
-          class="li-item"
+          class="li-item mr-2 mb-2"
         >
           <XiaButtonBorder
             v-if="item.path === route.path"
@@ -103,13 +103,12 @@ const menuList = ref(dataList);
   .xia-page {
     padding-top: 104px;
     .li-item {
-      @apply mr-2 mb-2;
     }
     .tool-children-pages {
       // min-height: 60vh
     }
     .router-link-active {
-      @apply border-none;
+      border: none;
     }
   }
 </style>

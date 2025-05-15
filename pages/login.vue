@@ -93,8 +93,8 @@ if (import.meta.client) {
             登 录
           </h1>
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">手机号</span>
+            <label class="login-label">
+              <span class="login-label-text">手机号</span>
             </label>
             <input
               v-model="form.mobile"
@@ -105,8 +105,8 @@ if (import.meta.client) {
             >
           </div>
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">密码</span>
+            <label class="login-label">
+              <span class="login-label-text">密码</span>
             </label>
             <input
               v-model="form.password"
@@ -117,8 +117,8 @@ if (import.meta.client) {
             >
           </div>
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">验证码</span>
+            <label class="login-label">
+              <span class="login-label-text">验证码</span>
             </label>
             <input
               v-model="form.authCode"
@@ -189,14 +189,6 @@ if (import.meta.client) {
       transform: translate(-50%, -50%);
       z-index: 2;
     }
-    .label .label-text {
-      @apply text-gray-200;
-    }
-
-    .input {
-      @apply bg-transparent text-gray-200 border border-gray-700 focus:border-gray-600;
-    }
-
     .card {
       backdrop-filter: blur(40px);
     }

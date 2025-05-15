@@ -94,48 +94,48 @@ if (import.meta.client) {
             </div>
           </div>
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">手机号</span>
+            <label class="login-label">
+              <span class="login-label-text">手机号</span>
             </label>
             <input
               v-model="form.mobile"
               type="text"
-              class="input"
+              class="login-input"
               maxlength="11"
               placeholder="手机号"
             >
           </div>
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">昵称</span>
+            <label class="login-label">
+              <span class="login-label-text">昵称</span>
             </label>
             <input
               v-model="form.nickname"
               type="text"
-              class="input"
+              class="login-input"
               maxlength="16"
               placeholder="昵称"
             >
           </div>
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">密码</span>
+            <label class="login-label">
+              <span class="login-label-text">密码</span>
             </label>
             <input
               v-model="form.password"
               type="password"
-              class="input"
+              class="login-input"
               maxlength="16"
               placeholder="密码"
             >
           </div>
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">验证码</span>
+            <label class="login-label">
+              <span class="login-label-text">验证码</span>
             </label>
             <input
               v-model="form.authCode"
-              class="input"
+              class="login-input"
               maxlength="8"
               placeholder="验证码"
             >
@@ -195,13 +195,6 @@ if (import.meta.client) {
       top: 50%;
       transform: translate(-50%, -50%);
       z-index: 2;
-    }
-    .label .label-text {
-      @apply text-gray-200 hover:text-gray-400;
-    }
-
-    .input {
-      @apply bg-transparent text-gray-200 border border-gray-700 focus:border-gray-600;
     }
 
     .card {

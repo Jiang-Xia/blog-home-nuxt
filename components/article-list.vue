@@ -174,9 +174,9 @@ const theme = useTheme();
 
 <template>
   <div class="article-list-page">
-    <section class="main-content">
+    <section class="main-content px-3">
       <!-- 标签筛选 -->
-      <div class="tag-card-wrap">
+      <div class="tag-card-wrap mb-3 max-w-7xl mx-auto">
         <base-card
           icon="blog-tag"
           title="标签"
@@ -202,7 +202,7 @@ const theme = useTheme();
       <!-- 文章列表 -->
       <div
         :key="listKey"
-        class="article-item-wrap"
+        class="article-item-wrap flex justify-center flex-wrap m-auto w-full max-w-7xl"
       >
         <transition-group
           key="article-item-wrap"
@@ -211,7 +211,7 @@ const theme = useTheme();
           <div
             v-for="item in articleList"
             :key="item.id"
-            class="article-item"
+            class="article-item card card-compact mr-5 bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-xl"
           >
             <figure>
               <XiaCardBorderLight
@@ -243,7 +243,7 @@ const theme = useTheme();
                 <div class="flex items-center">
                   <!-- 分类 -->
                   <span
-                    class="text-icon"
+                    class="text-icon mr-2 flex items-center"
                     :style="{ color: item.category.color }"
                   >
                     <xia-icon
@@ -254,7 +254,7 @@ const theme = useTheme();
                   </span>
                   <!-- 标签 -->
                   <span
-                    class="text-icon"
+                    class="text-icon mr-2 flex items-center"
                     :style="{ color: item.tags[0]?.color }"
                   >
                     <xia-icon
@@ -264,13 +264,13 @@ const theme = useTheme();
                     {{ getTagLabel(item.tags) }}
                   </span>
                   <!-- 阅读量 -->
-                  <span class="text-icon pointer"><xia-icon
+                  <span class="text-icon mr-2 flex items-center pointer"><xia-icon
                     icon="blog-view"
                     class="mr-1"
                   />{{ item.views }}</span>
                   <!-- 点赞数 -->
                   <span
-                    class="text-icon pointer"
+                    class="text-icon mr-2 flex items-center pointer"
                     @click.stop="updateLikesHandle(item)"
                   >
                     <xia-icon
@@ -280,7 +280,7 @@ const theme = useTheme();
                     {{ item.likes }}
                   </span>
                   <!-- 评论数 -->
-                  <span class="text-icon">
+                  <span class="text-icon mr-2 flex items-center">
                     <xia-icon
                       icon="blog-pinglun"
                       class="mr-1"
@@ -336,6 +336,7 @@ const theme = useTheme();
         icon="blog-filter"
         title="关键字"
         min-height="110px"
+        class="mx-4 mb-4"
       >
         <div class="join w-full mt-2">
           <button
@@ -395,7 +396,7 @@ const theme = useTheme();
         </div>
       </base-card>
       <base-card
-        class="weather-card"
+        class="weather-card mx-4 mb-4"
         icon=""
         title=""
         :no-padding="false"
@@ -412,6 +413,7 @@ const theme = useTheme();
         title=""
         min-height="110px"
         :no-padding="false"
+        class="mx-4 mb-4"
       >
         <div class="icon-wrap">
           <xia-clock />
@@ -421,7 +423,7 @@ const theme = useTheme();
       <base-card
         icon="blog-category"
         title="分类"
-        class="category-card"
+        class="category-card mx-4 mb-4"
       >
         <div
           v-for="item of categoryOptions"
@@ -469,9 +471,6 @@ const theme = useTheme();
     .el-pagination {
       margin-top: 8vh;
     }
-    .tag-card-wrap {
-      @apply mb-3 max-w-7xl mx-auto;
-    }
     // 右边卡片
     .info-tool {
       position: absolute;
@@ -480,9 +479,6 @@ const theme = useTheme();
       width: 340px;
       transition: all 0.5s;
       transform: translateX(300%);
-      .card-wrap {
-        @apply mx-4 mb-4;
-      }
       // 天气卡片
       .weather-card {
         min-height: 180px;
@@ -497,13 +493,6 @@ const theme = useTheme();
         max-height: 110vh;
         min-height: 100vh;
         overflow-y: auto;
-      }
-      .category-title {
-        border-radius: 8px 8px 0 0;
-        height: 60px;
-        padding: 18px 20px;
-        box-sizing: border-box;
-        @apply bg-base-100;
       }
       .category-item {
         --current-color: #e5e6e6;
@@ -525,10 +514,6 @@ const theme = useTheme();
             border-bottom-style: solid;
             border-bottom-color: var(--current-color);
             width: 0;
-            // height: 2px;
-            // border-radius: 2px;
-            // background: var(--current-color);
-            // transition: width 0.3s ease 0s, left 0.3s ease 0s;
             transition: width 0.5s ease 0s;
           }
         }
@@ -553,11 +538,6 @@ const theme = useTheme();
         color: #fff;
         padding: 0 9px;
       }
-      // .category__inner {
-      //   cursor: pointer;
-      //   transition: all 0.5s;
-      //   @apply border-b-2 border-base-300;
-      // }
       .category__text {
         line-height: 1.8;
         flex: 1;
@@ -576,16 +556,13 @@ const theme = useTheme();
     .main-content {
       position: relative;
       margin-right: 0;
-      @apply px-3;
     }
     .article-item-wrap {
       transition: all 0.5s;
-      @apply flex justify-center flex-wrap m-auto w-full max-w-7xl;
     }
     // 卡片样式
     .article-item {
       max-height: 408px;
-      @apply card card-compact mr-5 bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-xl;
     }
     .article-item-wrap {
       @media (max-width: 1535px) {
@@ -615,15 +592,6 @@ const theme = useTheme();
         }
       }
     }
-
-    .text-icon {
-      @apply mr-2 flex items-center;
-    }
-    // .text-icon .x-icon svg{
-    //   height: 18px;
-    //   width: 18px;
-    //   margin-right: 4px;
-    // }
 
     @media (min-width: 768px) {
       .main-content {

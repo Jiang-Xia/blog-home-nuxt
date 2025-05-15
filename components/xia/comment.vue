@@ -196,7 +196,7 @@ const replyedHandle = (content: string) => {
         <div class="py-1">
           <button
             v-show="commentItem.id !== currentReplyBoxId"
-            class="action"
+            class="btn btn-ghost btn-xs text-xs text-gray-500"
             @click="clickReplyHandle('comment', commentItem)"
           >
             <xia-icon
@@ -207,14 +207,14 @@ const replyedHandle = (content: string) => {
           </button>
           <button
             v-if="commentItem.id === currentReplyBoxId"
-            class="action"
+            class="btn btn-ghost btn-xs text-xs text-gray-500"
             @click="currentReplyBoxId = ''"
           >
             取消回复
           </button>
           <button
             v-if="uid === commentItem.uid"
-            class="action"
+            class="btn btn-ghost btn-xs text-xs text-gray-500"
             @click="delCommentHandle(commentItem.id)"
           >
             <xia-icon
@@ -273,7 +273,7 @@ const replyedHandle = (content: string) => {
               <div class="py-1">
                 <button
                   v-show="replyItem.id !== currentReplyBoxId"
-                  class="action"
+                  class="btn btn-ghost btn-xs text-xs text-gray-500"
                   @click="clickReplyHandle('reply', replyItem, commentItem.id)"
                 >
                   <xia-icon
@@ -284,14 +284,14 @@ const replyedHandle = (content: string) => {
                 </button>
                 <button
                   v-if="replyItem.id === currentReplyBoxId"
-                  class="action"
+                  class="btn btn-ghost btn-xs text-xs text-gray-500"
                   @click="currentReplyBoxId = ''"
                 >
                   取消回复
                 </button>
                 <button
                   v-if="uid === replyItem.uid"
-                  class="action"
+                  class="btn btn-ghost btn-xs text-xs text-gray-500"
                   @click="delReplytHandle(replyItem.id)"
                 >
                   <xia-icon
@@ -339,7 +339,6 @@ const replyedHandle = (content: string) => {
     color: var(--text-color);
   }
   .action {
-    @apply btn btn-ghost btn-xs text-xs text-gray-500;
     font-weight: normal;
   }
 </style>

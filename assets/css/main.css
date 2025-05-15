@@ -1,3 +1,30 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin "daisyui";
+
+/* 自定义类名 只能该css文件上自定义类名 */
+@layer components {
+  .padding-top-bar {
+    position: relative;
+  }
+  .padding-top-bar::after {
+    content: '';
+    height: 104px;
+    @apply absolute left-0 top-0 w-full from-black bg-gradient-to-r to-gray-700;
+  }
+  .link-item {
+    @apply transition border border-base-300 h-36 w-36 text-sm rounded-lg flex flex-col justify-center items-center hover:bg-base-200;
+    @apply hover:scale-105 active:bg-base-300;
+  }
+  .selected {
+    @apply border-solid border-red-500 border-2;
+  }
+
+  /* 登录注册 */
+  .login-label .login-label-text {
+    @apply text-gray-200 hover:text-gray-400;
+  }
+
+  .login-input {
+    @apply bg-transparent text-gray-200 border border-gray-700 focus:border-gray-600;
+  }
+}
