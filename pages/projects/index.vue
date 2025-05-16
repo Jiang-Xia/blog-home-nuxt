@@ -21,7 +21,7 @@
           </button>
         </div>
       </div>
-      <div class="mockup-window border bg-base-100">
+      <div class="mockup-window border border-base-300 bg-base-100">
         <div class="flex justify-center p-4 bg-base-200 h-full">
           <iframe
             class="iframe"
@@ -54,20 +54,18 @@
       </div>
 
       <div class="flex flex-col items-center sm:flex-row sm:justify-around">
-        <div class="mockup-phone m-0 mb-4">
-          <div class="camera" />
-          <div class="display">
-            <div class="artboard artboard-demo phone-1">
-              <div class="iframe-wrap">
-                <iframe
-                  class="iframe"
-                  :src="zoneUrl"
-                />
-              </div>
+        <div class="mockup-phone">
+          <div class="mockup-phone-camera" />
+          <div class="mockup-phone-display">
+            <div class="iframe-wrap">
+              <iframe
+                class="iframe"
+                :src="zoneUrl"
+              />
             </div>
           </div>
         </div>
-        <div class="card card-compact w-96 bg-base-100 shadow-xl sm:w-60 md:w-96">
+        <div class="card w-96 bg-base-100 shadow-xl sm:w-60 md:w-96">
           <figure>
             <img
               src="@/assets/images/other/app-code.png"
@@ -81,7 +79,7 @@
             <p>扫码下载安装即可体验App</p>
           </div>
         </div>
-        <div class="card card-compact w-96 mt-4 bg-base-100 shadow-xl sm:w-60 md:w-96 md:mt-0">
+        <div class="card w-96 mt-4 bg-base-100 shadow-xl sm:w-60 md:w-96 md:mt-0">
           <figure>
             <img
               src="@/assets/images/other/mini-program-code.jpg"
@@ -123,7 +121,6 @@ const goTargetPage = (type: number) => {
     background: var(--main-bgc);
     padding: 124px 24px 24px 24px;
     .iframe-wrap {
-      padding-top: 25px;
       height: 100%;
       width: 100%;
       background: #f8f8f8;

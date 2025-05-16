@@ -1,6 +1,6 @@
 import { defineComponent, onMounted } from 'vue';
 import type { SetupContext } from 'vue';
-import './index.less';
+import './index.css';
 import { throttle } from '~~/utils';
 
 interface propsState {

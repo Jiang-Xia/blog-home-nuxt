@@ -211,12 +211,13 @@ const theme = useTheme();
           <div
             v-for="item in articleList"
             :key="item.id"
-            class="article-item card card-compact mr-5 bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-xl"
+            class="article-item card mr-5 bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-xl"
           >
             <figure>
               <XiaCardBorderLight
                 v-if="theme === 'dark'"
                 :pic="item.cover"
+                style="--border-size: 8px"
               />
               <img
                 v-else

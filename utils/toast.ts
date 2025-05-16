@@ -2,6 +2,7 @@ import { useToast } from 'tailvue';
 
 let showMsgLoading = false;
 export const messageDanger = (msg: string, timeout = 1) => {
+  console.log('危险提示!');
   if (showMsgLoading) {
     return;
   }

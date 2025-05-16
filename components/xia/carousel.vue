@@ -118,7 +118,7 @@ const prev = () => {
 
 <style lang="less" scoped>
   .xia-carousel {
-    height: 100px;
+    // height: 100px;
     border-radius: 0 0 8px 8px;
   }
   .xia-carousel-item {

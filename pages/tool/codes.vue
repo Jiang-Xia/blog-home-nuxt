@@ -1,6 +1,6 @@
 <template>
   <div class="p-4 flex flex-wrap justify-around">
-    <div class="mt-4 card card-compact w-96 bg-base-100 shadow-xl border border-base-300">
+    <div class="mt-4 card w-96 bg-base-100 shadow-xl border border-base-300">
       <div class="card-body">
         <h2 class="card-title">
           条形码
@@ -19,7 +19,7 @@
               测试
             </button>
             <button
-              class="btn join-item rounded-r-full"
+              class="btn join-item"
               @click="createBarcode()"
             >
               生成
@@ -31,7 +31,7 @@
         <canvas id="barcode" />
       </figure>
     </div>
-    <div class="mt-4 card card-compact w-96 bg-base-100 shadow-xl border border-base-300">
+    <div class="mt-4 card w-96 bg-base-100 shadow-xl border border-base-300">
       <div class="card-body">
         <h2 class="card-title">
           二维码
@@ -43,7 +43,7 @@
               class="input w-full input-bordered join-item"
               placeholder="text"
             >
-            <button class="btn join-item rounded-r-full">
+            <button class="btn join-item">
               生成
             </button>
           </div>

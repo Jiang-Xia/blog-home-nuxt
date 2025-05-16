@@ -1,9 +1,7 @@
 <template>
   <div class="p-4">
     <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div
-        class="mt-4 card card-compact w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300"
-      >
+      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
         <div class="card-body">
           <h2 class="card-title">
             私钥(Private Key)
@@ -43,9 +41,7 @@
         </button>
       </div>
 
-      <div
-        class="mt-4 card card-compact w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300"
-      >
+      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
         <div class="card-body">
           <h2 class="card-title">
             公钥(Public Key)
@@ -60,9 +56,7 @@
     </div>
 
     <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div
-        class="mt-4 card card-compact w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300"
-      >
+      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
         <div class="card-body">
           <h2 class="card-title">
             原文
@@ -100,9 +94,7 @@
           {{ '<==解密' }}
         </button>
       </div>
-      <div
-        class="mt-4 card card-compact w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300"
-      >
+      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
         <div class="card-body">
           <h2 class="card-title">
             密文
@@ -116,7 +108,7 @@
       </div>
     </div>
 
-    <div class="mt-4 card card-compact w-full bg-base-100 shadow-xl border border-base-300">
+    <div class="mt-4 card w-full bg-base-100 shadow-xl border border-base-300">
       <div class="card-body">
         <h2 class="card-title">
           RSA算法介绍

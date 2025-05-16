@@ -49,7 +49,7 @@ onMounted(() => {
   });
 });
 const getAllMsgboard = async () => {
-  const list = await request.get('/msgboard');
+  const { list } = await request.get('/msgboard', { pageSize: 10000 });
   msgboardList.value = buildTree(list);
 };
   // 邮箱正则
@@ -74,9 +74,11 @@ const confirmHandle = async () => {
     console.log(error);
   }
 };
-  // 回复功能
+const replayModal = ref<HTMLDialogElement>();
+// 回复功能
 const clickReplyHandle = (item: any) => {
   dialog.value = true;
+  replayModal.value?.showModal();
   currentItem.value = item;
   replyForm.value = {
     name: userInfo.value.nickname,
@@ -90,7 +92,7 @@ const replyForm: any = ref({
   comment: '',
 });
 const okHandle = async () => {
-  if (!replyForm.value) {
+  if (!replyForm.value.name) {
     messageDanger('名称不能为空');
     return;
   }
@@ -110,6 +112,7 @@ const okHandle = async () => {
     avatar: userInfo.value.avatar,
   });
   dialog.value = false;
+  replayModal.value?.close();
   getAllMsgboard();
 };
   // 删除留言
@@ -136,78 +139,83 @@ useHead({
       网站留言板 - {{ SiteTitle }}
     </h1>
     <div class="msgboard-container">
-      <div class="form-wrap max-w-3xl mx-auto">
+      <fieldset
+        class="fieldset max-w-3xl mx-auto bg-base-200 border-base-300 rounded-box border p-4"
+      >
         <div
           v-show="showToast"
-          class="alert alert-info absolute top-0 left-0"
+          role="alert"
+          class="alert alert-warning relative"
         >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 shrink-0 stroke-current"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
           <span>请填写完整信息哦！</span>
         </div>
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text"><span class="text-red-600 px-2">*</span>昵称</span>
-          </label>
-          <input
-            v-model="msgForm.name"
-            type="text"
-            placeholder="您的昵称"
-            class="input input-bordered"
-            maxlength="10"
-          >
-        </div>
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text"><span class="text-red-600 px-2">*</span>邮件</span>
-          </label>
-          <input
-            v-model="msgForm.eamil"
-            type="text"
-            placeholder="您的邮件"
-            class="input input-bordered"
-            maxlength="30"
-          >
-          <label class="label">
-            <a
-              href="http://milu.blog/message"
-              class="label-text-alt link link-primary link-hover"
-              target="_blank"
-            >Gravatar?</a>
-          </label>
-        </div>
 
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text"><span class="text-red-600 px-2">*</span>主页</span>
-          </label>
-          <input
-            v-model="msgForm.address"
-            type="text"
-            placeholder="您的主页"
-            class="input input-bordered"
-            maxlength="30"
-          >
-        </div>
+        <legend class="fieldset-legend">
+          留言
+        </legend>
 
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text"><span class="text-red-600 px-2">*</span>评论</span>
-          </label>
-          <textarea
-            v-model="msgForm.comment"
-            class="textarea textarea-bordered"
-            placeholder="您的评论"
-            maxlength="800"
-          />
-        </div>
-        <div class="form-control mt-6">
-          <button
-            class="btn btn-primary"
-            @click="confirmHandle"
-          >
-            发表
-          </button>
-        </div>
-      </div>
+        <label class="label"><span class="text-red-600 px-2">*</span>昵称</label>
+        <input
+          v-model="msgForm.name"
+          type="text"
+          class="input input-bordered w-full"
+          placeholder="您的昵称"
+          maxlength="10"
+        >
+
+        <label class="label"><span class="text-red-600 px-2">*</span>邮件</label>
+        <input
+          v-model="msgForm.eamil"
+          type="text"
+          placeholder="您的邮件"
+          class="input input-bordered w-full"
+          maxlength="30"
+        >
+        <label class="label">
+          <a
+            href="http://milu.blog/message"
+            class="label-text-alt link link-primary link-hover"
+            target="_blank"
+          >Gravatar?</a>
+        </label>
+
+        <label class="label"><span class="text-red-600 px-2">*</span>主页</label>
+        <input
+          v-model="msgForm.address"
+          type="text"
+          placeholder="您的主页"
+          class="input input-bordered w-full"
+          maxlength="30"
+        >
+
+        <label class="label"><span class="text-red-600 px-2">*</span>评论</label>
+        <textarea
+          v-model="msgForm.comment"
+          class="textarea textarea-bordered w-full"
+          placeholder="您的评论"
+          maxlength="800"
+        />
+
+        <button
+          class="btn btn-primary mt-4"
+          @click="confirmHandle"
+        >
+          发表
+        </button>
+      </fieldset>
       <!-- 留言内容列表 -->
       <div class="mt-6 max-w-3xl mx-auto">
         <section
@@ -215,8 +223,8 @@ useHead({
           :key="item.id"
           class="bg-base-100 mb-3 rounded"
         >
-          <div class="card card-compact card-side mb-3">
-            <div class="card-body bg-base-100 rounded">
+          <div class="card mb-3">
+            <div class="card-body">
               <h2 class="card-title text-sm font-normal text-gray-400 flex">
                 <div class="avatar h-7 w-7">
                   <div
@@ -355,16 +363,20 @@ useHead({
       </div>
 
       <!-- 回复弹框 -->
-      <div
-        class="modal transition duration-700 ease-in-out"
-        :class="{ 'dialog-show': dialog }"
-        @click.stop=""
+      <dialog
+        id="replay_modal"
+        ref="replayModal"
+        class="modal"
       >
-        <div class="modal-box relative">
-          <label
-            class="btn btn-neutral btn-sm btn-circle absolute right-2 top-2"
-            @click="dialog = !dialog"
-          >✕</label>
+        <div class="modal-box">
+          <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <h3 class="text-lg font-bold">
+            回复
+          </h3>
           <div class="pl-8 pt-4">
             <div class="flex items-center mb-4">
               <span class="w-16"><span class="text-red-600">*</span>名称</span>
@@ -394,7 +406,7 @@ useHead({
             </div>
           </div>
         </div>
-      </div>
+      </dialog>
     </div>
   </NuxtLayout>
 </template>

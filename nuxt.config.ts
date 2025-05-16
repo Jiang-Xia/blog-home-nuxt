@@ -28,7 +28,8 @@ export default defineNuxtConfig({
           defer: true,
           src: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js',
         },
-        { defer: true, src: 'jsencrypt.min.js' },
+        // { defer: true, src: 'jsencrypt.min.js' },
+        { defer: true, src: 'https://cdn.staticfile.net/jsencrypt/3.3.2/jsencrypt.min.js' },
       ],
     },
     pageTransition: {

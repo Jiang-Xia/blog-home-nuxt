@@ -100,7 +100,7 @@ if (import.meta.client) {
             <input
               v-model="form.mobile"
               type="text"
-              class="login-input"
+              class="login-input input"
               maxlength="11"
               placeholder="手机号"
             >
@@ -112,7 +112,7 @@ if (import.meta.client) {
             <input
               v-model="form.nickname"
               type="text"
-              class="login-input"
+              class="login-input input"
               maxlength="16"
               placeholder="昵称"
             >
@@ -124,7 +124,7 @@ if (import.meta.client) {
             <input
               v-model="form.password"
               type="password"
-              class="login-input"
+              class="login-input input"
               maxlength="16"
               placeholder="密码"
             >
@@ -135,7 +135,7 @@ if (import.meta.client) {
             </label>
             <input
               v-model="form.authCode"
-              class="login-input"
+              class="login-input input"
               maxlength="8"
               placeholder="验证码"
             >
@@ -157,7 +157,7 @@ if (import.meta.client) {
 
           <div class="form-control mt-4">
             <button
-              class="btn btn-primary"
+              class="btn btn-primary btn-block"
               @click.prevent="okHandle"
             >
               注 册
