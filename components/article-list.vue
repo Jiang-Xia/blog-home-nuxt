@@ -177,12 +177,7 @@ const theme = useTheme();
     <section class="main-content px-3">
       <!-- 标签筛选 -->
       <div class="tag-card-wrap mb-3 max-w-7xl mx-auto">
-        <base-card
-          icon="blog-tag"
-          title="标签"
-          min-height="110px"
-          vertical
-        >
+        <base-card icon="blog-tag" title="标签" min-height="110px" vertical>
           <div
             v-for="item of tagsOptions"
             :key="item.id"
@@ -204,14 +199,11 @@ const theme = useTheme();
         :key="listKey"
         class="article-item-wrap flex justify-center flex-wrap m-auto w-full max-w-7xl"
       >
-        <transition-group
-          key="article-item-wrap"
-          name="list"
-        >
+        <transition-group key="article-item-wrap" name="list">
           <div
             v-for="item in articleList"
             :key="item.id"
-            class="article-item card mr-5 bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-xl"
+            class="article-item card mr-5 bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-sm"
           >
             <figure>
               <XiaCardBorderLight
@@ -230,10 +222,7 @@ const theme = useTheme();
             <div class="card-body">
               <h2 class="card-title">
                 {{ item.title }}
-                <div
-                  v-if="item.topping"
-                  class="badge badge-secondary"
-                >
+                <div v-if="item.topping" class="badge badge-secondary">
                   TOP
                 </div>
               </h2>
@@ -247,10 +236,7 @@ const theme = useTheme();
                     class="text-icon mr-2 flex items-center"
                     :style="{ color: item.category.color }"
                   >
-                    <xia-icon
-                      icon="blog-category"
-                      class="mr-1"
-                    />
+                    <xia-icon icon="blog-category" class="mr-1" />
                     {{ item.category.label }}
                   </span>
                   <!-- 标签 -->
@@ -258,17 +244,11 @@ const theme = useTheme();
                     class="text-icon mr-2 flex items-center"
                     :style="{ color: item.tags[0]?.color }"
                   >
-                    <xia-icon
-                      icon="blog-tag"
-                      class="mr-1"
-                    />
+                    <xia-icon icon="blog-tag" class="mr-1" />
                     {{ getTagLabel(item.tags) }}
                   </span>
                   <!-- 阅读量 -->
-                  <span class="text-icon mr-2 flex items-center pointer"><xia-icon
-                    icon="blog-view"
-                    class="mr-1"
-                  />{{ item.views }}</span>
+                  <span class="text-icon mr-2 flex items-center pointer"><xia-icon icon="blog-view" class="mr-1" />{{ item.views }}</span>
                   <!-- 点赞数 -->
                   <span
                     class="text-icon mr-2 flex items-center pointer"
@@ -282,10 +262,7 @@ const theme = useTheme();
                   </span>
                   <!-- 评论数 -->
                   <span class="text-icon mr-2 flex items-center">
-                    <xia-icon
-                      icon="blog-pinglun"
-                      class="mr-1"
-                    />
+                    <xia-icon icon="blog-pinglun" class="mr-1" />
                     {{ item.commentCount }}
                   </span>
                 </div>
@@ -293,10 +270,7 @@ const theme = useTheme();
                   <div class="flex items-center">
                     <div class="avatar btn btn-ghost btn-circle btn-xs">
                       <div class="rounded-full">
-                        <img
-                          :src="item.userInfo.avatar"
-                          :alt="item.userInfo.nickname"
-                        >
+                        <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
                       </div>
                     </div>
                     <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
@@ -333,12 +307,7 @@ const theme = useTheme();
     </section>
     <!-- 右边筛选卡片 -->
     <section class="info-tool">
-      <base-card
-        icon="blog-filter"
-        title="关键字"
-        min-height="110px"
-        class="mx-4 mb-4"
-      >
+      <base-card icon="blog-filter" title="关键字" min-height="110px" class="mx-4 mb-4">
         <div class="join w-full mt-2">
           <button
             :title="queryPrams.sort === 'ASC' ? '升序' : '降序'"
@@ -375,10 +344,7 @@ const theme = useTheme();
             class="join-item input input-bordered input-sm max-w-xs"
             @keyup.enter="onSearchHandle"
           >
-          <button
-            class="join-item btn btn-neutral btn-square w-10 btn-sm"
-            @click="onSearchHandle"
-          >
+          <button class="join-item btn btn-neutral btn-square w-10 btn-sm" @click="onSearchHandle">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
@@ -403,16 +369,11 @@ const theme = useTheme();
         :no-padding="false"
         min-height="180px"
       >
-        <img
-          v-lazyImg="weatherUrl"
-          class="rounded-lg"
-        >
+        <img v-lazyImg="weatherUrl" class="rounded-lg">
       </base-card>
       <!-- 天气 -->
       <base-card
-        icon=""
-        title=""
-        min-height="110px"
+        icon="" title="" min-height="110px"
         :no-padding="false"
         class="mx-4 mb-4"
       >
@@ -421,11 +382,7 @@ const theme = useTheme();
         </div>
       </base-card>
 
-      <base-card
-        icon="blog-category"
-        title="分类"
-        class="category-card mx-4 mb-4"
-      >
+      <base-card icon="blog-category" title="分类" class="category-card mx-4 mb-4">
         <div
           v-for="item of categoryOptions"
           :key="item.id"

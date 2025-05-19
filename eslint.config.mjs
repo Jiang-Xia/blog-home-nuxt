@@ -19,6 +19,17 @@ export default withNuxt(
       '@typescript-eslint/ban-ts-comment': 'off',
       'import/no-mutable-exports': 'off',
       // '@stylistic/js/max-statements-per-line': ['error', { max: 2 }],
+      'vue/max-attributes-per-line': [
+        'error',
+        {
+          singleline: {
+            max: 4,
+          },
+          multiline: {
+            max: 3,
+          },
+        },
+      ],
     },
   },
 )

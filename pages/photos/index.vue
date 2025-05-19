@@ -148,13 +148,13 @@ const exportAll = () => {
               >
                 <a
                   :href="'#slide' + (index - 1 < 0 ? imageSrcList.length : index - 1)"
-                  class="btn btn-circle"
+                  class="btn btn-neutral btn-circle"
                 >❮</a>
                 <a
                   :href="
                     '#slide' + (index + 1 > imageSrcList.length ? imageSrcList.length : index + 1)
                   "
-                  class="btn btn-circle"
+                  class="btn btn-neutral btn-circle"
                 >❯</a>
               </div>
             </div>
@@ -163,15 +163,8 @@ const exportAll = () => {
       </section>
     </div>
     <div class="flex py-2 px-6">
-      <span
-        v-if="exportLoading"
-        class="loading loading-dots loading-md bg-accent"
-      />
-      <button
-        class="btn"
-        :disabled="exportLoading"
-        @click="exportAll"
-      >
+      <span v-if="exportLoading" class="loading loading-dots loading-md bg-accent" />
+      <button class="btn btn-neutral" :disabled="exportLoading" @click="exportAll">
         全部导出
       </button>
     </div>
@@ -190,11 +183,7 @@ const exportAll = () => {
       class="container columns-3 sm:columns-4 md:columns-6 lg:columns-9 xlg:columns-11 gap-4 px-6 pt-2"
     >
       <div class="mb-4 h-24 w-24">
-        <XiaButtonBorder
-          :animation-duration="1"
-          rx="8"
-          @click="add"
-        >
+        <XiaButtonBorder :animation-duration="1" rx="8" @click="add">
           <div class="h-24 w-24 flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -204,11 +193,7 @@ const exportAll = () => {
               stroke="currentColor"
               class="size-6"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
-              />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
           </div>
         </XiaButtonBorder>
@@ -226,10 +211,7 @@ const exportAll = () => {
           >
             X
           </div>
-          <div
-            class="w-24 rounded-lg"
-            :class="{ selected: item === currentImage }"
-          >
+          <div class="w-24 rounded-lg" :class="{ selected: item === currentImage }">
             <img :src="item">
           </div>
         </div>

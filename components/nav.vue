@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2024-11-19 15:11:07
+ * @LastEditTime: 2025-05-19 16:26:00
  * @Description:
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -165,18 +165,10 @@ const checked = ref(false);
 
 <template>
   <div class="navbar bg-transparent text-gray-100 dark:text-gray-300">
-    <div class="navbar-start w-fit">
+    <div class="navbar-start">
       <div class="dropdown">
-        <label
-          tabindex="0"
-          class="btn btn-ghost swap swap-rotate lg:hidden"
-          @click.stop=""
-        >
-          <input
-            v-model="checked"
-            type="checkbox"
-            @click="checked = !checked"
-          >
+        <label class="swap swap-rotate" @click.stop="">
+          <input v-model="checked" type="checkbox" @click="checked = !checked">
           <svg
             class="swap-off fill-current"
             xmlns="http://www.w3.org/2000/svg"
@@ -206,42 +198,25 @@ const checked = ref(false);
           }"
           class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-zinc-500"
         >
-          <li
-            v-for="(item, index) in navList"
-            :key="item.path + index"
-          >
-            <NuxtLink
-              class="menu-link py-2 px-4 flex"
-              :to="item.path"
-              :title="item.title"
-            >
+          <li v-for="(item, index) in navList" :key="item.path + index">
+            <NuxtLink class="menu-link py-2 px-4 flex" :to="item.path" :title="item.title">
               <xia-icon :icon="item.icon" />
               <span>{{ item.title }}</span>
             </NuxtLink>
           </li>
         </ul>
       </div>
-      <a
-        class="hidden sm:inline-flex btn btn-ghost normal-case text-3xl gradient-text"
-        href="/"
-      >Xia</a>
+      <a class="hidden sm:inline-flex btn btn-ghost normal-case text-3xl gradient-text" href="/">Xia</a>
     </div>
     <div class="navbar-center hidden md:flex">
       <ul class="menu menu-horizontal p-0">
-        <li
-          v-for="(item, index) in navList"
-          :key="item.path + index"
-          class="mr-2"
-        >
+        <li v-for="(item, index) in navList" :key="item.path + index" class="mr-2">
           <NuxtLink
             :to="item.path"
             class="router-link-item leading-6 flex items-center px-4 py-3 rounded-lg"
             :title="item.title"
           >
-            <xia-icon
-              class="hidden md:flex"
-              :icon="item.icon"
-            />
+            <xia-icon class="hidden md:flex" :icon="item.icon" />
             <span class="hidden xl:flex">{{ item.title }}</span>
           </NuxtLink>
         </li>
@@ -267,23 +242,13 @@ const checked = ref(false);
           tabindex="0"
           class="mt-3 p-2 shadow menu menu-md dropdown-content bg-base-100 rounded-box w-52 max-h-72 text-gray-500 text-xs overflow-auto"
         >
-          <li
-            v-for="item in articleList"
-            class="flex items-center"
-          >
-            <NuxtLink
-              class="py-2 px-4"
-              :to="'/detail/' + item.id"
-            >{{ item.value }}</NuxtLink>
+          <li v-for="item in articleList" class="flex items-center">
+            <NuxtLink class="py-2 px-4" :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
           </li>
         </ul>
       </div>
 
-      <xia-icon
-        class="cursor-pointer px-3"
-        :icon="'blog-' + theme"
-        @click="clickIcon"
-      />
+      <xia-icon class="cursor-pointer px-3" :icon="'blog-' + theme" @click="clickIcon" />
 
       <NuxtLink
         v-if="!token"
@@ -293,19 +258,10 @@ const checked = ref(false);
       >
         登录
       </NuxtLink>
-      <div
-        v-else
-        class="dropdown dropdown-end"
-      >
-        <label
-          tabindex="0"
-          class="btn btn-ghost btn-circle avatar"
-        >
+      <div v-else class="dropdown dropdown-end">
+        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
           <div class="w-10 rounded-full text-center leading-loose">
-            <img
-              :src="userInfo.avatar || Yaya"
-              :alt="userInfo.nickname"
-            >
+            <img :src="userInfo.avatar || Yaya" :alt="userInfo.nickname">
           </div>
         </label>
         <ul
@@ -313,11 +269,7 @@ const checked = ref(false);
           class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-gray-500 text-xs"
         >
           <li>
-            <a
-              :href="goUrl"
-              target="_blank"
-              class="leading-5 flex items-center py-2 px-4"
-            >
+            <a :href="goUrl" target="_blank" class="leading-5 flex items-center py-2 px-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-5 w-5"

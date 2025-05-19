@@ -13,20 +13,14 @@
           <a class="btn btn-ghost normal-case text-xl">Blog Admin</a>
         </div>
         <div class="navbar-end">
-          <button
-            class="btn btn-neutral"
-            @click="goTargetPage(1)"
-          >
+          <button class="btn btn-neutral" @click="goTargetPage(1)">
             GO
           </button>
         </div>
       </div>
       <div class="mockup-window border border-base-300 bg-base-100">
         <div class="flex justify-center p-4 bg-base-200 h-full">
-          <iframe
-            class="iframe"
-            :src="goUrl"
-          />
+          <iframe class="iframe" :src="goUrl" />
         </div>
       </div>
     </section>
@@ -44,33 +38,24 @@
           <a class="btn btn-ghost normal-case text-xl">Zone</a>
         </div>
         <div class="navbar-end">
-          <button
-            class="btn btn-neutral"
-            @click="goTargetPage(2)"
-          >
+          <button class="btn btn-neutral" @click="goTargetPage(2)">
             GO
           </button>
         </div>
       </div>
 
-      <div class="flex flex-col items-center sm:flex-row sm:justify-around">
-        <div class="mockup-phone">
+      <div class="flex flex-col items-center lg:flex-row sm:justify-around">
+        <div class="mockup-phone m-0 mb-4">
           <div class="mockup-phone-camera" />
           <div class="mockup-phone-display">
             <div class="iframe-wrap">
-              <iframe
-                class="iframe"
-                :src="zoneUrl"
-              />
+              <iframe class="iframe" :src="zoneUrl" />
             </div>
           </div>
         </div>
         <div class="card w-96 bg-base-100 shadow-xl sm:w-60 md:w-96">
           <figure>
-            <img
-              src="@/assets/images/other/app-code.png"
-              alt="code"
-            >
+            <img src="@/assets/images/other/app-code.png" alt="code">
           </figure>
           <div class="card-body">
             <h2 class="card-title">
@@ -81,10 +66,7 @@
         </div>
         <div class="card w-96 mt-4 bg-base-100 shadow-xl sm:w-60 md:w-96 md:mt-0">
           <figure>
-            <img
-              src="@/assets/images/other/mini-program-code.jpg"
-              alt="code"
-            >
+            <img src="@/assets/images/other/mini-program-code.jpg" alt="code">
           </figure>
           <div class="card-body">
             <h2 class="card-title">
@@ -120,6 +102,7 @@ const goTargetPage = (type: number) => {
   .page-container {
     background: var(--main-bgc);
     padding: 124px 24px 24px 24px;
+
     .iframe-wrap {
       height: 100%;
       width: 100%;
