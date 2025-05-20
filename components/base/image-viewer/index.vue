@@ -1,19 +1,9 @@
 <template>
-  <div
-    v-if="isOpen"
-    class="fixed inset-0 w-full flex justify-center items-center z-50"
-  >
+  <div v-if="isOpen" class="fixed inset-0 w-full flex justify-center items-center z-50">
     <!-- 完全覆盖整个屏幕的背景蒙版，点击蒙版关闭查看器 -->
-    <div
-      class="absolute inset-0 bg-black opacity-75 z-40"
-      @click="closeViewer"
-    />
+    <div class="absolute inset-0 bg-black opacity-75 z-40" @click="closeViewer" />
 
-    <div
-      ref="viewer"
-      class="relative z-50"
-      :class="{ fullscreen: isFullscreen }"
-    >
+    <div ref="viewer" class="relative z-50" :class="{ fullscreen: isFullscreen }">
       <img
         :src="currentImage"
         alt="Image Viewer"
@@ -25,80 +15,47 @@
 
     <!-- 按钮固定在屏幕中间下方 -->
     <div class="fixed bottom-10 left-1/2 transform -translate-x-1/2 flex gap-2 z-50">
-      <button
-        class="btn btn-primary btn-xs"
-        @click="rotateLeft"
-      >
+      <button class="btn btn-primary btn-xs" @click="rotateLeft">
         Rotate Left
       </button>
-      <button
-        class="btn btn-primary btn-xs"
-        @click="rotateRight"
-      >
+      <button class="btn btn-primary btn-xs" @click="rotateRight">
         Rotate Right
       </button>
-      <button
-        class="btn btn-secondary btn-xs"
-        @click="prevImage"
-      >
+      <button class="btn btn-secondary btn-xs" @click="prevImage">
         Prev
       </button>
-      <button
-        class="btn btn-secondary btn-xs"
-        @click="nextImage"
-      >
+      <button class="btn btn-secondary btn-xs" @click="nextImage">
         Next
       </button>
-      <button
-        class="btn btn-accent btn-xs"
-        @click="resetTransform"
-      >
+      <button class="btn btn-accent btn-xs" @click="resetTransform">
         Reset
       </button>
-      <button
-        class="btn btn-warning btn-xs"
-        @click="flipVerticalImage"
-      >
+      <button class="btn btn-warning btn-xs" @click="flipVerticalImage">
         Flip Vertically
       </button>
-      <button
-        class="btn btn-warning btn-xs"
-        @click="flipHorizontalImage"
-      >
+      <button class="btn btn-warning btn-xs" @click="flipHorizontalImage">
         Flip Horizontally
       </button>
-      <button
-        class="btn btn-secondary btn-xs"
-        @click="zoomIn"
-      >
+      <button class="btn btn-secondary btn-xs" @click="zoomIn">
         Zoom In
       </button>
-      <button
-        class="btn btn-secondary btn-xs"
-        @click="zoomOut"
-      >
+      <button class="btn btn-secondary btn-xs" @click="zoomOut">
         Zoom Out
       </button>
-      <button
-        class="btn btn-info btn-xs"
-        @click="toggleFullscreen"
-      >
+      <button class="btn btn-info btn-xs" @click="toggleFullscreen">
         {{ isFullscreen ? 'Exit Fullscreen' : 'Fullscreen' }}
       </button>
     </div>
 
     <!-- 关闭按钮 - 使用 daisyUI btn-warning 样式并统一按钮大小 -->
-    <button
-      class="btn btn-warning btn-xs absolute top-4 right-4 z-50"
-      @click="closeViewer"
-    >
+    <button class="btn btn-warning btn-xs absolute top-4 right-4 z-50" @click="closeViewer">
       Close
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, computed, watch, defineEmits, onMounted, nextTick } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 
 const props = defineProps({
   images: {

@@ -164,9 +164,12 @@ const exportAll = () => {
     </div>
     <div class="flex py-2 px-6">
       <span v-if="exportLoading" class="loading loading-dots loading-md bg-accent" />
-      <button class="btn btn-neutral" :disabled="exportLoading" @click="exportAll">
+      <!-- <button class="btn btn-neutral" :disabled="exportLoading" @click="exportAll">
         全部导出
-      </button>
+      </button> -->
+      <IRainbowButton :disabled="exportLoading" @click="exportAll">
+        全部导出
+      </IRainbowButton>
     </div>
     <div>
       <input

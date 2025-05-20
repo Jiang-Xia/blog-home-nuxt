@@ -276,7 +276,7 @@ const theme = useTheme();
                     <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
                     <span class="pt-2">{{ formactDate(item.createTime) }}</span>
                   </div>
-                  <span @click="$router.push(`/detail/${item.id}`)">
+                  <span @click="$router.push(`detail/${item.id}`)">
                     <button class="btn btn-neutral btn-xs xia-btn">Read</button>
                   </span>
                 </div>
