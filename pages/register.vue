@@ -81,7 +81,11 @@ if (import.meta.client) {
         <div class="card-body">
           <div class="flex justify-between items-center">
             <h1 class="card-title">
-              注 册
+              <InLetterPullup
+                words="欢 迎 注 册"
+                :delay="0.05"
+                class="text-2xl md:text-2xl lg:text-2xl text-gray-200"
+              />
             </h1>
             <div
               class="avatar btn btn-ghost btn-circle btn-sm"
@@ -150,22 +154,28 @@ if (import.meta.client) {
               >
             </div>
           </div>
-          <a
-            href="/login"
-            class="link text-xs text-gray-600 hover:text-gray-500 mt-1"
-          >已有账号?快去登录吧！</a>
+          <a href="/login" class="link text-xs text-gray-600 hover:text-gray-500 mt-1">已有账号?快去登录吧！</a>
 
-          <div class="form-control mt-4">
-            <button
-              class="btn btn-primary btn-block"
+          <div class="form-control mt-2">
+            <InShimmerButton
+              class="shadow-2xl btn-block text-gray-300 hover:text-gray-100"
+              shimmer-size="2px"
               @click.prevent="okHandle"
             >
-              注 册
-            </button>
+              <span class="pr-16">注</span>册
+            </InShimmerButton>
           </div>
         </div>
       </div>
     </div>
+    <InFlickeringGrid
+      class="relative inset-0 z-0 [mask-image:radial-gradient(650px_circle_at_center,white,transparent)]"
+      :square-size="4"
+      :grid-gap="6"
+      color="#4ba6c6"
+      :max-opacity="0.5"
+      :flicker-chance="0.1"
+    />
     <!-- <video class="video-bg" :poster="posterUrl2" autoplay loop :muted="true">
       <source v-if="isPcClient" type="video/mp4" :src="videoUrl2">
     </video> -->

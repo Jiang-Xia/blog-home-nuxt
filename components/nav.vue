@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2025-05-19 16:26:00
+ * @LastEditTime: 2025-05-20 17:28:29
  * @Description:
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -165,7 +165,7 @@ const checked = ref(false);
 
 <template>
   <div class="navbar bg-transparent text-gray-100 dark:text-gray-300">
-    <div class="navbar-start">
+    <div class="navbar-start w-auto">
       <div class="dropdown">
         <label class="swap swap-rotate" @click.stop="">
           <input v-model="checked" type="checkbox" @click="checked = !checked">

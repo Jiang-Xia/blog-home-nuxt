@@ -13,7 +13,7 @@ export default defineNuxtModule({
     // console.log('pathpath', path);
     addComponentsDir({
       path,
-      prefix: 'I',
+      prefix: 'In',
       pathPrefix: false,
       global: true,
     });

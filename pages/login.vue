@@ -78,6 +78,11 @@ if (import.meta.client) {
     isPcClient.value = true;
   }
 }
+const bgConfig = reactive({ height: 0, width: 0 });
+onMounted(() => {
+  bgConfig.height = window.innerHeight;
+  bgConfig.width = window.innerWidth;
+});
 </script>
 
 <template>
@@ -85,12 +90,13 @@ if (import.meta.client) {
     <div class="form-wrap w-10/12 md:w-96">
       <div class="card max-w-sm shadow-2x text-white">
         <!-- <figure><img src="@/assets/images/login/coding3.jpg " alt="注 册" /></figure> -->
-        <div
-          class="card-body"
-          autocomplete="off"
-        >
+        <div class="card-body" autocomplete="off">
           <h1 class="card-title">
-            登 录
+            <InLetterPullup
+              words="欢 迎 登 录"
+              :delay="0.05"
+              class="text-2xl md:text-2xl lg:text-2xl text-gray-200"
+            />
           </h1>
           <div class="form-control">
             <label class="login-label">
@@ -138,27 +144,30 @@ if (import.meta.client) {
             </div>
           </div>
           <div class="flex justify-between mt-1">
-            <a
-              href="/register"
-              class="link text-xs text-gray-600 hover:text-gray-500"
-            >还没有账号?快去注册吧！</a>
-            <a
-              href="/"
-              class="link text-xs text-gray-600 hover:text-gray-500"
-            >返回首页</a>
+            <a href="/register" class="link text-xs text-gray-600 hover:text-gray-500">还没有账号?快去注册吧！</a>
+            <a href="/" class="link text-xs text-gray-600 hover:text-gray-500">返回首页</a>
           </div>
 
           <div class="form-control mt-4">
-            <button
-              class="btn btn-primary btn-block"
+            <InShimmerButton
+              class="shadow-2xl btn-block text-gray-300 hover:text-gray-100"
+              shimmer-size="2px"
               @click.prevent="okHandle"
             >
-              登 录
-            </button>
+              <span class="pr-16">登</span>录
+            </InShimmerButton>
           </div>
         </div>
       </div>
     </div>
+    <InParticlesBg
+      class="absolute inset-0"
+      :quantity="100"
+      :ease="100"
+      color="#FFF"
+      :staticity="10"
+      refresh
+    />
     <!-- <video class="video-bg" :poster="posterUrl2" autoplay loop :muted="true">
       <source v-if="isPcClient" type="video/mp4" :src="videoUrl2">
     </video> -->

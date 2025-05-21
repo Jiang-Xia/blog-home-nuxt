@@ -3,15 +3,15 @@ import Icons from 'unplugin-icons/vite';
 import tailwindcss from '@tailwindcss/vite';
 
 const prefixPath: any = process.env.VITE_NUXT_PREFIX_PATH;
-const configs = Object.keys(process.env)
-  .filter(k => k.toLocaleUpperCase().includes('VITE'))
-  .map((k) => {
-    return {
-      [k]: process.env[k],
-    };
-  });
-console.warn('当前环境: ', process.env.NODE_ENV);
-console.warn({ 当前环境自定义配置: configs });
+// const configs = Object.keys(process.env)
+//   .filter(k => k.toLocaleUpperCase().includes('VITE'))
+//   .map((k) => {
+//     return {
+//       [k]: process.env[k],
+//     };
+//   });
+console.warn('当前环境: ', process.env.VITE_ENV);
+// console.warn({ 当前环境自定义配置: configs });
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',

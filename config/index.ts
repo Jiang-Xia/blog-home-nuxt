@@ -14,21 +14,21 @@ const config: configState = {
   gif404:
     'https://jiang-xia.top/x-api/blog-server/static/uploads/2022-09-12/hoyusqf2d051wy59rhmr26-404.gif',
 };
-const metaEnv: any = import.meta.env;
-const isEnv = metaEnv.MODE === 'development';
+const ViteEnv: any = import.meta.env;
+const isEnv = ViteEnv.MODE === 'development';
 let baseUrl: string;
 let adminUrl: string;
-console.log({ metaEnv });
-if (metaEnv.MODE === 'production') {
-  baseUrl = metaEnv.VITE_NUXT_BASE_URL;
-  adminUrl = metaEnv.VITE_NUXT_ADMIN_URL;
+console.warn({ ViteEnv });
+if (ViteEnv.MODE === 'production') {
+  baseUrl = ViteEnv.VITE_NUXT_BASE_URL;
+  adminUrl = ViteEnv.VITE_NUXT_ADMIN_URL;
 }
 else {
   // 开代理本地报错非常多
-  // baseUrl = metaEnv.VITE_NUXT_PREFIX_PATH
-  // baseUrl = metaEnv.VITE_NUXT_BASE_URL
-  baseUrl = metaEnv.VITE_NUXT_BASE_URL;
-  adminUrl = metaEnv.VITE_NUXT_ADMIN_URL;
+  // baseUrl = ViteEnv.VITE_NUXT_PREFIX_PATH
+  // baseUrl = ViteEnv.VITE_NUXT_BASE_URL
+  baseUrl = ViteEnv.VITE_NUXT_BASE_URL;
+  adminUrl = ViteEnv.VITE_NUXT_ADMIN_URL;
 }
 export { baseUrl, adminUrl, isEnv };
 export default config;

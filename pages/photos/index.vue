@@ -167,9 +167,9 @@ const exportAll = () => {
       <!-- <button class="btn btn-neutral" :disabled="exportLoading" @click="exportAll">
         全部导出
       </button> -->
-      <IRainbowButton :disabled="exportLoading" @click="exportAll">
+      <InRainbowButton :disabled="exportLoading" @click="exportAll">
         全部导出
-      </IRainbowButton>
+      </InRainbowButton>
     </div>
     <div>
       <input

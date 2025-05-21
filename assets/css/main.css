@@ -23,12 +23,12 @@
 
   /* 登录注册 */
   .login-label .login-label-text {
-    @apply text-gray-200 hover:text-gray-400;
+    @apply text-gray-300 hover:text-gray-400;
   }
 }
 /* 自定义类名组件 */
 @utility login-input {
-  @apply outline-none bg-transparent text-gray-200 border border-gray-700 focus:border-gray-600 focus:outline-info-content;
+  @apply w-full outline-none bg-transparent text-gray-200 border border-gray-700 focus:border-gray-600 focus:outline-info-content;
 }
 
 /* inspria-ui */
