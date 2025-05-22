@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2025-05-20 17:28:29
+ * @LastEditTime: 2025-05-22 11:21:03
  * @Description:
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -83,15 +83,20 @@ if (import.meta.client) {
   // console.log('match========》', match)
 }
 // 副作用函数
-watchEffect(() => {
-  if (import.meta.client) {
-    setTheme();
-  }
-});
+// watchEffect(() => {
+//   if (import.meta.client) {
+//     setTheme();
+//   }
+// });
 onMounted(() => {
   document.addEventListener('click', () => {
     checked.value = false;
   });
+  const localTheme = localStorage.getItem('theme');
+  if (localTheme) {
+    theme.value = localTheme;
+  }
+  setTheme();
 });
 // 点击icon直接切换
 const clickIcon = () => {
@@ -101,6 +106,7 @@ const clickIcon = () => {
   else {
     theme.value = 'light';
   }
+  setTheme();
   // console.log('setTheme========》', theme.value)
 };
   /* 切换主题 结束 */

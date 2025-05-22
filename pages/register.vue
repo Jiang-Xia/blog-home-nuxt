@@ -162,7 +162,11 @@ if (import.meta.client) {
               shimmer-size="2px"
               @click.prevent="okHandle"
             >
-              <span class="pr-16">注</span>册
+              <span
+                class="whitespace-pre-wrap text-center text-sm font-medium leading-none tracking-tight text-white lg:text-lg dark:from-white dark:to-slate-900/10"
+              >
+                <span class="pr-16">注</span>册
+              </span>
             </InShimmerButton>
           </div>
         </div>

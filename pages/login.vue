@@ -150,11 +150,15 @@ onMounted(() => {
 
           <div class="form-control mt-4">
             <InShimmerButton
-              class="shadow-2xl btn-block text-gray-300 hover:text-gray-100"
+              class="shadow-2xl btn-block text-gray-300 hover:text-gray-100 dark:from-white dark:to-slate-900/10"
               shimmer-size="2px"
               @click.prevent="okHandle"
             >
-              <span class="pr-16">登</span>录
+              <span
+                class="whitespace-pre-wrap text-center text-sm font-medium leading-none tracking-tight text-white lg:text-lg dark:from-white dark:to-slate-900/10"
+              >
+                <span class="pr-16">登</span>录
+              </span>
             </InShimmerButton>
           </div>
         </div>
