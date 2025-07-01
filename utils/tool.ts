@@ -5,3 +5,10 @@ export const isMobile = () => {
   );
   return flag;
 };
+
+export const createScript = (scriptUrl: string) => {
+  const script = document.createElement('script');
+  script.src = scriptUrl;
+  script.setAttribute('defer', 'defer');
+  document.body.appendChild(script);
+};

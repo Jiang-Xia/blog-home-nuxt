@@ -5,7 +5,7 @@
   "scripts": {
     "build": "nuxt build --dotenv .env.production",
     "build:test": "nuxt build --dotenv .env.test",
-    "dev": "nuxt dev --port 5050 --dotenv .env.development",
+    "dev": "nuxt dev --port 5050 --host 0.0.0.0 --dotenv .env.development",
     "deploy": "cross-env scripts/build.sh",
     "generate": "nuxt generate",
     "preview": "nuxt preview",

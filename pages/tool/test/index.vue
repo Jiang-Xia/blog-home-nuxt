@@ -1,5 +1,8 @@
 <template>
   <div class="page-container p-12">
+    <ClientOnly>
+      <uniapp />
+    </ClientOnly>
     <div>主题切换=====>{{ theme }}</div>
     <Delay />
     <XiaCardBorderLight :pic="pic" />
@@ -14,6 +17,7 @@
 import Delay from './components/Delay.vue';
 import Stream from './components/stream.vue';
 import Screenshot from './components/Screenshot.vue';
+import uniapp from './components/uniapp.vue';
 
 const theme = useTheme();
 const pic
