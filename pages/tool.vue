@@ -2,22 +2,11 @@
   <div class="padding-top-bar xia-page">
     <div class="pt-4 px-4">
       <ul class="flex flex-wrap justify-center md:justify-start">
-        <li
-          v-for="item in menuList"
-          :key="item.path"
-          class="li-item mr-2 mb-2"
-        >
-          <XiaButtonBorder
-            v-if="item.path === route.path"
-            :animation-duration="1"
-            rx="8"
-          >
+        <li v-for="item in menuList" :key="item.path" class="li-item mr-2 mb-2">
+          <XiaButtonBorder v-if="item.path === route.path" :animation-duration="1" rx="8">
             <LinkItem :item="item" />
           </XiaButtonBorder>
-          <LinkItem
-            v-else
-            :item="item"
-          />
+          <LinkItem v-else :item="item" />
         </li>
       </ul>
     </div>
@@ -84,6 +73,11 @@ const dataList = [
     path: '/tool/des',
     title: '对称加密工具',
     icon: 'blog-encrypted',
+  },
+  {
+    path: '/tool/sm',
+    title: '国密加密工具',
+    icon: 'blog-lock',
   },
   {
     path: '/tool/ai',

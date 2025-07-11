@@ -17,20 +17,14 @@
       <div class="join join-vertical w-28 m-2">
         <select
           v-model="keySize"
-          placeholder="密文输出类型"
+          placeholder="公钥长度"
           class="select select-accent select-bordered w-full max-w-xs join-item"
         >
-          <option value="512">
-            512 bit
+          <option :value="130">
+            130位
           </option>
-          <option value="1024">
-            1024 bit
-          </option>
-          <option value="2048">
-            2048 bit
-          </option>
-          <option value="4096">
-            4096 bit
+          <option :value="66">
+            66位
           </option>
         </select>
         <button class="btn btn-outline btn-accent join-item" @click="createKey">
@@ -67,15 +61,15 @@
       </div>
       <div class="join join-vertical w-28 m-2">
         <select
-          v-model="outputType"
-          placeholder="密文输出类型"
+          v-model="cipherMode"
+          placeholder="密文数据顺序"
           class="select select-info select-bordered w-full max-w-xs join-item"
         >
-          <option value="Hex">
-            Hex
+          <option :value="1">
+            C1C3C2
           </option>
-          <option value="Base64">
-            Base64
+          <option :value="0">
+            C1C2C3
           </option>
         </select>
         <button class="btn btn-outline btn-info join-item" @click="encrypted">
@@ -102,17 +96,21 @@
     <div class="mt-4 card w-full bg-base-100 shadow-xl border border-base-300">
       <div class="card-body">
         <h2 class="card-title">
-          RSA算法介绍
+          国密SM2加密解密介绍
         </h2>
+        <p> 本工具提供在线国密SM2公钥私钥生成，国密SM2加密解密功能。 </p>
         <p>
-          RSA是一种公钥密码算法，它的名字由三位开发者，即Ron Rivest、Adi Shamir和Leonard
-          Adleman的姓氏的首字母组成的。
+          SM2算法和RSA算法都是公钥密码算法，SM2算法是一种更先进安全的算法，在我们国家商用密码体系中被用来替换RSA算法。
         </p>
         <p>
-          非对称加密算法中，有两个密钥：公钥和私钥。它们是一对，如果用公钥进行加密，只有用对应的私钥才能解密；如果用私钥进行加密，只有用对应的公钥才能解密。
+          SM2非对称加密的结果由C1,C2,C3三部分组成。其中C1是根据生成的随机数计算出的椭圆曲线点，C2是密文数据，C3是SM3的摘要值。最开始的国密标准的结果是按C1,C2,C3顺序存放的，新标准的是按C1,C3,C2顺序存放的，因此我们这边在做SM2加密时新增了密文数据顺序设置，用以兼容之前的SM2算法加密。
         </p>
         <p>
-          非对称加密算法实现机密信息的交换过程为：甲方生成一对密钥并将其中一个作为公钥向其他方公开；得到该公钥的乙方使用该密钥对机密信息进行加密后发送给甲方；甲方再用自己的另一个专用密钥对加密后的信息进行解密。
+          <a
+            class="link link-success"
+            href="https://github.com/JuneAndGreen/sm-crypto"
+            target="_blank"
+          >开源库:sm-crypto</a>
         </p>
       </div>
     </div>
@@ -120,20 +118,26 @@
 </template>
 
 <script setup lang="ts">
-import { rsaEncrypt, rsaDecrypt } from '~~/utils/jsencrypt';
+import { sm2, type CipherMode } from 'sm-crypto';
 import { messageDanger } from '~~/utils/toast';
 
 definePageMeta({
   keepalive: true, // nuxt 默认缓存所有页面
 });
-const keySize = ref('1024');
-const outputType = ref('Hex');
+const keySize = ref(130);
+const cipherMode = ref<CipherMode>(1);
 const privateKey = ref('');
 const publicKey = ref('');
 const createKey = () => {
-  const encryptor = new window.JSEncrypt({ default_key_size: keySize.value });
-  publicKey.value = encryptor.getPublicKey();
-  privateKey.value = encryptor.getPrivateKey();
+  const keypair = sm2.generateKeyPairHex();
+  publicKey.value = keypair.publicKey; // 公钥
+  privateKey.value = keypair.privateKey; // 私钥
+  if (keySize.value === 66) {
+    // 默认生成公钥 130 位太长，可以压缩公钥到 66 位
+    const compressedPublicKey = sm2.compressPublicKeyHex(publicKey.value); // compressedPublicKey 和 publicKey 等价
+    sm2.comparePublicKeyHex(publicKey.value, compressedPublicKey); // 判断公钥是否等价
+    publicKey.value = compressedPublicKey;
+  }
 };
 
 const plaintext = ref('');
@@ -143,14 +147,14 @@ const encrypted = () => {
     messageDanger('请先输入原文');
     return;
   }
-  ciphertext.value = rsaEncrypt(plaintext.value, pubkey, outputType.value);
+  ciphertext.value = sm2.doEncrypt(plaintext.value, publicKey.value, cipherMode.value);
 };
 const decrypt = () => {
   if (!ciphertext.value) {
     messageDanger('请先输入密文');
     return;
   }
-  plaintext.value = rsaDecrypt(ciphertext.value, priKey, outputType.value);
+  plaintext.value = sm2.doDecrypt(ciphertext.value, privateKey.value, cipherMode.value);
   if (!plaintext.value) {
     messageDanger('解密失败！');
   }
