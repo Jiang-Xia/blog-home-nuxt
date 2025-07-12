@@ -4,12 +4,16 @@
     <Delay />
     <XiaCardBorderLight :pic="pic" />
     <Stream />
+    <ClientOnly>
+      <Screenshot />
+    </ClientOnly>
   </div>
 </template>
 
 <script setup>
 import Delay from './components/Delay.vue';
 import Stream from './components/stream.vue';
+import Screenshot from './components/Screenshot.vue';
 
 const theme = useTheme();
 const pic
@@ -17,6 +21,10 @@ const pic
   // watch(() => theme.value, () => {
   //   console.log('watch========》', theme.value)
   // })
+const loaded = ref(false);
+onMounted(() => {
+  loaded.value = true;
+});
 </script>
 
 <style lang="less">
