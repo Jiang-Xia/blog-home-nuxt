@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, type PropType, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { useModal, useToast } from 'tailvue';
 import { beforeTimeNow } from '@/utils';
 import { addComment, addReply, delComment, delReply } from '@/api/article';
 
@@ -28,9 +27,12 @@ const formactTime = (item: any) => {
 /* 评论功能 开始 */
 const inputContent = ref('');
 const addCommentHandle = async () => {
-  const toast = useToast();
+  if (!tip()) {
+    return;
+  }
   if (!inputContent.value) {
-    toast.warning('请输入你的评论！');
+    messageDanger('请输入你的评论！');
+    return;
   }
   const params = {
     uid: uid.value,
@@ -52,13 +54,35 @@ const delCommentHandle = async (id: string) => {
 const uid = computed(() => {
   return userInfo.value.uid;
 });
+const tip = () => {
+  if (!uid.value) {
+    const toast = useToast();
+    toast.add({
+      title: '提示',
+      description: '需要登录才能评论哦',
+      actions: [
+        {
+          icon: 'fe:paper-plane',
+          label: '去登录',
+          color: 'error',
+          variant: 'outline',
+          onClick: async () => {
+            await navigateTo('/login');
+          },
+        },
+      ],
+    });
+  }
+  else {
+    return true;
+  }
+};
   // 当前点击回复的id评论
 const currentReplyBoxId = ref('');
 // 当前点击评论id（父级）
 const currentParentId = ref('');
 
 // 点击回复按钮
-
 /**
    * @description: 点击回复按钮回调
    * @param {*} type 区分评论/回复
@@ -67,25 +91,7 @@ const currentParentId = ref('');
    * @return {*}
    */
 const clickReplyHandle = (type: string, item: any, pId?: string) => {
-  const $modal = useModal();
-  if (!uid.value) {
-    $modal.show({
-      type: 'danger',
-      title: '提示',
-      body: '需要登录才能评论哦',
-      primary: {
-        label: '去登录',
-        theme: 'red',
-        action: async () => {
-          await navigateTo('/login');
-        },
-      },
-      secondary: {
-        label: '关闭',
-        theme: 'white',
-        action: () => {},
-      },
-    });
+  if (!tip()) {
     return;
   }
   currentReplyBoxId.value = item.id;
@@ -163,11 +169,7 @@ const replyedHandle = (content: string) => {
         确 认
       </button>
     </div>
-    <section
-      v-for="commentItem in comments"
-      :key="commentItem.id"
-      class="flex mt-4"
-    >
+    <section v-for="commentItem in comments" :key="commentItem.id" class="flex mt-4">
       <!-- 头像 -->
       <div class="w-10 mr-2">
         <div
@@ -179,10 +181,7 @@ const replyedHandle = (content: string) => {
             :src="commentItem.userInfo.avatar"
             :alt="commentItem.userInfo.nickname"
           >
-          <xia-icon
-            v-else
-            icon="blog-yonghu"
-          />
+          <xia-icon v-else icon="blog-yonghu" />
         </div>
       </div>
       <!-- 评论内容主体 -->
@@ -199,11 +198,7 @@ const replyedHandle = (content: string) => {
             class="btn btn-ghost btn-xs text-xs text-gray-500"
             @click="clickReplyHandle('comment', commentItem)"
           >
-            <xia-icon
-              icon="blog-pinglun"
-              width="14px"
-              class="mr-1"
-            />回复
+            <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
           </button>
           <button
             v-if="commentItem.id === currentReplyBoxId"
@@ -217,11 +212,7 @@ const replyedHandle = (content: string) => {
             class="btn btn-ghost btn-xs text-xs text-gray-500"
             @click="delCommentHandle(commentItem.id)"
           >
-            <xia-icon
-              icon="blog-shanchu"
-              width="14px"
-              class="mr-1"
-            />删除
+            <xia-icon icon="blog-shanchu" width="14px" class="mr-1" />删除
           </button>
         </div>
         <!-- 回复输入框  -->
@@ -232,15 +223,8 @@ const replyedHandle = (content: string) => {
           @replyed="replyedHandle"
         />
         <!-- 回复内容主体 -->
-        <div
-          v-if="commentItem.replys && commentItem.replys.length"
-          class="reply-wrap mt-2"
-        >
-          <section
-            v-for="replyItem in commentItem.replys"
-            :key="replyItem.id"
-            class="flex mt-4"
-          >
+        <div v-if="commentItem.replys && commentItem.replys.length" class="reply-wrap mt-2">
+          <section v-for="replyItem in commentItem.replys" :key="replyItem.id" class="flex mt-4">
             <!-- 头像 -->
             <div class="w-10 mr-2">
               <div
@@ -252,10 +236,7 @@ const replyedHandle = (content: string) => {
                   :src="replyItem.userInfo.avatar"
                   :alt="replyItem.userInfo.nickname"
                 >
-                <xia-icon
-                  v-else
-                  icon="blog-yonghu"
-                />
+                <xia-icon v-else icon="blog-yonghu" />
               </div>
             </div>
             <div class="flex-1">
@@ -276,11 +257,7 @@ const replyedHandle = (content: string) => {
                   class="btn btn-ghost btn-xs text-xs text-gray-500"
                   @click="clickReplyHandle('reply', replyItem, commentItem.id)"
                 >
-                  <xia-icon
-                    icon="blog-pinglun"
-                    width="14px"
-                    class="mr-1"
-                  />回复
+                  <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
                 </button>
                 <button
                   v-if="replyItem.id === currentReplyBoxId"
@@ -294,11 +271,7 @@ const replyedHandle = (content: string) => {
                   class="btn btn-ghost btn-xs text-xs text-gray-500"
                   @click="delReplytHandle(replyItem.id)"
                 >
-                  <xia-icon
-                    icon="blog-shanchu"
-                    width="14px"
-                    class="mr-1"
-                  />删除
+                  <xia-icon icon="blog-shanchu" width="14px" class="mr-1" />删除
                 </button>
               </div>
               <XiaReply

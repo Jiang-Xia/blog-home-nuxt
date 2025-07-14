@@ -1,5 +1,4 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import Icons from 'unplugin-icons/vite';
 import tailwindcss from '@tailwindcss/vite';
 
 const prefixPath: any = process.env.VITE_NUXT_PREFIX_PATH;
@@ -18,8 +17,8 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '~/modules/sitemap',
     '~/modules/inspria-ui',
-    '@tailvue/nuxt',
     '@pinia/nuxt',
+    '@nuxt/ui',
   ],
   devtools: { enabled: true },
   app: {
@@ -50,7 +49,10 @@ export default defineNuxtConfig({
     },
   },
   css: ['~/assets/css/main.css'],
-
+  ui: {
+    prefix: 'U',
+    fonts: false,
+  },
   devServer: {
     // 证书安装 https://zhuanlan.zhihu.com/p/678165318
     https: false,
@@ -68,13 +70,7 @@ export default defineNuxtConfig({
     },
   },
   vite: {
-    plugins: [
-      tailwindcss(),
-      Icons({
-        // the feature below is experimental ⬇️
-        autoInstall: true,
-      }),
-    ],
+    plugins: [tailwindcss()],
   },
   eslint: {
     config: {

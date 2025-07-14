@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-
+@import '@nuxt/ui';
 @plugin "daisyui";
 
 /* 自定义类名 只能该css文件上自定义类名 */
