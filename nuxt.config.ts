@@ -53,11 +53,14 @@ export default defineNuxtConfig({
     prefix: 'U',
     fonts: false,
   },
+  build: {
+    // 打包配置
+  },
   devServer: {
     // 证书安装 https://zhuanlan.zhihu.com/p/678165318
     https: false,
   },
-  compatibilityDate: '2024-11-01',
+  compatibilityDate: '2025-07-14',
   // 此文件只能用process
   nitro: {
     // 配置代理
@@ -67,6 +70,11 @@ export default defineNuxtConfig({
         changeOrigin: true,
         rewrite: (path: string) => path.replace(new RegExp(`^${prefixPath}`), ''),
       },
+    },
+    compressPublicAssets: {
+      // 只压缩output/public目录的文件
+      gzip: false,
+      brotli: false,
     },
   },
   vite: {
