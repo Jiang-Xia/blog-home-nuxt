@@ -9,11 +9,15 @@ useHead({
   titleTemplate: title => `${title} - ${SiteTitle}`,
 });
 // 古诗词
-// const { data: gushiciData, } = await useAsyncData('gushici_Get', () => gushici())
 const gushiciData = ref<any>({});
-gushici().then((res) => {
-  gushiciData.value = res;
-});
+try {
+  const { data } = await useAsyncData('gushici_Get', () => gushici());
+  gushiciData.value = data.value;
+}
+catch (error) {
+  console.log(error);
+}
+
 // 下一页
 const goToNextPage = () => {
   window.scroll({ top: window.innerHeight, left: 0, behavior: 'smooth' });
@@ -30,10 +34,7 @@ const goToNextPage = () => {
       <!-- 文字信息 -->
       <div class="site-info">
         <!-- <div id="site-title" class="site-title">江夏</div> -->
-        <div
-          id="site-subtitle"
-          class="site-subtitle"
-        >
+        <div id="site-subtitle" class="site-subtitle">
           <p class="content">
             {{ gushiciData.content }}
           </p>
@@ -44,23 +45,11 @@ const goToNextPage = () => {
         </div>
       </div>
       <!-- 向下提示箭头 -->
-      <div
-        class="go-down"
-        @click="goToNextPage"
-      >
-        <xia-icon
-          icon="blog-double-down"
-          height="32px"
-          width="32px"
-        />
+      <div class="go-down" @click="goToNextPage">
+        <xia-icon icon="blog-double-down" height="32px" width="32px" />
       </div>
       <div class="banner-content">
-        <xia-carousel
-          :images="banners"
-          :duration="60000"
-          interval
-          arrow
-        />
+        <xia-carousel :images="banners" :duration="60000" interval arrow />
       </div>
     </section>
     <section class="home-content">

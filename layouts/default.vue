@@ -109,7 +109,7 @@ useHead({
     },
   ],
   // 百度统计
-  script: [{ src: 'https://hm.baidu.com/hm.js?9c1165af167360b492031753308c3878' }],
+  script: [],
   link: [{ rel: 'shortcut icon', href: 'https://jiang-xia.top/favicon.ico' }],
 });
 </script>
@@ -117,10 +117,7 @@ useHead({
 <template>
   <div class="app-layout gradient-bar">
     <!-- 导航栏 -->
-    <header
-      class="app-layout-header"
-      :class="{ 'app-layout-header__active': scrollTop > 98 }"
-    >
+    <header class="app-layout-header" :class="{ 'app-layout-header__active': scrollTop > 98 }">
       <Nav />
     </header>
     <!-- 路由显示区域 -->
@@ -131,18 +128,11 @@ useHead({
     <footer class="app-layout-footer">
       <p>
         😁 博客已平稳运行 {{ runTime }} 天
-        <a
-          href="https://jiang-xia.top/sitemap.xml"
-          target="_blank"
-          class="link link-hover"
-        >SITEMAP</a>
+        <a href="https://jiang-xia.top/sitemap.xml" target="_blank" class="link link-hover">SITEMAP</a>
         😀
       </p>
       <p>
-        <NuxtLink
-          target="_blank"
-          href="https://beian.miit.gov.cn/#/Integrated/recordQuery"
-        >
+        <NuxtLink target="_blank" href="https://beian.miit.gov.cn/#/Integrated/recordQuery">
           桂ICP备2022001119号-1
         </NuxtLink>
       </p>
@@ -152,11 +142,7 @@ useHead({
     </footer>
     <!-- 回到顶部 -->
     <xia-backtop class="shake-slow">
-      <xia-icon
-        icon="blog-rocket4"
-        width="34px"
-        height="34px"
-      />
+      <xia-icon icon="blog-rocket4" width="34px" height="34px" />
     </xia-backtop>
   </div>
 </template>

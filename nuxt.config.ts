@@ -25,11 +25,20 @@ export default defineNuxtConfig({
     head: {
       link: [
         {
-          rel: 'stylesheet',
+          rel: 'preload',
+          as: 'style',
           href: 'https://cdn.staticfile.org/csshake/1.5.3/csshake.min.css',
+          onload: 'this.rel=\'stylesheet\';',
+          // 需设置rel=stylesheet 不然不是样式,不生效
+          /* rel: 'stylesheet',
+          media: 'print',
+          onload: 'this.media=\'all\'', 另一种方法 */
+          // https://www.filamentgroup.com/lab/load-css-simpler/
         },
       ],
       script: [
+        // 百度统计脚本
+        { defer: true, src: 'https://hm.baidu.com/hm.js?9c1165af167360b492031753308c3878' },
         {
           defer: true,
           src: 'https://cdn.staticfile.net/pdf-lib/1.17.1/pdf-lib.min.js',
