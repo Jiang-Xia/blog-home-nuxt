@@ -81,11 +81,7 @@ if (import.meta.client) {
         <div class="card-body">
           <div class="flex justify-between items-center">
             <h1 class="card-title">
-              <InLetterPullup
-                words="欢 迎 注 册"
-                :delay="0.05"
-                class="text-2xl md:text-2xl lg:text-2xl text-gray-200"
-              />
+              欢 迎 注 册
             </h1>
             <div
               class="avatar btn btn-ghost btn-circle btn-sm"

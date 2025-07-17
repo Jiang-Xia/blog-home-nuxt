@@ -12,16 +12,10 @@
               class="input w-full input-bordered join-item"
               placeholder="text"
             >
-            <button
-              class="btn join-item"
-              @click="createBarcode(1)"
-            >
+            <button class="btn join-item" @click="createBarcode(1)">
               测试
             </button>
-            <button
-              class="btn join-item"
-              @click="createBarcode()"
-            >
+            <button class="btn join-item" @click="createBarcode()">
               生成
             </button>
           </div>
@@ -50,18 +44,13 @@
         </div>
       </div>
       <figure>
-        <vue-qrcode
-          :value="qrcodeVal"
-          :options="options"
-        />
+        <canvas ref="vueQrcode" />
       </figure>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import JsBarcode from 'jsbarcode';
-import VueQrcode from '@chenfengyuan/vue-qrcode';
 import { onBeforeUnmount } from 'vue';
 
 definePageMeta({
@@ -71,6 +60,7 @@ onBeforeUnmount(() => {});
 const getCode = () => 'NO ' + Math.floor(Math.random() * 100000000000).toString();
 const barcodeVal = ref('');
 const qrcodeVal = ref('https://jiang-xia.top');
+const vueQrcode = ref(null);
 const createBarcode = (random?: any) => {
   if (random) {
     barcodeVal.value = getCode();
@@ -85,15 +75,15 @@ const createBarcode = (random?: any) => {
     displayValue: true,
   });
 };
-
-const options = {
-  width: 200,
-  color: {
-    // dark: '#0074d9',
-    // light: '#7fdbff',
-  },
+const createQRCode = () => {
+  const qrcode = QRCode.toCanvas(vueQrcode.value, qrcodeVal.value, (error: any) => {
+    if (error) console.error(error);
+    console.log('success!');
+  });
 };
+
 onMounted(() => {
   createBarcode();
+  createQRCode();
 });
 </script>

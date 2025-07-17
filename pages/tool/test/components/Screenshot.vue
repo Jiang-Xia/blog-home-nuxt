@@ -6,10 +6,7 @@
     <button @click="capture">
       截图
     </button>
-    <div
-      ref="pdfContent"
-      class="pdf-content"
-    >
+    <div ref="pdfContent" class="pdf-content">
       你的内容
     </div>
   </div>
@@ -21,7 +18,6 @@ import { ref } from 'vue';
 const pdfContent = ref(null);
 const capture = async () => {
   try {
-    const html2canvas = (await import('html2canvas')).default;
     console.log(html2canvas, pdfContent.value);
     const canvas = await html2canvas(pdfContent.value, {
       useCORS: true, // 允许跨域图片
@@ -40,8 +36,6 @@ const capture = async () => {
 };
 const generatePdf = async () => {
   if (typeof window !== 'undefined') {
-    const html2canvas = (await import('html2canvas')).default;
-    const html2pdf = (await import('html2pdf.js')).default;
     console.log('html2pdf', pdfContent.value);
     const canvas = await html2canvas(pdfContent.value, {
       scale: 2,

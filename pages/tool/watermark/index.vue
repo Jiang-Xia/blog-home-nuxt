@@ -10,10 +10,7 @@
     </div>
     <section class="m-auto w-full sm:w-3/5 flex flex-col pb-4 items-center">
       <div class="join pb-4 w-full">
-        <select
-          v-model="timeMark"
-          class="select select-bordered join-item"
-        >
+        <select v-model="timeMark" class="select select-bordered join-item">
           <option value="no">
             无时间水印
           </option>
@@ -39,32 +36,19 @@
       <!-- <button class="btn join-item" @click="mergeFileHandle">清空文件</button> -->
     </section>
     <div class="m-auto card bg-base-100 w-full sm:w-3/5 shadow-xl">
-      <span
-        v-if="loading"
-        class="loading loading-dots loading-md bg-accent"
-      />
+      <span v-if="loading" class="loading loading-dots loading-md bg-accent" />
       <div class="card-body p-0 sm:p-4">
         <div>
           <span class="text-sm text-gray-500">瀑布流展示已选照片</span>
           <div class="card-actions justify-end">
-            <button
-              class="btn btn-neutral btn-sm"
-              @click="downloadAllImages"
-            >
+            <button class="btn btn-neutral btn-sm" @click="downloadAllImages">
               下载所有图片
             </button>
           </div>
         </div>
         <div class="container mx-auto columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
-          <div
-            v-for="(image, index) in imageSrcList"
-            class="item mb-4"
-            @click="openViewer(index)"
-          >
-            <canvas
-              ref="canvasRefs"
-              class="w-full h-auto rounded-lg"
-            />
+          <div v-for="(image, index) in imageSrcList" class="item mb-4" @click="openViewer(index)">
+            <canvas ref="canvasRefs" class="w-full h-auto rounded-lg" />
           </div>
         </div>
       </div>
@@ -79,7 +63,6 @@
 </template>
 
 <script setup lang="ts">
-import JSZip from 'jszip';
 import { messageDanger } from '@/utils/toast';
 
 const customMark = ref('江夏的图片');

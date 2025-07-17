@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
-import Konva from 'konva';
-import ExifReader from 'exifreader';
 
 const props = defineProps({
   src: {
@@ -334,11 +332,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    ref="containerRef"
-    class="photo-frame"
-    :style="{ margin: margin }"
-  />
+  <div ref="containerRef" class="photo-frame" :style="{ margin: margin }" />
 </template>
 
 <style lang="less" scoped>

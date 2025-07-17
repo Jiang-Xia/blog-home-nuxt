@@ -92,11 +92,7 @@ onMounted(() => {
         <!-- <figure><img src="@/assets/images/login/coding3.jpg " alt="注 册" /></figure> -->
         <div class="card-body" autocomplete="off">
           <h1 class="card-title">
-            <InLetterPullup
-              words="欢 迎 登 录"
-              :delay="0.05"
-              class="text-2xl md:text-2xl lg:text-2xl text-gray-200"
-            />
+            欢 迎 登 录
           </h1>
           <div class="form-control">
             <label class="login-label">

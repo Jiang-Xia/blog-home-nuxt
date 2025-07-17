@@ -1,3 +1,28 @@
+const scripts = [
+  // 百度统计脚本
+  { defer: true, src: 'https://hm.baidu.com/hm.js?9c1165af167360b492031753308c3878' },
+  {
+    defer: true,
+    src: 'https://cdn.staticfile.net/pdf-lib/1.17.1/pdf-lib.min.js',
+  },
+  {
+    defer: true,
+    src: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js',
+  },
+  { defer: true, src: 'https://cdn.staticfile.net/jsencrypt/3.3.2/jsencrypt.min.js' },
+  { defer: true, src: 'https://cdn.staticfile.net/jszip/3.10.1/jszip.min.js' },
+  { defer: true, src: 'https://cdn.staticfile.net/jsbarcode/3.11.6/JsBarcode.all.min.js' },
+  { defer: true, src: 'https://cdn.staticfile.net/html2pdf.js/0.10.1/html2pdf.bundle.min.js' },
+  { defer: true, src: 'https://cdn.staticfile.net/html2canvas/1.4.1/html2canvas.min.js' },
+
+  { defer: true, src: 'https://unpkg.com/konva@9/konva.min.js' },
+  { defer: true, src: 'https://unpkg.com/qrcode@1.5.0/build/qrcode.js' },
+  { defer: true, src: 'https://unpkg.com/smooth-signature/dist/index.umd.min.js' },
+
+  { defer: true, src: '/js/cdn/exif-reader.js' },
+  { defer: true, src: '/js/cdn/sm-crypto/sm2.js' },
+];
+
 interface configState {
   iconfonrUrl: string;
   gifError: string;
@@ -18,7 +43,7 @@ const ViteEnv: any = import.meta.env;
 const isEnv = ViteEnv.MODE === 'development';
 let baseUrl: string;
 let adminUrl: string;
-console.warn({ ViteEnv });
+// console.warn({ ViteEnv });
 if (ViteEnv.MODE === 'production') {
   baseUrl = ViteEnv.VITE_NUXT_BASE_URL;
   adminUrl = ViteEnv.VITE_NUXT_ADMIN_URL;
@@ -30,5 +55,5 @@ else {
   baseUrl = ViteEnv.VITE_NUXT_BASE_URL;
   adminUrl = ViteEnv.VITE_NUXT_ADMIN_URL;
 }
-export { baseUrl, adminUrl, isEnv };
+export { baseUrl, adminUrl, isEnv, scripts };
 export default config;

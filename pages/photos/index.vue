@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import JSZip from 'jszip';
 import FilterBorder from './components/FilterBorder.vue';
 import FilterBorderCanvas from './components/FilterBorderCanvas.vue';
 import { messageDanger } from '~~/utils/toast';

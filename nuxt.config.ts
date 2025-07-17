@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import tailwindcss from '@tailwindcss/vite';
+import { scripts } from './config';
 
 const prefixPath: any = process.env.VITE_NUXT_PREFIX_PATH;
 // const configs = Object.keys(process.env)
@@ -36,20 +37,7 @@ export default defineNuxtConfig({
           // https://www.filamentgroup.com/lab/load-css-simpler/
         },
       ],
-      script: [
-        // 百度统计脚本
-        { defer: true, src: 'https://hm.baidu.com/hm.js?9c1165af167360b492031753308c3878' },
-        {
-          defer: true,
-          src: 'https://cdn.staticfile.net/pdf-lib/1.17.1/pdf-lib.min.js',
-        },
-        {
-          defer: true,
-          src: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js',
-        },
-        // { defer: true, src: 'jsencrypt.min.js' },
-        { defer: true, src: 'https://cdn.staticfile.net/jsencrypt/3.3.2/jsencrypt.min.js' },
-      ],
+      script: scripts,
     },
     pageTransition: {
       name: 'scale',

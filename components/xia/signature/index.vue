@@ -22,68 +22,34 @@
         </button>
       </div>
     </div>
-    <div
-      ref="scrollContainer"
-      class="scroll-container"
-    >
-      <div
-        ref="pdfWrap"
-        class="pdf-wrap"
-        :style="{ '--scale-factor': scaleFactor }"
-      >
-        <span
-          v-if="loading"
-          class="loading loading-spinner loading-lg"
-        />
-        <div
-          ref="pdfContainer"
-          class="pdf-container"
-        />
+    <div ref="scrollContainer" class="scroll-container">
+      <div ref="pdfWrap" class="pdf-wrap" :style="{ '--scale-factor': scaleFactor }">
+        <span v-if="loading" class="loading loading-spinner loading-lg" />
+        <div ref="pdfContainer" class="pdf-container" />
       </div>
     </div>
 
-    <div
-      v-show="showSmoothSignatureWrap"
-      class="smoothSignatureWrap"
-    >
+    <div v-show="showSmoothSignatureWrap" class="smoothSignatureWrap">
       <div class="mb-canvas">
         <div class="actions">
-          <button
-            class="btn btn-sm mr-2"
-            @click="handleClear"
-          >
+          <button class="btn btn-sm mr-2" @click="handleClear">
             清除
           </button>
-          <button
-            class="btn btn-sm mr-2"
-            @click="handleUndo"
-          >
+          <button class="btn btn-sm mr-2" @click="handleUndo">
             上一步
           </button>
-          <button
-            class="btn btn-sm mr-2"
-            @click="handleFinish"
-          >
+          <button class="btn btn-sm mr-2" @click="handleFinish">
             完成
           </button>
-          <button
-            class="btn btn-sm mr-2"
-            @click="handleClose"
-          >
+          <button class="btn btn-sm mr-2" @click="handleClose">
             关闭
           </button>
         </div>
-        <canvas
-          ref="smoothSignatureCanvas"
-          class="canvas"
-        />
+        <canvas ref="smoothSignatureCanvas" class="canvas" />
       </div>
     </div>
 
-    <div
-      v-if="!showSmoothSignatureWrap"
-      class="agree-btn"
-    >
+    <div v-if="!showSmoothSignatureWrap" class="agree-btn">
       <span v-if="localSecond">我已同意阅读并同意协议({{ localSecond }}s)</span>
       <button
         v-else
@@ -101,7 +67,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import SmoothSignature from 'smooth-signature';
 import dayjs from 'dayjs';
 import sealLogo from '@/assets/images/logo/person/jiang.png';
 

@@ -1,6 +1,5 @@
 <!-- components/PhotoFrame.vue -->
 <script setup lang="ts">
-import Konva from 'konva';
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 
 const props = defineProps({
@@ -232,10 +231,7 @@ function debounce(fn: Function, delay: number) {
 </script>
 
 <template>
-  <div
-    ref="containerRef"
-    class="konva-container"
-  />
+  <div ref="containerRef" class="konva-container" />
 </template>
 
 <style>

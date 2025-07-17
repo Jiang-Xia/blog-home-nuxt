@@ -28,10 +28,7 @@
               placeholder="模型"
               class="select select-accent select-bordered max-w-xs w-5/6"
             >
-              <option
-                v-for="item in modelList"
-                :value="item.value"
-              >
+              <option v-for="item in modelList" :value="item.value">
                 {{ item.label }}
               </option>
             </select>
@@ -57,24 +54,14 @@
       </div>
       <div class="border-base-300 border-t px-4 py-16">
         <template v-for="(item, index) in chatList">
-          <div
-            v-if="item.role === 'assistant'"
-            class="chat chat-start"
-          >
+          <div v-if="item.role === 'assistant'" class="chat chat-start">
             <div class="chat-image avatar">
               <div class="w-10 rounded-full">
-                <xia-icon
-                  width="30px"
-                  height="30px"
-                  icon="blog-jiqiren"
-                />
+                <xia-icon width="30px" height="30px" icon="blog-jiqiren" />
               </div>
             </div>
             <div class="chat-bubble">
-              <div
-                v-if="model === 'deepseek-reasoner'"
-                class="opacity-50 text-xs mb-3"
-              >
+              <div v-if="model === 'deepseek-reasoner'" class="opacity-50 text-xs mb-3">
                 <p class="font-semibold">
                   深度思考{{ loading ? '中' : '' }}：
                 </p>
@@ -91,10 +78,7 @@
             <!-- <div class="chat-footer opacity-50">Delivered</div> -->
           </div>
 
-          <div
-            v-if="item.role === 'user'"
-            class="chat chat-end"
-          >
+          <div v-if="item.role === 'user'" class="chat chat-end">
             <div class="chat-bubble bg-blue-200 text-accent-content">
               {{ item.content || '' }}
             </div>
@@ -109,15 +93,8 @@
           class="textarea textarea-bordered textarea-md w-3/5"
         />
         <div class="flex items-center">
-          <span
-            v-if="loading"
-            class="loading loading-infinity loading-lg"
-          />
-          <button
-            class="btn btn-neutral ml-2"
-            :disabled="loading"
-            @click="onChange"
-          >
+          <span v-if="loading" class="loading loading-infinity loading-lg" />
+          <button class="btn btn-neutral ml-2" :disabled="loading" @click="onChange">
             发 送
           </button>
         </div>
@@ -216,11 +193,10 @@ const send = () => {
     });
   }
   catch (error) {
+    console.error(error);
     loading.value = false;
   }
 };
-
-onMounted(() => {});
 </script>
 
 <style lang="less" scoped></style>

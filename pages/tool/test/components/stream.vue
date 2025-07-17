@@ -22,7 +22,6 @@
 </template>
 
 <script setup>
-import { SSE } from 'sse.js';
 import { baseUrl } from '~~/config';
 
 const input = ref('');

@@ -118,14 +118,13 @@
 </template>
 
 <script setup lang="ts">
-import { sm2, type CipherMode } from 'sm-crypto';
 import { messageDanger } from '~~/utils/toast';
 
 definePageMeta({
   keepalive: true, // nuxt 默认缓存所有页面
 });
 const keySize = ref(130);
-const cipherMode = ref<CipherMode>(1);
+const cipherMode = ref<number>(1);
 const privateKey = ref('');
 const publicKey = ref('');
 const createKey = () => {
