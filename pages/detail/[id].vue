@@ -6,7 +6,8 @@ import { useScroll } from '@vueuse/core';
 import { getArticleInfo, getComment } from '@/api/article';
 import { updateViews, xBLogStore, updateLikesHandle, formactDate } from '@/utils/common';
 import defaultImg from '@/assets/images/create.webp';
-import { type tocInter, isTrueCoverLink } from '@/utils';
+import { isTrueCoverLink } from '@/utils';
+import type { tocInter } from '@/utils';
 import Qie from '@/assets/images/animal/qie.svg';
 import { SiteTitle } from '@/utils/constant';
 
@@ -159,10 +160,7 @@ useHead({
           <p class="detail inline-flex items-center justify-center">
             <xia-icon icon="blog-category" />
             {{ ArticleInfo.category.label }}
-            <xia-icon
-              class="ml-3"
-              icon="blog-tag"
-            />
+            <xia-icon class="ml-3" icon="blog-tag" />
             {{ tagLabel }}
           </p>
           <p class="detail flex items-center justify-center">
@@ -186,10 +184,7 @@ useHead({
         </div>
       </div>
     </section>
-    <div
-      ref="mainViewArea"
-      class="main-view-area w-full xl:w-4/5"
-    >
+    <div ref="mainViewArea" class="main-view-area w-full xl:w-4/5">
       <section class="main-content rounded-lg max-w-full p-3">
         <section class="module-wrap__detail article-info">
           <div class="flex items-center">
@@ -202,21 +197,14 @@ useHead({
               <span class="text-color font-bold">{{ ArticleInfo.userInfo.nickname }}</span>
             </div>
             <div class="dropdown dropdown-bottom ml-6">
-              <div
-                tabindex="0"
-                role="button"
-                class="btn m-1 btn-neutral"
-              >
+              <div tabindex="0" role="button" class="btn m-1 btn-neutral">
                 主 题
               </div>
               <ul
                 tabindex="0"
                 class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
               >
-                <li
-                  v-for="item of themeList"
-                  @click="previewThemeChange(item)"
-                >
+                <li v-for="item of themeList" @click="previewThemeChange(item)">
                   <a>{{ item }}</a>
                 </li>
               </ul>

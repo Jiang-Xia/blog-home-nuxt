@@ -19,8 +19,8 @@ const scripts = [
   { defer: true, src: 'https://unpkg.com/qrcode@1.5.0/build/qrcode.js' },
   { defer: true, src: 'https://unpkg.com/smooth-signature/dist/index.umd.min.js' },
 
-  { defer: true, src: '/js/cdn/exif-reader.js' },
-  { defer: true, src: '/js/cdn/sm-crypto/sm2.js' },
+  { defer: true, src: '/js/cdn/exif-reader.min.js' },
+  { defer: true, src: '/js/cdn/sm-crypto/sm2.min.js' },
 ];
 
 interface configState {

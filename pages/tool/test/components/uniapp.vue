@@ -12,7 +12,7 @@ onMounted(() => {
   /* 注意引用顺序先微信sdk在uni-sdk */
   const url2 = 'https://res.wx.qq.com/open/js/jweixin-1.4.0.js';
   // const url = 'https://gitcode.net/dcloud/uni-app/-/raw/dev/dist/uni.webview.1.5.6.js';
-  const url = '/js/uni.webview.js';
+  const url = '/js/uni.webview.min.js';
 
   createScript(url2);
   createScript(url);

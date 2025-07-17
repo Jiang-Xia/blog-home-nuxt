@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, type PropType, ref } from 'vue';
+import { computed, ref } from 'vue';
+import type { PropType } from 'vue';
 import { useRoute } from 'vue-router';
 import { beforeTimeNow } from '@/utils';
 import { addComment, addReply, delComment, delReply } from '@/api/article';

@@ -8,26 +8,26 @@
 import { useMouse, useDevicePixelRatio } from '@vueuse/core';
 import { ref, onMounted, onBeforeUnmount, watch, computed, reactive } from 'vue';
 
-  type Circle = {
-    x: number;
-    y: number;
-    translateX: number;
-    translateY: number;
-    size: number;
-    alpha: number;
-    targetAlpha: number;
-    dx: number;
-    dy: number;
-    magnetism: number;
-  };
+type Circle = {
+  x: number;
+  y: number;
+  translateX: number;
+  translateY: number;
+  size: number;
+  alpha: number;
+  targetAlpha: number;
+  dx: number;
+  dy: number;
+  magnetism: number;
+};
 
-  type Props = {
-    color?: string;
-    quantity?: number;
-    staticity?: number;
-    ease?: number;
-    class?: string;
-  };
+type Props = {
+  color?: string;
+  quantity?: number;
+  staticity?: number;
+  ease?: number;
+  class?: string;
+};
 
 const props = withDefaults(defineProps<Props>(), {
   color: '#FFF',

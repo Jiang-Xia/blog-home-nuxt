@@ -55,14 +55,14 @@
 <script lang="ts" setup>
 import { cn } from '@/lib/utils';
 
-  type ShimmerButtonProps = {
-    shimmerColor?: string;
-    shimmerSize?: string;
-    borderRadius?: string;
-    shimmerDuration?: string;
-    background?: string;
-    class?: string;
-  };
+type ShimmerButtonProps = {
+  shimmerColor?: string;
+  shimmerSize?: string;
+  borderRadius?: string;
+  shimmerDuration?: string;
+  background?: string;
+  class?: string;
+};
 
 withDefaults(defineProps<ShimmerButtonProps>(), {
   shimmerColor: '#ffffff',
