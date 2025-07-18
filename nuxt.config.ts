@@ -60,6 +60,11 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-14',
   // 此文件只能用process
   nitro: {
+    output: {
+      // dir: '', // 这个是配置总的输出路径
+      // serverDir: '.output/server',
+      // publicDir: '.output/public',
+    },
     // 配置代理
     devProxy: {
       [prefixPath]: {

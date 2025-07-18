@@ -1,0 +1,13 @@
+
+services:
+  sever:
+    image: home
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: development
+    ports:
+      - 5050:5050
+      - 9300:9300
+    command: ["node", "--inspect=0.0.0.0:9300", "index.js"]
