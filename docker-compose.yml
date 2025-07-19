@@ -8,16 +8,8 @@ services:
       NODE_ENV: production
     ports:
       - 5050:3000
-  nginx:
-    image: nginx
-    build:
-      context: ./
-    volumes:
-      - ./public:/etc/nginx/templates
-    environment:
-      NODE_ENV:  production
-      NGINX_HOST: foobar.com
-      NGINX_PORT: 80
-
-    ports:
-      - 8081:80
+    networks:
+      - frontend-networks
+networks:
+  frontend-networks:
+    external: true

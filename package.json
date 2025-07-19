@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build --dotenv .env.production",
+    "build:docker": "nuxt build --dotenv .env.docker.production",
     "build:test": "nuxt build --dotenv .env.test",
     "build:report": "nuxt analyze",
     "dev": "nuxt dev --port 5050 --dotenv .env.development",
