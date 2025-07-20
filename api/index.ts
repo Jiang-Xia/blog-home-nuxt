@@ -3,7 +3,7 @@ import * as tag from './tag';
 import * as category from './category';
 import * as tool from './tool';
 import request from '~~/api/request.js';
-
+import { originUrl } from '~/config';
 // 获取用户信息
 export const getUserInfo = async (): Promise<userInfoState> => {
   const data: any = await request.get('/user/info');
@@ -20,7 +20,7 @@ export const getUserInfo = async (): Promise<userInfoState> => {
 // 古诗词
 export const gushici = async () => {
   return await request
-    .http('https://jiang-xia.top/x-zone/api/v1/third/gushici', {
+    .http(originUrl + '/x-zone/api/v1/third/gushici', {
       method: 'GET',
     })
     .then(res => res.data);

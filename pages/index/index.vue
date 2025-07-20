@@ -9,14 +9,11 @@ useHead({
   titleTemplate: title => `${title} - ${SiteTitle}`,
 });
 // 古诗词
+// const { data: gushiciData, } = await useAsyncData('gushici_Get', () => gushici())
 const gushiciData = ref<any>({});
-try {
-  const { data } = await useAsyncData('gushici_Get', () => gushici());
-  gushiciData.value = data.value;
-}
-catch (error) {
-  console.log(error);
-}
+gushici().then((res) => {
+  gushiciData.value = res;
+});
 
 // 下一页
 const goToNextPage = () => {

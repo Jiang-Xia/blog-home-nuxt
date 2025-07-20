@@ -18,13 +18,13 @@ import Delay from './components/Delay.vue';
 import Stream from './components/stream.vue';
 import Screenshot from './components/Screenshot.vue';
 import uniapp from './components/uniapp.vue';
+import { originUrl, apiPrefix } from '~/config';
 
 const theme = useTheme();
-const pic
-    = 'https://jiang-xia.top/x-blog/api/v1/static/uploads/2023-03/ubul73p9bipisom18lvt12-react.webp';
-  // watch(() => theme.value, () => {
-  //   console.log('watch========》', theme.value)
-  // })
+const pic = originUrl + apiPrefix + '/static/uploads/2023-03/ubul73p9bipisom18lvt12-react.webp';
+// watch(() => theme.value, () => {
+//   console.log('watch========》', theme.value)
+// })
 const loaded = ref(false);
 onMounted(() => {
   loaded.value = true;

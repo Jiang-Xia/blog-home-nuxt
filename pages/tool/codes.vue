@@ -52,6 +52,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount } from 'vue';
+import { originUrl } from '~/config';
 
 definePageMeta({
   keepalive: true, // nuxt 默认缓存所有页面
@@ -59,7 +60,7 @@ definePageMeta({
 onBeforeUnmount(() => {});
 const getCode = () => 'NO ' + Math.floor(Math.random() * 100000000000).toString();
 const barcodeVal = ref('');
-const qrcodeVal = ref('https://jiang-xia.top');
+const qrcodeVal = ref(originUrl);
 const vueQrcode = ref(null);
 const createBarcode = (random?: any) => {
   if (random) {

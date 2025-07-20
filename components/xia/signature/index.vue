@@ -203,7 +203,6 @@ const reloadPdf = async (pdfData = props.pdfSrc) => {
 const editPdf = async () => {
   const PDFDocument = PDFLib.PDFDocument;
   // showToast.loading('加载中')
-  // const fontBytes = await fetch('https://jiang-xia.top/x-blog/api/v1/static/uploads/2023-12/ga0hqzh5lek2ntyxtzebx0-华文中宋.ttf').then((res) => res.arrayBuffer())
   const pdfBuffer = await fetch(props.pdfSrc).then(res => res.arrayBuffer());
   const pdfDoc = await PDFDocument.load(pdfBuffer);
   // pdfDoc.registerFontkit(fontkit)

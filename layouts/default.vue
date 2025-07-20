@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
 import { throttle } from '@/utils';
 import { dailyImage } from '~~/api/article.js';
+import { originUrl } from '~/config';
 
 /* 获取全局banner数据 */
 const banners = useBanners();
@@ -110,7 +111,7 @@ useHead({
   ],
   // 百度统计
   script: [],
-  link: [{ rel: 'shortcut icon', href: 'https://jiang-xia.top/favicon.ico' }],
+  link: [{ rel: 'shortcut icon', href: originUrl + '/favicon.ico' }],
 });
 </script>
 
@@ -128,7 +129,7 @@ useHead({
     <footer class="app-layout-footer">
       <p>
         😁 博客已平稳运行 {{ runTime }} 天
-        <a href="https://jiang-xia.top/sitemap.xml" target="_blank" class="link link-hover">SITEMAP</a>
+        <a :href="originUrl + '/sitemap.xml'" target="_blank" class="link link-hover">SITEMAP</a>
         😀
       </p>
       <p>

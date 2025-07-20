@@ -81,11 +81,11 @@
 </template>
 
 <script setup lang="ts">
-import { adminUrl } from '@/config';
+import { adminUrl, originUrl } from '@/config';
 
 const token = useToken();
 const goUrl = `${adminUrl}?ticket=${token.value}`;
-const zoneUrl = 'https://jiang-xia.top/zone/#/';
+const zoneUrl = originUrl + '/zone/#/';
 const goTargetPage = (type: number) => {
   let url = '';
   if (type === 1) {

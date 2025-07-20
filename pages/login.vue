@@ -66,11 +66,6 @@ const changeAuthCode = () => {
   authCodeUrl.value = codeUrl + '?t=' + new Date().getTime();
 };
 changeAuthCode();
-// const counter = useMainStore()
-// const videoUrl = 'https://jiang-xia.top/x-zone/api/v1/public/uploads/2023-05/赛博朋克.mp4'
-// const posterUrl = 'https://jiang-xia.top/x-zone/api/v1/public/uploads/2023-05/赛博朋克-封面.jpg'
-// const posterUrl2 = 'https://jiang-xia.top/x-zone/api/v1/public/uploads/2023-05/神经细胞-封面.jpg'
-// const videoUrl2 = ref('https://jiang-xia.top/x-zone/api/v1/public/uploads/2023-05/神经细胞.mp4')
 // viedeo静音了(muted=true)才能自动播放
 const isPcClient = ref(false);
 if (import.meta.client) {

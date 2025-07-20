@@ -3,6 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { scripts } from './config';
 
 const prefixPath: any = process.env.VITE_NUXT_PREFIX_PATH;
+const baseUrl: any = process.env.VITE_NUXT_ORIGIN_URL || '' + process.env.VITE_NUXT_API_PREINX;
 // const configs = Object.keys(process.env)
 //   .filter(k => k.toLocaleUpperCase().includes('VITE'))
 //   .map((k) => {
@@ -21,7 +22,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/ui',
   ],
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   app: {
     head: {
       link: [
@@ -68,7 +69,7 @@ export default defineNuxtConfig({
     // 配置代理
     devProxy: {
       [prefixPath]: {
-        target: process.env.VITE_NUXT_BASE_URL,
+        target: baseUrl,
         changeOrigin: true,
         rewrite: (path: string) => path.replace(new RegExp(`^${prefixPath}`), ''),
       },
