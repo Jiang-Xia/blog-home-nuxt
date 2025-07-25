@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 overflow-hidden">
+  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
     <div class="text-center pb-4 text-gray-950">
       <h2 class="text-xl">
         批量加水印工具

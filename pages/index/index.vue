@@ -8,12 +8,21 @@ useHead({
   title: '文章列表',
   titleTemplate: title => `${title} - ${SiteTitle}`,
 });
-// 古诗词
-// const { data: gushiciData, } = await useAsyncData('gushici_Get', () => gushici())
-const gushiciData = ref<any>({});
-gushici().then((res) => {
-  gushiciData.value = res;
-});
+interface GushiciData {
+  content?: string;
+  author?: string;
+  origin?: string;
+}
+
+const gushiciData = ref<GushiciData>({});
+
+try {
+  const { data } = await useAsyncData('gushici_Get', () => gushici());
+  gushiciData.value = data.value || {};
+}
+catch (error) {
+  console.log(error);
+}
 
 // 下一页
 const goToNextPage = () => {
@@ -36,7 +45,7 @@ const goToNextPage = () => {
             {{ gushiciData.content }}
           </p>
           <br>
-          <p class="author-info">
+          <p v-if="gushiciData.author" class="author-info">
             {{ gushiciData.author }}-[{{ gushiciData.origin }}]
           </p>
         </div>

@@ -1,39 +1,33 @@
 <template>
-  <div class="p-4">
+  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
     <div class="flex justify-between items-center flex-col sm:flex-row">
       <div class="mt-4 card w-full bg-base-100 shadow-xl border border-base-300">
         <div class="card-body">
           <h2 class="card-title">
-            秘钥
+            秘钥设置
           </h2>
-          <div class="join flex justify-center :flex-nowrap w-full">
+          <div class="flex justify-center :flex-nowrap w-full">
             <select
               v-model="encryption"
               placeholder="加密方式"
-              class="select select-accent select-bordered join-item"
+              class="select select-bordered max-w-44 mr-2"
             >
-              <option
-                v-for="item in encryptionList"
-                :value="item.value"
-              >
+              <option v-for="item in encryptionList" :value="item.value">
                 {{ item.label }}
               </option>
             </select>
             <input
               v-model="secretKey"
-              class="w-2/5 input input-bordered input-accent join-item"
+              class="input input-bordered flex-1 mr-2"
               placeholder="秘钥"
             >
             <input
               v-model="offset"
-              class="w-2/5 input input-bordered input-accent max-w-xs join-item"
+              class="input input-bordered max-w-44 mr-2"
               placeholder="偏移量"
             >
-            <button
-              class="btn btn-outline btn-accent join-item"
-              @click="createKey"
-            >
-              生成秘钥
+            <button class="btn btn-soft btn-success max-w-44" @click="createKey">
+              <xia-icon icon="blog-quanxian" /> 生成秘钥
             </button>
           </div>
         </div>
@@ -49,15 +43,16 @@
           <textarea
             v-model="plaintext"
             placeholder="原文"
-            class="min-h-44 text-xs textarea textarea-bordered textarea-lg w-full"
+            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
           />
         </div>
       </div>
-      <div class="join join-vertical w-28 m-2">
+      <div class="w-36 m-2 flex flex-col">
         <select
           v-model="outputType"
           placeholder="密文输出类型"
-          class="select select-info select-bordered w-full max-w-xs join-item"
+          class="select w-36 mb-2"
+          @change="ciphertext = ''"
         >
           <option value="Hex">
             Hex
@@ -66,17 +61,11 @@
             Base64
           </option>
         </select>
-        <button
-          class="btn btn-outline btn-info join-item"
-          @click="encrypted"
-        >
-          {{ '加密==>' }}
+        <button class="btn btn-soft btn-success w-36 mb-2" @click="encrypted">
+          <xia-icon icon="blog-suoding" /> 加密原文
         </button>
-        <button
-          class="btn btn-outline btn-info join-item"
-          @click="decrypt"
-        >
-          {{ '<==解密' }}
+        <button class="btn btn-soft btn-success w-36 mb-2" @click="decrypt">
+          <xia-icon icon="blog-jiesuo" /> 解密密文
         </button>
       </div>
       <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
@@ -87,7 +76,7 @@
           <textarea
             v-model="ciphertext"
             placeholder="密文"
-            class="min-h-44 text-xs textarea textarea-bordered textarea-lg w-full"
+            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
           />
         </div>
       </div>

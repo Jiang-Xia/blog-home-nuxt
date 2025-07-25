@@ -10,6 +10,7 @@ import '@/styles/index.less';
 import './utils/editor-config';
 import { fnTextPopup } from './utils/plugins';
 
+const { initTheme } = useThemeActions();
 onMounted(() => {
   fnTextPopup([
     '富强',
@@ -25,5 +26,6 @@ onMounted(() => {
     '诚信',
     '友善',
   ]);
+  initTheme(); // 这里会自动读取本地主题并设置
 });
 </script>

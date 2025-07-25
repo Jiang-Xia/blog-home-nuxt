@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4">
+  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
     <div class="flex justify-between items-center flex-col sm:flex-row">
       <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
         <div class="card-body">
@@ -9,12 +9,12 @@
           <textarea
             v-model="privateKey"
             placeholder="Private Key"
-            class="min-h-44 text-xs textarea textarea-bordered textarea-lg w-full"
+            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
           />
         </div>
       </div>
 
-      <div class="join join-vertical w-28 m-2">
+      <div class="join join-vertical w-36 m-2">
         <select
           v-model="keySize"
           placeholder="公钥长度"
@@ -28,7 +28,7 @@
           </option>
         </select>
         <button class="btn btn-outline btn-accent join-item" @click="createKey">
-          生成秘钥
+          <xia-icon icon="blog-quanxian" /> 生成秘钥
         </button>
       </div>
 
@@ -40,7 +40,7 @@
           <textarea
             v-model="publicKey"
             placeholder="Public Key"
-            class="min-h-44 text-xs textarea textarea-bordered textarea-lg w-full"
+            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
           />
         </div>
       </div>
@@ -55,11 +55,11 @@
           <textarea
             v-model="plaintext"
             placeholder="原文"
-            class="min-h-44 text-xs textarea textarea-bordered textarea-lg w-full"
+            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
           />
         </div>
       </div>
-      <div class="join join-vertical w-28 m-2">
+      <div class="join join-vertical w-36 m-2">
         <select
           v-model="cipherMode"
           placeholder="密文数据顺序"
@@ -73,10 +73,10 @@
           </option>
         </select>
         <button class="btn btn-outline btn-info join-item" @click="encrypted">
-          {{ '加密==>' }}
+          <xia-icon icon="blog-suoding" /> 加密原文
         </button>
         <button class="btn btn-outline btn-info join-item" @click="decrypt">
-          {{ '<==解密' }}
+          <xia-icon icon="blog-jiesuo" /> 解密密文
         </button>
       </div>
       <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
@@ -87,7 +87,7 @@
           <textarea
             v-model="ciphertext"
             placeholder="密文"
-            class="min-h-44 text-xs textarea textarea-bordered textarea-lg w-full"
+            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
           />
         </div>
       </div>

@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="card bg-base-100 shadow-xl mx-4 rounded-xl mb-4">
+  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
+    <div class="card bg-base-100 shadow-xl mx-auto rounded-xl mb-4">
       <div class="card-body">
         <h2 class="card-title">
           参数配置
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <div class="mockup-browser border-base-300 border mx-4">
+    <div class="mockup-browser border-base-300 border mx-auto">
       <div class="mockup-browser-toolbar">
         <div class="input border-base-300 border">
           {{ model }}

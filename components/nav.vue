@@ -15,6 +15,7 @@ import { throttle } from '~~/utils';
 import api from '@/api';
 import { adminUrl } from '@/config';
 import { TokenKey, RefreshTokenKey, getToken, removeToken } from '@/utils/cookie';
+import { useThemeActions } from '@/composables/use-home';
 
 const navList = ref([
   {
@@ -25,27 +26,27 @@ const navList = ref([
   {
     path: '/archives',
     title: '归档',
-    icon: 'blog-guidang',
+    icon: 'blog-guidang2',
   },
   {
     path: '/links',
     title: '友链',
-    icon: 'blog-lianjie',
+    icon: 'blog-youlian',
   },
   {
     path: '/msgboard',
     title: '留言板',
-    icon: 'blog-liuyanguanli',
+    icon: 'blog-liuyanban3',
   },
   {
     path: '/about',
     title: '关于',
-    icon: 'blog-about',
+    icon: 'blog-about2',
   },
   {
     path: '/projects',
     title: '项目',
-    icon: 'blog-xiangmu',
+    icon: 'blog-xiangmu3',
   },
   {
     path: '/tool',
@@ -56,60 +57,16 @@ const navList = ref([
 
 const token = useToken();
 const userInfo = useUserInfo();
-// init()
-/* 切换主题 开始 */
-// 要监听变化得useTheme使用
-const theme = useTheme();
-const followOs = () => {
-  const bool = matchMedia('(prefers-color-scheme: dark)').matches;
-  if (bool) {
-    theme.value = 'dark';
-  }
-  else {
-    theme.value = 'light';
-  }
-  setTheme();
-};
-const setTheme = () => {
-  const type: string = theme.value;
-  document.documentElement.className = type;
-  document.documentElement.setAttribute('data-theme', type);
-  localStorage.setItem('theme', type);
-};
-if (import.meta.client) {
-  // 监听系统主题变化
-  const match = matchMedia('(prefers-color-scheme: dark)');
-  match.addEventListener('change', followOs);
-  // console.log('match========》', match)
-}
-// 副作用函数
-// watchEffect(() => {
-//   if (import.meta.client) {
-//     setTheme();
-//   }
-// });
+// 主题相关逻辑重构
+const { theme, clickIcon, initTheme } = useThemeActions();
+
 onMounted(() => {
   document.addEventListener('click', () => {
     checked.value = false;
   });
-  const localTheme = localStorage.getItem('theme');
-  if (localTheme) {
-    theme.value = localTheme;
-  }
-  setTheme();
+  initTheme();
 });
-// 点击icon直接切换
-const clickIcon = () => {
-  if (theme.value === 'light') {
-    theme.value = 'dark';
-  }
-  else {
-    theme.value = 'light';
-  }
-  setTheme();
-  // console.log('setTheme========》', theme.value)
-};
-  /* 切换主题 结束 */
+/* 切换主题 结束 */
 
 /* 搜索文章 */
 

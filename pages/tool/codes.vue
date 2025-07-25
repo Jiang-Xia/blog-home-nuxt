@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 flex flex-wrap justify-around">
+  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100 flex flex-wrap justify-around">
     <div class="mt-4 card w-96 bg-base-100 shadow-xl border border-base-300">
       <div class="card-body">
         <h2 class="card-title">

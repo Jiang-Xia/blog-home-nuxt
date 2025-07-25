@@ -96,13 +96,13 @@ const exportAll = () => {
     for (const item of blobUrlList.value) {
       const blob = await fetch(item.blobUrl).then(res => res.blob());
       console.log(blob);
-      const folder = zip.folder('images') as JSZip;
+      const folder = zip.folder('images'); // 创建一个文件夹
       folder.file(`图片-${index + 1}.png`, blob, { base64: true });
       index++;
     }
     // console.log('index', index);
     // 生成并下载zip文件
-    zip.generateAsync({ type: 'blob' }).then(function (content) {
+    zip.generateAsync({ type: 'blob' }).then(function (content: any) {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(content);
       link.download = 'images.zip';

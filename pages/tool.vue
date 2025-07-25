@@ -1,5 +1,20 @@
 <template>
   <div class="padding-top-bar xia-page">
+    <div class="absolute inset-0 z-10" style="height: 104px">
+      <InFlickeringGrid
+        class="relative inset-0 z-0 [mask-image:radial-gradient(650px_circle_at_center,white,transparent)]"
+        :square-size="4"
+        :grid-gap="6"
+        color="#4ba6c6"
+        :max-opacity="0.5"
+        :flicker-chance="0.1"
+      />
+      <xia-icon
+        class="cursor-pointer px-3 absolute right-2 top-10 text-white"
+        :icon="'blog-' + theme"
+        @click="clickIcon"
+      />
+    </div>
     <div class="pt-4 px-4">
       <ul class="flex flex-wrap justify-center md:justify-start">
         <li v-for="item in menuList" :key="item.path" class="li-item mr-2 mb-2">
@@ -22,6 +37,10 @@ import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { LinkItem } from './tool/components/LinkItem';
 
+definePageMeta({
+  layout: 'custom', // 不使用default布局
+});
+const { theme, clickIcon } = useThemeActions();
 const route = useRoute();
 const dataList = [
   {
@@ -96,6 +115,7 @@ const menuList = ref(dataList);
 <style lang="less" scoped>
   .xia-page {
     padding-top: 104px;
+    padding-bottom: 24px;
     .li-item {
     }
     .tool-children-pages {
@@ -104,5 +124,7 @@ const menuList = ref(dataList);
     .router-link-active {
       border: none;
     }
+    background: var(--main-bgc) !important;
+    color: var(--text-color) !important;
   }
 </style>
