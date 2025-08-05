@@ -10,7 +10,7 @@ export default defineNuxtModule({
     name: 'sitemap',
     version: '0.0.1',
     configKey: 'sitemap',
-    compatibility: { nuxt: '^3.0.0' },
+    compatibility: { nuxt: '^4.0.0' },
   },
   defaults: {
     hostname: 'http://localhost:5050',

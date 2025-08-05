@@ -6,7 +6,7 @@ export default defineNuxtModule({
     name: 'inspria-ui',
     configKey: 'inspria',
     version: '0.0.1',
-    compatibility: { nuxt: '^3.0.0' },
+    compatibility: { nuxt: '^4.0.0' },
   },
   setup() {
     const path = resolve('./lib/ui');
