@@ -1,5 +1,5 @@
 // 读取外部脚本(外部库)
-importScripts('https://cdn.jsdelivr.net/npm/spark-md5@3.0.2/spark-md5.min.js');
+importScripts('https://cdn.staticfile.net/spark-md5/3.0.2/spark-md5.min.js');
 const ChunkSize = 2097152; // 131072 // 2097152
 // 创建切片
 const createChunks = ({ file, chunkSize = ChunkSize }) => {
