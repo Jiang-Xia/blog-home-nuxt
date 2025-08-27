@@ -61,7 +61,7 @@ setArticleData();
 //   await refresh()
 //   setArticleData()
 // })
-updateViews(params.id);
+updateViews(params.id as string);
 
 const getTagLabel = (arr: any): string => {
   const text = arr.map((v: any) => v.label).join();
@@ -238,6 +238,8 @@ useHead({
         </div>
       </aside>
     </div>
+    <!-- 阅读进度环 -->
+    <ReadingProgressRing position="top-right" :auto-hide="true" style="top: 70px" />
   </div>
 </template>
 
