@@ -37,7 +37,7 @@ const scripts = [
   { defer: true, src: 'https://cdn.staticfile.net/html2canvas/1.4.1/html2canvas.min.js' },
 
   { defer: true, src: 'https://unpkg.com/konva@9/konva.min.js' },
-  { defer: true, src: 'https://unpkg.com/qrcode@1.5.0/build/qrcode.js' },
+  { defer: true, src: 'https://cdn.staticfile.net/qrcodejs/1.0.0/qrcode.min.js' },
   { defer: true, src: 'https://unpkg.com/smooth-signature/dist/index.umd.min.js' },
 
   { defer: true, src: '/js/cdn/exif-reader.min.js' },
