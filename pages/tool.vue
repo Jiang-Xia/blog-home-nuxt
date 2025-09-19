@@ -15,7 +15,34 @@
         @click="clickIcon"
       />
     </div>
-    <div class="pt-4 px-4">
+
+    <!-- 小屏时的下拉选择器 -->
+    <div class="p-4 bg-base-100 md:hidden mb-4">
+      <div class="dropdown w-full">
+        <button tabindex="0" class="btn btn-soft btn-success w-full justify-start">
+          <xia-icon :icon="selectedTool?.icon || 'blog-tool'" class="mr-2" />
+          <span>{{ selectedTool?.title || '选择工具' }}</span>
+        </button>
+        <ul
+          tabindex="0"
+          class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow"
+        >
+          <li v-for="item in menuList" :key="item.path">
+            <NuxtLink
+              :to="item.path"
+              class="flex items-center"
+              :class="{ active: item.path === route.path }"
+            >
+              <xia-icon :icon="item.icon" class="mr-2" />
+              <span>{{ item.title }}</span>
+            </NuxtLink>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 大屏时的水平工具列表 -->
+    <div class="pt-4 px-4 hidden md:block">
       <ul class="flex flex-wrap justify-center md:justify-start">
         <li v-for="item in menuList" :key="item.path" class="li-item mr-2 mb-2">
           <XiaButtonBorder v-if="item.path === route.path" :animation-duration="1" rx="8">
@@ -33,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { LinkItem } from './tool/components/LinkItem';
 
@@ -120,20 +147,26 @@ const dataList = [
   },
 ];
 const menuList = ref(dataList);
+
+// 计算当前选中的工具
+const selectedTool = computed(() => {
+  return menuList.value.find(item => item.path === route.path);
+});
 </script>
 
 <style lang="less" scoped>
   .xia-page {
     padding-top: 104px;
     padding-bottom: 24px;
-    .li-item {
-    }
+
     .tool-children-pages {
-      // min-height: 60vh
+      min-height: 60vh;
     }
+
     .router-link-active {
       border: none;
     }
+
     background: var(--main-bgc) !important;
     color: var(--text-color) !important;
   }
