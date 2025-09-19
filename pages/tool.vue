@@ -104,9 +104,19 @@ const dataList = [
     icon: 'blog-AI',
   },
   {
+    path: '/tool/ai-summary',
+    title: 'AI文章摘要',
+    icon: 'blog-zhaiyao2',
+  },
+  {
     path: '/photos',
     title: '摄影',
     icon: 'blog-xiangji',
+  },
+  {
+    path: '/',
+    title: '首页',
+    icon: 'blog-fanhui2',
   },
 ];
 const menuList = ref(dataList);

@@ -168,3 +168,15 @@ body {
 .pointer-events-none {
   pointer-events: none;
 }
+// 修复编辑器样式被覆盖
+.x-md-editor {
+  menu {
+    list-style: initial;
+  }
+  ol {
+    list-style: decimal;
+  }
+  ul {
+    list-style: disc;
+  }
+}

@@ -1,6 +1,6 @@
 let showMsgLoading = false;
 export const messageDanger = (msg: string, duration = 1000) => {
-  console.log('危险提示!');
+  // console.log('危险提示!');
   if (showMsgLoading) {
     return;
   }

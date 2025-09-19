@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2025-05-22 11:21:03
+ * @LastEditTime: 2025-08-27 11:02:20
  * @Description:
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -52,6 +52,11 @@ const navList = ref([
     path: '/tool',
     title: '工具箱',
     icon: 'blog-tool',
+  },
+  {
+    path: '/features',
+    title: '特色',
+    icon: 'blog-gongneng',
   },
 ]);
 

@@ -37,7 +37,7 @@ const scripts = [
   { defer: true, src: 'https://cdn.staticfile.net/html2canvas/1.4.1/html2canvas.min.js' },
 
   { defer: true, src: 'https://unpkg.com/konva@9/konva.min.js' },
-  { defer: true, src: 'https://unpkg.com/qrcode@1.5.0/build/qrcode.js' },
+  { defer: true, src: 'https://cdn.staticfile.net/qrcodejs/1.0.0/qrcode.min.js' },
   { defer: true, src: 'https://unpkg.com/smooth-signature/dist/index.umd.min.js' },
 
   { defer: true, src: '/js/cdn/exif-reader.min.js' },
@@ -52,7 +52,7 @@ interface configState {
 const config: configState = {
   // 阿里巴巴图标库链接，新添加图标需要重新生成 css 改成js
   // 新增图标记得批量去色，不然修改不了图标颜色
-  iconfonrUrl: '//at.alicdn.com/t/c/font_3114416_oja2a9qu3as.js',
+  iconfonrUrl: '//at.alicdn.com/t/c/font_3114416_wbili8b9pa.js',
   // 500 error页动图
   gifError:
     originUrl + '/x-api/blog-server/static/uploads/2022-09-12/nm2t4fs18ix5ld2w6g1j1b-error.gif',

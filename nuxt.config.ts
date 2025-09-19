@@ -53,6 +53,7 @@ export default defineNuxtConfig({
   },
   build: {
     // 打包配置
+    transpile: ['md-editor-v3'], // 预编译大型依赖
   },
   devServer: {
     // 证书安装 https://zhuanlan.zhihu.com/p/678165318
@@ -79,9 +80,25 @@ export default defineNuxtConfig({
       gzip: false,
       brotli: false,
     },
+    // 优化 Nitro 构建
+    minify: true,
+    sourceMap: false, // 生产环境关闭 sourceMap
   },
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      minify: 'esbuild',
+      // 优化构建性能
+      target: 'esnext',
+    },
+    // 优化依赖预构建
+    optimizeDeps: {
+      include: ['md-editor-v3', 'crypto-js'],
+    },
+    // 减少不必要的处理
+    css: {
+      devSourcemap: false,
+    },
   },
   eslint: {
     config: {

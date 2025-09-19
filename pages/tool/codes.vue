@@ -37,14 +37,14 @@
               class="input w-full input-bordered join-item"
               placeholder="text"
             >
-            <button class="btn join-item">
+            <button class="btn join-item" @click="createQRCode">
               生成
             </button>
           </div>
         </div>
       </div>
-      <figure>
-        <canvas ref="vueQrcode" />
+      <figure class="h-44">
+        <div ref="vueQrcode" />
       </figure>
     </div>
   </div>
@@ -62,6 +62,7 @@ const getCode = () => 'NO ' + Math.floor(Math.random() * 100000000000).toString(
 const barcodeVal = ref('');
 const qrcodeVal = ref(originUrl);
 const vueQrcode = ref(null);
+let qrcode: any = null;
 const createBarcode = (random?: any) => {
   if (random) {
     barcodeVal.value = getCode();
@@ -77,14 +78,20 @@ const createBarcode = (random?: any) => {
   });
 };
 const createQRCode = () => {
-  const qrcode = QRCode.toCanvas(vueQrcode.value, qrcodeVal.value, (error: any) => {
-    if (error) console.error(error);
-    console.log('success!');
-  });
+  qrcode.clear(); // clear the code.
+  qrcode.makeCode(qrcodeVal.value);
 };
 
 onMounted(() => {
   createBarcode();
-  createQRCode();
+  qrcode = new QRCode(vueQrcode.value, {
+    text: qrcodeVal.value,
+    width: 128,
+    height: 128,
+    colorDark: '#000000',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H,
+    useSVG: true,
+  });
 });
 </script>

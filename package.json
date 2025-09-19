@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build --dotenv .env.production",
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=8192 nuxt build --dotenv .env.production",
     "build:docker": "nuxt build --dotenv .env.docker.production",
     "build:test": "nuxt build --dotenv .env.test",
     "build:report": "nuxt analyze",
@@ -31,7 +31,7 @@
     "dayjs": "^1.11.13",
     "js-cookie": "^3.0.5",
     "md-editor-v3": "^5.5.1",
-    "nuxt": "^3.17.7",
+    "nuxt": "^4.0.2",
     "pinia": "^3.0.2",
     "sse.js": "^2.6.0",
     "vue": "^3.5.13",
