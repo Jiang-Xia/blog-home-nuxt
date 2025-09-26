@@ -10,6 +10,7 @@
     <ClientOnly>
       <Screenshot />
     </ClientOnly>
+    <XiaTheme />
   </div>
 </template>
 

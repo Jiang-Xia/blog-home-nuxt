@@ -55,8 +55,10 @@ const generatePdf = async () => {
 
 <style>
   .pdf-content {
-    width: 210mm; /* A4 宽度 */
-    min-height: 297mm; /* A4 高度 */
+    /* width: 210mm;  */
+    /* A4 宽度 */
+    /* min-height: 297mm;  */
+    /* A4 高度 */
     margin: 0 auto;
     background: white;
   }
