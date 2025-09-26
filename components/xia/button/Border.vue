@@ -36,16 +36,8 @@ const props = defineProps({
 </script>
 
 <template>
-  <button
-    class="border-button"
-    :style="{ color: color }"
-  >
-    <svg
-      width="100%"
-      height="100%"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+  <button class="border-button" :style="{ color: color }">
+    <svg width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect
         class="rect"
         x="2"
@@ -70,10 +62,7 @@ const props = defineProps({
           gradientUnits="userSpaceOnUse"
         >
           <stop :stop-color="gradient.start" />
-          <stop
-            :stop-color="gradient.stop"
-            offset="1"
-          />
+          <stop :stop-color="gradient.stop" offset="1" />
         </linearGradient>
       </defs>
     </svg>
@@ -89,7 +78,7 @@ const props = defineProps({
     // border-radius: 15px;
     font-size: 30px;
     position: relative;
-    color: var(--main-color);
+    // color: var(--main-color);
     .rect {
       width: calc(100% - 4px);
       height: calc(100% - 4px);

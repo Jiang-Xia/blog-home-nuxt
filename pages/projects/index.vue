@@ -100,7 +100,7 @@ const goTargetPage = (type: number) => {
 
 <style lang="less" scoped>
   .page-container {
-    background: var(--main-bgc);
+    // background: var(--main-bgc);
     padding: 124px 24px 24px 24px;
 
     .iframe-wrap {

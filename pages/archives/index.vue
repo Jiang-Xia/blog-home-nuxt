@@ -30,31 +30,18 @@ useHead({
         class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box shadow-xl mb-4"
       >
         <!-- 设置选择就勾选了 -->
-        <input
-          type="checkbox"
-          checked
-        >
+        <input type="checkbox" checked>
         <div class="collapse-title text-xl font-medium">
           {{ archive.year }}
         </div>
         <div class="collapse-content">
-          <div
-            v-for="(value2, key2) in archive.data"
-            :key="key2"
-          >
+          <div v-for="(value2, key2) in archive.data" :key="key2">
             <h4 class="month">
               {{ key2 }}
             </h4>
             <ul class="menu menu-md lg:menu-lg lg:w-4/5 bg-base-100 p-2 rounded-box">
-              <li
-                v-for="(item, index) in value2"
-                :key="index"
-                class="font-semibold"
-              >
-                <nuxt-link
-                  :to="'/detail/' + item.id"
-                  class="flex"
-                >
+              <li v-for="(item, index) in value2" :key="index" class="font-semibold">
+                <nuxt-link :to="'/detail/' + item.id" class="flex">
                   <span class="badge badge-neutral badge-md min-w-fit">{{
                     dayjs(item.createTime).format('YYYY-MM-DD')
                   }}</span>
@@ -75,7 +62,7 @@ useHead({
   .archives-container {
     min-height: 100%;
     .month {
-      color: var(--text-color);
+      // color: var(--text-color);
       font-weight: normal;
       font-size: 16px;
     }

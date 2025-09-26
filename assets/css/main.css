@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: all;
+}
 
 /* 自定义类名 只能该css文件上自定义类名 */
 @layer components {
@@ -13,7 +15,7 @@
     @apply absolute left-0 top-0 w-full from-black bg-gradient-to-r to-gray-700;
   }
   .link-item {
-    @apply transition border border-base-300 h-36 w-36 text-sm rounded-lg flex flex-col justify-center items-center hover:bg-base-200;
+    @apply transition border border-base-300 h-36 w-36 text-sm rounded-lg flex flex-col justify-center items-center bg-base-100 hover:border-base-100;
     @apply hover:scale-105 active:bg-base-300;
   }
   .selected {

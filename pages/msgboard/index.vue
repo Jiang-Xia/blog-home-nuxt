@@ -140,13 +140,9 @@ useHead({
     </h1>
     <div class="msgboard-container">
       <fieldset
-        class="fieldset max-w-3xl mx-auto bg-base-200 border-base-300 rounded-box border p-4"
+        class="fieldset max-w-3xl mx-auto bg-base-100 border-base-300 rounded-box border p-4"
       >
-        <div
-          v-show="showToast"
-          role="alert"
-          class="alert alert-warning relative"
-        >
+        <div v-show="showToast" role="alert" class="alert alert-warning relative">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="h-6 w-6 shrink-0 stroke-current"
@@ -209,42 +205,26 @@ useHead({
           maxlength="800"
         />
 
-        <button
-          class="btn btn-primary mt-4"
-          @click="confirmHandle"
-        >
+        <button class="btn btn-primary mt-4" @click="confirmHandle">
           发表
         </button>
       </fieldset>
       <!-- 留言内容列表 -->
       <div class="mt-6 max-w-3xl mx-auto">
-        <section
-          v-for="item in msgboardList"
-          :key="item.id"
-          class="bg-base-100 mb-3 rounded"
-        >
+        <section v-for="item in msgboardList" :key="item.id" class="bg-base-100 mb-3 rounded-box">
           <div class="card mb-3">
             <div class="card-body">
               <h2 class="card-title text-sm font-normal text-gray-400 flex">
                 <div class="avatar h-7 w-7">
-                  <div
-                    class="w-7 rounded-full bg-base-300"
-                    title="点击跳转他的主页！"
-                  >
-                    <a
-                      :href="item.address"
-                      target="_blank"
-                    >
+                  <div class="w-7 rounded-full bg-base-300" title="点击跳转他的主页！">
+                    <a :href="item.address" target="_blank">
                       <img v-lazyImg="item.avatar">
                     </a>
                   </div>
                 </div>
                 {{ item.name }}
                 <span class="flex">
-                  <xia-icon
-                    width="14px"
-                    icon="blog-shijian"
-                  /> {{ beforeTimeNow(item.createAt) }}
+                  <xia-icon width="14px" icon="blog-shijian" /> {{ beforeTimeNow(item.createAt) }}
                 </span>
                 <xia-icon
                   v-if="showDelBtn"
@@ -256,36 +236,17 @@ useHead({
               </h2>
               <p>{{ item.comment }}</p>
               <div class="card-actions justify-end text-xs text-gray-400">
-                <button
-                  class="mr-auto"
-                  @click.stop="clickReplyHandle(item)"
-                >
-                  <xia-icon
-                    icon="blog-pinglun"
-                    width="14px"
-                    class="mr-1"
-                  />回复
+                <button class="mr-auto" @click.stop="clickReplyHandle(item)">
+                  <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
                 </button>
-                <span><xia-icon
-                  width="14px"
-                  icon="blog-dingwei"
-                />{{ item.location }}</span>
-                <span><xia-icon
-                  width="14px"
-                  icon="blog-os"
-                /> {{ item.system }}</span>
-                <span><xia-icon
-                  width="14px"
-                  icon="blog-browser"
-                /> {{ item.browser }}</span>
+                <span><xia-icon width="14px" icon="blog-dingwei" />{{ item.location }}</span>
+                <span><xia-icon width="14px" icon="blog-os" /> {{ item.system }}</span>
+                <span><xia-icon width="14px" icon="blog-browser" /> {{ item.browser }}</span>
               </div>
             </div>
           </div>
           <!-- 回复框 -->
-          <div
-            v-if="item.children?.length"
-            class="reply-wrap md:ml-7 rounded"
-          >
+          <div v-if="item.children?.length" class="reply-wrap md:ml-7 rounded">
             <section
               v-for="replyItem in item.children"
               :key="replyItem.id"
@@ -302,10 +263,7 @@ useHead({
                     :src="replyItem.avatar"
                     :alt="replyItem.name"
                   >
-                  <xia-icon
-                    v-else
-                    icon="blog-yonghu"
-                  />
+                  <xia-icon v-else icon="blog-yonghu" />
                 </div>
               </div>
               <div class="flex-1">
@@ -327,33 +285,17 @@ useHead({
                 </div>
 
                 <div class="py-1 text-xs text-gray-400 flex justify-end gap-2">
-                  <button
-                    class="action mr-auto"
-                    @click.stop="clickReplyHandle(replyItem)"
-                  >
-                    <xia-icon
-                      icon="blog-pinglun"
-                      width="14px"
-                      class="mr-1"
-                    />回复
+                  <button class="action mr-auto" @click.stop="clickReplyHandle(replyItem)">
+                    <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
                   </button>
                   <span class="hidden md:inline-block">
-                    <xia-icon
-                      width="14px"
-                      icon="blog-dingwei"
-                    />{{ replyItem.location }}
+                    <xia-icon width="14px" icon="blog-dingwei" />{{ replyItem.location }}
                   </span>
                   <span class="hidden md:inline-block">
-                    <xia-icon
-                      width="14px"
-                      icon="blog-os"
-                    />{{ replyItem.system }}
+                    <xia-icon width="14px" icon="blog-os" />{{ replyItem.system }}
                   </span>
                   <span class="hidden md:inline-block">
-                    <xia-icon
-                      width="14px"
-                      icon="blog-browser"
-                    />{{ replyItem.browser }}
+                    <xia-icon width="14px" icon="blog-browser" />{{ replyItem.browser }}
                   </span>
                 </div>
               </div>
@@ -363,11 +305,7 @@ useHead({
       </div>
 
       <!-- 回复弹框 -->
-      <dialog
-        id="replay_modal"
-        ref="replayModal"
-        class="modal"
-      >
+      <dialog id="replay_modal" ref="replayModal" class="modal">
         <div class="modal-box">
           <form method="dialog">
             <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
@@ -398,11 +336,7 @@ useHead({
               />
             </div>
             <div class="modal-action">
-              <label
-                for="link-add-modal"
-                class="btn btn-neutral"
-                @click="okHandle"
-              >确 认</label>
+              <label for="link-add-modal" class="btn btn-neutral" @click="okHandle">确 认</label>
             </div>
           </div>
         </div>
@@ -422,7 +356,7 @@ useHead({
       position: relative;
     }
     .reply-wrap {
-      background: var(--minor-bgc);
+      // background: var(--minor-bgc);
       padding: 8px 10px;
     }
   }

@@ -38,10 +38,7 @@ defineProps({
           <xia-icon :icon="icon" /> {{ title }}
         </slot>
       </h4>
-      <div
-        class="card-content"
-        :class="{ padding: noPadding }"
-      >
+      <div class="card-content" :class="{ padding: noPadding }">
         <slot />
       </div>
     </template>
@@ -52,10 +49,7 @@ defineProps({
           <xia-icon :icon="icon" /> {{ title }}
         </slot>
       </h4>
-      <div
-        class="card-content"
-        :class="{ padding: noPadding }"
-      >
+      <div class="card-content" :class="{ padding: noPadding }">
         <slot />
       </div>
     </template>
@@ -68,7 +62,7 @@ defineProps({
       line-height: 32px;
       font-size: 15px;
       font-weight: 600;
-      color: var(--text-color);
+      // color: var(--text-color);
       padding: 0 20px;
     }
     .card-content {

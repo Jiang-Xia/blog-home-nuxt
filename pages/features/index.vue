@@ -28,7 +28,7 @@
           <!-- AI文章摘要 -->
           <div class="feature-card group">
             <div
-              class="card bg-white/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
+              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
             >
               <figure class="px-6 pt-6">
                 <div
@@ -68,7 +68,7 @@
           <!-- 3D粒子背景 -->
           <div class="feature-card group">
             <div
-              class="card bg-white/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
+              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
             >
               <figure class="px-6 pt-6">
                 <div
@@ -108,7 +108,7 @@
           <!-- 技术栈雷达图 -->
           <div class="feature-card group">
             <div
-              class="card bg-white/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
+              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
             >
               <figure class="px-6 pt-6">
                 <div
@@ -148,7 +148,7 @@
           <!-- 阅读进度环 -->
           <div class="feature-card group">
             <div
-              class="card bg-white/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
+              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
             >
               <figure class="px-6 pt-6">
                 <div
@@ -191,7 +191,7 @@
           <!-- 更多功能 -->
           <div class="feature-card group">
             <div
-              class="card bg-white/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
+              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
             >
               <figure class="px-6 pt-6">
                 <div
@@ -229,7 +229,7 @@
           <!-- 社交功能 -->
           <div class="feature-card group">
             <div
-              class="card bg-white/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
+              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
             >
               <figure class="px-6 pt-6">
                 <div
@@ -269,7 +269,7 @@
 
         <!-- 技术特色介绍 -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          <div class="card bg-white/90 backdrop-blur-sm shadow-xl">
+          <div class="card bg-base-100 backdrop-blur-sm shadow-xl">
             <div class="card-body">
               <h2 class="card-title text-2xl mb-4">
                 🚀 技术亮点
@@ -307,7 +307,7 @@
             </div>
           </div>
 
-          <div class="card bg-white/90 backdrop-blur-sm shadow-xl">
+          <div class="card bg-base-100 backdrop-blur-sm shadow-xl">
             <div class="card-body">
               <h2 class="card-title text-2xl mb-4">
                 💡 创新功能
@@ -347,7 +347,7 @@
         </div>
 
         <!-- 功能路线图 -->
-        <div class="card bg-white/90 backdrop-blur-sm shadow-xl">
+        <div class="card bg-base-100 backdrop-blur-sm shadow-xl">
           <div class="card-body">
             <h2 class="card-title text-2xl mb-6">
               🗺️ 功能路线图

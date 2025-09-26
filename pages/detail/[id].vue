@@ -145,7 +145,7 @@ useHead({
 </script>
 
 <template>
-  <div class="article-detail">
+  <div class="article-detail bg-base-200">
     <section class="banner-container">
       <div class="banner-content">
         <img
@@ -213,7 +213,7 @@ useHead({
           <MdPreview
             :key="mdKey"
             v-model="ArticleInfo.content"
-            class="x-md-editor rounded-lg p-3"
+            class="x-md-editor rounded-lg p-3 bg-base-100"
             preview-only
             :preview-theme="previewTheme"
             :theme="theme"
@@ -255,7 +255,7 @@ useHead({
         height: 100%;
         filter: blur(28px) brightness(0.95);
         transform: scale(1.1);
-        background: var(--nav-color);
+        // background: var(--nav-color);
       }
     }
   }
@@ -337,6 +337,6 @@ useHead({
       sans-serif;
   }
   .md-dark {
-    --md-bk-color: var(--main-bgc);
+    // --md-bk-color: var(--main-bgc);
   }
 </style>

@@ -127,7 +127,7 @@ const exportAll = () => {
             :blob-url-list="blobUrlList"
             @processed="processedHandle"
           /> -->
-          <div class="carousel w-full">
+          <div class="carousel w-full bg-base-content">
             <div
               v-for="(item, index) in imageSrcList"
               :id="'slide' + index"
@@ -163,12 +163,14 @@ const exportAll = () => {
     </div>
     <div class="flex py-2 px-6">
       <span v-if="exportLoading" class="loading loading-dots loading-md bg-accent" />
-      <!-- <button class="btn btn-neutral" :disabled="exportLoading" @click="exportAll">
+      <button class="btn btn-neutral" :disabled="exportLoading" @click="exportAll">
         全部导出
-      </button> -->
-      <InRainbowButton :disabled="exportLoading" @click="exportAll">
-        全部导出
-      </InRainbowButton>
+      </button>
+      <!-- <InRainbowButton :disabled="exportLoading" @click="exportAll">
+        <div class="text-white">
+          全部导出
+        </div>
+      </InRainbowButton> -->
     </div>
     <div>
       <input

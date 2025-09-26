@@ -31,7 +31,7 @@ if (imagesData.value) {
 <style lang="less" scoped>
   .photos-page {
     min-height: 100vh;
-    background: var(--main-bgc) !important;
-    color: var(--text-color) !important;
+    // background: var(--main-bgc) !important;
+    // color: var(--text-color) !important;
   }
 </style>

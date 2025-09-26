@@ -152,7 +152,7 @@ const replyedHandle = (content: string) => {
 </script>
 
 <template>
-  <div class="comment-container">
+  <div class="comment-container text-base-content/70">
     <textarea
       v-model="inputContent"
       class="textarea textarea-success w-full"
@@ -189,7 +189,7 @@ const replyedHandle = (content: string) => {
       <div class="flex-1">
         <span class="text-xs">{{ commentItem.userInfo && commentItem.userInfo.nickname }}</span>
         <span class="text-xs pl-2">{{ formactTime(commentItem) }}</span>
-        <div class="text-sm content">
+        <div class="text-sm content text-base-content">
           {{ commentItem.content }}
         </div>
 
@@ -224,7 +224,10 @@ const replyedHandle = (content: string) => {
           @replyed="replyedHandle"
         />
         <!-- 回复内容主体 -->
-        <div v-if="commentItem.replys && commentItem.replys.length" class="reply-wrap mt-2">
+        <div
+          v-if="commentItem.replys && commentItem.replys.length"
+          class="reply-wrap mt-2 bg-base-300 rounded-md"
+        >
           <section v-for="replyItem in commentItem.replys" :key="replyItem.id" class="flex mt-4">
             <!-- 头像 -->
             <div class="w-10 mr-2">
@@ -248,7 +251,7 @@ const replyedHandle = (content: string) => {
                 }}
               </span>
               <span class="text-xs pl-2">{{ formactTime(replyItem) }}</span>
-              <div class="text-sm content">
+              <div class="text-sm content text-base-content">
                 {{ replyItem.content }}
               </div>
 
@@ -291,7 +294,7 @@ const replyedHandle = (content: string) => {
 
 <style scoped lang="less">
   .comment-container {
-    color: var(--text-color2);
+    // color: var(--text-color2);
     font-size: 12px;
     h4 {
       text-align: center;
@@ -299,8 +302,8 @@ const replyedHandle = (content: string) => {
     }
     // padding-left: 10% !important;
     .reply-wrap {
-      background: var(--minor-bgc);
-      border-radius: var(--layout-border-radius);
+      // background: var(--minor-bgc);
+      // border-radius: var(--layout-border-radius);
       padding: 8px 10px;
     }
     .tool-bar {
@@ -310,7 +313,7 @@ const replyedHandle = (content: string) => {
     }
   }
   .content {
-    color: var(--text-color);
+    // color: var(--text-color);
   }
   .action {
     font-weight: normal;

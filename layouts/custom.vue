@@ -9,7 +9,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div>
+  <div class="custom-layout-container bg-base-200 text-base-content">
     <NuxtPage />
   </div>
 </template>

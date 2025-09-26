@@ -35,8 +35,8 @@ body {
 }
 // 选中背景和文字颜色
 ::selection {
-  background: var(--main-color);
-  color: #fff;
+  // background: var(--main-color);
+  // color: #fff;
 }
 // 去除a标签默认下划线
 a,
@@ -77,31 +77,32 @@ a:hover {
   }
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-  background: transparent;
-}
+/* 使用daisyui的滚动条样式 */
+// ::-webkit-scrollbar {
+//   width: 6px;
+//   height: 6px;
+//   background: transparent;
+// }
 
-/* 滚动槽 */
-::-webkit-scrollbar-track {
-  border-radius: 0;
-  // background: transparent;
-  background: var(--main-bgc);
-}
-/* 滚动条滑块 */
-::-webkit-scrollbar-thumb {
-  border-radius: 0;
-  border-radius: 0.5rem;
-  background: transparent;
-  transition: all 0.2s;
-}
+// /* 滚动槽 */
+// ::-webkit-scrollbar-track {
+//   border-radius: 0;
+//   // background: transparent;
+//   // background: var(--main-bgc);
+// }
+// /* 滚动条滑块 */
+// ::-webkit-scrollbar-thumb {
+//   border-radius: 0;
+//   border-radius: 0.5rem;
+//   background: transparent;
+//   transition: all 0.2s;
+// }
 
-:hover::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-bgc);
-}
-::-webkit-scrollbar-button,
-::-webkit-scrollbar-corner {
-  // background: transparent;
-  background: var(--main-bgc);
-}
+// :hover::-webkit-scrollbar-thumb {
+//   // background: var(--scrollbar-bgc);
+// }
+// ::-webkit-scrollbar-button,
+// ::-webkit-scrollbar-corner {
+//   // background: transparent;
+//   // background: var(--main-bgc);
+// }

@@ -116,9 +116,16 @@ useHead({
 </script>
 
 <template>
-  <div class="app-layout gradient-bar">
+  <div class="app-layout gradient-bar bg-base-200 text-base-content">
     <!-- 导航栏 -->
-    <header class="app-layout-header" :class="{ 'app-layout-header__active': scrollTop > 98 }">
+    <header
+      class="app-layout-header"
+      :class="{
+        'app-layout-header__active': scrollTop > 98,
+        'glass': scrollTop > 98 && scrollTop < 360,
+        'bg-info-content': scrollTop > 360,
+      }"
+    >
       <Nav />
     </header>
     <!-- 路由显示区域 -->
@@ -126,7 +133,7 @@ useHead({
       <NuxtPage />
     </div>
     <!-- 页脚 -->
-    <footer class="app-layout-footer">
+    <footer class="app-layout-footer text-base-content/70">
       <p>
         😁 博客已平稳运行 {{ runTime }} 天
         <a :href="originUrl + '/sitemap.xml'" target="_blank" class="link link-hover">SITEMAP</a>
@@ -151,12 +158,12 @@ useHead({
 <style lang="less">
   /* 这样写法好像也怎么只管看到类名，也不利于根据类名搜索 */
   body {
-    background: var(--main-bgc);
-    color: var(--hover-color);
+    // background: var(--main-bgc);
+    // color: var(--hover-color);
   }
   .app-layout {
-    background: var(--main-bgc);
-    color: var(--text-color);
+    // background: var(--main-bgc);
+    // color: var(--text-color);
     min-height: 100vh;
 
     // 会编译成和 & 同级类名即 app-layout-header
@@ -165,7 +172,7 @@ useHead({
       // height: 64px;
       // line-height: 58px;
       width: 100%;
-      z-index: 20;
+      z-index: 10010;
       top: 0px;
       left: 0px;
       position: fixed;
@@ -173,7 +180,7 @@ useHead({
       //   0 2px 10px 0 rgba(0, 0, 0, 0.12);
       // transition: all 1s;
       transition: all 0.4s ease;
-      background: transparent;
+      // background: transparent;
       padding-top: 20px;
       padding-bottom: 20px;
 
@@ -181,9 +188,9 @@ useHead({
       // 会编译成和 & 同级类名即 app-layout-header__active
       &__active {
         // backdrop-filter: saturate(5) blur(20px);
-        backdrop-filter: blur(10px);
-        background: var(--nav-color);
-        border-color: var(--nav-color);
+        // backdrop-filter: blur(10px);
+        // background: var(--nav-color);
+        // border-color: var(--nav-color);
         padding: 0;
       }
     }
@@ -199,7 +206,7 @@ useHead({
       align-items: center;
       padding: 0px 1.5vw;
       line-height: 1.7;
-      color: var(--text-color2);
+      // color: var(--text-color2);
       // background: var(--main-bgc);
       height: 120px;
       font-size: 12px;

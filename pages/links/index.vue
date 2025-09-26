@@ -51,18 +51,11 @@ useHead({
         友情链接 - {{ SiteTitle }}
       </h1>
       <div class="flex justify-end">
-        <label
-          for="link-add-modal"
-          class="btn modal-button link-btn btn-ghost shake-rotate"
-        >+ 申请外链</label>
+        <label for="link-add-modal" class="btn modal-button btn-soft btn-secondary shake-rotate">+ 申请外链</label>
       </div>
 
       <!-- 新增弹框 -->
-      <input
-        id="link-add-modal"
-        type="checkbox"
-        class="modal-toggle"
-      >
+      <input id="link-add-modal" type="checkbox" class="modal-toggle">
       <div class="modal">
         <div class="modal-box relative">
           <label
@@ -110,11 +103,7 @@ useHead({
               >
             </div>
             <div class="modal-action">
-              <label
-                for="link-add-modal"
-                class="btn btn-neutral"
-                @click="okHandle"
-              >确 认</label>
+              <label for="link-add-modal" class="btn btn-neutral" @click="okHandle">确 认</label>
             </div>
           </div>
         </div>
@@ -128,23 +117,12 @@ useHead({
         >
           <div class="card-body p-2 sm:p-4">
             <h2 class="card-title">
-              <a
-                target="_blank"
-                :href="item.url"
-              >{{ item.title }}</a>
+              <a target="_blank" :href="item.url">{{ item.title }}</a>
             </h2>
-            <a
-              class="flex items-center"
-              target="_blank"
-              :href="item.url"
-            >
+            <a class="flex items-center" target="_blank" :href="item.url">
               <div class="avatar">
                 <div class="w-10 rounded-full bg-base-300">
-                  <img
-                    v-show="item.icon"
-                    v-lazyImg="item.icon"
-                    :alt="item.title"
-                  >
+                  <img v-show="item.icon" v-lazyImg="item.icon" :alt="item.title">
                 </div>
               </div>
               <div class="pl-2 text-sm">{{ item.desp }}</div>
@@ -159,9 +137,9 @@ useHead({
 <style lang="less" scoped>
   .links-container {
     min-height: 40vh;
-    background: var(--main-bgc);
+    // background: var(--main-bgc);
     .link-btn {
-      background: var(--minor-bgc);
+      // background: var(--minor-bgc);
       border: none;
     }
   }

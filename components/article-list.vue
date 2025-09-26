@@ -219,8 +219,8 @@ const theme = useTheme();
               >
               <!-- <XiaCardBorderLight :pic="item.cover" /> -->
             </figure>
-            <div class="card-body">
-              <h2 class="card-title">
+            <div class="card-body text-base-content/70">
+              <h2 class="card-title text-base-content">
                 {{ item.title }}
                 <div v-if="item.topping" class="badge badge-secondary">
                   TOP
@@ -506,10 +506,10 @@ const theme = useTheme();
       min-height: 100vh;
     }
     .card-title {
-      color: var(--text-color);
+      // color: var(--text-color);
     }
     .card-body {
-      color: var(--text-color2);
+      // color: var(--text-color2);
     }
     .main-content {
       position: relative;

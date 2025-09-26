@@ -1,8 +1,8 @@
 <!--
  * @Author: 酱
- * @LastEditors: 酱
+ * @LastEditors: jx
  * @Date: 2021-11-20 11:28:42
- * @LastEditTime: 2022-08-03 16:56:45
+ * @LastEditTime: 2025-09-25 19:26:28
  * @Description:
  * @FilePath: \blog-home-nuxt\layouts\main-content.vue
 -->
@@ -18,7 +18,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="custom-layout-contaier paper-feeling">
+  <div class="main-content-layout-container paper-feeling">
     <!-- 全局共享布局 -->
     <section class="banner-container">
       <div class="banner-content">
@@ -63,7 +63,7 @@ defineProps({
     //   height: 100%;
     // }
   }
-  .custom-layout-contaier {
+  .main-content-layout-container {
     position: relative;
     // min-height: 100vh;
     // noise 遮罩层
@@ -79,8 +79,8 @@ defineProps({
       z-index: 0;
       // background-image: url(@/assets/img/background/noise.png);
     }
-    background: var(--main-bgc) !important;
-    color: var(--text-color) !important;
+    // background: var(--main-bgc) !important;
+    // color: var(--text-color) !important;
   }
   .custom-main {
     margin: 20px auto 0;

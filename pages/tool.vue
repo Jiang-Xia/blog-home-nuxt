@@ -167,7 +167,7 @@ const selectedTool = computed(() => {
       border: none;
     }
 
-    background: var(--main-bgc) !important;
-    color: var(--text-color) !important;
+    // background: var(--main-bgc) !important;
+    // color: var(--text-color) !important;
   }
 </style>
