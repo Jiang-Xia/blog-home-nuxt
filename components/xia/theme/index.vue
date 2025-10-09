@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="jsx">
 const { theme, setTheme } = useThemeActions();
 
 function changeTheme(e) {
@@ -12,11 +12,33 @@ const menu = ref(null);
 
 const setClass = (e) => {
   const btns = menu.value.querySelectorAll('button');
+  const dataClass = e.currentTarget.dataset.actClass;
   btns.forEach((btn) => {
-    btn.classList.remove('[&_svg]:visible');
+    btn.classList.remove(dataClass);
   });
-  e.currentTarget.classList.add('[&_svg]:visible');
+  e.currentTarget.classList.add(dataClass);
 };
+onMounted(() => {
+  const target = menu.value.querySelector(`[data-set-theme="${theme.value}"]`);
+  const dataClass = target.dataset.actClass;
+  target.classList.add(dataClass);
+});
+
+// 函数式组件
+function CheckIcon(props, context) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      class="invisible h-3 w-3 shrink-0"
+    >
+      <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
+    </svg>
+  );
+}
 </script>
 
 <template>
@@ -72,16 +94,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               light
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -102,16 +115,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               dark
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -132,16 +136,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               cupcake
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -162,16 +157,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               bumblebee
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -192,16 +178,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               emerald
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -222,16 +199,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               corporate
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -252,16 +220,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               synthwave
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -282,16 +241,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               retro
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -312,16 +262,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               cyberpunk
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -342,16 +283,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               valentine
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -372,16 +304,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               halloween
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -402,16 +325,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               garden
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -432,16 +346,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               forest
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -462,16 +367,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               aqua
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -492,16 +388,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               lofi
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -522,16 +409,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               pastel
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -552,16 +430,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               fantasy
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -582,16 +451,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               wireframe
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -612,16 +472,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               black
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -642,16 +493,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               luxury
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -672,16 +514,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               dracula
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -702,20 +535,11 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               cmyk
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
-            class="gap-3 px-2 [&amp;_svg]:visible"
+            class="gap-3 px-2"
             data-set-theme="autumn"
             data-act-class="[&amp;_svg]:visible"
             @click="changeTheme"
@@ -732,16 +556,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               autumn
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -762,16 +577,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               business
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -792,16 +598,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               acid
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -822,16 +619,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               lemonade
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -852,16 +640,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               night
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -882,16 +661,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               coffee
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -912,16 +682,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               winter
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -942,16 +703,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               dim
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -972,16 +724,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               nord
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -1002,16 +745,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               sunset
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -1032,16 +766,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               caramellatte
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -1062,16 +787,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               abyss
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li><li>
           <button
@@ -1092,16 +808,7 @@ const setClass = (e) => {
             <div class="w-32 truncate">
               silk
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="invisible h-3 w-3 shrink-0"
-            >
-              <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-            </svg>
+            <CheckIcon />
           </button>
         </li>
       </ul>
