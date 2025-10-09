@@ -1,11 +1,22 @@
 <script setup>
 const { theme, setTheme } = useThemeActions();
+
 function changeTheme(e) {
   const dataTheme = e.currentTarget.dataset.setTheme;
   theme.value = dataTheme;
+  setClass(e);
   setTheme();
   console.log('当前主题：', dataTheme);
 }
+const menu = ref(null);
+
+const setClass = (e) => {
+  const btns = menu.value.querySelectorAll('button');
+  btns.forEach((btn) => {
+    btn.classList.remove('[&_svg]:visible');
+  });
+  e.currentTarget.classList.add('[&_svg]:visible');
+};
 </script>
 
 <template>
@@ -38,7 +49,7 @@ function changeTheme(e) {
       tabindex="0"
       class="dropdown-content bg-base-200 text-base-content rounded-box top-px h-[30.5rem] max-h-[calc(100vh-8.6rem)] overflow-y-auto border-[length:var(--border)] border-white/5 shadow-2xl outline-[length:var(--border)] outline-black/5 mt-16"
     >
-      <ul class="menu w-56">
+      <ul ref="menu" class="menu w-56">
         <li class="menu-title text-xs">
           主题
         </li>
@@ -1098,4 +1109,8 @@ function changeTheme(e) {
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="less" scoped>
+  .\[\&_svg\]\:visible svg {
+    visibility: visible;
+  }
+</style>

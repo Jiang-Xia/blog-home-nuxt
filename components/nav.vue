@@ -2,7 +2,7 @@
  * @Author: 酱
  * @LastEditors: jx
  * @Date: 2021-11-24 20:34:46
- * @LastEditTime: 2025-09-26 15:49:12
+ * @LastEditTime: 2025-10-09 11:01:48
  * @Description:
  * @FilePath: \blog-home-nuxt\components\nav.vue
 -->
@@ -132,7 +132,7 @@ const checked = ref(false);
 </script>
 
 <template>
-  <div class="navbar bg-transparent text-gray-100 dark:text-gray-300">
+  <div class="navbar bg-transparent">
     <div class="navbar-start w-auto">
       <div class="dropdown">
         <label class="swap swap-rotate" @click.stop="">
@@ -217,7 +217,7 @@ const checked = ref(false);
       </div>
 
       <xia-icon class="cursor-pointer px-3" :icon="'blog-' + theme" @click="clickIcon" />
-
+      <XiaTheme />
       <NuxtLink
         v-if="!token"
         class="btn btn-ghost inline-flex tracking-wide"
@@ -281,28 +281,15 @@ const checked = ref(false);
 </template>
 
 <style lang="less" scoped>
-  // 'sm': '640px',
-  // // => @media (min-width: 640px) { ... }
-
-  // 'md': '768px',
-  // // => @media (min-width: 768px) { ... }
-
-  // 'lg': '1024px',
-  // // => @media (min-width: 1024px) { ... }
-
-  // 'xl': '1280px',
-  // // => @media (min-width: 1280px) { ... }
-
-  // '2xl': '1536px',
-  // // => @media (min-width: 1536px) { ... }
   .navbar {
+    // color: var(--color-base-100);
+    color: var(--color-neutral-content);
     .router-link-active {
       border-radius: var(--rounded-btn, 0.5rem);
       background: hsl(0 0% 100% / var(--tw-bg-opacity));
       --tw-bg-opacity: 0.1;
-      color: var(--b1);
       .menu-link {
-        color: var(--b3);
+        // color: var(--color-base-100);
       }
     }
   }
