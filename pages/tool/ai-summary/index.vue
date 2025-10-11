@@ -163,6 +163,8 @@ import copy from 'copy-to-clipboard';
 import { messageSuccess, messageDanger } from '~/utils/toast';
 import { SSE } from 'sse.js';
 import { baseUrl } from '~/config';
+import { useRoute } from 'vue-router';
+import { aesDecrypt } from '~~/utils/crypto';
 
 definePageMeta({
   title: 'AI 文章摘要生成器',
@@ -335,11 +337,18 @@ const formatDate = (date: Date) => {
   });
 };
 
-// 加载历史记录
 onMounted(() => {
+  // 加载历史记录
   const saved = localStorage.getItem('ai-summary-history');
   if (saved) {
     summaryHistory.value = JSON.parse(saved);
+  }
+  const route = useRoute();
+  if (route.query.params) {
+    const decrypt = aesDecrypt(route.query.params);
+    const params = JSON.parse(decrypt);
+    // console.log('params ---------->', params);
+    originalText.value = params.content;
   }
 });
 

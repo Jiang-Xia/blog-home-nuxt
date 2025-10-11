@@ -218,7 +218,7 @@ useHead({
                 <div class="avatar h-7 w-7">
                   <div class="w-7 rounded-full bg-base-300" title="点击跳转他的主页！">
                     <a :href="item.address" target="_blank">
-                      <img v-lazyImg="item.avatar">
+                      <xia-image :src="item.avatar" class="h-full" />
                     </a>
                   </div>
                 </div>

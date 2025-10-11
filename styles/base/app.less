@@ -185,3 +185,9 @@ body {
     list-style: disc;
   }
 }
+
+// 处理图片开裂，破图样式
+.load-img[src=''],
+.load-img:not([src]) {
+  opacity: 0;
+}

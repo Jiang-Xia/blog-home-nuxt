@@ -211,12 +211,12 @@ const theme = useTheme();
                 :pic="item.cover"
                 style="--border-size: 8px"
               />
-              <img
+              <xia-image
                 v-else
-                v-lazyImg="item.cover"
+                :src="item.cover"
                 class="h-52 w-full bg-gray-900"
                 :alt="item.category.label"
-              >
+              />
               <!-- <XiaCardBorderLight :pic="item.cover" /> -->
             </figure>
             <div class="card-body text-base-content/70">
@@ -369,7 +369,7 @@ const theme = useTheme();
         :no-padding="false"
         min-height="180px"
       >
-        <img v-lazyImg="weatherUrl" alt="天气预报" class="rounded-lg">
+        <img v-lazyImg="weatherUrl" alt="天气预报" class="rounded-lg load-img">
       </base-card>
       <!-- 天气 -->
       <base-card

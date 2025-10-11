@@ -10,6 +10,7 @@ import { isTrueCoverLink } from '@/utils';
 import type { tocInter } from '@/utils';
 import Qie from '@/assets/images/animal/qie.svg';
 import { SiteTitle } from '@/utils/constant';
+import { aesEncrypt } from '~~/utils/crypto';
 
 const theme: any = useTheme();
 interface FormState {
@@ -138,6 +139,13 @@ if (import.meta.client) {
 }
 // 侧边栏吸顶
 
+const goAISummary = () => {
+  const params = {
+    content: ArticleInfo.content,
+  };
+  const encrypt = aesEncrypt(JSON.stringify(params));
+  navigateTo('/tool/ai-summary?params=' + encrypt);
+};
 useHead({
   title: ArticleInfo.title + ' - 文章详情',
   titleTemplate: title => `${title} - ${SiteTitle}`,
@@ -240,6 +248,36 @@ useHead({
     </div>
     <!-- 阅读进度环 -->
     <ReadingProgressRing position="top-right" :auto-hide="true" style="top: 70px" />
+    <!-- fab 浮点按钮 -->
+    <div class="fab fab-flower bottom-20 right-4">
+      <div tabindex="0" role="button" class="btn btn-circle btn-primary text-2xl">
+        <xia-icon icon="blog-plus-circle" />
+      </div>
+      <div class="fab-close">
+        <span class="btn btn-circle btn-error text-2xl">
+          <xia-icon icon="blog-error" />
+        </span>
+      </div>
+      <div class="tooltip tooltip-left" data-tip="总结文章">
+        <button class="btn btn-circle" @click="goAISummary">
+          <xia-icon icon="blog-rengongzhinengjiqiren" width="100%" height="100%" class="size-6" />
+        </button>
+      </div>
+      <div class="tooltip tooltip-left" data-tip="工具箱">
+        <NuxtLink to="/tool/sm">
+          <button class="btn btn-circle">
+            <xia-icon icon="blog-tool" width="100%" height="100%" class="size-6" />
+          </button>
+        </NuxtLink>
+      </div>
+      <div class="tooltip" data-tip="关于">
+        <NuxtLink to="/about/sm">
+          <button class="btn btn-circle">
+            <xia-icon icon="blog-about" width="100%" height="100%" class="size-6" />
+          </button>
+        </NuxtLink>
+      </div>
+    </div>
   </div>
 </template>
 

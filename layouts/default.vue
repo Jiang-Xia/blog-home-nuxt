@@ -149,7 +149,7 @@ useHead({
       </p>
     </footer>
     <!-- 回到顶部 -->
-    <xia-backtop class="shake-slow">
+    <xia-backtop class="shake-slow right-4">
       <xia-icon icon="blog-rocket4" width="34px" height="34px" />
     </xia-backtop>
   </div>
