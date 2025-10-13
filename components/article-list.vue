@@ -214,6 +214,7 @@ const theme = useTheme();
               <xia-image
                 v-else
                 :src="item.cover"
+                lazyload
                 class="h-52 w-full bg-gray-900"
                 :alt="item.category.label"
               />
@@ -369,7 +370,7 @@ const theme = useTheme();
         :no-padding="false"
         min-height="180px"
       >
-        <img v-lazyImg="weatherUrl" alt="天气预报" class="rounded-lg load-img">
+        <xia-image :src="weatherUrl" alt="天气预报" class="rounded-lg" />
       </base-card>
       <!-- 天气 -->
       <base-card

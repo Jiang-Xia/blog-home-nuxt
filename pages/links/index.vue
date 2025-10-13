@@ -122,7 +122,13 @@ useHead({
             <a class="flex items-center" target="_blank" :href="item.url">
               <div class="avatar">
                 <div class="w-10 rounded-full bg-base-300">
-                  <xia-image v-show="item.icon" :src="item.icon" :alt="item.title" class="h-full" />
+                  <xia-image
+                    v-show="item.icon"
+                    lazyload
+                    :src="item.icon"
+                    :alt="item.title"
+                    class="h-full"
+                  />
                 </div>
               </div>
               <div class="pl-2 text-sm">{{ item.desp }}</div>

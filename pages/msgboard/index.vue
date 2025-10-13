@@ -218,7 +218,7 @@ useHead({
                 <div class="avatar h-7 w-7">
                   <div class="w-7 rounded-full bg-base-300" title="点击跳转他的主页！">
                     <a :href="item.address" target="_blank">
-                      <xia-image :src="item.avatar" class="h-full" />
+                      <xia-image lazyload :src="item.avatar" class="h-full" />
                     </a>
                   </div>
                 </div>
@@ -257,12 +257,13 @@ useHead({
                 <div
                   class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100"
                 >
-                  <img
+                  <xia-image
                     v-if="replyItem.avatar"
-                    class="rounded-full"
+                    lazyload
                     :src="replyItem.avatar"
+                    class="rounded-full h-full"
                     :alt="replyItem.name"
-                  >
+                  />
                   <xia-icon v-else icon="blog-yonghu" />
                 </div>
               </div>
