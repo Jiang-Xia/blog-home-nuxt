@@ -7,6 +7,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  customClass: {
+    type: String,
+    default: 'bg-base-300',
+  },
 });
 const emits = defineEmits(['replyed']);
 const inputContent = ref('');
@@ -27,13 +31,11 @@ const placeholder = computed(() => {
 
 <template>
   <transition-group name="fade">
-    <div
-      key="reply-container"
-      class="reply-container"
-    >
+    <div key="reply-container" class="reply-container">
       <textarea
         v-model="inputContent"
-        class="textarea textarea-ghost w-full bg-base-300"
+        class="textarea textarea-ghost w-full"
+        :class="customClass"
         :placeholder="placeholder"
         :max-length="100"
       />

@@ -281,6 +281,7 @@ const replyedHandle = (content: string) => {
               <XiaReply
                 v-if="replyItem.id === currentReplyBoxId"
                 ref="replyRefs"
+                custom-class="bg-base-100"
                 :name="targetUsername"
                 @replyed="replyedHandle"
               />

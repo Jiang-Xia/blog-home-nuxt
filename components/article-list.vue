@@ -370,7 +370,7 @@ const theme = useTheme();
         :no-padding="false"
         min-height="180px"
       >
-        <xia-image :src="weatherUrl" alt="天气预报" class="rounded-lg" />
+        <img v-lazyImg="weatherUrl" alt="天气预报" class="rounded-lg load-img">
       </base-card>
       <!-- 天气 -->
       <base-card
