@@ -188,7 +188,9 @@ const replyedHandle = (content: string) => {
       <!-- 评论内容主体 -->
       <div class="flex-1">
         <span class="text-xs">{{ commentItem.userInfo && commentItem.userInfo.nickname }}</span>
-        <span class="text-xs pl-2">{{ formactTime(commentItem) }}</span>
+        <ClientOnly>
+          <span class="text-xs pl-2">{{ formactTime(commentItem) }}</span>
+        </ClientOnly>
         <div class="text-sm content text-base-content">
           {{ commentItem.content }}
         </div>
@@ -250,7 +252,9 @@ const replyedHandle = (content: string) => {
                     && replyItem.userInfo.nickname + ' @ ' + replyItem.tUserInfo.nickname
                 }}
               </span>
-              <span class="text-xs pl-2">{{ formactTime(replyItem) }}</span>
+              <ClientOnly>
+                <span class="text-xs pl-2">{{ formactTime(replyItem) }}</span>
+              </ClientOnly>
               <div class="text-sm content text-base-content">
                 {{ replyItem.content }}
               </div>

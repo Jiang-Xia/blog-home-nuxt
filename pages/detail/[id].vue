@@ -111,10 +111,11 @@ onMounted(() => {
 /* 评论回复功能 */
 const comments = ref([]);
 const commentTotal = ref(0);
-
+const id: string = route.params.id as string;
+const { data: res, refresh: refreshCommentsFn } = await useAsyncData('detail_GetComment', () =>
+  getComment(id),
+);
 const getCommentHandle = async () => {
-  const id: string = route.params.id as string;
-  const { data: res } = await useAsyncData('detail_GetComment', () => getComment(id));
   comments.value = res.value.list;
   let total = res.value.pagination.total;
   res.value.list.map((v: any) => (total += v.allReplyCount));
@@ -123,7 +124,11 @@ const getCommentHandle = async () => {
 };
 getCommentHandle();
 
-// 目录吸顶
+const commented = async () => {
+  await refreshCommentsFn();
+  getCommentHandle();
+};
+  // 目录吸顶
 const mainViewArea = ref<HTMLElement>();
 let fixedAsideBar = ref<boolean>();
 if (import.meta.client) {
@@ -232,7 +237,7 @@ useHead({
           class="module-wrap__detail comment-module"
           :comments="comments"
           :total="commentTotal"
-          @commented="getCommentHandle"
+          @commented="commented"
         />
       </section>
 
@@ -271,7 +276,7 @@ useHead({
         </NuxtLink>
       </div>
       <div class="tooltip" data-tip="关于">
-        <NuxtLink to="/about/sm">
+        <NuxtLink to="/about">
           <button class="btn btn-circle">
             <xia-icon icon="blog-about" width="100%" height="100%" class="size-6" />
           </button>

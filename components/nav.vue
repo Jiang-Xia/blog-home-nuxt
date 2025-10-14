@@ -218,64 +218,66 @@ const checked = ref(false);
 
       <xia-icon class="cursor-pointer px-3" :icon="'blog-' + theme" @click="clickIcon" />
       <XiaTheme />
-      <NuxtLink
-        v-if="!token"
-        class="btn btn-ghost inline-flex tracking-wide"
-        to="/login"
-        title="登录"
-      >
-        登录
-      </NuxtLink>
-      <div v-else class="dropdown dropdown-end">
-        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-          <div class="w-10 rounded-full text-center leading-loose">
-            <img :src="userInfo.avatar || Yaya" :alt="userInfo.nickname">
-          </div>
-        </label>
-        <ul
-          tabindex="0"
-          class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-gray-500 text-xs"
+      <ClientOnly>
+        <NuxtLink
+          v-if="!token"
+          class="btn btn-ghost inline-flex tracking-wide"
+          to="/login"
+          title="登录"
         >
-          <li>
-            <a :href="goUrl" target="_blank" class="leading-5 flex items-center py-2 px-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
-              写文章
-            </a>
-          </li>
-          <li @click="clear">
-            <a class="leading-5 flex items-center py-2 px-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
-              退出
-            </a>
-          </li>
-        </ul>
-      </div>
+          登录
+        </NuxtLink>
+        <div v-else class="dropdown dropdown-end">
+          <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+            <div class="w-10 rounded-full text-center leading-loose">
+              <img :src="userInfo.avatar || Yaya" :alt="userInfo.nickname">
+            </div>
+          </label>
+          <ul
+            tabindex="0"
+            class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-gray-500 text-xs"
+          >
+            <li>
+              <a :href="goUrl" target="_blank" class="leading-5 flex items-center py-2 px-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                写文章
+              </a>
+            </li>
+            <li @click="clear">
+              <a class="leading-5 flex items-center py-2 px-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+                退出
+              </a>
+            </li>
+          </ul>
+        </div>
+      </ClientOnly>
     </div>
   </div>
 </template>
