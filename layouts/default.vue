@@ -184,7 +184,7 @@ useHead({
       padding-top: 20px;
       padding-bottom: 20px;
 
-      // padding: 0 1.5vw 0;
+      padding: 0 1.5vw 0;
       // 会编译成和 & 同级类名即 app-layout-header__active
       &__active {
         // backdrop-filter: saturate(5) blur(20px);

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
-import { getArticleList } from '@/api/article';
+import { getArticleList, getComment } from '@/api/article';
+import { beforeTimeNow } from '@/utils';
 import { getWeather } from '@/api/index';
 import {
   categoryOptions,
@@ -109,6 +110,21 @@ const clickTagHandle = (item: itemState, type: string) => {
   }
   getArticleListHandle(1);
 };
+const restTags = () => {
+  tagsOptions.value.map((v: any) => {
+    v.checked = false;
+    return v;
+  });
+  queryPrams.tags = [];
+  getArticleListHandle(1);
+};
+  // 已选标签数量
+const checkedTags = computed(() => {
+  return tagsOptions.value.filter((v: any) => v.checked).length;
+});
+const categoryName = computed(() => {
+  return categoryOptions.value.find((v: any) => v.id === queryPrams.category)?.label;
+});
   // 分页
 const current = ref(1);
 const currentChangeHandle = (val: number) => {
@@ -167,43 +183,121 @@ onMounted(
     // weatherData.value = await getWeather()
     //  console.log(weatherData.value)
     // messageDanger('请输入你的评论！')
+    // console.log('commentsList', commentsList.value);
   },
 );
 const theme = useTheme();
+
+// 最新评论
+const commentsList = ref<any>([]);
+const { data: commentsData } = await useAsyncData('articleList_GetComment', () =>
+  getComment('', { pageSize: 16 }),
+);
+commentsList.value = commentsData.value.list;
 </script>
 
 <template>
   <div class="article-list-page">
-    <section class="main-content px-3">
-      <!-- 标签筛选 -->
-      <div class="tag-card-wrap mb-3 max-w-7xl mx-auto">
-        <base-card icon="blog-tag" title="标签" min-height="110px" vertical>
-          <div
-            v-for="item of tagsOptions"
-            :key="item.id"
-            class="custom-tag"
-            :class="item.checked ? 'active' : ''"
-            size="small"
-            :style="{
-              backgroundColor: item.checked ? item.color : toRgb(item.color),
-              color: item.checked ? '#fff' : item.color,
-            }"
-            @click="clickTagHandle(item, '标签')"
-          >
-            <span>{{ item['label'] }} ({{ item['articleCount'] }})</span>
+    <main class="main-content px-3">
+      <!-- 筛选条件 -->
+      <div class="condition-card-wrap mb-4 max-w-7xl">
+        <base-card
+          icon="blog-filter"
+          :title="'筛选条件(' + queryPrams.total + ')'"
+          min-height="110px"
+        >
+          <div class="condition-box">
+            <!-- 分类筛选 -->
+            <button
+              class="btn btn-soft btn-secondary btn-sm mr-4"
+              popovertarget="popover-1"
+              style="anchor-name: --anchor-1"
+            >
+              <xia-icon icon="blog-category" /> 分类筛选
+              <span v-if="categoryName">({{ categoryName }})</span>
+            </button>
+            <ul
+              id="popover-1"
+              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box bg-base-100 shadow-sm"
+              popover
+              style="position-anchor: --anchor-1"
+            >
+              <div
+                v-for="item of categoryOptions"
+                :key="item.id"
+                class="category-item"
+                :color="item.color"
+                :class="item.id === queryPrams.category ? 'active' : ''"
+                @click="clickTagHandle(item, '分类')"
+                @mouseenter="(e) => categoryMouseenter(e, item)"
+                @mouseleave="(e) => categoryMouseleave(e)"
+              >
+                <div
+                  class="category__inner flex justify-between items-center"
+                  :style="{
+                    borderColor: item.id === queryPrams.category ? 'transparent' : '',
+                  }"
+                >
+                  <span class="category__text">{{ item['label'] }}</span>
+                  <div
+                    class="category__tag"
+                    :color="item.color"
+                    size="small"
+                    :style="{
+                      backgroundColor: item.color,
+                    }"
+                  >
+                    <span>{{ item['articleCount'] }}</span>
+                  </div>
+                </div>
+              </div>
+            </ul>
+
+            <!-- 标签筛选 -->
+            <button
+              class="btn btn-soft btn-accent btn-sm"
+              popovertarget="popover-2"
+              style="anchor-name: --anchor-2"
+            >
+              <xia-icon icon="blog-tag" /> 标签筛选
+              <span v-if="checkedTags">({{ checkedTags }})</span>
+            </button>
+            <ul
+              id="popover-2"
+              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box bg-base-100 shadow-sm"
+              popover
+              style="position-anchor: --anchor-2"
+            >
+              <div
+                v-for="item of tagsOptions"
+                :key="item.id"
+                class="custom-tag"
+                :class="item.checked ? 'active' : ''"
+                size="small"
+                :style="{
+                  backgroundColor: item.checked ? item.color : toRgb(item.color),
+                  color: item.checked ? '#fff' : item.color,
+                }"
+                @click="clickTagHandle(item, '标签')"
+              >
+                <span>{{ item['label'] }} ({{ item['articleCount'] }})</span>
+              </div>
+              <div class="mt-4 text-center">
+                <button class="btn-block btn btn-soft btn-error btn-xs" @click="restTags">
+                  <xia-icon icon="blog-refresh" /> 重置
+                </button>
+              </div>
+            </ul>
           </div>
         </base-card>
       </div>
       <!-- 文章列表 -->
-      <div
-        :key="listKey"
-        class="article-item-wrap flex justify-center flex-wrap m-auto w-full max-w-7xl"
-      >
+      <div :key="listKey" class="article-item-wrap flex justify-around flex-wrap w-full max-w-7xl">
         <transition-group key="article-item-wrap" name="list">
           <div
             v-for="item in articleList"
             :key="item.id"
-            class="article-item card mr-5 bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-sm"
+            class="article-item card bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-sm"
           >
             <figure>
               <XiaCardBorderLight
@@ -223,7 +317,7 @@ const theme = useTheme();
             <div class="card-body text-base-content/70">
               <h2 class="card-title text-base-content">
                 {{ item.title }}
-                <div v-if="item.topping" class="badge badge-secondary">
+                <div v-if="item.topping" class="badge badge-soft badge-secondary">
                   TOP
                 </div>
               </h2>
@@ -285,13 +379,18 @@ const theme = useTheme();
             </div>
           </div>
         </transition-group>
+
+        <div
+          v-show="!articleList.length"
+          class="min-h-96 bg-base-100 w-full flex items-center rounded-lg shadow-lg"
+        >
+          <xia-empty
+            :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
+            description="找不到文章..."
+          />
+        </div>
       </div>
       <div class="w-full">
-        <xia-empty
-          v-show="!articleList.length"
-          :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
-          description="找不到文章..."
-        />
         <!-- 分页 -->
         <div class="flex justify-around">
           <xia-pagination
@@ -305,9 +404,9 @@ const theme = useTheme();
           />
         </div>
       </div>
-    </section>
+    </main>
     <!-- 右边筛选卡片 -->
-    <section class="info-tool">
+    <aside class="info-tool">
       <base-card icon="blog-filter" title="关键字" min-height="110px" class="mx-4 mb-4">
         <div class="join w-full mt-2">
           <button
@@ -383,38 +482,43 @@ const theme = useTheme();
         </div>
       </base-card>
 
-      <base-card icon="blog-category" title="分类" class="category-card mx-4 mb-4">
-        <div
-          v-for="item of categoryOptions"
-          :key="item.id"
-          class="category-item"
-          :color="item.color"
-          :class="item.id === queryPrams.category ? 'active' : ''"
-          @click="clickTagHandle(item, '分类')"
-          @mouseenter="(e) => categoryMouseenter(e, item)"
-          @mouseleave="(e) => categoryMouseleave(e)"
-        >
-          <div
-            class="category__inner flex justify-between items-center"
-            :style="{
-              borderColor: item.id === queryPrams.category ? 'transparent' : '',
-            }"
+      <base-card icon="blog-liuyanban3" title="最新评论" class="mx-4 mb-4" :no-padding="false">
+        <ul class="list bg-base-100 rounded-box">
+          <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">
+            所有文章最新的评论~
+          </li>
+
+          <li
+            v-for="comment in commentsList"
+            :key="comment.id"
+            class="list-row text-base-content/80 cursor-pointer"
+            @click="$router.push(`detail/${comment.articleId}`)"
           >
-            <span class="category__text">{{ item['label'] }}</span>
-            <div
-              class="category__tag"
-              :color="item.color"
-              size="small"
-              :style="{
-                backgroundColor: item.color,
-              }"
-            >
-              <span>{{ item['articleCount'] }}</span>
+            <div class="flex items-center">
+              <xia-image class="size-9 rounded-box" lazyload :src="comment.userInfo.avatar" />
             </div>
-          </div>
-        </div>
+            <div>
+              <div class="flex items-center text-xs">
+                {{ comment.userInfo.nickname }}
+                <span class="flex items-center ml-2">
+                  <xia-icon width="14px" icon="blog-shijian" />
+                  {{ beforeTimeNow(comment.createTime) }}
+                </span>
+              </div>
+              <div class="text-xs uppercase text-base-content/50 max-h-8 overflow-hidden-container">
+                {{ comment.content }}
+              </div>
+            </div>
+            <div class="flex items-center">
+              <span class="text-sm text-base-content/35 flex items-center">
+                <xia-icon icon="blog-pinglun" class="mr-0" height="16px" />
+                {{ comment.allReplyCount }}
+              </span>
+            </div>
+          </li>
+        </ul>
       </base-card>
-    </section>
+    </aside>
   </div>
 </template>
 
@@ -422,6 +526,9 @@ const theme = useTheme();
   .article-list-page {
     position: relative;
     padding-top: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
     :deep(.xia-empty) {
       margin-bottom: 10vh;
       transition: all 1s;
@@ -430,14 +537,70 @@ const theme = useTheme();
     .el-pagination {
       margin-top: 8vh;
     }
+    // 分类卡片
+    .category-card {
+      max-height: 110vh;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+    .category-item {
+      --current-color: #e5e6e6;
+      padding: 5px 10px;
+      transition: all 0.5s;
+      border-radius: 2px 2px;
+      .category__inner {
+        cursor: pointer;
+        position: relative;
+        border-bottom: 1px solid #e5e6e6;
+        &:after {
+          // background: none repeat scroll 0 0 transparent;
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          content: '';
+          display: block;
+          border-bottom-width: 1px;
+          border-bottom-style: solid;
+          border-bottom-color: var(--current-color);
+          width: 0;
+          transition: width 0.5s ease 0s;
+        }
+      }
+    }
+    .category-item:hover {
+      .category__inner:after {
+        width: 100%;
+        left: 0;
+      }
+    }
+    .category-item.active {
+      .category__inner:after {
+        width: 100%;
+        left: 0;
+      }
+    }
+    .category__tag {
+      border-radius: 7px;
+      line-height: 14px;
+      font-size: 12px;
+      height: 14px;
+      color: #fff;
+      padding: 0 9px;
+    }
+    .category__text {
+      line-height: 1.8;
+      flex: 1;
+    }
     // 右边卡片
     .info-tool {
-      position: absolute;
-      right: 0;
-      top: 20px;
-      width: 340px;
+      // position: absolute;
+      // right: 0;
+      // top: 20px;
+      // width: 340px;
+      flex-basis: 340px;
       transition: all 0.5s;
-      transform: translateX(300%);
+      // transform: translateX(300%);
+      display: none;
       // 天气卡片
       .weather-card {
         min-height: 180px;
@@ -445,61 +608,6 @@ const theme = useTheme();
           width: 100%;
           height: 180px;
         }
-      }
-
-      // 分类卡片
-      .category-card {
-        max-height: 110vh;
-        min-height: 100vh;
-        overflow-y: auto;
-      }
-      .category-item {
-        --current-color: #e5e6e6;
-        padding: 5px 20px;
-        transition: all 0.5s;
-        border-radius: 2px 2px;
-        .category__inner {
-          cursor: pointer;
-          position: relative;
-          border-bottom: 1px solid #e5e6e6;
-          &:after {
-            // background: none repeat scroll 0 0 transparent;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            content: '';
-            display: block;
-            border-bottom-width: 1px;
-            border-bottom-style: solid;
-            border-bottom-color: var(--current-color);
-            width: 0;
-            transition: width 0.5s ease 0s;
-          }
-        }
-      }
-      .category-item:hover {
-        .category__inner:after {
-          width: 100%;
-          left: 0;
-        }
-      }
-      .category-item.active {
-        .category__inner:after {
-          width: 100%;
-          left: 0;
-        }
-      }
-      .category__tag {
-        border-radius: 7px;
-        line-height: 14px;
-        font-size: 12px;
-        height: 14px;
-        color: #fff;
-        padding: 0 9px;
-      }
-      .category__text {
-        line-height: 1.8;
-        flex: 1;
       }
     }
     .main-content,
@@ -515,6 +623,7 @@ const theme = useTheme();
     .main-content {
       position: relative;
       margin-right: 0;
+      flex: 1;
     }
     .article-item-wrap {
       transition: all 0.5s;
@@ -541,7 +650,7 @@ const theme = useTheme();
           margin-right: 0;
         }
       }
-      @media (min-width: 1536px) {
+      @media (min-width: 1336px) {
         //2xl
         .article-item {
           width: calc(33.3333% - 13.33px);
@@ -554,15 +663,16 @@ const theme = useTheme();
 
     @media (min-width: 768px) {
       .main-content {
-        margin-right: 340px;
+        // margin-right: 340px;
       }
       .info-tool {
-        transform: translateX(0%);
+        // transform: translateX(0%);
+        display: block;
       }
     }
     @media (min-width: 1780px) {
       .info-tool {
-        right: 100px;
+        // right: 100px;
       }
     }
 

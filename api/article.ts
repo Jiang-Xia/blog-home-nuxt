@@ -36,8 +36,8 @@ export const getArchives = () => {
 };
 
 // 获取文章评论
-export const getComment = (id: string) => {
-  return request.get('/comment/findAll', { articleId: id });
+export const getComment = (id?: string, otherParams?: any) => {
+  return request.get('/comment/findAll', { articleId: id, ...otherParams });
 };
 // 新增评论
 export const addComment = (data: any) => {

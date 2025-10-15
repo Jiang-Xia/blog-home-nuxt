@@ -35,7 +35,6 @@ const goToNextPage = () => {
     <h1 class="hidden">
       首页 - {{ SiteTitle }}
     </h1>
-    <!-- 全局共享布局 -->
     <section class="banner-container">
       <!-- 文字信息 -->
       <div class="site-info">
