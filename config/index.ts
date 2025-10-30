@@ -30,7 +30,10 @@ const scripts = [
     defer: true,
     src: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js',
   },
-  { defer: true, src: 'https://cdn.staticfile.net/jsencrypt/3.3.2/jsencrypt.min.js' },
+  {
+    defer: true,
+    src: 'https://jiang-xia.top/x-blog/api/v1/static/uploads/2025-10/7746c5c31ccc4ae0b972fc1a5b8f1152-jsencrypt.min.js',
+  },
   { defer: true, src: 'https://cdn.staticfile.net/jszip/3.10.1/jszip.min.js' },
   { defer: true, src: 'https://cdn.staticfile.net/jsbarcode/3.11.6/JsBarcode.all.min.js' },
   { defer: true, src: 'https://cdn.staticfile.net/html2pdf.js/0.10.1/html2pdf.bundle.min.js' },
@@ -52,7 +55,7 @@ interface configState {
 const config: configState = {
   // 阿里巴巴图标库链接，新添加图标需要重新生成 css 改成js
   // 新增图标记得批量去色，不然修改不了图标颜色
-  iconfonrUrl: '//at.alicdn.com/t/c/font_3114416_wbili8b9pa.js',
+  iconfonrUrl: '//at.alicdn.com/t/c/font_3114416_yyxgurnr6u.js',
   // 500 error页动图
   gifError:
     originUrl + '/x-api/blog-server/static/uploads/2022-09-12/nm2t4fs18ix5ld2w6g1j1b-error.gif',

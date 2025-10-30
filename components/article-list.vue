@@ -321,7 +321,7 @@ commentsList.value = commentsData.value.list;
                   TOP
                 </div>
               </h2>
-              <p class="text-sm">
+              <p class="text-sm text-overflow-hidden-3">
                 {{ item.description }}
               </p>
               <div class="card-actions justify-start text-xs flex-wrap">
@@ -505,7 +505,7 @@ commentsList.value = commentsData.value.list;
                   {{ beforeTimeNow(comment.createTime) }}
                 </span>
               </div>
-              <div class="text-xs uppercase text-base-content/50 max-h-8 overflow-hidden-container">
+              <div class="text-xs uppercase text-base-content/50 max-h-8 text-overflow-hidden-2">
                 {{ comment.content }}
               </div>
             </div>

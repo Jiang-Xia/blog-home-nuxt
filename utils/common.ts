@@ -96,7 +96,7 @@ export const formactDate = (str: string) => {
   return dayjs(str).format('YYYY-MM-DD HH:mm:ss');
 };
 
-const avatars = [
+let avatars = [
   '/x-api/blog-server/static/uploads/2022-08-26/2tp9sykqn11a6b41yodlzz-头像_天秤座.png',
   '/x-api/blog-server/static/uploads/2022-08-26/sca06wy3ht6mgu839y9xk9-头像_天蝎座.png',
   '/x-api/blog-server/static/uploads/2022-08-26/2tp9sykqn11a6b41yodlez-头像_白羊座.png',
@@ -109,12 +109,13 @@ const avatars = [
   '/x-api/blog-server/static/uploads/2022-08-26/2tp9sykqn11a6b41yodlk8-头像_双鱼座.png',
   '/x-api/blog-server/static/uploads/2022-08-26/2tp9sykqn11a6b41yodl9q-头像_金牛座.png',
   '/x-api/blog-server/static/uploads/2022-08-26/sca06wy3ht6mgu839y9x6d-头像_射手座.png',
-];
+].map((url: string) => originUrl + url);
 // 获取十二星座随机头像
-export const getRandomAvatar = () => {
+export const getRandomAvatar = (list = avatars) => {
+  avatars = list;
+  // console.log('avatars------------->', avatars);
   const index = Math.floor(Math.random() * avatars.length);
-  const url = originUrl;
-  return url + avatars[index];
+  return avatars[index];
 };
 
 // 判断是否是pc设备

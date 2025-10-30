@@ -29,5 +29,5 @@
 }
 /* 自定义类名组件 */
 @utility login-input {
-  @apply w-full outline-none bg-transparent text-gray-200 border border-gray-700 focus:border-gray-600 focus:outline-info-content;
+  @apply w-full outline-none pr-0 bg-transparent text-gray-200 border border-gray-700 focus:border-gray-600 focus:outline-info-content focus-within:outline-info-content;
 }
