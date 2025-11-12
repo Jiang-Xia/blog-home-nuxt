@@ -45,7 +45,6 @@ const form: formState = reactive({
 });
 const codeUrl = baseUrl + '/user/authCode';
 const authCodeUrl = ref('');
-const token = useToken();
 
 request
   .get('/resources/files', {
@@ -69,7 +68,7 @@ const okHandle = async () => {
         : ['email', 'password', 'nickname', 'verificationCode'];
 
   const msg: StringKey = {
-    mobile: '填写手机号',
+    mobile: '填写账号',
     email: '填写邮箱',
     password: '填写密码',
     nickname: '填写昵称',
@@ -94,6 +93,7 @@ const okHandle = async () => {
   let url = '/user/register';
   if (registerType.value === 'mobile') {
     params.mobile = form.mobile;
+    params.authCode = form.authCode;
   }
   else {
     params.email = form.email;
@@ -185,15 +185,15 @@ if (import.meta.client) {
             </div>
           </div>
 
-          <!-- 手机号注册表单 -->
+          <!-- 账号注册表单 -->
           <template v-if="registerType === 'mobile'">
             <div class="form-control">
               <label class="login-label">
-                <span class="login-label-text">手机号</span>
+                <span class="login-label-text">账号</span>
               </label>
               <label class="login-input input">
                 <xia-icon icon="blog-shoujihao" />
-                <input v-model="form.mobile" type="text" maxlength="11" placeholder="手机号">
+                <input v-model="form.mobile" type="text" maxlength="11" placeholder="账号">
               </label>
             </div>
 
@@ -293,7 +293,7 @@ if (import.meta.client) {
                 v-else
                 class="link text-xs text-gray-600 hover:text-gray-500"
                 @click="registerType = 'mobile'"
-              >手机号注册
+              >账号注册
               </div>
             </label>
           </div>

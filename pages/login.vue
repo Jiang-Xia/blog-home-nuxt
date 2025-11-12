@@ -49,7 +49,7 @@ const okHandle = async () => {
         : ['email', 'password', 'verificationCode'];
 
   const msg: StringKey = {
-    mobile: '填写手机号',
+    mobile: '填写账号',
     email: '填写邮箱',
     password: '填写密码',
     authCode: '填写验证码',
@@ -147,7 +147,24 @@ if (import.meta.client) {
   if (isPC()) {
     isPcClient.value = true;
   }
+  // github授权登录
+  const route = useRoute();
+  const query: any = route.query;
+  if (query.accessToken) {
+    token.value = query.accessToken;
+    setToken(TokenKey, query.accessToken);
+    setToken(RefreshTokenKey, query.refreshToken, '', 7);
+    messageSuccess('登录成功');
+    navigateTo('/');
+  }
 }
+const githubLoginLoading = ref(false);
+const githubLogin = () => {
+  githubLoginLoading.value = true;
+  messageInfo('正在登录...', 3000);
+  location.href = `${baseUrl}/user/auth/github`;
+};
+
 const bgConfig = reactive({ height: 0, width: 0 });
 onMounted(() => {
   bgConfig.height = window.innerHeight;
@@ -165,15 +182,15 @@ onMounted(() => {
             欢 迎 登 录
           </h1>
 
-          <!-- 手机号登录表单 -->
+          <!-- 账号登录表单 -->
           <template v-if="loginType === 'mobile'">
             <div class="form-control">
               <label class="login-label">
-                <span class="login-label-text">手机号</span>
+                <span class="login-label-text">账号</span>
               </label>
               <label class="login-input input">
                 <xia-icon icon="blog-shoujihao" />
-                <input v-model="form.mobile" type="text" maxlength="11" placeholder="手机号">
+                <input v-model="form.mobile" type="text" maxlength="11" placeholder="账号">
               </label>
             </div>
             <div class="form-control">
@@ -257,10 +274,17 @@ onMounted(() => {
                 v-else
                 class="link text-xs text-gray-600 hover:text-gray-500"
                 @click="loginType = 'mobile'"
-              >手机号登录</div>
+              >账号登录</div>
             </label>
           </div>
-
+          <button
+            class="btn bg-black btn-circle text-white border-black block w-full"
+            @click="githubLogin"
+          >
+            <span v-if="githubLoginLoading" class="loading loading-spinner" />
+            <xia-icon icon="blog-github" width="40px" height="40px" />
+            Login with GitHub
+          </button>
           <div class="form-control mt-2">
             <InShimmerButton
               class="shadow-2xl btn-block text-gray-300 hover:text-gray-100 dark:from-white dark:to-slate-900/10"
