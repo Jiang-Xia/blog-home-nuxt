@@ -1,5 +1,6 @@
 let showMsgLoading = false;
-export const messageDanger = (msg: string, duration = 1000) => {
+const DEFAULT_DURATION = 1500;
+export const messageDanger = (msg: string, duration = DEFAULT_DURATION) => {
   // console.log('危险提示!');
   if (showMsgLoading) {
     return;
@@ -19,7 +20,7 @@ export const messageDanger = (msg: string, duration = 1000) => {
     }, 1000);
   }
 };
-export const messageSuccess = (msg = '', duration = 1000) => {
+export const messageSuccess = (msg = '', duration = DEFAULT_DURATION) => {
   if (showMsgLoading) {
     return;
   }
@@ -38,7 +39,7 @@ export const messageSuccess = (msg = '', duration = 1000) => {
     showMsgLoading = false;
   }, 1000);
 };
-export const messageWarning = (msg = '', duration = 1000) => {
+export const messageWarning = (msg = '', duration = DEFAULT_DURATION) => {
   if (showMsgLoading) {
     return;
   }
@@ -57,7 +58,7 @@ export const messageWarning = (msg = '', duration = 1000) => {
     showMsgLoading = false;
   }, 1000);
 };
-export const messageInfo = (msg = '', duration = 1000) => {
+export const messageInfo = (msg = '', duration = DEFAULT_DURATION) => {
   if (showMsgLoading) {
     return;
   }
