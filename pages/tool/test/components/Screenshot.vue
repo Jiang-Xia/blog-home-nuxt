@@ -13,7 +13,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { loadScreenshotScripts } from '~/utils/script-loader';
 
 const pdfContent = ref(null);
 const capture = async () => {
@@ -51,6 +52,11 @@ const generatePdf = async () => {
       .save();
   }
 };
+
+onMounted(async () => {
+  // 按需加载截图/导出脚本
+  await loadScreenshotScripts();
+});
 </script>
 
 <style>

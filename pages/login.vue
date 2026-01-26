@@ -5,12 +5,15 @@ import { messageDanger, messageSuccess } from '~~/utils/toast';
 import { baseUrl } from '~~/config';
 import { isPC } from '~/utils/common';
 import { setToken, TokenKey, RefreshTokenKey } from '@/utils/cookie';
-// import { useMainStore } from '~/stores'
+import { rsaEncrypt as rsaEncryptUtil } from '~~/utils/jsencrypt';
+import { loadRsaScript } from '~/utils/script-loader';
+
 let rsaEncrypt: any;
-// 客户端才引入
+// 客户端才加载
 if (import.meta.client) {
-  import('~~/utils/jsencrypt').then((res) => {
-    rsaEncrypt = res.rsaEncrypt;
+  // 按需加载 RSA 加密脚本
+  loadRsaScript().then(() => {
+    rsaEncrypt = rsaEncryptUtil;
   });
 }
 const codeUrl = baseUrl + '/user/authCode';

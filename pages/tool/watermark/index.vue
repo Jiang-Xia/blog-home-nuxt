@@ -64,6 +64,7 @@
 
 <script setup lang="ts">
 import { messageDanger } from '@/utils/toast';
+import { loadWatermarkScripts } from '~/utils/script-loader';
 
 const customMark = ref('江夏的图片');
 const timeMark = ref('yes');
@@ -150,7 +151,7 @@ const downloadAllImages = (): void => {
     });
 
     // 生成并下载zip文件
-    zip.generateAsync({ type: 'blob' }).then(function (content) {
+    zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(content);
       link.download = 'watermarked-images.zip';
@@ -165,7 +166,10 @@ const openViewer = (index: any) => {
   isViewerOpen.value = true;
   initialIndex.value = index;
 };
-onMounted(() => {});
+onMounted(async () => {
+  // 按需加载水印工具脚本
+  await loadWatermarkScripts();
+});
 </script>
 
 <style lang="less" scoped>

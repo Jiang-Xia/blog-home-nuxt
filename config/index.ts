@@ -20,31 +20,9 @@ else {
 }
 
 const scripts = [
-  // 百度统计脚本
+  // 百度统计脚本 - 仅保留首页必需的统计脚本
   { defer: true, src: 'https://hm.baidu.com/hm.js?9c1165af167360b492031753308c3878' },
-  {
-    defer: true,
-    src: 'https://cdn.staticfile.net/pdf-lib/1.17.1/pdf-lib.min.js',
-  },
-  {
-    defer: true,
-    src: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js',
-  },
-  {
-    defer: true,
-    src: 'https://jiang-xia.top/x-blog/api/v1/static/uploads/2025-10/7746c5c31ccc4ae0b972fc1a5b8f1152-jsencrypt.min.js',
-  },
-  { defer: true, src: 'https://cdn.staticfile.net/jszip/3.10.1/jszip.min.js' },
-  { defer: true, src: 'https://cdn.staticfile.net/jsbarcode/3.11.6/JsBarcode.all.min.js' },
-  { defer: true, src: 'https://cdn.staticfile.net/html2pdf.js/0.10.1/html2pdf.bundle.min.js' },
-  { defer: true, src: 'https://cdn.staticfile.net/html2canvas/1.4.1/html2canvas.min.js' },
-
-  { defer: true, src: 'https://unpkg.com/konva@9/konva.min.js' },
-  { defer: true, src: 'https://cdn.staticfile.net/qrcodejs/1.0.0/qrcode.min.js' },
-  { defer: true, src: 'https://unpkg.com/smooth-signature/dist/index.umd.min.js' },
-
-  { defer: true, src: '/js/cdn/exif-reader.min.js' },
-  { defer: true, src: '/js/cdn/sm-crypto/sm2.min.js' },
+  // 其他脚本已改为按需加载，请参考 utils/script-loader.ts
 ];
 
 interface configState {

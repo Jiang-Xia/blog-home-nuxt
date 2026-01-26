@@ -119,6 +119,7 @@
 
 <script setup lang="ts">
 import { messageDanger } from '~~/utils/toast';
+import { loadSm2Script } from '~/utils/script-loader';
 
 definePageMeta({
   keepalive: true, // nuxt 默认缓存所有页面
@@ -159,7 +160,10 @@ const decrypt = () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  // 按需加载国密 SM2 脚本
+  await loadSm2Script();
+
   createKey();
   // console.log(crypto.rsaEncrypt)
 });

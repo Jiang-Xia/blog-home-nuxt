@@ -53,6 +53,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount } from 'vue';
 import { originUrl } from '~/config';
+import { loadBarcodeScripts } from '~/utils/script-loader';
 
 definePageMeta({
   keepalive: true, // nuxt 默认缓存所有页面
@@ -82,7 +83,10 @@ const createQRCode = () => {
   qrcode.makeCode(qrcodeVal.value);
 };
 
-onMounted(() => {
+onMounted(async () => {
+  // 按需加载条码生成脚本
+  await loadBarcodeScripts();
+
   createBarcode();
   qrcode = new QRCode(vueQrcode.value, {
     text: qrcodeVal.value,

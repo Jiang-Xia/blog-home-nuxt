@@ -2,6 +2,7 @@
 import FilterBorder from './components/FilterBorder.vue';
 import FilterBorderCanvas from './components/FilterBorderCanvas.vue';
 import { messageDanger } from '~~/utils/toast';
+import { loadPhotoScripts, loadWatermarkScripts } from '~/utils/script-loader';
 
 const logoImgNameList = [
   'nikon',
@@ -32,9 +33,12 @@ const logoImgNameList = [
   'zeiss_full',
 ];
 const banners = useBanners();
-onMounted(() => {
-  currentImage.value = banners.value.length ? banners.value[0].url : '';
-  imageSrcList.value = banners.value.map(v => v.url);
+onMounted(async () => {
+  // 按需加载照片处理脚本
+  await Promise.all([loadPhotoScripts(), loadWatermarkScripts()]);
+
+  currentImage.value = banners.value?.length ? banners.value[0]?.url || '' : '';
+  imageSrcList.value = banners.value?.map(v => v.url) || [];
 });
 const currentImage = ref('');
 const fileContents = ref<any>(null);
@@ -69,9 +73,9 @@ const deleteImage = (item: string) => {
   imageSrcList.value.splice(imageSrcList.value.indexOf(item), 1);
   nextTick(() => {
     currentImage.value = imageSrcList.value.length
-      ? imageSrcList.value[0]
-      : banners.value.length
-        ? banners.value[0].url
+      ? imageSrcList.value[0] || ''
+      : banners.value?.length
+        ? banners.value[0]?.url || ''
         : '';
   });
 };
@@ -102,7 +106,7 @@ const exportAll = () => {
     }
     // console.log('index', index);
     // 生成并下载zip文件
-    zip.generateAsync({ type: 'blob' }).then(function (content: any) {
+    zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(content);
       link.download = 'images.zip';

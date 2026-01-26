@@ -4,12 +4,15 @@ import request from '~~/api/request.js';
 import { getRandomAvatar, isPC } from '~~/utils/common';
 import { messageDanger, messageSuccess } from '~~/utils/toast';
 import { baseUrl } from '~~/config';
+import { rsaEncrypt as rsaEncryptUtil } from '~~/utils/jsencrypt';
+import { loadRsaScript } from '~/utils/script-loader';
 
 let rsaEncrypt: any;
-// 客户端才引入
+// 客户端才加载
 if (import.meta.client) {
-  import('~~/utils/jsencrypt').then((res) => {
-    rsaEncrypt = res.rsaEncrypt;
+  // 按需加载 RSA 加密脚本
+  loadRsaScript().then(() => {
+    rsaEncrypt = rsaEncryptUtil;
   });
 }
 definePageMeta({

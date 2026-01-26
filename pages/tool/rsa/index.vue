@@ -122,6 +122,7 @@
 <script setup lang="ts">
 import { rsaEncrypt, rsaDecrypt } from '~~/utils/jsencrypt';
 import { messageDanger } from '~~/utils/toast';
+import { loadRsaScript } from '~/utils/script-loader';
 
 definePageMeta({
   keepalive: true, // nuxt 默认缓存所有页面
@@ -143,20 +144,23 @@ const encrypted = () => {
     messageDanger('请先输入原文');
     return;
   }
-  ciphertext.value = rsaEncrypt(plaintext.value, pubkey, outputType.value);
+  ciphertext.value = rsaEncrypt(plaintext.value, publicKey.value, outputType.value);
 };
 const decrypt = () => {
   if (!ciphertext.value) {
     messageDanger('请先输入密文');
     return;
   }
-  plaintext.value = rsaDecrypt(ciphertext.value, priKey, outputType.value);
+  plaintext.value = rsaDecrypt(ciphertext.value, privateKey.value, outputType.value);
   if (!plaintext.value) {
     messageDanger('解密失败！');
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  // 按需加载 RSA 加密脚本
+  await loadRsaScript();
+
   createKey();
   // console.log(crypto.rsaEncrypt)
 });

@@ -69,6 +69,7 @@
 import { ref, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import sealLogo from '@/assets/images/logo/person/jiang.png';
+import { loadPdfScripts } from '~/utils/script-loader';
 
 const emits = defineEmits(['success']);
 const props = defineProps({
@@ -91,7 +92,10 @@ const signaturePng = ref('');
 const showSmoothSignatureWrap = ref(false);
 const localSecond = ref(props.second);
 const loading = ref(true);
-onMounted(() => {
+onMounted(async () => {
+  // 按需加载 PDF 相关脚本
+  await loadPdfScripts();
+
   const timer = setInterval(() => {
     localSecond.value--;
     if (!localSecond.value) {
