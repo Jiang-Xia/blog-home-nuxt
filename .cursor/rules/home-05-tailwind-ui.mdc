@@ -1,0 +1,14 @@
+---
+description: blog-home-nuxt Tailwind/Nuxt UI 样式规范
+globs: **/*.{vue,css,less}
+alwaysApply: false
+---
+
+# Tailwind UI Rules
+
+- 优先复用现有 Nuxt UI 与项目组件，不引入平行 UI 体系导致样式冲突。
+- Tailwind 类名保持语义分组，过长 class 字符串可抽取为组件或计算属性。
+- 全局样式改动优先评估主题模式（明/暗）和响应式断点影响。
+- 样式覆盖遵循“局部优先、全局谨慎”，避免在全局文件写高风险通配规则。
+- 保持动画与过渡轻量，首屏与列表页避免高成本阴影/滤镜叠加。
+- 组件样式变更需兼容移动端，至少验证常见断点下布局稳定。

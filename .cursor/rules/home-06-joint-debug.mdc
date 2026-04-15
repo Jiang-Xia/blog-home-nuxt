@@ -1,0 +1,14 @@
+---
+description: blog-home-nuxt 与 blog-server 联调约束
+globs: **/*.{vue,ts}
+alwaysApply: false
+---
+
+# Home Joint Debug Rules
+
+- 联调时默认后端协议为 `{ code, data, message }`，前端不要自行改协议层。
+- 新接口联调前确认路径前缀、请求方法、必填参数、鉴权要求是否与 Swagger 一致。
+- 接口字段变更优先兼容旧字段，避免线上页面直接读取失败。
+- 401/403/404/500 的提示语义要统一，不同页面保持一致交互体验。
+- 代理前缀、环境变量、baseURL 三者必须成对核对，优先排查前缀重写问题。
+- 涉及 `/encrypt` 接口时，严格检查请求加密与响应解密是否同时启用。

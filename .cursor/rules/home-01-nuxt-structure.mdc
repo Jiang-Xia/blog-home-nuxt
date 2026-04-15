@@ -1,0 +1,14 @@
+---
+description: blog-home-nuxt 目录与模块边界规范
+globs: **/*.{vue,ts}
+alwaysApply: false
+---
+
+# Nuxt Structure Rules
+
+- 遵循 Nuxt 约定式目录：页面放 `pages/`，布局放 `layouts/`，可复用逻辑放 `composables/`。
+- API 调用入口统一走 `api/` 封装，不在页面中散落 `$fetch` 底层配置。
+- 公共类型统一收敛到 `types/` 或对应模块类型文件，避免同一结构重复定义。
+- 组件优先保持“展示与逻辑分离”：页面组合组件，业务逻辑抽到 composables。
+- 新增模块时先复用现有目录结构和命名，不引入平行风格目录。
+- 禁止在非客户端安全位置直接访问浏览器对象，注意 SSR/CSR 运行差异。

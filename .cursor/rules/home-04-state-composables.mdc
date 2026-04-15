@@ -1,0 +1,14 @@
+---
+description: blog-home-nuxt Pinia 与 composables 复用规范
+globs: {stores,composables}/**/*.ts
+alwaysApply: false
+---
+
+# State And Composables Rules
+
+- 全局可共享状态放 Pinia，本地页面状态优先用 composable，不滥用全局 store。
+- composable 命名使用 `useXxx`，返回值保持稳定结构，避免频繁破坏调用方。
+- store 里的异步操作要显式处理 loading/error，避免页面层重复写错误分支。
+- 不在多个 store 复制同一业务状态，优先抽公共 store 或公共 composable。
+- 对接口返回体先做最小归一化再写入状态，减少页面层适配负担。
+- 涉及登录态更新时，要同步 token、用户信息与依赖缓存，避免状态撕裂。

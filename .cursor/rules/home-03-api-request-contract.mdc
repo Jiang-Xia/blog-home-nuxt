@@ -1,0 +1,15 @@
+---
+description: blog-home-nuxt 请求封装、token 与错误处理规范
+globs: api/**/*.ts
+alwaysApply: false
+---
+
+# Home API Request Contract
+
+- 统一从 `api/request.ts` 暴露 `get/post/put/del`，业务层默认消费 `res.data`。
+- 响应解析以 `{ code, data, message }` 为准，禁止在业务页面自定义二次协议。
+- token 注入规则统一为 `Authorization: Bearer <token>`，刷新逻辑集中在请求层。
+- 401 处理必须走无感刷新或退出流程，不能静默吞错导致页面卡死。
+- 网络错误提示使用用户可理解文案，不直接暴露内部异常对象。
+- 防重复请求机制（requestMap）默认保留，除非有明确幂等策略再放开。
+- 开启加密时保持 `encryptMsg/decryptMsg` 对称，且只对约定接口生效。

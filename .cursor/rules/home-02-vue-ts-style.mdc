@@ -1,0 +1,14 @@
+---
+description: blog-home-nuxt Vue3 + TS 编码风格规范
+globs: **/*.vue
+alwaysApply: false
+---
+
+# Vue TS Style Rules
+
+- 优先使用 `<script setup lang="ts">` 与 Composition API，减少 Options API 混用。
+- 组件 props、emit、关键状态尽量声明类型，避免传播 `any`。
+- 模板中复杂表达式应下沉到计算属性或方法，保持模板可读性。
+- 遵循项目格式化约定：2 空格、分号、单引号、100 列宽、严格 HTML 空白策略。
+- 组件命名与目录命名保持一致语义，避免缩写与业务含义不清的文件名。
+- SSR 页面中的副作用逻辑需显式控制时机，避免 hydration 不一致。
