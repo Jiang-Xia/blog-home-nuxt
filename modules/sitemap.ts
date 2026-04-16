@@ -16,12 +16,12 @@ export default defineNuxtModule({
     hostname: 'http://localhost:5050',
   },
   setup(options, nuxt) {
-    function generateSitemap(routes: any, ids: []) {
-      let sitemapRoutes = routes.map((route: any) => route.path);
-      // console.log({sitemapRoutes,ids})
-      const details = ids.map((v: any) => 'detail/' + v);
-      sitemapRoutes = sitemapRoutes.concat(details);
-      // https://github.com/ekalinin/sitemap.js#generate-a-one-time-sitemap-from-a-list-of-urls
+    function generateSitemap(routes: any, articleIds: string[]) {
+      const routePaths = routes
+        .map((route: any) => route.path)
+        .filter((path: string) => !path.includes(':'));
+      const details = articleIds.map((id: string) => `/detail/${id}`);
+      const sitemapRoutes = [...routePaths, ...details];
       const stream = new SitemapStream({ hostname: options.hostname });
       return streamToPromise(Readable.from(sitemapRoutes).pipe(stream)).then(data =>
         data.toString(),
@@ -57,14 +57,19 @@ export default defineNuxtModule({
           body: {
             page: 1,
             pageSize: 500,
+            category: '',
+            tags: [],
+            title: '',
+            description: '',
+            content: '',
+            client: true,
+            sort: 'DESC',
           },
         });
-        if (res.data.list) {
-          console.log('准备生成sitemap，文章数为', res.data.list.length, '篇');
-          const articleIds = res.data.list.map((v: any) => v.id);
-          const sitemap: string = await generateSitemap(pages, articleIds);
-          createSitemapFile(sitemap, filePath);
-        }
+        const articleIds = res.data.list.map((v: any) => v.id);
+        console.log('准备生成sitemap，文章数为', articleIds.length, '篇');
+        const sitemap: string = await generateSitemap(pages, articleIds);
+        createSitemapFile(sitemap, filePath);
       }
       catch (error) {
         console.error(error);
