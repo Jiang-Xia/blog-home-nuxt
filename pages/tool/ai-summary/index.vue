@@ -162,8 +162,6 @@
 import copy from 'copy-to-clipboard';
 import { messageSuccess, messageDanger } from '~/utils/toast';
 import { SSE } from 'sse.js';
-import { baseUrl } from '~/config';
-import { useRoute } from 'vue-router';
 import { aesDecrypt } from '~~/utils/crypto';
 
 definePageMeta({
@@ -229,12 +227,10 @@ ${originalText.value}
   try {
     const payload = {
       messages: [{ role: 'user', content: prompt }],
-      baseURL: 'https://api.deepseek.com',
       model: 'deepseek-chat',
-      apiKey: 'sk-4da6f1b1e1a04084869c8c28c874bd14', // 需要用户配置
     };
 
-    const source = new SSE(baseUrl + '/pub/ai-stream', {
+    const source = new SSE('/api/ai-summary-stream', {
       headers: { 'Content-Type': 'application/json' },
       payload: JSON.stringify(payload),
       method: 'POST',
@@ -338,11 +334,6 @@ const formatDate = (date: Date) => {
 };
 
 onMounted(() => {
-  // 加载历史记录
-  const saved = localStorage.getItem('ai-summary-history');
-  if (saved) {
-    summaryHistory.value = JSON.parse(saved);
-  }
   const route = useRoute();
   if (route.query.params) {
     const decrypt = aesDecrypt(route.query.params);
@@ -351,15 +342,6 @@ onMounted(() => {
     originalText.value = params.content;
   }
 });
-
-// 保存历史记录
-watch(
-  summaryHistory,
-  (newVal) => {
-    localStorage.setItem('ai-summary-history', JSON.stringify(newVal));
-  },
-  { deep: true },
-);
 </script>
 
 <style scoped>

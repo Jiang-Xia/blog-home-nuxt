@@ -129,8 +129,7 @@
 <script setup lang="ts">
 import { adminUrl, originUrl } from '@/config';
 
-const token = useToken();
-const goUrl = `${adminUrl}?ticket=${token.value}`;
+const goUrl = adminUrl;
 const zoneUrl = originUrl + '/zone/#/';
 const goTargetPage = (type: number) => {
   let url = '';

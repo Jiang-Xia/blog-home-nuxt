@@ -26,19 +26,23 @@ const scrollTop = ref(0);
 const scrollHandle = () => {
   scrollTop.value = document.documentElement.scrollTop || document.body.scrollTop; // 微信里面获取body的
 };
-  // 客戶端执行
+const throttledScrollHandle = throttle(scrollHandle, 100);
+// 客戶端执行
 onMounted(() => {
   // console.log(document.documentElement)
   /*
     之所以绑定window的滚动事件 是为了元素样式为固定定位（相对于window定位的）时会覆盖document子元素的滚动条
     造成错位不好看。这里的滚动对象是 document.documentElement
   */
-  window.addEventListener('scroll', throttle(scrollHandle, 100), true);
+  window.addEventListener('scroll', throttledScrollHandle, true);
   // 写入一个cookie，用于判断用户是否点过赞
   if (!Cookies.get('browserId')) {
     // 存个当前时间戳
     Cookies.set('browserId', dayjs().valueOf().toString(), { expires: 7 });
   }
+});
+onUnmounted(() => {
+  window.removeEventListener('scroll', throttledScrollHandle, true);
 });
 // 博客运行时间
 const runTime = Math.ceil((dayjs().unix() - dayjs('2022-03-01').unix()) / (24 * 60 * 60));

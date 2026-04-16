@@ -13,13 +13,17 @@ export const RefreshTokenKey = 'x-refreshToken';
 export const InfoKey = 'x-userInfo';
 
 const DAY: number = 1; // 一天时间
+const commonCookieOptions = {
+  secure: typeof window !== 'undefined' ? window.location.protocol === 'https:' : true,
+  sameSite: 'Lax' as const,
+};
 export function getToken(key = TokenKey) {
   // console.log(`${key}======>`, Cookies.get(key))
   return Cookies.get(key);
 }
 
 export function setToken(key = TokenKey, token: string, type: string = '', day = DAY) {
-  return Cookies.set(key, type + token, { expires: day });
+  return Cookies.set(key, type + token, { expires: day, ...commonCookieOptions });
 }
 
 export function removeToken(key = TokenKey) {
@@ -34,7 +38,7 @@ export function getInfo(key = InfoKey) {
 }
 export function setInfo(userData = {}, key = InfoKey, day = DAY) {
   userData = JSON.stringify(userData);
-  return Cookies.set(key, userData, { expires: day });
+  return Cookies.set(key, userData, { expires: day, ...commonCookieOptions });
 }
 
 export function removeInfo(key = InfoKey) {
@@ -48,11 +52,11 @@ export function setNormalToken(
   day = DAY,
 ) {
   // day = time / (1000 * 60 * 60 * 24) // 一天时间
-  return Cookies.set(tokenKey, type + ' ' + token, { expires: day });
+  return Cookies.set(tokenKey, type + ' ' + token, { expires: day, ...commonCookieOptions });
 }
 // cookie 过期时间 expires_at
 export function setExpires(expiresAt: string, day = DAY) {
-  return Cookies.set('expires_at', expiresAt, { expires: day });
+  return Cookies.set('expires_at', expiresAt, { expires: day, ...commonCookieOptions });
 }
 
 export function getExpires() {

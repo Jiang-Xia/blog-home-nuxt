@@ -157,11 +157,6 @@ const toRgb = (color: string, alpha = 0.24) => {
 // 客户端执行
 // 本地点赞记录
 const localLikes = computed<number[]>(() => xBLogStore.value.likes);
-const listKey = ref();
-// 客户端徐根据缓存需重新渲染
-onMounted(() => {
-  listKey.value = new Date().getTime();
-});
 
 // 分类标签设置hover样式
 const categoryMouseenter = (e: any, item: any) => {
@@ -175,7 +170,7 @@ const categoryMouseleave = (e: any) => {
 const weatherData = ref<any>({});
 const userInfo = useUserInfo();
 const weatherUrl
-    = 'https://api.vvhan.com/api/ipCard?tip=Hello ' + (userInfo.value.nickname || '亲爱的路人！');
+  = 'https://api.vvhan.com/api/ipCard?tip=Hello ' + (userInfo.value.nickname || '亲爱的路人！');
 
 onMounted(
   /* async */ () => {
@@ -292,7 +287,7 @@ commentsList.value = commentsData.value.list;
         </base-card>
       </div>
       <!-- 文章列表 -->
-      <div :key="listKey" class="article-item-wrap flex justify-around flex-wrap w-full max-w-7xl">
+      <div class="article-item-wrap flex justify-around flex-wrap w-full max-w-7xl">
         <transition-group key="article-item-wrap" name="list">
           <div
             v-for="item in articleList"

@@ -5,7 +5,7 @@ import { setToken, getToken, removeToken, TokenKey, RefreshTokenKey } from '@/ut
 import { aesEncrypt, aesDecrypt } from '~~/utils/crypto';
 
 // 是否开启请求日志记录
-const openRequestLog = true;
+const openRequestLog = import.meta.dev;
 // 是否开启加密功能，从环境变量读取
 const openEncrypt = import.meta.env.VITE_NUXT_OPEN_ENCRYPT === 'true';
 
@@ -117,12 +117,13 @@ const getErrorMessage = (status: number, message: string, url: string): string =
  * @returns 是否为网络错误
  */
 const isNetworkError = (error: any): boolean => {
+  const isOffline = import.meta.client ? !navigator.onLine : false;
   return (
     error.name === 'TypeError'
     || error.message?.includes('fetch')
     || error.message?.includes('network')
     || error.message?.includes('Failed to fetch')
-    || !navigator.onLine
+    || isOffline
   );
 };
 
@@ -132,7 +133,7 @@ const isNetworkError = (error: any): boolean => {
  * @returns 网络错误提示信息
  */
 const getNetworkErrorMessage = (error: any): string => {
-  if (!navigator.onLine) {
+  if (import.meta.client && !navigator.onLine) {
     return '网络连接已断开，请检查网络设置';
   }
 
@@ -361,7 +362,9 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
               const token = useToken();
               token.value = '';
               removeToken(TokenKey);
-              console.log(body.message);
+              const err = new Error(body?.message || '登录已过期，请重新登录');
+              messageDanger(err.message);
+              reject(err);
             }
           }
           else {

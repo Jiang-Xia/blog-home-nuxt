@@ -47,9 +47,9 @@ const form: formState = reactive({
   /* 登录 */
 const okHandle = async () => {
   const requiredFields
-      = loginType.value === 'mobile'
-        ? ['mobile', 'password', 'authCode']
-        : ['email', 'password', 'verificationCode'];
+    = loginType.value === 'mobile'
+      ? ['mobile', 'password', 'authCode']
+      : ['email', 'password', 'verificationCode'];
 
   const msg: StringKey = {
     mobile: '填写账号',
@@ -153,12 +153,9 @@ if (import.meta.client) {
   // github授权登录
   const route = useRoute();
   const query: any = route.query;
-  if (query.accessToken) {
-    token.value = query.accessToken;
-    setToken(TokenKey, query.accessToken);
-    setToken(RefreshTokenKey, query.refreshToken, '', 7);
-    messageSuccess('登录成功');
-    navigateTo('/');
+  if (query.accessToken || query.refreshToken || query.ticket) {
+    messageDanger('检测到URL携带敏感登录信息，已拦截。请重新通过授权流程登录。');
+    history.replaceState({}, '', route.path);
   }
 }
 const githubLoginLoading = ref(false);

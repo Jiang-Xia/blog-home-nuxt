@@ -19,10 +19,7 @@ const handleError = () => clearError({ redirect: '/' });
 
 <template>
   <div class="common-page">
-    <div
-      class="img-wrap"
-      :style="{ 'background-image': `url(${config.gifError})` }"
-    />
+    <div class="img-wrap" :style="{ 'background-image': `url(${config.gifError})` }" />
     <div class="b-text text-center">
       <div class="gradient-text flex justify-center">
         <span class="mr-2">{{ error.statusCode }}</span>
@@ -34,11 +31,9 @@ const handleError = () => clearError({ redirect: '/' });
       >
         {{ error.message }}
       </div>
-      <!-- eslint-disable-next-line vue/no-v-html -->
-      <div
-        class="text-left text-sm mb-3 w-3/4 whitespace-pre-wrap"
-        v-html="error.stack"
-      />
+      <div class="text-left text-sm mb-3 w-3/4 whitespace-pre-wrap">
+        {{ error.stack }}
+      </div>
       <div class="w-full flex items-center justify-center">
         <xia-button @click="handleError">
           Try Again

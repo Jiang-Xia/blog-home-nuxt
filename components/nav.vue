@@ -63,15 +63,22 @@ const navList = ref([
 const token = useToken();
 const userInfo = useUserInfo();
 // 主题相关逻辑重构
-const { theme, clickIcon, initTheme } = useThemeActions();
+const { theme, clickIcon, initTheme, disposeTheme } = useThemeActions();
 
 onMounted(() => {
-  document.addEventListener('click', () => {
-    checked.value = false;
-  });
+  document.addEventListener('click', onDocumentClick);
   initTheme();
 });
-/* 切换主题 结束 */
+
+onUnmounted(() => {
+  document.removeEventListener('click', onDocumentClick);
+  disposeTheme();
+});
+
+const onDocumentClick = () => {
+  checked.value = false;
+};
+  /* 切换主题 结束 */
 
 /* 搜索文章 */
 
@@ -126,7 +133,7 @@ if (import.meta.client) {
     clear();
   }
 }
-const goUrl = `${adminUrl}?ticket=${token.value}`;
+const goUrl = adminUrl;
 // 菜单控制
 const checked = ref(false);
 </script>

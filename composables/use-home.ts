@@ -5,6 +5,7 @@ export const useTheme = () => useState('theme', () => 'light');
 // 主题相关逻辑提取
 export function useThemeActions() {
   const theme = useTheme();
+  let mediaMatch: MediaQueryList | null = null;
 
   // 设置主题
   const setTheme = () => {
@@ -41,8 +42,8 @@ export function useThemeActions() {
   const initTheme = () => {
     if (import.meta.client) {
       // 监听系统主题变化
-      const match = matchMedia('(prefers-color-scheme: dark)');
-      match.addEventListener('change', followOs);
+      mediaMatch = matchMedia('(prefers-color-scheme: dark)');
+      mediaMatch.addEventListener('change', followOs);
       // 初始化本地主题
       const localTheme = localStorage.getItem('theme');
       if (localTheme) {
@@ -52,12 +53,20 @@ export function useThemeActions() {
     }
   };
 
+  const disposeTheme = () => {
+    if (mediaMatch) {
+      mediaMatch.removeEventListener('change', followOs);
+      mediaMatch = null;
+    }
+  };
+
   return {
     theme,
     setTheme,
     followOs,
     clickIcon,
     initTheme,
+    disposeTheme,
   };
 }
 

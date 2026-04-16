@@ -2,8 +2,10 @@
 import tailwindcss from '@tailwindcss/vite';
 import { scripts } from './config';
 
-const prefixPath: any = process.env.VITE_NUXT_PREFIX_PATH;
-const baseUrl: any = process.env.VITE_NUXT_ORIGIN_URL || '' + process.env.VITE_NUXT_API_PREINX;
+const prefixPath = process.env.VITE_NUXT_PREFIX_PATH || '/api';
+const originUrl = process.env.VITE_NUXT_ORIGIN_URL || '';
+const apiPrefix = process.env.VITE_NUXT_API_PREFIX || '';
+const proxyTarget = originUrl && apiPrefix ? `${originUrl}${apiPrefix}` : '';
 // const configs = Object.keys(process.env)
 //   .filter(k => k.toLocaleUpperCase().includes('VITE'))
 //   .map((k) => {
@@ -51,6 +53,10 @@ export default defineNuxtConfig({
     prefix: 'U',
     fonts: false,
   },
+  runtimeConfig: {
+    aiSummaryApiKey: process.env.AI_SUMMARY_API_KEY || '',
+    public: {},
+  },
   build: {
     // 打包配置
     transpile: ['md-editor-v3'], // 预编译大型依赖
@@ -70,15 +76,15 @@ export default defineNuxtConfig({
     // 配置代理
     devProxy: {
       [prefixPath]: {
-        target: baseUrl,
+        target: proxyTarget,
         changeOrigin: true,
         rewrite: (path: string) => path.replace(new RegExp(`^${prefixPath}`), ''),
       },
     },
     compressPublicAssets: {
       // 只压缩output/public目录的文件
-      gzip: false,
-      brotli: false,
+      gzip: true,
+      brotli: true,
     },
     // 优化 Nitro 构建
     minify: true,
