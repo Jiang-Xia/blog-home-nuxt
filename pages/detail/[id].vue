@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import { MdPreview } from 'md-editor-v3';
 
 import { useScroll } from '@vueuse/core';
@@ -40,11 +40,12 @@ const topicsDefault: tocInter[] = [];
 const topics = ref(topicsDefault);
 const ArticleInfo = reactive({ ...defaultForm });
 // console.log(route)
-const params = route.params;
+const articleId = computed(() => route.params.id as string);
 // console.log({ '文章id:': params.id, })
 // 响应式声明
-const { data: articleData, refresh } = await useAsyncData('detail_GetInfo', () =>
-  getArticleInfo(params),
+const { data: articleData, refresh } = await useAsyncData(
+  () => `detail_GetInfo_${articleId.value}`,
+  () => getArticleInfo({ id: articleId.value }),
 );
 const setArticleData = () => {
   if (articleData) {
@@ -62,7 +63,7 @@ setArticleData();
 //   await refresh()
 //   setArticleData()
 // })
-updateViews(params.id as string);
+updateViews(articleId.value);
 
 const getTagLabel = (arr: any): string => {
   const text = arr.map((v: any) => v.label).join();
@@ -111,9 +112,9 @@ onMounted(() => {
 /* 评论回复功能 */
 const comments = ref([]);
 const commentTotal = ref(0);
-const id: string = route.params.id as string;
-const { data: res, refresh: refreshCommentsFn } = await useAsyncData('detail_GetComment', () =>
-  getComment(id),
+const { data: res, refresh: refreshCommentsFn } = await useAsyncData(
+  () => `detail_GetComment_${articleId.value}`,
+  () => getComment(articleId.value),
 );
 const getCommentHandle = async () => {
   comments.value = res.value.list;
@@ -155,6 +156,25 @@ useHead({
   title: ArticleInfo.title + ' - 文章详情',
   titleTemplate: title => `${title} - ${SiteTitle}`,
 });
+
+watch(
+  () => articleId.value,
+  async (nextId, prevId) => {
+    if (!nextId || nextId === prevId) {
+      return;
+    }
+    await refresh();
+    setArticleData();
+    updateViews(nextId);
+
+    mdKey.value = new Date().getTime();
+    likes.value = xBLogStore.value.likes;
+    ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never);
+
+    await refreshCommentsFn();
+    getCommentHandle();
+  },
+);
 </script>
 
 <template>

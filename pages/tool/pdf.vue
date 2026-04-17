@@ -11,7 +11,7 @@ import { downloadFile } from '@/utils/common';
 
 const route = useRoute();
 const defaultPdfSrc
-    = 'https://jiang-xia.top/x-blog/api/v1/static/uploads/2024-03/eqiic4bsyyu39pd95y7e7h-保证书（不可撤消）.pdf';
+  = 'https://jiang-xia.top/x-blog/api/v1/static/uploads/2024-03/eqiic4bsyyu39pd95y7e7h-保证书（不可撤消）.pdf';
 const pdfSrc = (route.query.file as string) || defaultPdfSrc;
 // console.log('pdfSrc------->', pdfSrc);
 const successHandle = (res: Blob) => {

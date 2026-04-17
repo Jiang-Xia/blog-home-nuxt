@@ -178,11 +178,11 @@ const send = () => {
         const content = chunk.choices[0].delta.content || '';
         if (chunk.choices[0].delta.reasoning_content) {
           chatList.value[chatList.value.length - 1].reasoning_content
-              = chatList.value[chatList.value.length - 1].reasoning_content + reasoningContent;
+            = chatList.value[chatList.value.length - 1].reasoning_content + reasoningContent;
         }
         else {
           chatList.value[chatList.value.length - 1].content
-              = chatList.value[chatList.value.length - 1].content + content;
+            = chatList.value[chatList.value.length - 1].content + content;
         }
       }
     });

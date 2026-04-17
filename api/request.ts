@@ -7,7 +7,28 @@ import { aesEncrypt, aesDecrypt } from '~~/utils/crypto';
 // 是否开启请求日志记录
 const openRequestLog = import.meta.dev;
 // 是否开启加密功能，从环境变量读取
-const openEncrypt = import.meta.env.VITE_NUXT_OPEN_ENCRYPT === 'true';
+// 线上“紧急开关”：本地缓存有值则关闭加密（key 需尽量隐晦，避免被随意调试）
+// 规则：长一些 + 含项目指纹（home）但不直白暴露项目名/用途
+const DISABLE_ENCRYPT_STORAGE_KEY = '__bxp__nuxt_home__k3Y9p2__fuse__v1';
+const openEncryptByEnv = import.meta.env.VITE_NUXT_OPEN_ENCRYPT === 'true';
+const isEncryptEnabled = (): boolean => {
+  if (!openEncryptByEnv) {
+    return false;
+  }
+  // 仅线上部署支持通过本地缓存一键关闭加密（有值即关闭）
+  if (import.meta.env.MODE !== 'production') {
+    return true;
+  }
+  if (!import.meta.client) {
+    return true;
+  }
+  try {
+    return !localStorage.getItem(DISABLE_ENCRYPT_STORAGE_KEY);
+  }
+  catch {
+    return true;
+  }
+};
 
 /**
  * 日志记录函数
@@ -206,6 +227,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
   const { method = 'GET', params = {}, headers } = options;
 
   // 如果开启加密且不是外部URL，则在URL前添加'/encrypt'前缀
+  const openEncrypt = isEncryptEnabled();
   if (openEncrypt && !url.includes('http')) {
     url = '/encrypt' + url;
   }

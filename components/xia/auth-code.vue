@@ -14,10 +14,7 @@
       width: isNaN(parseInt(width)) ? width : width + 'px',
     }"
   >
-    <canvas
-      ref="authCode"
-      class="xia-authcode__content"
-    />
+    <canvas ref="authCode" class="xia-authcode__content" />
   </div>
 </template>
 
@@ -77,7 +74,7 @@ export default {
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
       const sCode
-          = 'a,b,c,d,e,f,g,h,i,j,k,m,n,p,q,r,s,t,u,v,w,x,y,z,A,B,C,E,F,G,H,J,K,L,M,N,P,Q,R,S,T,W,X,Y,Z,1,2,3,4,5,6,7,8,9,0';
+        = 'a,b,c,d,e,f,g,h,i,j,k,m,n,p,q,r,s,t,u,v,w,x,y,z,A,B,C,E,F,G,H,J,K,L,M,N,P,Q,R,S,T,W,X,Y,Z,1,2,3,4,5,6,7,8,9,0';
       const aCode = sCode.split(',');
 
       const aLength = aCode.length; // 获取到数组的长度

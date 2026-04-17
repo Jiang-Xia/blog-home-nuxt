@@ -211,9 +211,9 @@ function animate() {
     circle.x += circle.dx;
     circle.y += circle.dy;
     circle.translateX
-        += (mouse.x / (props.staticity / circle.magnetism) - circle.translateX) / props.ease;
+      += (mouse.x / (props.staticity / circle.magnetism) - circle.translateX) / props.ease;
     circle.translateY
-        += (mouse.y / (props.staticity / circle.magnetism) - circle.translateY) / props.ease;
+      += (mouse.y / (props.staticity / circle.magnetism) - circle.translateY) / props.ease;
 
     // circle gets out of the canvas
     if (

@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 const mp3Src
-    = 'https://jiang-xia.top/x-blog/api/v1static/uploads/2024-03/eqiic4bsyyu39pd95y7eh9-江南-林俊杰.128.mp3';
+  = 'https://jiang-xia.top/x-blog/api/v1static/uploads/2024-03/eqiic4bsyyu39pd95y7eh9-江南-林俊杰.128.mp3';
   // import mp3Src from './江南-林俊杰.128.mp3'
 const canvasWrap = ref();
 const canvas = ref();

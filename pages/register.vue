@@ -3,9 +3,11 @@ import { reactive } from 'vue';
 import request from '~~/api/request.js';
 import { getRandomAvatar, isPC } from '~~/utils/common';
 import { messageDanger, messageSuccess } from '~~/utils/toast';
+import { debounce } from '~~/utils/index';
 import { baseUrl } from '~~/config';
 import { rsaEncrypt as rsaEncryptUtil } from '~~/utils/jsencrypt';
 import { loadRsaScript } from '~/utils/script-loader';
+import { shouldRefreshGraphicCaptcha } from '~~/utils/graphic-captcha-error';
 
 let rsaEncrypt: any;
 // 客户端才加载
@@ -46,8 +48,8 @@ const form: formState = reactive({
   authCode: '',
   verificationCode: '',
 });
-const codeUrl = baseUrl + '/user/authCode';
 const authCodeUrl = ref('');
+const authCodeLoadError = ref(false);
 
 request
   .get('/resources/files', {
@@ -66,9 +68,9 @@ const okHandle = async () => {
   form.passwordRepeat = form.password;
 
   const requiredFields
-      = registerType.value === 'mobile'
-        ? ['mobile', 'password', 'nickname', 'authCode']
-        : ['email', 'password', 'nickname', 'verificationCode'];
+    = registerType.value === 'mobile'
+      ? ['mobile', 'password', 'nickname', 'authCode']
+      : ['email', 'password', 'nickname', 'verificationCode'];
 
   const msg: StringKey = {
     mobile: '填写账号',
@@ -104,17 +106,37 @@ const okHandle = async () => {
     url = '/user/email/register';
   }
 
-  await request.post(url, params);
-  messageSuccess('注册成功');
-  setTimeout(async () => {
-    await navigateTo('/login');
-  }, 500);
+  try {
+    await request.post(url, params);
+    messageSuccess('注册成功');
+    setTimeout(async () => {
+      await navigateTo('/login');
+    }, 500);
+  }
+  catch (err: any) {
+    if (registerType.value === 'mobile' && shouldRefreshGraphicCaptcha(err?.bizCode)) {
+      form.authCode = '';
+      void changeAuthCode();
+    }
+  }
 };
   // 更换验证码
-const changeAuthCode = () => {
-  authCodeUrl.value = codeUrl + '?t=' + new Date().getTime();
+const changeAuthCode = async () => {
+  try {
+    const res = await request.get('/user/authCode', { t: Date.now() });
+    authCodeUrl.value = `data:image/svg+xml;base64,${res.captchaBase64}`;
+    authCodeLoadError.value = false;
+  }
+  catch {
+    authCodeUrl.value = '';
+    authCodeLoadError.value = true;
+    // 错误提示由 request 拦截器统一处理
+  }
 };
-changeAuthCode();
+const changeAuthCodeDebounced = debounce(() => {
+  void changeAuthCode();
+}, 300);
+void changeAuthCode();
 
 // 发送邮箱验证码
 const emailCodeLoading = ref(false);
@@ -225,12 +247,24 @@ if (import.meta.client) {
               <label class="login-input input">
                 <xia-icon icon="blog-yanzhengma" />
                 <input v-model="form.authCode" maxlength="4" placeholder="验证码">
-                <ClientOnly><img
-                  class="rounded-sm h-10"
-                  :src="authCodeUrl"
-                  alt="验证码"
-                  @click="changeAuthCode"
-                ></ClientOnly>
+                <ClientOnly>
+                  <img
+                    v-if="authCodeUrl && !authCodeLoadError"
+                    class="rounded-sm h-10 cursor-pointer select-none"
+                    :src="authCodeUrl"
+                    alt="验证码"
+                    @click="changeAuthCodeDebounced"
+                    @error="authCodeLoadError = true"
+                  >
+                  <button
+                    v-else
+                    type="button"
+                    class="btn btn-ghost btn-xs h-10 min-h-10 px-2 opacity-80"
+                    @click="changeAuthCodeDebounced"
+                  >
+                    点击获取
+                  </button>
+                </ClientOnly>
               </label>
             </div>
           </template>

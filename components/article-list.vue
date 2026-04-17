@@ -72,6 +72,7 @@ getOptions('分类');
 // 下一页
 const getArticleListHandle = async (val = 1) => {
   queryPrams.page = val;
+  current.value = val;
   const res = await getArticleList(queryPrams);
   articleList.value = res.list;
   queryPrams.total = res.pagination.total;
@@ -85,6 +86,7 @@ const getTagLabel = (arr: []): string => {
 
 // 点击tag
 const clickTagHandle = (item: itemState, type: string) => {
+  current.value = 1;
   if (type === '分类') {
     if (queryPrams.category === item.id) {
       // 清空选中
@@ -116,6 +118,7 @@ const restTags = () => {
     return v;
   });
   queryPrams.tags = [];
+  current.value = 1;
   getArticleListHandle(1);
 };
   // 已选标签数量
@@ -128,6 +131,7 @@ const categoryName = computed(() => {
   // 分页
 const current = ref(1);
 const currentChangeHandle = (val: number) => {
+  current.value = val;
   getArticleListHandle(val);
 };
 
@@ -136,15 +140,17 @@ const searchText = ref('');
 const onSearchHandle = () => {
   queryPrams.page = 1;
   queryPrams.category = '';
-  queryPrams.tags = [];
+  restTags();
   queryPrams.title = searchText.value;
   queryPrams.description = searchText.value;
   queryPrams.content = searchText.value;
+  current.value = 1;
   getArticleListHandle(1);
 };
 const changeSort = () => {
   queryPrams.sort === 'ASC' ? (queryPrams.sort = 'DESC') : (queryPrams.sort = 'ASC');
-  getArticleListHandle();
+  current.value = 1;
+  getArticleListHandle(1);
 };
 
 // 颜色转换
