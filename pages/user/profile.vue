@@ -57,16 +57,14 @@ useHead({
               {{ userInfo.nickname }}
             </h2>
             <p v-if="userInfo.intro" class="text-sm text-base-content/60 mt-1">
-              {{
-                userInfo.intro
-              }}
+              {{ userInfo.intro }}
             </p>
           </div>
         </div>
       </div>
 
       <!-- daisyUI 标签页 -->
-      <div role="tablist" class="tabs tabs-boxed mb-4">
+      <div role="tablist" class="tabs tabs-border mb-4">
         <a
           role="tab"
           class="tab"
@@ -144,7 +142,6 @@ useHead({
 <style scoped>
   .profile-page {
     min-height: 100vh;
-    background: linear-gradient(180deg, #f0f9ff, #e0f2fe);
     padding: 104px 16px 32px;
   }
 
