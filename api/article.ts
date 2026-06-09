@@ -56,3 +56,18 @@ export const addReply = (data: any) => {
 export const delReply = (id: string) => {
   return request.del('/reply/delete', { id });
 };
+
+// 获取我的收藏列表（分页）
+export const getMyCollectList = (params: { page?: number; pageSize?: number }) => {
+  return request.get('/collect/list', params);
+};
+
+// 获取我的评论列表（分页）
+export const getMyComments = (params: { page?: number; pageSize?: number }) => {
+  return request.get('/comment/my-list', params);
+};
+
+// 获取我的回复列表（分页）
+export const getMyReplies = (params: { page?: number; pageSize?: number }) => {
+  return request.get('/reply/my-list', params);
+};

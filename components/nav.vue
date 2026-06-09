@@ -242,7 +242,7 @@ const checked = ref(false);
           </label>
           <ul
             tabindex="0"
-            class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-gray-500 text-xs"
+            class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-36 text-gray-500 text-xs"
           >
             <li>
               <a :href="goUrl" target="_blank" class="leading-5 flex items-center py-2 px-4">
@@ -262,6 +262,25 @@ const checked = ref(false);
                 </svg>
                 写文章
               </a>
+            </li>
+            <li>
+              <NuxtLink to="/user/profile" class="leading-5 flex items-center py-2 px-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+                个人中心
+              </NuxtLink>
             </li>
             <li @click="clear">
               <a class="leading-5 flex items-center py-2 px-4">

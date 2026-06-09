@@ -123,6 +123,31 @@
         </div>
       </section>
     </section>
+
+    <section class="mt-10">
+      <div class="navbar bg-base-100 mb-4 shadow-xl rounded-box">
+        <div class="navbar-start">
+          <label class="swap swap-flip text-3xl">
+            <input type="checkbox">
+            <div class="swap-on">🔐</div>
+            <div class="swap-off">🔓</div>
+          </label>
+        </div>
+        <div class="navbar-center">
+          <a class="btn btn-ghost normal-case text-xl">Zone Admin</a>
+        </div>
+        <div class="navbar-end">
+          <button class="btn btn-neutral" @click="goTargetPage(3)">
+            GO
+          </button>
+        </div>
+      </div>
+      <div class="mockup-window border border-base-300 bg-base-100">
+        <div class="flex justify-center p-4 bg-base-200 h-full">
+          <iframe class="iframe" :src="zoneAdminUrl" />
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -131,6 +156,7 @@ import { adminUrl, originUrl } from '@/config';
 
 const goUrl = adminUrl;
 const zoneUrl = originUrl + '/zone/#/';
+const zoneAdminUrl = 'https://admin.jiang-xia.top/admin/zone-admin/login';
 const goTargetPage = (type: number) => {
   let url = '';
   if (type === 1) {
@@ -138,6 +164,9 @@ const goTargetPage = (type: number) => {
   }
   else if (type === 2) {
     url = zoneUrl;
+  }
+  else if (type === 3) {
+    url = zoneAdminUrl;
   }
   window.open(url, '_blank');
 };

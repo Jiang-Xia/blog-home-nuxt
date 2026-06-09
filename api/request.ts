@@ -77,6 +77,9 @@ export const awaitWrap = <T, U = any>(promise: Promise<T>): Promise<[U | null, T
 // 防止重复请求的Map集合
 const requestMap = new Map();
 
+// 防重复请求白名单，匹配的URL跳过防重检测
+const DEBOUNCE_WHITELIST = ['/rpg/'];
+
 /**
  * 根据HTTP状态码和响应信息生成用户友好的错误提示
  * @param status HTTP状态码
@@ -256,13 +259,15 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
     log(`请求开始 req --------------> ${url}`);
 
     try {
+      // 白名单内的请求（如RPG相关）跳过防重检测
+      const isWhitelisted = DEBOUNCE_WHITELIST.some(prefix => url.includes(prefix));
       // 检查是否正在请求中，防止重复请求
-      if (requestMap.has(requestId)) {
+      if (!isWhitelisted && requestMap.has(requestId)) {
         log(`防抖，禁止重复请求！--------------> ${url}`, 'warn');
         reject(new Error('防抖，禁止重复请求！'));
         return;
       }
-      else {
+      else if (!isWhitelisted) {
         requestMap.set(requestId, options);
       }
     }
