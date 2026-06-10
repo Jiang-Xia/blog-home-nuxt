@@ -13,7 +13,6 @@ import Yaya from '../assets/images/animal/yaya.svg';
 import { getArticleList } from '@/api/article';
 import { throttle } from '~~/utils';
 import api from '@/api';
-import { adminUrl } from '@/config';
 import { TokenKey, RefreshTokenKey, getToken, removeToken } from '@/utils/cookie';
 import { useThemeActions } from '@/composables/use-home';
 
@@ -133,7 +132,6 @@ if (import.meta.client) {
     clear();
   }
 }
-const goUrl = adminUrl;
 // 菜单控制
 const checked = ref(false);
 </script>
@@ -245,7 +243,7 @@ const checked = ref(false);
             class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-36 text-gray-500 text-xs"
           >
             <li>
-              <a :href="goUrl" target="_blank" class="leading-5 flex items-center py-2 px-4">
+              <NuxtLink to="/user/article/edit" class="leading-5 flex items-center py-2 px-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-5 w-5"
@@ -261,7 +259,7 @@ const checked = ref(false);
                   />
                 </svg>
                 写文章
-              </a>
+              </NuxtLink>
             </li>
             <li>
               <NuxtLink to="/user/profile" class="leading-5 flex items-center py-2 px-4">
@@ -280,6 +278,25 @@ const checked = ref(false);
                   />
                 </svg>
                 个人中心
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink to="/rpg" class="leading-5 flex items-center py-2 px-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+                RPG 冒险
               </NuxtLink>
             </li>
             <li @click="clear">

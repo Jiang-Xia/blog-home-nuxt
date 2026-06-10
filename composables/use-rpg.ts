@@ -1,4 +1,5 @@
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
+import { useState } from '#app';
 import {
   getRpgStatus,
   getRpgSignInfo,
@@ -6,6 +7,7 @@ import {
   getRpgHitRecords,
   getRpgBanStatus,
   getRpgLeaderboard,
+  getRpgLevelRewards,
   getMyAchievements,
   getMyQuests,
   claimQuestReward,
@@ -30,36 +32,35 @@ import type {
   LotteryPoolItem,
   DrawResult,
   LotteryRecord,
+  LevelReward,
 } from '~~/types/rpg';
 
 /**
- * RPG 状态管理 composable
- * 管理用户RPG状态：等级、经验、生命值、签到、禁言等
+ * RPG 状态管理 composable（useState 共享，多组件可读写同一份数据）
  */
 export function useRpg() {
-  const rpgStatus = ref<RpgStatus | null>(null);
-  const signInfo = ref<SignInfo | null>(null);
-  const banStatus = ref<BanStatus | null>(null);
-  const hitRecords = ref<SensitiveHitRecord[]>([]);
-  const hitRecordsTotal = ref(0);
-  const leaderboard = ref<LeaderboardEntry[]>([]);
-  const achievements = ref<UserAchievementProgress[]>([]);
-  const quests = ref<UserQuestProgress[]>([]);
-  const buffs = ref<UserBuff[]>([]);
-  const lotteryPool = ref<LotteryPoolItem[]>([]);
-  const lotteryTickets = ref(0);
-  const lotteryHistory = ref<LotteryRecord[]>([]);
-  const drawing = ref(false);
-  const loading = ref(false);
-  const signingIn = ref(false);
+  const rpgStatus = useState<RpgStatus | null>('rpg-status', () => null);
+  const signInfo = useState<SignInfo | null>('rpg-sign-info', () => null);
+  const banStatus = useState<BanStatus | null>('rpg-ban-status', () => null);
+  const hitRecords = useState<SensitiveHitRecord[]>('rpg-hit-records', () => []);
+  const hitRecordsTotal = useState('rpg-hit-records-total', () => 0);
+  const leaderboard = useState<LeaderboardEntry[]>('rpg-leaderboard', () => []);
+  const levelRewards = useState<LevelReward[]>('rpg-level-rewards', () => []);
+  const achievements = useState<UserAchievementProgress[]>('rpg-achievements', () => []);
+  const quests = useState<UserQuestProgress[]>('rpg-quests', () => []);
+  const buffs = useState<UserBuff[]>('rpg-buffs', () => []);
+  const lotteryPool = useState<LotteryPoolItem[]>('rpg-lottery-pool', () => []);
+  const lotteryTickets = useState('rpg-lottery-tickets', () => 0);
+  const lotteryHistory = useState<LotteryRecord[]>('rpg-lottery-history', () => []);
+  const drawing = useState('rpg-drawing', () => false);
+  const loading = useState('rpg-loading', () => false);
+  const signingIn = useState('rpg-signing-in', () => false);
 
-  // 等级阈值公式: level * (level - 1) * 50
   const getLevelThreshold = (level: number): number => {
     if (level <= 1) return 0;
     return level * (level - 1) * 50;
   };
 
-  // 经验进度
   const expProgress = computed(() => {
     if (!rpgStatus.value) return { current: 0, required: 100, percent: 0 };
     const { level, exp } = rpgStatus.value;
@@ -71,7 +72,6 @@ export function useRpg() {
     return { current, required, percent };
   });
 
-  // 生命值颜色（绿/黄/红）
   const lifeColor = computed(() => {
     if (!rpgStatus.value) return '#4ade80';
     const life = rpgStatus.value.lifeValue;
@@ -80,22 +80,18 @@ export function useRpg() {
     return '#ef4444';
   });
 
-  // 生命值百分比
   const lifePercent = computed(() => {
     return rpgStatus.value?.lifeValue ?? 100;
   });
 
-  // 是否被禁言
   const isBanned = computed(() => {
     return banStatus.value?.banned ?? false;
   });
 
-  // 角色专属奖励（超级管理员/管理员才有）
   const roleReward = computed<RoleReward | null>(() => {
     return rpgStatus.value?.roleReward ?? null;
   });
 
-  // 禁言剩余时间（格式化）
   const banRemainingText = computed(() => {
     if (!banStatus.value?.banned || !banStatus.value.remainingMs) return '';
     const ms = banStatus.value.remainingMs;
@@ -105,12 +101,10 @@ export function useRpg() {
     return `${minutes}分钟`;
   });
 
-  // 已完成成就数量
   const completedAchievementCount = computed(() => {
     return achievements.value.filter(a => a.completed).length;
   });
 
-  // 最近完成的成就（最多3个）
   const recentAchievements = computed(() => {
     return achievements.value
       .filter(a => a.completed && a.completedAt)
@@ -118,22 +112,18 @@ export function useRpg() {
       .slice(0, 3);
   });
 
-  // 任务完成统计
   const questCompletionRate = computed(() => {
     if (quests.value.length === 0) return 0;
     const completed = quests.value.filter(q => q.completed).length;
     return Math.round((completed / quests.value.length) * 100);
   });
 
-  // 可领取奖励的任务
   const claimableQuests = computed(() => {
     return quests.value.filter(q => q.completed && !q.claimed);
   });
 
-  // 有效Buff数量
   const activeBuffCount = computed(() => buffs.value.length);
 
-  /** 获取Buff列表 */
   const fetchBuffs = async () => {
     try {
       buffs.value = await getMyBuffs();
@@ -143,7 +133,6 @@ export function useRpg() {
     }
   };
 
-  /** 获取抽奖奖池 */
   const fetchLotteryPool = async () => {
     try {
       lotteryPool.value = await getLotteryPool();
@@ -153,7 +142,6 @@ export function useRpg() {
     }
   };
 
-  /** 获取抽奖券数量 */
   const fetchLotteryTickets = async () => {
     try {
       const res = await getLotteryTickets();
@@ -164,7 +152,6 @@ export function useRpg() {
     }
   };
 
-  /** 执行抽奖 */
   const draw = async (count = 1): Promise<DrawResult[]> => {
     drawing.value = true;
     try {
@@ -181,7 +168,6 @@ export function useRpg() {
     }
   };
 
-  /** 获取抽奖记录 */
   const fetchLotteryHistory = async (page = 1) => {
     try {
       const res = await getLotteryHistory(page);
@@ -192,7 +178,6 @@ export function useRpg() {
     }
   };
 
-  /** 获取RPG完整状态 */
   const fetchStatus = async () => {
     loading.value = true;
     try {
@@ -206,7 +191,6 @@ export function useRpg() {
     }
   };
 
-  /** 获取签到信息 */
   const fetchSignInfo = async () => {
     try {
       signInfo.value = await getRpgSignInfo();
@@ -216,7 +200,6 @@ export function useRpg() {
     }
   };
 
-  /** 获取禁言状态 */
   const fetchBanStatus = async () => {
     try {
       banStatus.value = await getRpgBanStatus();
@@ -226,7 +209,6 @@ export function useRpg() {
     }
   };
 
-  /** 获取命中记录 */
   const fetchHitRecords = async (page = 1, pageSize = 10) => {
     try {
       const res = await getRpgHitRecords(page, pageSize);
@@ -238,8 +220,7 @@ export function useRpg() {
     }
   };
 
-  /** 获取排行榜 */
-  const fetchLeaderboard = async (type: LeaderboardType = 'exp', limit = 10) => {
+  const fetchLeaderboard = async (type: LeaderboardType = 'exp', limit = 20) => {
     try {
       leaderboard.value = await getRpgLeaderboard(type, limit);
     }
@@ -248,12 +229,19 @@ export function useRpg() {
     }
   };
 
-  /** 签到 */
+  const fetchLevelRewards = async () => {
+    try {
+      levelRewards.value = await getRpgLevelRewards();
+    }
+    catch (e) {
+      console.error('[useRpg] 获取等级奖励失败:', e);
+    }
+  };
+
   const signIn = async (): Promise<SignInResult | null> => {
     signingIn.value = true;
     try {
       const result = await rpgSignIn();
-      // 签到成功后刷新状态
       await Promise.all([fetchStatus(), fetchSignInfo(), fetchBanStatus()]);
       return result;
     }
@@ -266,7 +254,6 @@ export function useRpg() {
     }
   };
 
-  /** 获取成就进度 */
   const fetchAchievements = async () => {
     try {
       achievements.value = await getMyAchievements();
@@ -276,7 +263,6 @@ export function useRpg() {
     }
   };
 
-  /** 获取任务进度 */
   const fetchQuests = async () => {
     try {
       quests.value = await getMyQuests();
@@ -286,12 +272,11 @@ export function useRpg() {
     }
   };
 
-  /** 领取任务奖励 */
   const claimQuest = async (questCode: string): Promise<boolean> => {
     try {
       await claimQuestReward(questCode);
       await fetchQuests();
-      await fetchStatus(); // 刷新经验值
+      await fetchStatus();
       return true;
     }
     catch (e) {
@@ -300,7 +285,11 @@ export function useRpg() {
     }
   };
 
-  /** 初始化：获取所有RPG状态 */
+  /** 轻量初始化：互动场景（评论/留言）仅需生命与禁言状态 */
+  const initRpgInteract = async () => {
+    await Promise.all([fetchStatus(), fetchBanStatus()]);
+  };
+
   const initRpg = async () => {
     await Promise.all([
       fetchStatus(),
@@ -321,6 +310,7 @@ export function useRpg() {
     hitRecords,
     hitRecordsTotal,
     leaderboard,
+    levelRewards,
     achievements,
     quests,
     buffs,
@@ -347,6 +337,7 @@ export function useRpg() {
     fetchBanStatus,
     fetchHitRecords,
     fetchLeaderboard,
+    fetchLevelRewards,
     fetchAchievements,
     fetchQuests,
     fetchBuffs,
@@ -357,5 +348,6 @@ export function useRpg() {
     claimQuest,
     signIn,
     initRpg,
+    initRpgInteract,
   };
 }

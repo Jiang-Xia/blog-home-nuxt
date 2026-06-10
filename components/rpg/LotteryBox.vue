@@ -5,6 +5,7 @@
 import { RARITY_MAP } from '~~/types/rpg';
 import type { DrawResult } from '~~/types/rpg';
 import { useRpg } from '~~/composables/use-rpg';
+import { formactDate } from '@/utils/common';
 
 const {
   lotteryPool,
@@ -178,7 +179,7 @@ const toggleHistory = async () => {
             {{ RARITY_MAP[record.poolRarity]?.icon }}
           </span>
           <span class="history-name">{{ record.poolName }}</span>
-          <span class="history-time">{{ record.createTime }}</span>
+          <span class="history-time">{{ formactDate(record.createTime) }}</span>
         </div>
       </div>
     </div>

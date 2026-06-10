@@ -9,6 +9,7 @@ import {
   BUFF_TYPE_MAP,
 } from '~~/types/rpg';
 import type { LevelUpResult, SignInResult } from '~~/types/rpg';
+import { messageInfo, messageSuccess } from '~~/utils/toast';
 import { useRpg } from '~~/composables/use-rpg';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
 
@@ -24,21 +25,29 @@ const {
   banRemainingText,
   signingIn,
   signIn,
-  achievements,
-  recentAchievements,
   completedAchievementCount,
-  quests,
   questCompletionRate,
   claimableQuests,
-  buffs,
   activeBuffCount,
   initRpg,
   fetchHitRecords,
+  fetchAchievements,
+  fetchQuests,
+  fetchBuffs,
+  fetchStatus,
   hitRecords,
   hitRecordsTotal,
 } = useRpg();
 
-const { connected, connect, onLevelUp, onLifeChange, onBanStatus } = useRpgSocket();
+const {
+  connect,
+  onLevelUp,
+  onLifeChange,
+  onBanStatus,
+  onAchievementComplete,
+  onQuestReward,
+  onBuffGranted,
+} = useRpgSocket();
 
 // 升级弹窗
 const showLevelUp = ref(false);
@@ -61,6 +70,23 @@ onBanStatus.value = (data: any) => {
     banStatus.value.banned = data.banned;
     banStatus.value.banEndTime = data.banEndTime;
   }
+};
+
+onAchievementComplete.value = (data: { name: string; expReward: number }) => {
+  messageSuccess(`🏆 成就达成：${data.name} +${data.expReward} EXP`);
+  fetchAchievements();
+  fetchStatus();
+};
+
+onQuestReward.value = (data: { questName: string; expReward: number }) => {
+  messageSuccess(`📋 任务奖励：${data.questName} +${data.expReward} EXP`);
+  fetchQuests();
+  fetchStatus();
+};
+
+onBuffGranted.value = (data: { name: string; description?: string }) => {
+  messageInfo(`✨ 获得 Buff：${data.name}`);
+  fetchBuffs();
 };
 
 // 签到

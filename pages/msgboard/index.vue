@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue';
-import { messageDanger, messageSuccess } from '@/utils/toast';
+import { messageDanger, messageSuccess, messageWarning } from '@/utils/toast';
+import { useRpg } from '~~/composables/use-rpg';
 import { beforeTimeNow } from '@/utils';
 import request from '~~/api/request';
 import { SiteTitle } from '@/utils/constant';
@@ -30,6 +31,7 @@ const buildTree = (list: any[], rootId = 0) => {
 };
 msgboardList.value = buildTree(msgboardList.value);
 const userInfo = useUserInfo();
+const { isBanned } = useRpg();
 const showToast = ref(false);
 const msgForm: MsgInterFace = reactive({
   name: userInfo.value.nickname,
@@ -55,6 +57,10 @@ const getAllMsgboard = async () => {
   // 邮箱正则
 const confirmHandle = async () => {
   try {
+    if (userInfo.value?.uid && isBanned.value) {
+      messageWarning('您当前处于禁言状态，暂时无法留言');
+      return;
+    }
     const keys = Object.keys(msgForm);
     if (keys.some(k => !msgForm[k as keyof MsgInterFace])) {
       showTip();
@@ -92,6 +98,10 @@ const replyForm: any = ref({
   comment: '',
 });
 const okHandle = async () => {
+  if (userInfo.value?.uid && isBanned.value) {
+    messageWarning('您当前处于禁言状态，暂时无法回复');
+    return;
+  }
   if (!replyForm.value.name) {
     messageDanger('名称不能为空');
     return;
@@ -198,11 +208,13 @@ useHead({
         >
 
         <label class="label"><span class="text-red-600 px-2">*</span>评论</label>
+        <RpgInteractBar />
         <textarea
           v-model="msgForm.comment"
           class="textarea textarea-bordered w-full"
           placeholder="您的评论"
           maxlength="800"
+          :disabled="!!userInfo?.uid && isBanned"
         />
 
         <button class="btn btn-primary mt-4" @click="confirmHandle">

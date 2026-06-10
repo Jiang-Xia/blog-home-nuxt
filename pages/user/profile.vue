@@ -2,13 +2,31 @@
 /**
    * 用户个人中心页面 - 使用 daisyUI tabs 组织内容
    */
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
+const route = useRoute();
 const userInfo = useUserInfo();
 const { theme, clickIcon } = useThemeActions();
 
+type ProfileTab = 'card' | 'article' | 'collect' | 'comment';
+const TAB_VALUES: ProfileTab[] = ['card', 'article', 'collect', 'comment'];
+
+const resolveTab = (tab: unknown): ProfileTab => {
+  if (typeof tab === 'string' && TAB_VALUES.includes(tab as ProfileTab)) {
+    return tab as ProfileTab;
+  }
+  return 'card';
+};
+
 /** 当前激活的标签页 */
-const activeTab = ref<'card' | 'collect' | 'comment'>('card');
+const activeTab = ref<ProfileTab>(resolveTab(route.query.tab));
+
+watch(
+  () => route.query.tab,
+  (tab) => {
+    activeTab.value = resolveTab(tab);
+  },
+);
 
 definePageMeta({
   layout: 'default',
@@ -76,10 +94,18 @@ useHead({
         <a
           role="tab"
           class="tab"
+          :class="{ 'tab-active': activeTab === 'article' }"
+          @click="activeTab = 'article'"
+        >
+          我的文章
+        </a>
+        <a
+          role="tab"
+          class="tab"
           :class="{ 'tab-active': activeTab === 'collect' }"
           @click="activeTab = 'collect'"
         >
-          收藏
+          我的收藏
         </a>
         <a
           role="tab"
@@ -87,7 +113,7 @@ useHead({
           :class="{ 'tab-active': activeTab === 'comment' }"
           @click="activeTab = 'comment'"
         >
-          评论/回复
+          我的评论/回复
         </a>
       </div>
 
@@ -97,16 +123,25 @@ useHead({
         <div v-show="activeTab === 'card'">
           <div class="card bg-base-100 shadow-md">
             <div class="card-body p-5">
-              <h3 class="card-title text-base">
-                RPG 冒险状态
+              <h3 class="card-title text-base mb-1">
+                我的名片
               </h3>
-              <RpgStatusPanel />
+              <UserBusinessCard />
             </div>
           </div>
+        </div>
 
-          <div class="card bg-base-100 shadow-md mt-5">
+        <!-- 我的文章 -->
+        <div v-show="activeTab === 'article'">
+          <div class="card bg-base-100 shadow-md">
             <div class="card-body p-5">
-              <RpgLotteryBox />
+              <div class="flex items-center justify-between gap-3 mb-2">
+                <h3 class="card-title text-base">
+                  我的文章
+                </h3>
+                <NuxtLink to="/user/article/edit" class="btn btn-primary btn-sm"> 写文章 </NuxtLink>
+              </div>
+              <UserArticleList />
             </div>
           </div>
         </div>
@@ -128,7 +163,7 @@ useHead({
           <div class="card bg-base-100 shadow-md">
             <div class="card-body p-5">
               <h3 class="card-title text-base">
-                评论与回复
+                我的评论/回复
               </h3>
               <UserCommentReplyList />
             </div>
@@ -147,13 +182,7 @@ useHead({
 
   .profile-container {
     padding-top: 20px;
-    max-width: 560px;
+    max-width: 720px;
     margin: 0 auto;
-  }
-
-  .loading-state {
-    text-align: center;
-    color: #94a3b8;
-    padding: 24px;
   }
 </style>

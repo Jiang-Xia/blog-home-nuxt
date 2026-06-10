@@ -5,7 +5,8 @@ import { useRoute } from 'vue-router';
 import { beforeTimeNow } from '@/utils';
 import { addComment, addReply, delComment, delReply } from '@/api/article';
 
-import { messageDanger, messageSuccess } from '~~/utils/toast';
+import { messageDanger, messageSuccess, messageWarning } from '~~/utils/toast';
+import { useRpg } from '~~/composables/use-rpg';
 
 defineProps({
   comments: {
@@ -20,6 +21,7 @@ defineProps({
 const emits = defineEmits(['commented']);
 const userInfo = useUserInfo();
 const route = useRoute();
+const { isBanned } = useRpg();
 const formactTime = (item: any) => {
   const time = new Date(item.createTime).getTime();
   return beforeTimeNow(time);
@@ -29,6 +31,10 @@ const formactTime = (item: any) => {
 const inputContent = ref('');
 const addCommentHandle = async () => {
   if (!tip()) {
+    return;
+  }
+  if (isBanned.value) {
+    messageWarning('您当前处于禁言状态，暂时无法评论');
     return;
   }
   if (!inputContent.value) {
@@ -95,6 +101,10 @@ const clickReplyHandle = (type: string, item: any, pId?: string) => {
   if (!tip()) {
     return;
   }
+  if (isBanned.value) {
+    messageWarning('您当前处于禁言状态，暂时无法回复');
+    return;
+  }
   currentReplyBoxId.value = item.id;
   if (type === 'comment') {
     currentParentId.value = item.id;
@@ -153,10 +163,12 @@ const replyedHandle = (content: string) => {
 
 <template>
   <div class="comment-container text-base-content/70">
+    <RpgInteractBar />
     <textarea
       v-model="inputContent"
       class="textarea textarea-success w-full"
       placeholder="动动你的双手吧~"
+      :disabled="isBanned"
     />
     <div class="tool-bar mt-1">
       <h4 class="font-bold text-sm">
@@ -164,7 +176,7 @@ const replyedHandle = (content: string) => {
       </h4>
       <button
         class="btn btn-neutral btn-sm px-4 tracking-widest"
-        :disabled="!inputContent"
+        :disabled="!inputContent || isBanned"
         @click="addCommentHandle"
       >
         确 认
