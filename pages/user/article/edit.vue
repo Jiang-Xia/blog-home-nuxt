@@ -13,7 +13,6 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const token = useToken();
-const { theme, clickIcon } = useThemeActions();
 
 const articleId = computed(() => {
   const id = route.query.id;
@@ -23,6 +22,10 @@ const articleId = computed(() => {
 
 const isEdit = computed(() => !!articleId.value);
 const pageTitle = computed(() => (isEdit.value ? '编辑文章' : '写文章'));
+const pageHeading = computed(() => (isEdit.value ? '✏️ 编辑文章' : '✍️ 写文章'));
+const pageSubtitle = computed(() =>
+  isEdit.value ? '修改内容后保存即可更新' : '写下灵感，与世界分享你的故事',
+);
 
 useHead({
   title: pageTitle,
@@ -42,49 +45,27 @@ onMounted(() => {
 
 <template>
   <div class="article-edit-page padding-top-bar">
-    <div class="page-hero-bg">
-      <InFlickeringGrid
-        class="relative inset-0 z-0 [mask-image:radial-gradient(650px_circle_at_center,white,transparent)]"
-        :square-size="4"
-        :grid-gap="6"
-        color="#4ba6c6"
-        :max-opacity="0.4"
-        :flicker-chance="0.1"
-      />
-      <xia-icon
-        class="cursor-pointer px-3 absolute right-2 top-10 text-white z-20"
-        :icon="'blog-' + theme"
-        @click="clickIcon"
-      />
-    </div>
-
     <div class="page-container">
       <div class="page-header">
-        <NuxtLink to="/user/profile?tab=article" class="btn btn-ghost btn-xs back-btn gap-0.5">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-3.5 w-3.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-          返回
-        </NuxtLink>
+        <NuxtLink to="/user/profile?tab=article" class="back-link"> ← 返回我的文章 </NuxtLink>
         <h1 class="page-title">
-          {{ pageTitle }}
+          {{ pageHeading }}
         </h1>
+        <p class="page-desc">
+          {{ pageSubtitle }}
+        </p>
       </div>
 
-      <div class="card bg-base-100 shadow-md border border-base-300/50">
-        <div class="card-body p-3 md:p-4">
+      <div class="card bg-base-100 shadow-md">
+        <div class="card-body p-0 sm:p-0">
           <ClientOnly>
             <UserArticleEditForm :article-id="articleId || undefined" />
             <template #fallback>
-              <div class="flex justify-center py-10">
+              <div
+                class="flex flex-col items-center justify-center gap-3 py-12 text-base-content/55 text-sm"
+              >
                 <span class="loading loading-spinner loading-md text-primary" />
+                <p>加载编辑器中…</p>
               </div>
             </template>
           </ClientOnly>
@@ -97,46 +78,43 @@ onMounted(() => {
 <style scoped>
   .article-edit-page {
     min-height: 100vh;
-    padding: 104px 12px 24px;
-    position: relative;
-  }
-
-  .page-hero-bg {
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 100px;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  .page-hero-bg :deep(.cursor-pointer) {
-    pointer-events: auto;
+    padding: 104px 16px 32px;
   }
 
   .page-container {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
+    max-width: 720px;
     margin: 0 auto;
   }
 
   .page-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
   }
 
-  .back-btn {
-    flex-shrink: 0;
-    color: oklch(var(--bc) / 0.65);
-    padding-left: 0.25rem;
-    padding-right: 0.5rem;
+  .back-link {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    font-size: 13px;
+    color: #3b82f6;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
   }
 
   .page-title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    line-height: 1.3;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+
+  .page-desc {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
   }
 </style>

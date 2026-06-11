@@ -15,19 +15,26 @@ const total = ref(0);
 const hasMore = ref(true);
 
 const STATUS_MAP: Record<string, { label: string; class: string }> = {
-  publish: { label: '已发布', class: 'badge-success' },
-  draft: { label: '草稿', class: 'badge-ghost' },
-  scheduled: { label: '定时发布', class: 'badge-warning' },
+  publish: { label: '已发布', class: 'badge-outline badge-success' },
+  draft: { label: '草稿', class: 'badge-outline' },
+  scheduled: { label: '定时发布', class: 'badge-outline badge-warning' },
 };
 
 const getStatusBadge = (item: any) => {
   if (item.isDelete) {
-    return { label: '已禁用', class: 'badge-error' };
+    return { label: '已禁用', class: 'badge-outline badge-error' };
   }
-  return STATUS_MAP[item.status] || { label: item.status, class: 'badge-ghost' };
+  return STATUS_MAP[item.status] || { label: item.status, class: 'badge-outline' };
 };
 
 const canVisit = (item: any) => item.status === 'publish' && !item.isDelete;
+
+const getTagLabels = (item: any) => {
+  const tags = item.tags || [];
+  return tags
+    .map((tag: { label?: string; name?: string }) => tag.label || tag.name)
+    .filter(Boolean);
+};
 
 /** 加载文章列表 */
 const loadData = async () => {
@@ -78,46 +85,58 @@ onMounted(() => {
 
     <!-- 列表 -->
     <div v-else>
-      <div v-for="item in list" :key="item.id" class="article-item">
-        <div class="article-item-inner rounded-lg p-3 -mx-3 hover:bg-base-200 transition-colors">
+      <article v-for="item in list" :key="item.id" class="article-item">
+        <div class="article-item-inner rounded-lg p-3 -mx-3 hover:bg-base-200/70 transition-colors">
           <div class="flex items-start justify-between gap-3">
-            <NuxtLink v-if="canVisit(item)" :to="`/detail/${item.id}`" class="flex-1 min-w-0">
+            <component
+              :is="canVisit(item) ? 'NuxtLink' : 'div'"
+              v-bind="canVisit(item) ? { to: `/detail/${item.id}` } : {}"
+              class="flex-1 min-w-0"
+              :class="{ 'opacity-80': !canVisit(item) }"
+            >
               <h4 class="font-medium text-sm leading-snug line-clamp-2">
                 {{ item.title }}
               </h4>
               <p v-if="item.description" class="text-xs text-base-content/50 mt-1 line-clamp-1">
                 {{ item.description }}
               </p>
-              <div class="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-base-content/50">
-                <span v-if="item.category?.label" class="badge badge-ghost badge-xs">
-                  {{ item.category.label }}
-                </span>
-                <span class="badge badge-xs" :class="getStatusBadge(item).class">
+
+              <!-- 状态 + 标签 -->
+              <div class="article-tags mt-2">
+                <span class="badge badge-xs shrink-0" :class="getStatusBadge(item).class">
                   {{ getStatusBadge(item).label }}
                 </span>
-                <span v-if="item.topping" class="badge badge-primary badge-xs">置顶</span>
-                <span>{{ formatTime(item) }}</span>
-                <span>{{ item.views ?? 0 }} 阅读</span>
-                <span>{{ item.likes ?? 0 }} 点赞</span>
-              </div>
-            </NuxtLink>
-            <div v-else class="flex-1 min-w-0">
-              <h4 class="font-medium text-sm leading-snug line-clamp-2 text-base-content/70">
-                {{ item.title }}
-              </h4>
-              <p v-if="item.description" class="text-xs text-base-content/50 mt-1 line-clamp-1">
-                {{ item.description }}
-              </p>
-              <div class="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-base-content/50">
-                <span v-if="item.category?.label" class="badge badge-ghost badge-xs">
+                <span
+                  v-if="item.topping"
+                  class="badge badge-outline badge-primary badge-xs shrink-0"
+                >置顶</span>
+                <span
+                  v-if="item.category?.label"
+                  class="badge badge-outline badge-secondary badge-xs shrink-0"
+                >
                   {{ item.category.label }}
                 </span>
-                <span class="badge badge-xs" :class="getStatusBadge(item).class">
-                  {{ getStatusBadge(item).label }}
+                <span
+                  v-for="(label, index) in getTagLabels(item)"
+                  :key="`${item.id}-tag-${index}`"
+                  class="badge badge-outline badge-xs shrink-0"
+                >
+                  {{ label }}
                 </span>
-                <span>{{ formatTime(item) }}</span>
               </div>
-            </div>
+
+              <!-- 统计信息 -->
+              <div class="article-meta mt-1.5">
+                <span>{{ formatTime(item) }}</span>
+                <template v-if="canVisit(item)">
+                  <span class="meta-dot" aria-hidden="true">·</span>
+                  <span>{{ item.views ?? 0 }} 阅读</span>
+                  <span class="meta-dot" aria-hidden="true">·</span>
+                  <span>{{ item.likes ?? 0 }} 点赞</span>
+                </template>
+              </div>
+            </component>
+
             <NuxtLink
               :to="`/user/article/edit?id=${item.id}`"
               class="btn btn-ghost btn-xs shrink-0"
@@ -127,7 +146,7 @@ onMounted(() => {
             </NuxtLink>
           </div>
         </div>
-      </div>
+      </article>
 
       <!-- 加载更多 -->
       <div v-if="hasMore" class="flex justify-center pt-4">
@@ -145,9 +164,30 @@ onMounted(() => {
 
 <style scoped>
   .article-item {
-    border-bottom: 1px solid oklch(var(--b3) / 0.5);
+    border-bottom: 1px solid color-mix(in oklab, var(--color-base-300) 50%, transparent);
   }
+
   .article-item:last-child {
     border-bottom: none;
+  }
+
+  .article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: color-mix(in oklab, var(--color-base-content) 50%, transparent);
+  }
+
+  .meta-dot {
+    opacity: 0.45;
   }
 </style>

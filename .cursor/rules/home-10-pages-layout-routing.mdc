@@ -1,0 +1,41 @@
+---
+description: blog-home-nuxt pages 路由嵌套与 layout 约定
+globs: pages/**/*.vue
+alwaysApply: false
+---
+
+# Pages Layout & Routing
+
+全局路由过渡：`nuxt.config` → `pageTransition: { name: 'scale', mode: 'out-in' }`。
+
+## 禁止：父级 custom + 子级 default
+
+父 `layout: 'custom'` 下子页面不可写 `layout: 'default'`。layout 冲突 + `out-in` 过渡会导致新页面卡在 `opacity: 0` 整页空白。
+
+```vue
+<!-- ❌ BAD -->
+<!-- pages/user.vue --> definePageMeta({ layout: 'custom' })
+<!-- pages/user/profile.vue --> definePageMeta({ layout: 'default' })
+
+<!-- ✅ GOOD：子页面直接 default，无需空壳父级 -->
+<!-- pages/user/profile.vue --> definePageMeta({ layout: 'default' })
+```
+
+同模块 layout 保持一致：父 custom 则子继承 custom，不覆盖为 default。
+
+## 保留：带 UI 的 custom 父级壳
+
+`tool.vue`、`photos.vue` 含侧栏/顶栏等共享 UI，子页嵌套其中，**保留**。
+
+- `tool.vue` → `layout: 'custom'`，子工具页继承
+- `photos.vue` → `layout: 'custom'`，子页不覆盖 layout
+
+## 保留：default 包装层
+
+`index.vue`、`about.vue`、`msgboard.vue`、`projects.vue`、`links.vue`、`archives.vue`、`features.vue` 等仅用 `<div><NuxtPage /></div>` 包根元素、不设 custom layout，供过渡动画使用，**不要删除**。
+
+## 新增页面检查
+
+- 父级是否只是空 `<NuxtPage />` 透传？是则不要建父级
+- 父级 `custom` 时子级是否写了 `default`？禁止
+- 跳出嵌套路由后整页空白？优先查 layout 冲突

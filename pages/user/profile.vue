@@ -57,8 +57,11 @@ useHead({
     </div>
 
     <div class="profile-container">
-      <!-- 用户基础信息 -->
-      <div v-if="userInfo?.nickname" class="card bg-base-100 shadow-md mb-6">
+      <!-- 用户基础信息（名片 Tab 内已展示完整资料，此处省略） -->
+      <div
+        v-if="userInfo?.nickname && activeTab !== 'card'"
+        class="card bg-base-100 shadow-md mb-6"
+      >
         <div class="card-body flex-row items-center gap-4 p-5">
           <div class="avatar placeholder">
             <div
@@ -120,15 +123,8 @@ useHead({
       <!-- 标签页内容 -->
       <client-only>
         <!-- 我的名片 -->
-        <div v-show="activeTab === 'card'">
-          <div class="card bg-base-100 shadow-md">
-            <div class="card-body p-5">
-              <h3 class="card-title text-base mb-1">
-                我的名片
-              </h3>
-              <UserBusinessCard />
-            </div>
-          </div>
+        <div v-show="activeTab === 'card'" class="card-tab-panel">
+          <UserBusinessCard />
         </div>
 
         <!-- 我的文章 -->
@@ -184,5 +180,20 @@ useHead({
     padding-top: 20px;
     max-width: 720px;
     margin: 0 auto;
+  }
+
+  .card-tab-panel {
+    animation: tab-fade-in 0.2s ease;
+  }
+
+  @keyframes tab-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 </style>

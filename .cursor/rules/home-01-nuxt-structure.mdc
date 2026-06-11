@@ -4,11 +4,34 @@ globs: **/*.{vue,ts}
 alwaysApply: false
 ---
 
-# Nuxt Structure Rules
+# Nuxt 目录与模块边界
 
-- 遵循 Nuxt 约定式目录：页面放 `pages/`，布局放 `layouts/`，可复用逻辑放 `composables/`。
-- API 调用入口统一走 `api/` 封装，不在页面中散落 `$fetch` 底层配置。
-- 公共类型统一收敛到 `types/` 或对应模块类型文件，避免同一结构重复定义。
-- 组件优先保持“展示与逻辑分离”：页面组合组件，业务逻辑抽到 composables。
-- 新增模块时先复用现有目录结构和命名，不引入平行风格目录。
-- 禁止在非客户端安全位置直接访问浏览器对象，注意 SSR/CSR 运行差异。
+## 分层
+
+```
+pages/          → 路由入口，组合 components + composables
+components/     → 展示组件，按业务域分子目录
+composables/    → 业务逻辑与共享状态（useState）
+api/            → HTTP 封装，不在页面直接写 $fetch 配置
+types/          → 类型定义，避免同一结构多处重复
+utils/          → 无 Vue 依赖的纯函数
+```
+
+## 组件放置
+
+- 跨页面复用 → `components/<域>/`
+- 仅单路由使用 → `pages/<路由>/components/`
+- 仅客户端渲染 → 文件名加 `.client.vue`（如 WebRTC 组件）
+- 新模块命名跟随同目录既有风格：`user/`、`xia/` 用 kebab-case；`rpg/` 用 PascalCase
+
+## API 与类型
+
+- 业务接口函数放 `api/<模块>.ts`，通过 `api/index.ts` 聚合导出
+- 模块专属类型放 `types/<模块>.ts`；全局 interface 放 `types/global.d.ts`
+- 消费响应默认 `res.data`，不在页面层再解析 `{ code, data, message }`
+
+## 禁止
+
+- 在 composable/store 之外散落 token 读写逻辑
+- 在非客户端安全位置访问 `window`/`document`/`localStorage`
+- 引入与 `xia/`、`U*`（Nuxt UI）、`In*`（Inspira）平行的第三套 UI 体系

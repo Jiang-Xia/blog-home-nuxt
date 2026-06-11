@@ -29,7 +29,7 @@ onBanStatus.value = (data: { banned: boolean; banEndTime: string | null }) => {
 onMounted(async () => {
   if (!userInfo.value?.uid) return;
   await initRpgInteract();
-  connect(userInfo.value.uid);
+  connect();
 });
 
 watch(
@@ -37,7 +37,7 @@ watch(
   async (uid) => {
     if (uid) {
       await initRpgInteract();
-      connect(uid);
+      connect();
     }
   },
 );

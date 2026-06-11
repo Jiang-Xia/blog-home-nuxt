@@ -52,41 +52,43 @@ const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.cla
       <div
         v-for="quest in quests"
         :key="quest.code"
-        class="quest-item"
+        class="quest-card"
         :class="{ completed: quest.completed, claimed: quest.claimed }"
       >
-        <div class="quest-icon">
-          {{ QUEST_ICON_MAP[quest.targetAction] || '📋' }}
+        <div class="quest-card-head">
+          <div class="quest-icon">
+            {{ QUEST_ICON_MAP[quest.targetAction] || '📋' }}
+          </div>
+          <span v-if="quest.claimed" class="quest-claimed">✓ 已领</span>
         </div>
-        <div class="quest-info">
-          <div class="quest-name">
-            {{ quest.name }}
-          </div>
-          <div class="quest-desc">
-            {{ quest.description }}
-          </div>
-          <div class="quest-progress-bar">
-            <div
-              class="quest-progress-fill"
-              :style="{ width: Math.min(100, (quest.progress / quest.targetCount) * 100) + '%' }"
-            />
-          </div>
+        <div class="quest-name">
+          {{ quest.name }}
+        </div>
+        <div class="quest-desc">
+          {{ quest.description }}
+        </div>
+        <div class="quest-progress-bar">
+          <div
+            class="quest-progress-fill"
+            :style="{ width: Math.min(100, (quest.progress / quest.targetCount) * 100) + '%' }"
+          />
+        </div>
+        <div class="quest-card-footer">
           <div class="quest-meta">
             <span class="quest-progress-text">{{ quest.progress }}/{{ quest.targetCount }}</span>
             <span class="quest-reward">+{{ quest.expReward }} EXP</span>
           </div>
-        </div>
-        <div class="quest-action">
-          <span v-if="quest.claimed" class="quest-claimed">✓ 已领</span>
-          <button
-            v-else-if="quest.completed"
-            class="quest-claim-btn"
-            :disabled="claimingCode === quest.code"
-            @click="handleClaim(quest.code)"
-          >
-            {{ claimingCode === quest.code ? '...' : '领取' }}
-          </button>
-          <span v-else class="quest-pending">进行中</span>
+          <div class="quest-action">
+            <button
+              v-if="quest.completed && !quest.claimed"
+              class="quest-claim-btn"
+              :disabled="claimingCode === quest.code"
+              @click="handleClaim(quest.code)"
+            >
+              {{ claimingCode === quest.code ? '...' : '领取' }}
+            </button>
+            <span v-else-if="!quest.completed" class="quest-pending">进行中</span>
+          </div>
         </div>
       </div>
     </div>
@@ -100,14 +102,14 @@ const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.cla
 
 <style scoped>
   .quest-panel {
-    padding: 16px;
+    padding: 0;
   }
 
   .quest-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
 
   .quest-summary {
@@ -117,7 +119,7 @@ const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.cla
   }
 
   .quest-label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: #334155;
   }
@@ -151,64 +153,72 @@ const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.cla
   }
 
   .quest-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
+    gap: 10px;
   }
 
-  .quest-item {
+  .quest-card {
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    gap: 6px;
     padding: 10px;
     border-radius: 10px;
     background: white;
     border: 1px solid #f1f5f9;
     transition: all 0.2s;
+    min-height: 148px;
   }
 
-  .quest-item.completed {
+  .quest-card.completed {
     border-color: #bbf7d0;
     background: linear-gradient(135deg, #f0fdf4, #dcfce7);
   }
 
-  .quest-item.claimed {
-    opacity: 0.7;
+  .quest-card.claimed {
+    opacity: 0.72;
+  }
+
+  .quest-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .quest-icon {
     flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
     background: #f1f5f9;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-  }
-
-  .quest-info {
-    flex: 1;
-    min-width: 0;
+    font-size: 15px;
   }
 
   .quest-name {
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
     color: #334155;
+    line-height: 1.3;
   }
 
   .quest-desc {
-    font-size: 11px;
+    font-size: 10px;
     color: #94a3b8;
-    margin-top: 1px;
+    line-height: 1.35;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .quest-progress-bar {
-    height: 4px;
+    height: 3px;
     background: #e2e8f0;
     border-radius: 2px;
-    margin-top: 4px;
     overflow: hidden;
   }
 
@@ -219,11 +229,17 @@ const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.cla
     transition: width 0.3s ease;
   }
 
+  .quest-card-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: auto;
+  }
+
   .quest-meta {
     display: flex;
     justify-content: space-between;
-    margin-top: 2px;
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .quest-progress-text {
@@ -236,17 +252,16 @@ const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.cla
   }
 
   .quest-action {
-    flex-shrink: 0;
     display: flex;
-    align-items: center;
+    justify-content: flex-end;
   }
 
   .quest-claim-btn {
-    padding: 4px 12px;
+    padding: 3px 10px;
     border-radius: 6px;
     background: linear-gradient(135deg, #f59e0b, #d97706);
     color: white;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     border: none;
     cursor: pointer;
@@ -258,20 +273,20 @@ const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.cla
   }
 
   .quest-claimed {
-    font-size: 12px;
+    font-size: 11px;
     color: #16a34a;
     font-weight: 600;
   }
 
   .quest-pending {
-    font-size: 11px;
+    font-size: 10px;
     color: #94a3b8;
   }
 
   .quest-all-done {
-    margin-top: 12px;
+    margin-top: 10px;
     text-align: center;
-    font-size: 13px;
+    font-size: 12px;
     color: #16a34a;
     font-weight: 600;
     padding: 8px;

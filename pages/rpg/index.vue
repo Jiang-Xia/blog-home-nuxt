@@ -69,7 +69,7 @@ const switchTab = (tab: 'status' | 'leaderboard') => {
         <!-- 冒险状态 -->
         <div v-show="activeTab === 'status'">
           <div class="card bg-base-100 shadow-md">
-            <div class="card-body p-5">
+            <div class="card-body p-4 sm:p-5">
               <RpgProfileCard />
             </div>
           </div>
@@ -110,7 +110,7 @@ const switchTab = (tab: 'status' | 'leaderboard') => {
   }
 
   .page-container {
-    max-width: 720px;
+    max-width: 960px;
     margin: 0 auto;
   }
 

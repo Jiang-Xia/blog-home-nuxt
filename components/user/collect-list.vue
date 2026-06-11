@@ -72,7 +72,10 @@ onMounted(() => {
             {{ item.article?.title || '文章已删除' }}
           </h4>
           <div class="flex items-center gap-2 mt-1.5 text-xs text-base-content/50">
-            <span v-if="item.article?.category?.name" class="badge badge-ghost badge-xs">
+            <span
+              v-if="item.article?.category?.name"
+              class="badge badge-outline badge-secondary badge-xs"
+            >
               {{ item.article.category.name }}
             </span>
             <span>{{ formatTime(item) }}收藏</span>

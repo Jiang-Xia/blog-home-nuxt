@@ -118,6 +118,13 @@ export function useRpg() {
     return Math.round((completed / quests.value.length) * 100);
   });
 
+  /** 今日任务进度文案，如 3/6 */
+  const questProgressText = computed(() => {
+    if (quests.value.length === 0) return '—';
+    const completed = quests.value.filter(q => q.completed).length;
+    return `${completed}/${quests.value.length}`;
+  });
+
   const claimableQuests = computed(() => {
     return quests.value.filter(q => q.completed && !q.claimed);
   });
@@ -329,6 +336,7 @@ export function useRpg() {
     completedAchievementCount,
     recentAchievements,
     questCompletionRate,
+    questProgressText,
     claimableQuests,
     activeBuffCount,
     getLevelThreshold,

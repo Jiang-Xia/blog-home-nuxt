@@ -1,14 +1,32 @@
 ---
-description: blog-home-nuxt Tailwind/Nuxt UI 样式规范
+description: blog-home-nuxt Tailwind / DaisyUI / Nuxt UI 样式规范
 globs: **/*.{vue,css,less}
 alwaysApply: false
 ---
 
-# Tailwind UI Rules
+# UI 与样式
 
-- 优先复用现有 Nuxt UI 与项目组件，不引入平行 UI 体系导致样式冲突。
-- Tailwind 类名保持语义分组，过长 class 字符串可抽取为组件或计算属性。
-- 全局样式改动优先评估主题模式（明/暗）和响应式断点影响。
-- 样式覆盖遵循“局部优先、全局谨慎”，避免在全局文件写高风险通配规则。
-- 保持动画与过渡轻量，首屏与列表页避免高成本阴影/滤镜叠加。
-- 组件样式变更需兼容移动端，至少验证常见断点下布局稳定。
+## 组件体系（按优先级）
+
+1. **`xia-*`** — 项目自定义组件（`components/xia/`）：按钮、评论、分页、主题等
+2. **`U*`** — Nuxt UI（prefix `U`，见 `nuxt.config` `ui.prefix`）
+3. **`In*`** — Inspira UI（`modules/inspria-ui`，如 `InFlickeringGrid`）
+4. **DaisyUI** — 语义 class：`btn`、`badge`、`tabs`、`dropdown`、`data-theme`
+
+不引入第四套 UI 库；新页面优先 DaisyUI + 现有 xia 组件。
+
+## Tailwind
+
+- 入口：`assets/css/main.css`（Tailwind v4 + `@tailwindcss/vite`）
+- 过长 class 可拆为 scoped style 或小组件，避免模板单行过长
+- 页面容器常用：`padding-top-bar`、`page-container`、`xia-page`
+
+## 主题
+
+- 明/暗切换通过 `document.documentElement` 的 `class` + `data-theme`
+- 全局样式改动需验证 light/dark 与移动端断点（`md:`、`lg:`）
+
+## 性能
+
+- 首屏/列表页避免多层 shadow、blur、滤镜叠加
+- 动画轻量；路由过渡已配置 `pageTransition: scale out-in`，勿额外冲突

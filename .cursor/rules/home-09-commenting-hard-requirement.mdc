@@ -1,0 +1,12 @@
+---
+description: 注释硬约束（保留已有注释 + composables/复杂逻辑必注释）
+alwaysApply: true
+---
+
+# 注释硬约束
+
+- 修改或新增代码时**禁止删除**已有中文/文件头注释；仅在与代码矛盾时改写注释内容
+- `composables/**`、`utils/**` 新增导出函数必须有 1 行中文 JSDoc，说明用途及后端约定（如 WebSocket `auth.token`）
+- 复杂逻辑（无感 refresh、加密网关、请求队列、Socket 重连）在关键分支前补中文注释
+- Vue 组件新增含副作用或跨组件约定的方法，需简短中文注释
+- 页面/组件文件头保留模块说明块注释（参考 `pages/rpg/index.vue`、`components/user/article-list.vue`）

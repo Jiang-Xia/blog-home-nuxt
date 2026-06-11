@@ -105,32 +105,32 @@ const categories = computed(() => {
       <div
         v-for="ach in filteredAchievements"
         :key="ach.code"
-        class="ach-item"
+        class="ach-card"
         :class="{ completed: ach.completed }"
       >
-        <div class="ach-icon" :style="{ background: ach.badge?.color || '#94a3b8' }">
-          {{ ACHIEVEMENT_ICON_MAP[ach.icon] || '🏆' }}
+        <div class="ach-card-head">
+          <div class="ach-icon" :style="{ background: ach.badge?.color || '#94a3b8' }">
+            {{ ACHIEVEMENT_ICON_MAP[ach.icon] || '🏆' }}
+          </div>
+          <span v-if="ach.completed" class="ach-done">✓</span>
         </div>
-        <div class="ach-info">
-          <div class="ach-name">
-            {{ ach.name }}
-            <span v-if="ach.completed" class="ach-done">✓</span>
-          </div>
-          <div class="ach-desc">
-            {{ ach.description }}
-          </div>
-          <div v-if="ach.maxProgress > 1" class="ach-progress-bar">
-            <div
-              class="ach-progress-fill"
-              :style="{ width: Math.min(100, (ach.progress / ach.maxProgress) * 100) + '%' }"
-            />
-          </div>
-          <div class="ach-meta">
-            <span v-if="ach.maxProgress > 1" class="ach-progress-text">
-              {{ ach.progress }}/{{ ach.maxProgress }}
-            </span>
-            <span v-if="ach.expReward" class="ach-exp">+{{ ach.expReward }} EXP</span>
-          </div>
+        <div class="ach-name">
+          {{ ach.name }}
+        </div>
+        <div class="ach-desc">
+          {{ ach.description }}
+        </div>
+        <div v-if="ach.maxProgress > 1" class="ach-progress-bar">
+          <div
+            class="ach-progress-fill"
+            :style="{ width: Math.min(100, (ach.progress / ach.maxProgress) * 100) + '%' }"
+          />
+        </div>
+        <div class="ach-meta">
+          <span v-if="ach.maxProgress > 1" class="ach-progress-text">
+            {{ ach.progress }}/{{ ach.maxProgress }}
+          </span>
+          <span v-if="ach.expReward" class="ach-exp">+{{ ach.expReward }} EXP</span>
         </div>
       </div>
     </div>
@@ -139,14 +139,14 @@ const categories = computed(() => {
 
 <style scoped>
   .achievement-panel {
-    padding: 16px;
+    padding: 0;
   }
 
   .ach-overview {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
 
   .ach-summary {
@@ -161,25 +161,25 @@ const categories = computed(() => {
   }
 
   .ach-num {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 900;
     color: #f59e0b;
   }
 
   .ach-total {
-    font-size: 16px;
+    font-size: 14px;
     color: #94a3b8;
   }
 
   .ach-label {
-    font-size: 13px;
+    font-size: 12px;
     color: #64748b;
   }
 
   .ach-progress-ring {
     position: relative;
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
   }
 
   .ring-svg {
@@ -193,7 +193,7 @@ const categories = computed(() => {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     color: #f59e0b;
   }
@@ -202,7 +202,7 @@ const categories = computed(() => {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
 
   .ach-tab {
@@ -230,70 +230,83 @@ const categories = computed(() => {
   }
 
   .ach-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: 10px;
+    max-height: 360px;
+    overflow-y: auto;
+    padding-right: 2px;
   }
 
-  .ach-item {
+  .ach-card {
     display: flex;
-    gap: 12px;
+    flex-direction: column;
+    gap: 6px;
     padding: 10px;
     border-radius: 10px;
     background: white;
     border: 1px solid #f1f5f9;
-    opacity: 0.65;
+    opacity: 0.72;
     transition: all 0.2s;
+    min-height: 132px;
   }
 
-  .ach-item.completed {
+  .ach-card.completed {
     opacity: 1;
     border-color: #fde68a;
     background: linear-gradient(135deg, #fffbeb, #fef3c7);
   }
 
+  .ach-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   .ach-icon {
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 15px;
     color: white;
   }
 
-  .ach-info {
-    flex: 1;
-    min-width: 0;
-  }
-
   .ach-name {
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
     color: #334155;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .ach-done {
     color: #16a34a;
     font-weight: 900;
+    font-size: 12px;
   }
 
   .ach-desc {
-    font-size: 11px;
+    font-size: 10px;
     color: #94a3b8;
-    margin-top: 2px;
+    line-height: 1.35;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .ach-progress-bar {
-    height: 4px;
+    height: 3px;
     background: #e2e8f0;
     border-radius: 2px;
-    margin-top: 4px;
     overflow: hidden;
   }
 
@@ -306,9 +319,10 @@ const categories = computed(() => {
 
   .ach-meta {
     display: flex;
-    gap: 8px;
-    margin-top: 2px;
-    font-size: 11px;
+    justify-content: space-between;
+    gap: 4px;
+    font-size: 10px;
+    margin-top: auto;
   }
 
   .ach-progress-text {

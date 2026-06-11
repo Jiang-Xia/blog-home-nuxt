@@ -2,207 +2,163 @@
 /**
    * 用户名片卡片 - 展示基础资料，提供进入 RPG 冒险模块入口
    */
+import { messageDanger, messageSuccess } from '@/utils/toast';
+
 const userInfo = useUserInfo();
+
+const displayHomepage = computed(() => {
+  const url = userInfo.value?.homepage || '';
+  if (!url) return '';
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  }
+  catch {
+    return url.length > 32 ? `${url.slice(0, 32)}…` : url;
+  }
+});
+
+const uidText = computed(() => (userInfo.value?.uid ? String(userInfo.value.uid) : ''));
+
+const copyUid = async () => {
+  if (!uidText.value) return;
+  try {
+    await navigator.clipboard.writeText(uidText.value);
+    messageSuccess('UID 已复制');
+  }
+  catch {
+    messageDanger('复制失败，请手动选择');
+  }
+};
 </script>
 
 <template>
-  <div class="business-card">
-    <div class="card-hero">
-      <div class="avatar-wrap">
-        <div class="avatar placeholder">
-          <div class="avatar-inner">
-            <img v-if="userInfo?.avatar" :src="userInfo.avatar" :alt="userInfo.nickname">
-            <span v-else class="avatar-fallback">
-              {{ userInfo?.nickname?.charAt(0) || '?' }}
-            </span>
-          </div>
+  <div
+    class="business-card overflow-hidden rounded-2xl border border-base-300/70 bg-base-100 shadow-lg"
+  >
+    <div class="relative h-24 bg-gradient-to-br from-primary/90 via-secondary/75 to-accent/70">
+      <div
+        class="absolute inset-0 opacity-20"
+        style="
+          background-image:
+            radial-gradient(circle at 20% 80%, #fff 1px, transparent 1px),
+            radial-gradient(circle at 80% 20%, #fff 1px, transparent 1px);
+          background-size: 24px 24px;
+        "
+      />
+      <div class="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 z-10">
+        <div
+          class="w-[5.5rem] h-[5.5rem] rounded-full overflow-hidden flex items-center justify-center bg-primary text-primary-content border-[3px] border-base-100 shadow-lg"
+        >
+          <img
+            v-if="userInfo?.avatar"
+            :src="userInfo.avatar"
+            :alt="userInfo.nickname"
+            class="w-full h-full object-cover"
+          >
+          <span v-else class="text-3xl font-bold">
+            {{ userInfo?.nickname?.charAt(0) || '?' }}
+          </span>
         </div>
       </div>
-      <h3 class="nickname">
-        {{ userInfo?.nickname || '访客' }}
-      </h3>
-      <p v-if="userInfo?.role" class="role-tag">
-        {{ userInfo.role }}
-      </p>
     </div>
 
-    <div class="card-body">
-      <div v-if="userInfo?.intro" class="info-row">
-        <span class="info-label">简介</span>
-        <p class="info-value">
+    <div class="px-5 pt-14 pb-5">
+      <div class="text-center mb-5">
+        <h3 class="text-xl font-bold">
+          {{ userInfo?.nickname || '访客' }}
+        </h3>
+        <p
+          v-if="userInfo?.role"
+          class="inline-block mt-2 text-xs px-3 py-0.5 rounded-full bg-primary/15 text-primary font-semibold"
+        >
+          {{ userInfo.role }}
+        </p>
+        <p v-if="userInfo?.intro" class="mt-3 text-sm leading-relaxed text-base-content/70">
           {{ userInfo.intro }}
         </p>
       </div>
-      <div v-if="userInfo?.homepage" class="info-row">
-        <span class="info-label">主页</span>
-        <a :href="userInfo.homepage" target="_blank" rel="noopener noreferrer" class="info-link">
-          {{ userInfo.homepage }}
-        </a>
-      </div>
-      <div v-if="userInfo?.uid" class="info-row">
-        <span class="info-label">UID</span>
-        <span class="info-value">{{ userInfo.uid }}</span>
-      </div>
-      <p v-if="!userInfo?.intro && !userInfo?.homepage" class="empty-tip">
-        完善个人资料，让名片更有辨识度
-      </p>
-    </div>
 
-    <div class="card-footer">
-      <NuxtLink to="/rpg" class="rpg-entry-btn">
-        <span class="rpg-icon">⚔️</span>
-        进入 RPG 冒险
+      <div v-if="userInfo?.homepage || uidText" class="flex flex-col gap-2.5 mb-4">
+        <div
+          v-if="userInfo?.homepage"
+          class="flex items-start gap-3 p-3 rounded-xl bg-base-200/60 border border-base-300/50"
+        >
+          <span
+            class="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-base-100 text-sm font-bold text-primary"
+            aria-hidden="true"
+          >🔗</span>
+          <div class="min-w-0 flex-1">
+            <span
+              class="block text-[0.6875rem] font-semibold uppercase tracking-wide text-base-content/50 mb-0.5"
+            >主页</span>
+            <a
+              :href="userInfo.homepage"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm font-medium text-primary break-all hover:underline"
+              :title="userInfo.homepage"
+            >
+              {{ displayHomepage || userInfo.homepage }}
+            </a>
+          </div>
+        </div>
+        <div
+          v-if="uidText"
+          class="flex items-start gap-3 p-3 rounded-xl bg-base-200/60 border border-base-300/50"
+        >
+          <span
+            class="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-base-100 text-sm font-bold text-primary"
+            aria-hidden="true"
+          >#</span>
+          <div class="min-w-0 flex-1">
+            <span
+              class="block text-[0.6875rem] font-semibold uppercase tracking-wide text-base-content/50 mb-0.5"
+            >UID</span>
+            <div class="flex items-center gap-2">
+              <code class="text-sm font-mono text-base-content/85">{{ uidText }}</code>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs h-6 min-h-6 px-2 text-[0.6875rem]"
+                @click="copyUid"
+              >
+                复制
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="!userInfo?.intro && !userInfo?.homepage"
+        class="flex flex-col items-center gap-1.5 p-4 mb-4 rounded-xl border border-dashed border-base-content/20 bg-base-200/40 text-center"
+      >
+        <span class="text-xl" aria-hidden="true">✨</span>
+        <p class="text-[0.8125rem] text-base-content/50 m-0">
+          完善个人资料，让名片更有辨识度
+        </p>
+      </div>
+
+      <NuxtLink
+        to="/rpg"
+        class="flex items-center gap-3 w-full p-3.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-primary-content no-underline shadow-md shadow-primary/30 transition hover:-translate-y-px hover:shadow-lg hover:shadow-primary/35"
+      >
+        <span class="text-xl shrink-0" aria-hidden="true">⚔️</span>
+        <span class="flex-1 flex flex-col items-start gap-0.5 text-left">
+          <strong class="text-[0.9375rem] font-bold leading-tight">进入 RPG 冒险</strong>
+          <small class="text-[0.6875rem] opacity-85 font-medium">签到 · 升级 · 任务 · 排行榜</small>
+        </span>
+        <svg
+          class="w-[1.125rem] h-[1.125rem] shrink-0 opacity-85"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
       </NuxtLink>
-      <p class="rpg-hint">
-        签到、升级、任务与排行榜都在冒险模块
-      </p>
     </div>
   </div>
 </template>
-
-<style scoped>
-  .business-card {
-    overflow: hidden;
-  }
-
-  .card-hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 8px 0 20px;
-    border-bottom: 1px dashed oklch(var(--bc) / 0.12);
-  }
-
-  .avatar-wrap {
-    margin-bottom: 12px;
-  }
-
-  .avatar-inner {
-    width: 5rem;
-    height: 5rem;
-    border-radius: 9999px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: oklch(var(--p));
-    color: oklch(var(--pc));
-    box-shadow:
-      0 0 0 2px oklch(var(--p) / 0.2),
-      0 0 0 4px oklch(var(--b1));
-  }
-
-  .avatar-inner img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .avatar-fallback {
-    font-size: 2rem;
-    font-weight: 700;
-  }
-
-  .nickname {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .role-tag {
-    margin-top: 6px;
-    font-size: 12px;
-    padding: 2px 10px;
-    border-radius: 9999px;
-    background: oklch(var(--p) / 0.12);
-    color: oklch(var(--p));
-    font-weight: 600;
-  }
-
-  .card-body {
-    padding: 18px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .info-row {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .info-label {
-    font-size: 12px;
-    color: oklch(var(--bc) / 0.5);
-    font-weight: 600;
-  }
-
-  .info-value {
-    font-size: 14px;
-    line-height: 1.6;
-    margin: 0;
-    word-break: break-word;
-  }
-
-  .info-link {
-    font-size: 14px;
-    color: #3b82f6;
-    word-break: break-all;
-    text-decoration: none;
-  }
-
-  .info-link:hover {
-    text-decoration: underline;
-  }
-
-  .empty-tip {
-    font-size: 13px;
-    color: oklch(var(--bc) / 0.45);
-    text-align: center;
-    margin: 0;
-  }
-
-  .card-footer {
-    padding-top: 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .rpg-entry-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 12px 20px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    color: #fff;
-    font-size: 15px;
-    font-weight: 700;
-    text-decoration: none;
-    transition:
-      transform 0.15s,
-      box-shadow 0.15s;
-    box-shadow: 0 4px 14px rgb(59 130 246 / 0.35);
-  }
-
-  .rpg-entry-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgb(59 130 246 / 0.45);
-  }
-
-  .rpg-icon {
-    font-size: 18px;
-  }
-
-  .rpg-hint {
-    font-size: 12px;
-    color: oklch(var(--bc) / 0.45);
-    margin: 0;
-    text-align: center;
-  }
-</style>

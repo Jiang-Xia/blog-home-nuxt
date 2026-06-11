@@ -1,14 +1,38 @@
 ---
-description: blog-home-nuxt Pinia 与 composables 复用规范
-globs: {stores,composables}/**/*.ts
+description: blog-home-nuxt composables 与状态管理规范
+globs: composables/**/*.ts
 alwaysApply: false
 ---
 
-# State And Composables Rules
+# Composables 与状态
 
-- 全局可共享状态放 Pinia，本地页面状态优先用 composable，不滥用全局 store。
-- composable 命名使用 `useXxx`，返回值保持稳定结构，避免频繁破坏调用方。
-- store 里的异步操作要显式处理 loading/error，避免页面层重复写错误分支。
-- 不在多个 store 复制同一业务状态，优先抽公共 store 或公共 composable。
-- 对接口返回体先做最小归一化再写入状态，减少页面层适配负担。
-- 涉及登录态更新时，要同步 token、用户信息与依赖缓存，避免状态撕裂。
+## 优先级
+
+1. **页面局部状态** → composable 内 `ref` / `computed`
+2. **跨组件共享** → `useState(key, () => initial)`（项目主力，如 `useUserInfo`、`useRpg`）
+3. **全局持久业务** → Pinia store（见 `home-11-stores-pinia.mdc`，非必要不新增）
+
+## 命名与结构
+
+- 文件：`use-<domain>.ts`；导出函数：`useXxx`
+- 返回值保持稳定结构，避免破坏性变更
+- 新增导出函数需 1 行中文 JSDoc（见 commenting 规则）
+
+## 现有模式
+
+```typescript
+// 登录态 — composables/use-common.ts
+export const useUserInfo = () => useState('userInfo', () => userInfo);
+export const useToken = () => useState('token', () => token);
+
+// 模块共享态 — composables/use-rpg.ts
+const rpgStatus = useState<RpgStatus | null>('rpg-status', () => null);
+// API 调用 + loading/error 在此处理，页面只消费
+```
+
+## 要求
+
+- 接口返回先最小归一化再写入 state，减少页面适配
+- 登录态更新时同步 token、userInfo 与依赖缓存（含 WebSocket 重连 token）
+- 不在多个 composable 复制同一业务状态；可复用则抽公共 composable
+- 客户端副作用（DOM、Socket）加 `import.meta.client` 守卫

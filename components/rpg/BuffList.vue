@@ -113,7 +113,7 @@ const getEffectText = (buff: UserBuff): string => {
 
 <style scoped>
   .buff-section {
-    margin-top: 12px;
+    margin-top: 0;
   }
 
   .section-title {
@@ -146,20 +146,21 @@ const getEffectText = (buff: UserBuff): string => {
   }
 
   .buff-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
+    gap: 10px;
   }
 
   .buff-item {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    gap: 8px;
     padding: 10px;
     border-radius: 10px;
     background: white;
     border: 1.5px solid;
     transition: transform 0.2s;
+    min-height: 120px;
   }
 
   .buff-item:hover {
@@ -168,13 +169,13 @@ const getEffectText = (buff: UserBuff): string => {
 
   .buff-icon {
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .buff-info {

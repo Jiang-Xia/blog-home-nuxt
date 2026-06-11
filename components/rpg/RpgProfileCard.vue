@@ -12,6 +12,9 @@ import type { LevelUpResult, SignInResult } from '~~/types/rpg';
 import { messageInfo, messageSuccess } from '~~/utils/toast';
 import { useRpg } from '~~/composables/use-rpg';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
+import RpgQuestPanel from './QuestPanel.vue';
+import RpgAchievementPanel from './AchievementPanel.vue';
+import RpgBuffList from './BuffList.vue';
 
 const {
   rpgStatus,
@@ -26,7 +29,7 @@ const {
   signingIn,
   signIn,
   completedAchievementCount,
-  questCompletionRate,
+  questProgressText,
   claimableQuests,
   activeBuffCount,
   initRpg,
@@ -100,8 +103,13 @@ const handleSignIn = async () => {
   }
 };
 
-// 当前激活的Tab
-const activeTab = ref<'quests' | 'achievements' | 'buffs'>('quests');
+// 当前激活的 Tab
+type RpgTab = 'quests' | 'achievements' | 'buffs';
+const activeTab = ref<RpgTab>('quests');
+
+const switchTab = (tab: RpgTab) => {
+  activeTab.value = tab;
+};
 
 // 命中记录
 const showHitRecords = ref(false);
@@ -119,7 +127,7 @@ onMounted(async () => {
   watch(
     () => userInfo.value?.uid,
     (uid) => {
-      if (uid) connect(uid);
+      if (uid) connect();
     },
     { immediate: true },
   );
@@ -152,9 +160,12 @@ onMounted(async () => {
       </div>
       <div class="header-info">
         <div class="exp-row">
-          <span class="exp-label">经验值</span>
-          <span class="exp-num">{{ rpgStatus.exp }}</span>
-          <span class="exp-fraction">{{ expProgress.current }}/{{ expProgress.required }}</span>
+          <span class="exp-label">累计经验</span>
+          <span class="exp-num">{{ rpgStatus.exp.toLocaleString() }}</span>
+        </div>
+        <div class="exp-row exp-level-row">
+          <span class="exp-label">Lv{{ rpgStatus.level }} → Lv{{ rpgStatus.level + 1 }}</span>
+          <span class="exp-fraction">{{ expProgress.current }} / {{ expProgress.required }}</span>
         </div>
         <div class="exp-bar">
           <div class="exp-bar-fill" :style="{ width: expProgress.percent + '%' }" />
@@ -198,67 +209,53 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- 数据概览栏 -->
-    <div class="stats-bar">
-      <div class="stat-item">
+    <!-- 数据概览 / Tab 切换 -->
+    <div class="stats-bar" role="tablist" aria-label="RPG 数据面板">
+      <button
+        type="button"
+        role="tab"
+        class="stat-item"
+        :class="{ active: activeTab === 'achievements' }"
+        :aria-selected="activeTab === 'achievements'"
+        @click="switchTab('achievements')"
+      >
         <span class="stat-num">{{ completedAchievementCount }}</span>
         <span class="stat-label">成就</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">{{ questCompletionRate }}%</span>
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="stat-item"
+        :class="{ active: activeTab === 'quests' }"
+        :aria-selected="activeTab === 'quests'"
+        @click="switchTab('quests')"
+      >
+        <span class="stat-num">{{ questProgressText }}</span>
         <span class="stat-label">任务</span>
-      </div>
-      <div class="stat-item">
+        <span v-if="claimableQuests.length" class="stat-badge">{{ claimableQuests.length }}</span>
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="stat-item"
+        :class="{ active: activeTab === 'buffs' }"
+        :aria-selected="activeTab === 'buffs'"
+        @click="switchTab('buffs')"
+      >
         <span class="stat-num">{{ activeBuffCount }}</span>
         <span class="stat-label">Buff</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">{{ claimableQuests.length }}</span>
-        <span class="stat-label">可领</span>
-      </div>
-    </div>
-
-    <!-- Tab切换 -->
-    <div class="tab-bar">
-      <button
-        class="tab-btn"
-        :class="{ active: activeTab === 'quests' }"
-        @click="activeTab = 'quests'"
-      >
-        📋 任务
-        <span v-if="claimableQuests.length" class="tab-badge">{{ claimableQuests.length }}</span>
-      </button>
-      <button
-        class="tab-btn"
-        :class="{ active: activeTab === 'achievements' }"
-        @click="activeTab = 'achievements'"
-      >
-        🏆 成就
-      </button>
-      <button
-        class="tab-btn"
-        :class="{ active: activeTab === 'buffs' }"
-        @click="activeTab = 'buffs'"
-      >
-        ✨ Buff
-        <span v-if="activeBuffCount" class="tab-badge">{{ activeBuffCount }}</span>
       </button>
     </div>
 
-    <!-- Tab内容 -->
-    <div class="tab-content">
-      <!-- 任务面板 -->
-      <div v-if="activeTab === 'quests'" class="panel-quests">
+    <!-- Tab 内容 -->
+    <div class="rpg-panels">
+      <div v-show="activeTab === 'quests'" class="rpg-panel" role="tabpanel">
         <RpgQuestPanel />
       </div>
-
-      <!-- 成就面板 -->
-      <div v-if="activeTab === 'achievements'" class="panel-achievements">
+      <div v-show="activeTab === 'achievements'" class="rpg-panel" role="tabpanel">
         <RpgAchievementPanel />
       </div>
-
-      <!-- Buff面板 -->
-      <div v-if="activeTab === 'buffs'" class="panel-buffs">
+      <div v-show="activeTab === 'buffs'" class="rpg-panel" role="tabpanel">
         <RpgBuffList />
       </div>
     </div>
@@ -336,8 +333,8 @@ onMounted(async () => {
 
 <style scoped>
   .rpg-card {
-    max-width: 1080px;
-    padding: 20px;
+    width: 100%;
+    padding: 16px;
     border-radius: 16px;
     background: linear-gradient(135deg, #f8fafc, #f1f5f9);
     border: 1px solid #e2e8f0;
@@ -409,6 +406,10 @@ onMounted(async () => {
     display: flex;
     align-items: baseline;
     gap: 6px;
+    margin-bottom: 5px;
+  }
+
+  .exp-level-row {
     margin-bottom: 5px;
   }
 
@@ -554,15 +555,42 @@ onMounted(async () => {
     display: flex;
     justify-content: space-around;
     padding: 10px 0;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     border-top: 1px solid #e2e8f0;
     border-bottom: 1px solid #e2e8f0;
   }
 
   .stat-item {
+    position: relative;
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 6px 4px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  .stat-item:hover {
+    background: #f1f5f9;
+  }
+
+  .stat-item.active {
+    background: #ede9fe;
+  }
+
+  .stat-item.active .stat-num {
+    color: #7c3aed;
+  }
+
+  .stat-item.active .stat-label {
+    color: #7c3aed;
+    font-weight: 600;
   }
 
   .stat-num {
@@ -576,40 +604,10 @@ onMounted(async () => {
     margin-top: 1px;
   }
 
-  /* Tabs */
-  .tab-bar {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 10px;
-  }
-
-  .tab-btn {
-    flex: 1;
-    padding: 7px 0;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    font-size: 12px;
-    font-weight: 600;
-    color: #64748b;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-  }
-
-  .tab-btn:hover {
-    background: #f1f5f9;
-  }
-
-  .tab-btn.active {
-    background: #ede9fe;
-    color: #7c3aed;
-  }
-
-  .tab-badge {
+  .stat-badge {
     position: absolute;
-    top: 2px;
-    right: 8px;
+    top: 0;
+    right: 4px;
     background: #ef4444;
     color: white;
     font-size: 9px;
@@ -623,9 +621,15 @@ onMounted(async () => {
     padding: 0 3px;
   }
 
-  .tab-content {
-    min-height: 120px;
+  .rpg-panels {
     margin-bottom: 12px;
+  }
+
+  .rpg-panel {
+    padding: 10px;
+    border-radius: 10px;
+    background: white;
+    border: 1px solid #e2e8f0;
   }
 
   /* Collections */

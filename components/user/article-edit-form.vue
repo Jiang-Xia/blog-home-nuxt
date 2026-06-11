@@ -227,95 +227,151 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="article-edit-form">
+  <div class="article-edit-form px-4 pt-5 pb-0 sm:px-6 sm:pt-6">
     <div v-if="loading" class="space-y-3">
       <div class="skeleton h-8 w-full rounded-md" />
       <div class="skeleton h-14 w-full rounded-md" />
       <div class="skeleton h-56 w-full rounded-md" />
     </div>
 
-    <form v-else class="compact-form" @submit.prevent="handleSubmit">
-      <!-- 基本信息：标题 + 分类同行 -->
-      <div class="form-grid form-grid-2">
-        <label class="form-control">
-          <span class="field-label">标题 <em>*</em></span>
-          <input
-            v-model="formState.title"
-            type="text"
-            class="input input-bordered input-sm w-full"
-            placeholder="文章标题"
-          >
-        </label>
-        <label class="form-control">
-          <span class="field-label">分类 <em>*</em></span>
-          <select v-model="formState.category" class="select select-bordered select-sm w-full">
-            <option disabled value=""> 选择分类 </option>
-            <option v-for="item in categoryOptions" :key="item.id" :value="item.id">
-              {{ item.label }}
-            </option>
-          </select>
-        </label>
-      </div>
-
-      <label class="form-control">
-        <span class="field-label">描述 <em>*</em></span>
-        <textarea
-          v-model="formState.description"
-          class="textarea textarea-bordered textarea-sm w-full min-h-14 py-2"
-          rows="2"
-          placeholder="列表页展示的简短描述"
-        />
-      </label>
-
-      <!-- 封面：链接 + 小预览 -->
-      <div class="form-grid form-grid-cover">
-        <label class="form-control min-w-0">
-          <span class="field-label">封面链接 <em>*</em></span>
-          <input
-            v-model="formState.cover"
-            type="url"
-            class="input input-bordered input-sm w-full"
-            placeholder="https://..."
-            @input="onCoverInput"
-          >
-        </label>
-        <figure class="cover-thumb">
-          <img
-            v-if="formState.cover && !coverError"
-            :src="formState.cover"
-            alt="封面"
-            class="object-cover w-full h-full"
-            @error="onCoverError"
-          >
-          <span v-else class="cover-thumb-placeholder text-base-content/30">
-            {{ coverError ? '无效' : '预览' }}
-          </span>
-        </figure>
-      </div>
-
-      <!-- 标签 -->
-      <div class="form-control">
-        <span class="field-label">标签 <em>*</em>
-          <span class="text-base-content/40 font-normal">({{ formState.tags.length }})</span></span>
-        <div class="tag-list">
-          <button
-            v-for="item in tagsOptions"
-            :key="item.id"
-            type="button"
-            class="badge badge-sm cursor-pointer"
-            :class="formState.tags.includes(item.id) ? 'badge-primary' : 'badge-ghost'"
-            @click="toggleTag(item.id)"
-          >
-            {{ item.label }}
-          </button>
+    <form v-else class="flex flex-col" @submit.prevent="handleSubmit">
+      <!-- 基本信息 -->
+      <section class="pb-5 mb-5 border-b border-base-300/60 space-y-3">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-base-content/50 m-0">
+          基本信息
+        </h2>
+        <div class="form-grid-2">
+          <label class="form-control">
+            <span
+              class="flex items-center gap-1.5 text-[0.8125rem] font-semibold text-base-content/80 mb-1.5"
+            >
+              标题 <em class="text-error not-italic">*</em>
+            </span>
+            <input
+              v-model="formState.title"
+              type="text"
+              class="input input-bordered w-full"
+              placeholder="给文章起个吸引人的标题"
+            >
+          </label>
+          <label class="form-control">
+            <span
+              class="flex items-center gap-1.5 text-[0.8125rem] font-semibold text-base-content/80 mb-1.5"
+            >
+              分类 <em class="text-error not-italic">*</em>
+            </span>
+            <select v-model="formState.category" class="select select-bordered w-full">
+              <option disabled value=""> 选择分类 </option>
+              <option v-for="item in categoryOptions" :key="item.id" :value="item.id">
+                {{ item.label }}
+              </option>
+            </select>
+          </label>
         </div>
-      </div>
+
+        <label class="form-control">
+          <span
+            class="flex items-center gap-1.5 text-[0.8125rem] font-semibold text-base-content/80 mb-1.5"
+          >
+            描述 <em class="text-error not-italic">*</em>
+          </span>
+          <textarea
+            v-model="formState.description"
+            class="textarea textarea-bordered w-full min-h-16 py-2.5"
+            rows="2"
+            placeholder="列表页展示的简短描述，建议 50～120 字"
+          />
+        </label>
+      </section>
+
+      <!-- 封面与标签 -->
+      <section class="pb-5 mb-5 border-b border-base-300/60 space-y-3">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-base-content/50 m-0">
+          封面与标签
+        </h2>
+        <div class="form-grid-cover">
+          <label class="form-control min-w-0">
+            <span
+              class="flex items-center gap-1.5 text-[0.8125rem] font-semibold text-base-content/80 mb-1.5"
+            >
+              封面链接 <em class="text-error not-italic">*</em>
+            </span>
+            <input
+              v-model="formState.cover"
+              type="url"
+              class="input input-bordered w-full"
+              placeholder="https://example.com/cover.jpg"
+              @input="onCoverInput"
+            >
+            <span class="block mt-1.5 text-[0.6875rem] text-base-content/45">建议 16:9 比例，用于列表与分享展示</span>
+          </label>
+          <figure
+            class="cover-thumb rounded-lg overflow-hidden shrink-0 border border-dashed transition-colors"
+            :class="coverError ? 'border-error/50 bg-error/5' : 'border-base-300 bg-base-200/50'"
+          >
+            <img
+              v-if="formState.cover && !coverError"
+              :src="formState.cover"
+              alt="封面预览"
+              class="object-cover w-full h-full"
+              @error="onCoverError"
+            >
+            <span
+              v-else
+              class="flex flex-col items-center justify-center gap-1.5 w-full h-full text-[0.6875rem] text-base-content/35"
+            >
+              <svg
+                v-if="!coverError"
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6 opacity-45"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022 18.75V5.25A2.25 2.25 0 0019.75 3H4.25A2.25 2.25 0 002 5.25v13.5A2.25 2.25 0 004.25 21z"
+                />
+              </svg>
+              <span>{{ coverError ? '链接无效' : '封面预览' }}</span>
+            </span>
+          </figure>
+        </div>
+
+        <div class="form-control">
+          <span
+            class="flex items-center gap-1.5 text-[0.8125rem] font-semibold text-base-content/80 mb-1.5"
+          >
+            标签 <em class="text-error not-italic">*</em>
+            <span class="text-[0.6875rem] font-medium text-base-content/45">已选 {{ formState.tags.length }} 个</span>
+          </span>
+          <div class="flex flex-wrap gap-2 max-h-[88px] overflow-y-auto py-0.5">
+            <button
+              v-for="item in tagsOptions"
+              :key="item.id"
+              type="button"
+              class="badge badge-outline badge-sm cursor-pointer transition-colors"
+              :class="
+                formState.tags.includes(item.id) ? 'badge-primary' : 'hover:border-primary/40'
+              "
+              @click="toggleTag(item.id)"
+            >
+              {{ item.label }}
+            </button>
+          </div>
+        </div>
+      </section>
 
       <!-- 正文 -->
-      <div class="form-control">
-        <span class="field-label">正文 <em>*</em></span>
+      <section class="pb-4 space-y-3">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-base-content/50 m-0">
+          正文内容
+        </h2>
         <ClientOnly>
-          <div class="editor-wrap">
+          <div class="rounded-lg overflow-hidden border border-base-300 shadow-inner">
             <MdEditor
               v-model="formState.content"
               class="x-md-editor article-md-editor"
@@ -325,25 +381,28 @@ onMounted(async () => {
             />
           </div>
         </ClientOnly>
-      </div>
+      </section>
 
-      <!-- 发布 + 操作：同一行 -->
-      <div class="publish-bar">
-        <div class="publish-left">
-          <div role="tablist" class="tabs tabs-bordered tabs-xs h-8 p-0.5">
+      <!-- 发布 + 操作 -->
+      <div
+        class="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 -mx-4 px-4 py-3 sm:-mx-6 sm:px-6 sm:py-3.5 border-t border-base-300/80 bg-base-100/95 backdrop-blur-sm"
+      >
+        <div class="flex flex-wrap items-center gap-2.5">
+          <span class="text-xs font-semibold text-base-content/55 shrink-0">发布方式</span>
+          <div role="tablist" class="tabs tabs-boxed tabs-sm h-9 p-0.5 bg-base-200/80">
             <button
               type="button"
               role="tab"
-              class="tab tab-xs px-2"
+              class="tab tab-sm px-3 min-h-0 h-full"
               :class="{ 'tab-active': formState.status === 'publish' }"
               @click="formState.status = 'publish'"
             >
-              发布
+              立即发布
             </button>
             <button
               type="button"
               role="tab"
-              class="tab tab-xs px-2"
+              class="tab tab-sm px-3 min-h-0 h-full"
               :class="{ 'tab-active': formState.status === 'draft' }"
               @click="formState.status = 'draft'"
             >
@@ -352,7 +411,7 @@ onMounted(async () => {
             <button
               type="button"
               role="tab"
-              class="tab tab-xs px-2"
+              class="tab tab-sm px-3 min-h-0 h-full"
               :class="{ 'tab-active': formState.status === 'scheduled' }"
               @click="formState.status = 'scheduled'"
             >
@@ -363,15 +422,15 @@ onMounted(async () => {
             v-if="formState.status === 'scheduled'"
             v-model="formState.scheduledPublishAt"
             type="datetime-local"
-            class="input input-bordered input-xs w-44"
+            class="input input-bordered input-sm w-48"
           >
         </div>
-        <div class="publish-actions">
-          <NuxtLink to="/user/profile?tab=article" class="btn btn-ghost btn-xs"> 取消 </NuxtLink>
-          <button v-if="!isEdit" type="button" class="btn btn-ghost btn-xs" @click="resetForm">
+        <div class="flex items-center gap-1.5 ml-auto">
+          <NuxtLink to="/user/profile?tab=article" class="btn btn-ghost btn-sm"> 取消 </NuxtLink>
+          <button v-if="!isEdit" type="button" class="btn btn-ghost btn-sm" @click="resetForm">
             重置
           </button>
-          <button type="submit" class="btn btn-primary btn-xs min-w-20" :disabled="submitting">
+          <button type="submit" class="btn btn-primary btn-sm min-w-24" :disabled="submitting">
             <span v-if="submitting" class="loading loading-spinner loading-xs" />
             {{ submitLabel }}
           </button>
@@ -382,82 +441,45 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-  .compact-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .field-label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: oklch(var(--bc) / 0.75);
-    margin-bottom: 4px;
-  }
-
-  .field-label em {
-    color: oklch(var(--er));
-    font-style: normal;
-  }
-
-  .form-grid {
-    display: grid;
-    gap: 10px;
-  }
-
   .form-grid-2 {
+    display: grid;
+    gap: 12px;
     grid-template-columns: 1fr;
   }
 
   @media (min-width: 640px) {
     .form-grid-2 {
-      grid-template-columns: 1fr 180px;
+      grid-template-columns: 1fr 200px;
     }
   }
 
   .form-grid-cover {
-    grid-template-columns: 1fr 96px;
-    align-items: end;
-    gap: 8px;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  @media (min-width: 640px) {
+    .form-grid-cover {
+      grid-template-columns: 1fr 140px;
+      align-items: end;
+    }
   }
 
   .cover-thumb {
-    width: 96px;
-    height: 54px;
-    border-radius: 6px;
-    overflow: hidden;
-    background: oklch(var(--b3) / 0.4);
-    border: 1px solid oklch(var(--b3));
-    flex-shrink: 0;
-  }
-
-  .cover-thumb-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
-    height: 100%;
-    font-size: 0.65rem;
+    aspect-ratio: 16 / 9;
   }
 
-  .tag-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    max-height: 72px;
-    overflow-y: auto;
-    padding: 2px 0;
-  }
-
-  .editor-wrap {
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid oklch(var(--b3));
+  @media (min-width: 640px) {
+    .cover-thumb {
+      width: 140px;
+    }
   }
 
   .article-md-editor {
-    min-height: 280px;
+    min-height: 360px;
     border: none !important;
   }
 
@@ -467,30 +489,7 @@ onMounted(async () => {
   }
 
   .article-md-editor :deep(.md-editor-toolbar-wrapper) {
-    padding: 4px 6px;
-  }
-
-  .publish-bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding-top: 6px;
-    border-top: 1px solid oklch(var(--b3) / 0.6);
-  }
-
-  .publish-left {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .publish-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-left: auto;
+    padding: 6px 8px;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-base-300) 60%, transparent);
   }
 </style>

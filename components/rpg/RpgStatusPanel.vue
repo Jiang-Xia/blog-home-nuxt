@@ -78,7 +78,7 @@ onMounted(async () => {
   watch(
     () => userInfo.value?.uid,
     (uid) => {
-      if (uid) connect(uid);
+      if (uid) connect();
     },
     { immediate: true },
   );
