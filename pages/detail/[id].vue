@@ -222,12 +222,14 @@ watch(
         <section class="module-wrap__detail article-info">
           <div class="flex items-center">
             <div class="flex items-center justify-between">
-              <div class="btn btn-ghost btn-circle avatar">
-                <div class="w-10 rounded-full">
-                  <img :src="ArticleInfo.userInfo.avatar || Qie">
+              <NuxtLink :to="`/user/${ArticleInfo.uid}`" class="flex items-center hover:opacity-80">
+                <div class="btn btn-ghost btn-circle avatar">
+                  <div class="w-10 rounded-full">
+                    <img :src="ArticleInfo.userInfo.avatar || Qie">
+                  </div>
                 </div>
-              </div>
-              <span class="text-color font-bold">{{ ArticleInfo.userInfo.nickname }}</span>
+                <span class="text-color font-bold ml-2">{{ ArticleInfo.userInfo.nickname }}</span>
+              </NuxtLink>
             </div>
             <div class="dropdown dropdown-bottom ml-6">
               <div tabindex="0" role="button" class="btn m-1 btn-neutral">
@@ -251,6 +253,19 @@ watch(
             :preview-theme="previewTheme"
             :theme="theme"
             @on-get-catalog="onGetCatalogHandle"
+          />
+          <div
+            v-if="ArticleInfo.articleLevel || ArticleInfo.isMasterpiece"
+            class="flex gap-2 mt-3 text-sm"
+          >
+            <span v-if="ArticleInfo.isMasterpiece" class="badge badge-error">神作</span>
+            <span v-if="ArticleInfo.articleLevel" class="badge badge-outline">文章 Lv{{ ArticleInfo.articleLevel }}</span>
+            <span v-if="ArticleInfo.tipTotal" class="badge badge-ghost">💎 {{ ArticleInfo.tipTotal }} 打赏</span>
+          </div>
+          <RpgArticleTipPanel
+            v-if="ArticleInfo.uid"
+            :article-id="Number(ArticleInfo.id)"
+            :author-uid="Number(ArticleInfo.uid)"
           />
         </section>
         <XiaComment

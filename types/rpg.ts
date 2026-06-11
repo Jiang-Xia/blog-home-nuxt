@@ -13,6 +13,13 @@ export interface RpgStatus {
   banStartTime: string | null;
   banEndTime: string | null;
   roleReward: RoleReward | null;
+  equippedTitle?: string | null;
+  equippedAvatarFrame?: string | null;
+  equippedPetId?: number | null;
+  fragments?: number;
+  reputation?: number;
+  lotteryPityCounter?: number;
+  lotteryTickets?: number;
 }
 
 /** 签到结果 */
@@ -270,6 +277,37 @@ export interface LotteryRecord {
   rewardData: Record<string, any>;
   createTime: string;
 }
+
+/** 背包物品 */
+export interface InventoryItem {
+  id: number;
+  itemCode: string;
+  quantity: number;
+  source: string;
+  config: {
+    code: string;
+    name: string;
+    itemType: string;
+    rarity: string;
+    description: string;
+  } | null;
+}
+
+/** 公开主页 */
+export interface PublicProfile {
+  uid: number;
+  nickname: string;
+  avatar: string;
+  intro: string;
+  level: number;
+  reputation: number;
+  loadout: any;
+  completedAchievements: any[];
+}
+
+/** 排行榜 period/type 扩展 */
+export type LeaderboardPeriod = 'total' | 'week' | 'month' | 'season';
+export type LeaderboardScoreType = 'exp' | 'signDays' | 'level' | 'reputation' | 'fragments';
 
 /** 稀有度显示配置 */
 export const RARITY_MAP: Record<string, { color: string; label: string; icon: string }> = {

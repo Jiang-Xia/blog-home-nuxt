@@ -77,3 +77,6 @@ export const messageInfo = (msg = '', duration = DEFAULT_DURATION) => {
     showMsgLoading = false;
   }, 1000);
 };
+
+/** 错误提示（messageDanger 别名） */
+export const messageError = messageDanger;

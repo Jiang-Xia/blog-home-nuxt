@@ -5,8 +5,18 @@
 import { BUFF_TYPE_MAP } from '~~/types/rpg';
 import type { UserBuff, BuffType } from '~~/types/rpg';
 import { useRpg } from '~~/composables/use-rpg';
+import { activateBuff, deactivateBuff } from '~~/api/rpg';
+import { messageSuccess } from '~~/utils/toast';
 
 const { buffs, fetchBuffs } = useRpg();
+
+const toggleBuff = async (buff: UserBuff & { triggerMode?: string; isActive?: boolean }) => {
+  if (buff.triggerMode !== 'manual') return;
+  if (buff.isActive) await deactivateBuff(buff.id);
+  else await activateBuff(buff.id);
+  messageSuccess(buff.isActive ? '已停用' : '已激活');
+  await fetchBuffs();
+};
 
 // 倒计时状态
 const now = ref(Date.now());
@@ -105,6 +115,14 @@ const getEffectText = (buff: UserBuff): string => {
             </div>
             <span class="timer-text">{{ getRemainingText(buff.expireAt) }}</span>
           </div>
+          <button
+            v-if="(buff as any).triggerMode === 'manual'"
+            class="btn btn-xs mt-1"
+            :class="(buff as any).isActive ? 'btn-ghost' : 'btn-primary'"
+            @click="toggleBuff(buff as any)"
+          >
+            {{ (buff as any).isActive ? '停用' : '激活' }}
+          </button>
         </div>
       </div>
     </div>

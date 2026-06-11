@@ -48,7 +48,7 @@ watch(
     <RpgBanWarning :ban-status="banStatus" />
     <div v-if="!isBanned" class="interact-hint">
       <RpgLifeIndicator :life-value="rpgStatus.lifeValue" />
-      <span class="hint-text">命中敏感词将扣除 20 HP，生命归零可能触发禁言</span>
+      <span class="hint-text">命中敏感词将按等级扣除 HP，生命归零可能触发禁言</span>
     </div>
   </div>
 </template>

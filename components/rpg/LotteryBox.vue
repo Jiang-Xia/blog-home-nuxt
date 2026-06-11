@@ -4,19 +4,23 @@
    */
 import { RARITY_MAP } from '~~/types/rpg';
 import type { DrawResult } from '~~/types/rpg';
+import { lotteryDraw } from '~~/api/rpg';
 import { useRpg } from '~~/composables/use-rpg';
 import { formactDate } from '@/utils/common';
 
 const {
   lotteryPool,
   lotteryTickets,
+  rpgStatus,
   drawing,
-  draw,
   fetchLotteryPool,
   fetchLotteryTickets,
   fetchLotteryHistory,
+  fetchStatus,
   lotteryHistory,
 } = useRpg();
+
+const drawCurrency = ref<'ticket' | 'fragments'>('ticket');
 
 // 抽奖结果展示
 const showResult = ref(false);
@@ -26,24 +30,36 @@ const isAnimating = ref(false);
 const showHistory = ref(false);
 
 onMounted(async () => {
-  await Promise.all([fetchLotteryPool(), fetchLotteryTickets()]);
+  await Promise.all([fetchLotteryPool(), fetchLotteryTickets(), fetchStatus()]);
 });
+
+const canDraw = (count: number) => {
+  if (drawCurrency.value === 'fragments') {
+    return (rpgStatus.value?.fragments || 0) >= count * 10;
+  }
+  return lotteryTickets.value >= count;
+};
 
 /** 执行抽奖 */
 const handleDraw = async (count = 1) => {
   if (drawing.value || isAnimating.value) return;
-  if (lotteryTickets.value < count) return;
+  if (!canDraw(count)) return;
 
   isAnimating.value = true;
-
-  // 宝箱开启动画延迟
   await new Promise(resolve => setTimeout(resolve, 600));
 
-  const results = await draw(count);
-  drawResults.value = results;
-  currentResultIndex.value = 0;
-  showResult.value = true;
-  isAnimating.value = false;
+  drawing.value = true;
+  try {
+    const results = await lotteryDraw(count, drawCurrency.value);
+    drawResults.value = results;
+    currentResultIndex.value = 0;
+    showResult.value = true;
+    await Promise.all([fetchLotteryTickets(), fetchStatus()]);
+  }
+  finally {
+    drawing.value = false;
+    isAnimating.value = false;
+  }
 };
 
 /** 查看下一个结果 */
@@ -83,7 +99,26 @@ const toggleHistory = async () => {
   <div class="lottery-section">
     <div class="lottery-header">
       <span class="section-title">🎁 幸运宝箱</span>
-      <span class="ticket-count">🎫 {{ lotteryTickets }} 张</span>
+      <span class="ticket-count">🎫 {{ lotteryTickets }} · 💎 {{ rpgStatus?.fragments ?? 0 }}</span>
+    </div>
+    <div v-if="rpgStatus?.lotteryPityCounter != null" class="text-xs text-base-content/60 mb-2">
+      保底进度 {{ rpgStatus.lotteryPityCounter }} / 90
+    </div>
+    <div class="flex gap-2 mb-3">
+      <button
+        class="btn btn-xs"
+        :class="{ 'btn-primary': drawCurrency === 'ticket' }"
+        @click="drawCurrency = 'ticket'"
+      >
+        抽奖券
+      </button>
+      <button
+        class="btn btn-xs"
+        :class="{ 'btn-primary': drawCurrency === 'fragments' }"
+        @click="drawCurrency = 'fragments'"
+      >
+        碎片(10/抽)
+      </button>
     </div>
 
     <!-- 宝箱区域 -->
@@ -103,14 +138,14 @@ const toggleHistory = async () => {
       <div class="draw-actions">
         <button
           class="draw-btn"
-          :disabled="lotteryTickets < 1 || drawing || isAnimating"
+          :disabled="!canDraw(1) || drawing || isAnimating"
           @click="handleDraw(1)"
         >
           单抽 x1
         </button>
         <button
           class="draw-btn draw-btn-multi"
-          :disabled="lotteryTickets < 5 || drawing || isAnimating"
+          :disabled="!canDraw(5) || drawing || isAnimating"
           @click="handleDraw(5)"
         >
           五连 x5

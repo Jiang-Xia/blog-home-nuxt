@@ -9,7 +9,8 @@ import {
   BUFF_TYPE_MAP,
 } from '~~/types/rpg';
 import type { LevelUpResult, SignInResult } from '~~/types/rpg';
-import { messageInfo, messageSuccess } from '~~/utils/toast';
+import { messageInfo, messageSuccess, messageError } from '~~/utils/toast';
+import { equipLoadout, unequipLoadout } from '~~/api/rpg';
 import { useRpg } from '~~/composables/use-rpg';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
 import RpgQuestPanel from './QuestPanel.vue';
@@ -41,6 +42,27 @@ const {
   hitRecords,
   hitRecordsTotal,
 } = useRpg();
+
+const handleEquip = async (slot: 'title' | 'avatar_frame', code: string) => {
+  try {
+    await equipLoadout({ slot, itemCode: code });
+    messageSuccess('穿戴成功');
+    await fetchStatus();
+  }
+  catch (e: any) {
+    messageError(e?.message || '穿戴失败');
+  }
+};
+
+const handleUnequip = async (slot: 'title' | 'avatar_frame') => {
+  try {
+    await unequipLoadout(slot);
+    await fetchStatus();
+  }
+  catch (e: any) {
+    messageError(e?.message || '卸下失败');
+  }
+};
 
 const {
   connect,
@@ -271,13 +293,20 @@ onMounted(async () => {
           <span
             v-for="frame in rpgStatus.unlockedAvatarFrames"
             :key="frame"
-            class="collection-tag"
+            class="collection-tag clickable"
+            :class="{ equipped: rpgStatus.equippedAvatarFrame === frame }"
             :style="{
               borderColor: AVATAR_FRAME_MAP[frame]?.color,
               color: AVATAR_FRAME_MAP[frame]?.color,
             }"
+            @click="
+              rpgStatus.equippedAvatarFrame === frame
+                ? handleUnequip('avatar_frame')
+                : handleEquip('avatar_frame', frame)
+            "
           >
             {{ AVATAR_FRAME_MAP[frame]?.name || frame }}
+            <span v-if="rpgStatus.equippedAvatarFrame === frame" class="equipped-badge">已穿戴</span>
           </span>
         </div>
       </div>
@@ -287,9 +316,16 @@ onMounted(async () => {
           <span
             v-for="title in rpgStatus.unlockedTitles"
             :key="title"
-            class="collection-tag title-tag"
+            class="collection-tag title-tag clickable"
+            :class="{ equipped: rpgStatus.equippedTitle === title }"
+            @click="
+              rpgStatus.equippedTitle === title
+                ? handleUnequip('title')
+                : handleEquip('title', title)
+            "
           >
             {{ TITLE_NAME_MAP[title] || title }}
+            <span v-if="rpgStatus.equippedTitle === title" class="equipped-badge">已穿戴</span>
           </span>
         </div>
       </div>
@@ -663,6 +699,27 @@ onMounted(async () => {
     border: 1.5px solid;
     font-size: 11px;
     font-weight: 600;
+    cursor: default;
+
+    &.clickable {
+      cursor: pointer;
+      transition: opacity 0.15s;
+
+      &:hover {
+        opacity: 0.85;
+      }
+    }
+
+    &.equipped {
+      box-shadow: 0 0 0 2px currentColor;
+    }
+
+    .equipped-badge {
+      margin-left: 4px;
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
     background: white;
   }
 

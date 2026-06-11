@@ -7,7 +7,7 @@ import { ref, watch } from 'vue';
 const route = useRoute();
 const router = useRouter();
 
-const activeTab = ref<'status' | 'leaderboard'>('status');
+const activeTab = ref<'status' | 'inventory' | 'pet' | 'guild' | 'leaderboard'>('status');
 
 definePageMeta({
   layout: 'default',
@@ -20,16 +20,18 @@ useHead({
 watch(
   () => route.query.tab,
   (tab) => {
-    if (tab === 'leaderboard') {
-      activeTab.value = 'leaderboard';
-    }
+    if (tab === 'leaderboard') activeTab.value = 'leaderboard';
+    else if (tab === 'inventory') activeTab.value = 'inventory';
+    else if (tab === 'pet') activeTab.value = 'pet';
+    else if (tab === 'guild') activeTab.value = 'guild';
   },
   { immediate: true },
 );
 
-const switchTab = (tab: 'status' | 'leaderboard') => {
+const switchTab = (tab: typeof activeTab.value) => {
   activeTab.value = tab;
-  router.replace({ query: tab === 'leaderboard' ? { tab: 'leaderboard' } : {} });
+  const q = tab === 'status' ? {} : { tab };
+  router.replace({ query: q });
 };
 </script>
 
@@ -46,40 +48,53 @@ const switchTab = (tab: 'status' | 'leaderboard') => {
         </p>
       </div>
 
-      <div role="tablist" class="tabs tabs-border mb-4">
+      <RpgSeasonBanner />
+
+      <div role="tablist" class="tabs tabs-border mb-4 flex-wrap">
         <a
           role="tab"
           class="tab"
           :class="{ 'tab-active': activeTab === 'status' }"
           @click="switchTab('status')"
-        >
-          冒险状态
-        </a>
+        >冒险状态</a>
+        <a
+          role="tab"
+          class="tab"
+          :class="{ 'tab-active': activeTab === 'inventory' }"
+          @click="switchTab('inventory')"
+        >背包</a>
+        <a
+          role="tab"
+          class="tab"
+          :class="{ 'tab-active': activeTab === 'pet' }"
+          @click="switchTab('pet')"
+        >宠物</a>
+        <a
+          role="tab"
+          class="tab"
+          :class="{ 'tab-active': activeTab === 'guild' }"
+          @click="switchTab('guild')"
+        >公会</a>
         <a
           role="tab"
           class="tab"
           :class="{ 'tab-active': activeTab === 'leaderboard' }"
           @click="switchTab('leaderboard')"
-        >
-          冒险排行
-        </a>
+        >排行</a>
       </div>
 
       <client-only>
-        <!-- 冒险状态 -->
         <div v-show="activeTab === 'status'">
           <div class="card bg-base-100 shadow-md">
             <div class="card-body p-4 sm:p-5">
               <RpgProfileCard />
             </div>
           </div>
-
           <div class="card bg-base-100 shadow-md mt-5">
             <div class="card-body p-5">
               <RpgLevelRewardsPanel />
             </div>
           </div>
-
           <div class="card bg-base-100 shadow-md mt-5">
             <div class="card-body p-5">
               <RpgLotteryBox />
@@ -87,7 +102,30 @@ const switchTab = (tab: 'status' | 'leaderboard') => {
           </div>
         </div>
 
-        <!-- 冒险排行 -->
+        <div v-show="activeTab === 'inventory'">
+          <div class="card bg-base-100 shadow-md">
+            <div class="card-body p-5">
+              <RpgInventoryPanel />
+            </div>
+          </div>
+        </div>
+
+        <div v-show="activeTab === 'pet'">
+          <div class="card bg-base-100 shadow-md">
+            <div class="card-body p-5">
+              <RpgPetPanel />
+            </div>
+          </div>
+        </div>
+
+        <div v-show="activeTab === 'guild'">
+          <div class="card bg-base-100 shadow-md">
+            <div class="card-body p-5">
+              <RpgGuildPanel />
+            </div>
+          </div>
+        </div>
+
         <div v-show="activeTab === 'leaderboard'">
           <div class="card bg-base-100 shadow-md">
             <div class="card-body p-5">

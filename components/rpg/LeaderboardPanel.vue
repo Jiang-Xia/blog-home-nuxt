@@ -2,39 +2,51 @@
 /**
    * RPG 排行榜面板 - 支持经验/签到/等级三种维度
    */
-import type { LeaderboardType } from '~~/types/rpg';
-import { useRpg } from '~~/composables/use-rpg';
+import type { LeaderboardType, LeaderboardPeriod, LeaderboardScoreType } from '~~/types/rpg';
+import { getRpgLeaderboard } from '~~/api/rpg';
 
-const { leaderboard, fetchLeaderboard } = useRpg();
+const leaderboard = ref<any[]>([]);
 
-const activeType = ref<LeaderboardType>('exp');
+const activeType = ref<LeaderboardScoreType>('exp');
+const activePeriod = ref<LeaderboardPeriod>('total');
 const loading = ref(false);
 
-const typeOptions: { key: LeaderboardType; label: string; icon: string }[] = [
-  { key: 'exp', label: '经验榜', icon: '✨' },
-  { key: 'signDays', label: '签到榜', icon: '📅' },
-  { key: 'level', label: '等级榜', icon: '⚔️' },
+const typeOptions: { key: LeaderboardScoreType; label: string; icon: string }[] = [
+  { key: 'exp', label: '经验', icon: '✨' },
+  { key: 'reputation', label: '声望', icon: '🏅' },
+  { key: 'fragments', label: '碎片', icon: '💎' },
+  { key: 'level', label: '等级', icon: '⚔️' },
+  { key: 'signDays', label: '签到', icon: '📅' },
 ];
 
-const loadLeaderboard = async (type: LeaderboardType) => {
-  activeType.value = type;
+const periodOptions: { key: LeaderboardPeriod; label: string }[] = [
+  { key: 'total', label: '总榜' },
+  { key: 'week', label: '周榜' },
+  { key: 'month', label: '月榜' },
+];
+
+const loadLeaderboard = async () => {
   loading.value = true;
   try {
-    await fetchLeaderboard(type, 20);
+    leaderboard.value = await getRpgLeaderboard(activeType.value as any, 20, activePeriod.value);
   }
   finally {
     loading.value = false;
   }
 };
 
-onMounted(() => {
-  loadLeaderboard('exp');
-});
+watch([activeType, activePeriod], loadLeaderboard);
+onMounted(loadLeaderboard);
 
-const getScoreText = (entry: (typeof leaderboard.value)[0]) => {
+const getScoreText = (entry: any) => {
+  if (entry.score !== undefined) return String(entry.score);
   switch (activeType.value) {
     case 'exp':
       return `${entry.exp} EXP`;
+    case 'reputation':
+      return `${entry.reputation} 声望`;
+    case 'fragments':
+      return `${entry.fragments} 碎片`;
     case 'signDays':
       return `${entry.totalSignDays} 天`;
     case 'level':
@@ -49,11 +61,22 @@ const getScoreText = (entry: (typeof leaderboard.value)[0]) => {
   <div class="leaderboard-panel">
     <div class="type-tabs">
       <button
+        v-for="opt in periodOptions"
+        :key="opt.key"
+        class="type-tab"
+        :class="{ active: activePeriod === opt.key }"
+        @click="activePeriod = opt.key"
+      >
+        {{ opt.label }}
+      </button>
+    </div>
+    <div class="type-tabs">
+      <button
         v-for="opt in typeOptions"
         :key="opt.key"
         class="type-tab"
         :class="{ active: activeType === opt.key }"
-        @click="loadLeaderboard(opt.key)"
+        @click="activeType = opt.key"
       >
         {{ opt.icon }} {{ opt.label }}
       </button>
@@ -80,7 +103,9 @@ const getScoreText = (entry: (typeof leaderboard.value)[0]) => {
           <span v-else class="avatar-placeholder">{{ entry.nickname?.charAt(0) || '?' }}</span>
         </div>
         <div class="rank-info">
-          <span class="rank-name">{{ entry.nickname }}</span>
+          <NuxtLink :to="`/user/${entry.uid}`" class="rank-name link link-hover">{{
+            entry.nickname
+          }}</NuxtLink>
           <span class="rank-sub">LV{{ entry.level }}</span>
         </div>
         <span class="rank-score">{{ getScoreText(entry) }}</span>

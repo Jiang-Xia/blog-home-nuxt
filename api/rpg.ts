@@ -31,8 +31,12 @@ export const getRpgRoleRewards = () => {
 };
 
 /** 获取RPG排行榜 */
-export const getRpgLeaderboard = (type: 'exp' | 'signDays' | 'level' = 'exp', limit = 10) => {
-  return request.get('/rpg/leaderboard', { type, limit });
+export const getRpgLeaderboard = (
+  type: 'exp' | 'signDays' | 'level' | 'reputation' | 'fragments' = 'exp',
+  limit = 10,
+  period: 'total' | 'week' | 'month' | 'season' = 'total',
+) => {
+  return request.get('/rpg/leaderboard', { type, limit, period });
 };
 
 /** 获取禁言状态 */
@@ -81,8 +85,8 @@ export const getLotteryPool = () => {
 };
 
 /** 执行抽奖（需登录） */
-export const lotteryDraw = (count = 1) => {
-  return request.post('/rpg/lottery/draw', { count });
+export const lotteryDraw = (count = 1, currency: 'ticket' | 'fragments' = 'ticket') => {
+  return request.post('/rpg/lottery/draw', { count, currency });
 };
 
 /** 获取抽奖记录（需登录） */
@@ -94,3 +98,53 @@ export const getLotteryHistory = (page = 1, pageSize = 20) => {
 export const getLotteryTickets = () => {
   return request.get('/rpg/lottery/tickets');
 };
+
+/** 背包 */
+export const getRpgInventory = (itemType?: string) => {
+  return request.get('/rpg/inventory', itemType ? { itemType } : {});
+};
+
+/** 穿戴详情 */
+export const getRpgLoadout = () => request.get('/rpg/loadout');
+
+/** 穿戴 */
+export const equipLoadout = (data: { slot: string; itemCode?: string; petId?: number }) =>
+  request.post('/rpg/loadout/equip', data);
+
+/** 卸下 */
+export const unequipLoadout = (slot: string) => request.post('/rpg/loadout/unequip', { slot });
+
+/** 宠物 */
+export const getMyPets = () => request.get('/rpg/pets');
+export const getPetCatalog = () => request.get('/rpg/pets/catalog');
+export const summonPet = (itemCode: string) => request.post('/rpg/pets/summon', { itemCode });
+export const renamePet = (id: number, nickname: string) =>
+  request.patch(`/rpg/pets/${id}/rename`, { nickname });
+
+/** 活动 */
+export const getCurrentActivity = () => request.get('/rpg/activities/current');
+export const getActivities = () => request.get('/rpg/activities');
+
+/** 公会 */
+export const getMyGuild = () => request.get('/rpg/guild/my');
+export const listGuilds = (page = 1, keyword?: string) =>
+  request.get('/rpg/guilds', { page, pageSize: 20, keyword });
+export const getGuildDetail = (id: number) => request.get(`/rpg/guild/${id}`);
+export const createGuild = (name: string, announcement?: string) =>
+  request.post('/rpg/guild/create', { name, announcement });
+export const joinGuild = (guildId: number) => request.post('/rpg/guild/join', { guildId });
+export const leaveGuild = () => request.post('/rpg/guild/leave');
+
+/** 打赏 */
+export const tipArticle = (articleId: number, amount: number) =>
+  request.post('/rpg/article/tip', { articleId, amount });
+
+/** 社交 */
+export const socialCheer = (targetUid: number) => request.post('/rpg/social/cheer', { targetUid });
+export const socialEgg = (targetUid: number) => request.post('/rpg/social/egg', { targetUid });
+export const socialFlower = (targetUid: number) =>
+  request.post('/rpg/social/flower', { targetUid });
+
+/** Buff 激活 */
+export const activateBuff = (id: number) => request.post(`/rpg/buff/${id}/activate`);
+export const deactivateBuff = (id: number) => request.post(`/rpg/buff/${id}/deactivate`);
