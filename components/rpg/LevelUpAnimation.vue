@@ -3,7 +3,7 @@
    * 升级动画组件 - 等级提升时显示弹出动画和解锁奖励
    */
 import type { LevelUpResult } from '~~/types/rpg';
-import { TITLE_NAME_MAP, AVATAR_FRAME_MAP } from '~~/types/rpg';
+import { getAvatarFrameName, getTitleName } from '~~/types/rpg';
 
 const props = defineProps<{
   visible: boolean;
@@ -18,8 +18,8 @@ const rewards = computed(() => {
   if (!props.levelUpData?.unlockedRewards?.length) return [];
   return props.levelUpData.unlockedRewards.map(r => ({
     level: r.level,
-    frameName: r.avatarFrame ? AVATAR_FRAME_MAP[r.avatarFrame]?.name || r.avatarFrame : null,
-    titleName: r.title ? TITLE_NAME_MAP[r.title] || r.titleName || r.title : null,
+    frameName: r.avatarFrame ? getAvatarFrameName(r.avatarFrame) : null,
+    titleName: r.title ? r.titleName || getTitleName(r.title) : null,
   }));
 });
 
@@ -33,7 +33,7 @@ const handleClose = () => {
     <div v-if="visible && levelUpData" class="level-up-overlay" @click="handleClose">
       <div class="level-up-modal" @click.stop>
         <div class="level-up-badge">
-          LEVEL UP!
+          升级！
         </div>
         <div class="level-up-numbers">
           <span class="old-level">LV{{ levelUpData.oldLevel }}</span>

@@ -1,25 +1,62 @@
 <script setup lang="ts">
 /**
-   * 每日任务面板 - 展示任务进度和领取奖励
+   * 任务面板 - 每日 / 悬赏 / 特殊任务
    */
 import { useRpg } from '~~/composables/use-rpg';
+import { getMyQuests } from '~~/api/rpg';
+import type { UserQuestProgress } from '~~/types/rpg';
 
-const { quests, claimQuest } = useRpg();
+const { claimQuest } = useRpg();
 
-// 领取中状态
+type QuestTab = 'daily' | 'bounty' | 'special';
+const activeTab = ref<QuestTab>('daily');
+const questGroups = ref<{
+  daily: UserQuestProgress[];
+  bounty: UserQuestProgress[];
+  special: UserQuestProgress[];
+}>({
+  daily: [],
+  bounty: [],
+  special: [],
+});
+
+const loadQuests = async () => {
+  const data = (await getMyQuests()) as any;
+  if (Array.isArray(data)) {
+    questGroups.value = { daily: data, bounty: [], special: [] };
+  }
+  else {
+    questGroups.value = {
+      daily: data.daily || [],
+      bounty: data.bounty || [],
+      special: data.special || [],
+    };
+  }
+};
+
+onMounted(loadQuests);
+
+const tabOptions: { key: QuestTab; label: string }[] = [
+  { key: 'daily', label: '每日' },
+  { key: 'bounty', label: '悬赏' },
+  { key: 'special', label: '特殊' },
+];
+
+const currentQuests = computed(() => questGroups.value[activeTab.value] || []);
+
 const claimingCode = ref<string | null>(null);
 
 const handleClaim = async (questCode: string) => {
   claimingCode.value = questCode;
   try {
     await claimQuest(questCode);
+    await loadQuests();
   }
   finally {
     claimingCode.value = null;
   }
 };
 
-// 任务图标映射
 const QUEST_ICON_MAP: Record<string, string> = {
   sign_in: '📅',
   comment: '💬',
@@ -27,30 +64,44 @@ const QUEST_ICON_MAP: Record<string, string> = {
   like: '❤️',
   collect: '🔖',
   msgboard: '📝',
+  tip: '💎',
 };
 
-const totalCompleted = computed(() => quests.value.filter(q => q.completed).length);
-const totalClaimed = computed(() => quests.value.filter(q => q.claimed).length);
-const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.claimed));
+const totalCompleted = computed(() => currentQuests.value.filter(q => q.completed).length);
+const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed && !q.claimed));
 </script>
 
 <template>
   <div class="quest-panel">
-    <!-- 顶部统计 -->
+    <div class="type-tabs">
+      <button
+        v-for="opt in tabOptions"
+        :key="opt.key"
+        class="type-tab"
+        :class="{ active: activeTab === opt.key }"
+        @click="activeTab = opt.key"
+      >
+        {{ opt.label }}
+      </button>
+    </div>
+
     <div class="quest-header">
       <div class="quest-summary">
-        <span class="quest-label">今日任务</span>
-        <span class="quest-count">{{ totalCompleted }}/{{ quests.length }} 完成</span>
+        <span class="quest-label">{{ tabOptions.find((t) => t.key === activeTab)?.label }}任务</span>
+        <span class="quest-count">{{ totalCompleted }}/{{ currentQuests.length }} 完成</span>
       </div>
       <div v-if="hasUnclaimed" class="claim-badge">
         有奖励可领!
       </div>
     </div>
 
-    <!-- 任务列表 -->
-    <div class="quest-list">
+    <div v-if="currentQuests.length === 0" class="quest-empty">
+      暂无任务
+    </div>
+
+    <div v-else class="quest-list">
       <div
-        v-for="quest in quests"
+        v-for="quest in currentQuests"
         :key="quest.code"
         class="quest-card"
         :class="{ completed: quest.completed, claimed: quest.claimed }"
@@ -76,7 +127,10 @@ const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.cla
         <div class="quest-card-footer">
           <div class="quest-meta">
             <span class="quest-progress-text">{{ quest.progress }}/{{ quest.targetCount }}</span>
-            <span class="quest-reward">+{{ quest.expReward }} EXP</span>
+            <span class="quest-reward">
+              +{{ quest.expReward }} 经验
+              <template v-if="quest.hpReward"> · 生命+{{ quest.hpReward }}</template>
+            </span>
           </div>
           <div class="quest-action">
             <button
@@ -93,8 +147,12 @@ const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.cla
       </div>
     </div>
 
-    <!-- 全部完成奖励提示 -->
-    <div v-if="totalCompleted === quests.length && quests.length > 0" class="quest-all-done">
+    <div
+      v-if="
+        totalCompleted === currentQuests.length && currentQuests.length > 0 && activeTab === 'daily'
+      "
+      class="quest-all-done"
+    >
       🎉 今日任务已全部完成！
     </div>
   </div>
@@ -103,6 +161,29 @@ const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.cla
 <style scoped>
   .quest-panel {
     padding: 0;
+  }
+
+  .type-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .type-tab {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    cursor: pointer;
+  }
+
+  .type-tab.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
   }
 
   .quest-header {
@@ -150,6 +231,13 @@ const hasUnclaimed = computed(() => quests.value.some(q => q.completed && !q.cla
     50% {
       opacity: 0.6;
     }
+  }
+
+  .quest-empty {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 12px;
+    padding: 24px;
   }
 
   .quest-list {

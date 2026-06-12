@@ -272,7 +272,13 @@ export function useRpg() {
 
   const fetchQuests = async () => {
     try {
-      quests.value = await getMyQuests();
+      const data = (await getMyQuests()) as any;
+      if (Array.isArray(data)) {
+        quests.value = data;
+      }
+      else {
+        quests.value = [...(data.daily || []), ...(data.bounty || []), ...(data.special || [])];
+      }
     }
     catch (e) {
       console.error('[useRpg] 获取任务进度失败:', e);

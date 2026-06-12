@@ -4,9 +4,10 @@
    */
 import {
   AVATAR_FRAME_MAP,
-  TITLE_NAME_MAP,
   ACHIEVEMENT_ICON_MAP,
   BUFF_TYPE_MAP,
+  getAvatarFrameName,
+  getTitleName,
 } from '~~/types/rpg';
 import type { LevelUpResult, SignInResult } from '~~/types/rpg';
 import { messageInfo, messageSuccess, messageError } from '~~/utils/toast';
@@ -98,19 +99,19 @@ onBanStatus.value = (data: any) => {
 };
 
 onAchievementComplete.value = (data: { name: string; expReward: number }) => {
-  messageSuccess(`🏆 成就达成：${data.name} +${data.expReward} EXP`);
+  messageSuccess(`🏆 成就达成：${data.name} +${data.expReward} 经验`);
   fetchAchievements();
   fetchStatus();
 };
 
 onQuestReward.value = (data: { questName: string; expReward: number }) => {
-  messageSuccess(`📋 任务奖励：${data.questName} +${data.expReward} EXP`);
+  messageSuccess(`📋 任务奖励：${data.questName} +${data.expReward} 经验`);
   fetchQuests();
   fetchStatus();
 };
 
 onBuffGranted.value = (data: { name: string; description?: string }) => {
-  messageInfo(`✨ 获得 Buff：${data.name}`);
+  messageInfo(`✨ 获得增益：${data.name}`);
   fetchBuffs();
 };
 
@@ -166,9 +167,7 @@ onMounted(async () => {
     >
       <span class="role-frame" :style="{ color: AVATAR_FRAME_MAP[roleReward.avatarFrame]?.color }">🛡</span>
       <span class="role-title">{{ roleReward.titleName }}</span>
-      <span class="role-frame-name">{{
-        AVATAR_FRAME_MAP[roleReward.avatarFrame]?.name || roleReward.avatarFrame
-      }}</span>
+      <span class="role-frame-name">{{ getAvatarFrameName(roleReward.avatarFrame) }}</span>
     </div>
 
     <!-- 禁言警告 -->
@@ -216,7 +215,7 @@ onMounted(async () => {
         :disabled="signInfo?.signedToday || signingIn || isBanned"
         @click="handleSignIn"
       >
-        {{ signInfo?.signedToday ? '✓ 已签到' : signingIn ? '...' : '签到 +10EXP' }}
+        {{ signInfo?.signedToday ? '✓ 已签到' : signingIn ? '...' : '签到 +10经验' }}
       </button>
       <div class="sign-stats">
         <span class="stat">📅 {{ signInfo?.totalSignDays ?? 0 }}天</span>
@@ -226,8 +225,8 @@ onMounted(async () => {
         v-if="lastSignInResult?.bonusExp || lastSignInResult?.lifeRecovered"
         class="sign-result-tip"
       >
-        <span v-if="lastSignInResult.bonusExp" class="bonus-tip">🎁 +{{ lastSignInResult.bonusExp }}EXP</span>
-        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip">❤️ +{{ lastSignInResult.lifeRecovered }}HP</span>
+        <span v-if="lastSignInResult.bonusExp" class="bonus-tip">🎁 +{{ lastSignInResult.bonusExp }}经验</span>
+        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip">❤️ +{{ lastSignInResult.lifeRecovered }}生命</span>
       </div>
     </div>
 
@@ -265,7 +264,7 @@ onMounted(async () => {
         @click="switchTab('buffs')"
       >
         <span class="stat-num">{{ activeBuffCount }}</span>
-        <span class="stat-label">Buff</span>
+        <span class="stat-label">增益</span>
       </button>
     </div>
 
@@ -305,7 +304,7 @@ onMounted(async () => {
                 : handleEquip('avatar_frame', frame)
             "
           >
-            {{ AVATAR_FRAME_MAP[frame]?.name || frame }}
+            {{ getAvatarFrameName(frame) }}
             <span v-if="rpgStatus.equippedAvatarFrame === frame" class="equipped-badge">已穿戴</span>
           </span>
         </div>
@@ -324,7 +323,7 @@ onMounted(async () => {
                 : handleEquip('title', title)
             "
           >
-            {{ TITLE_NAME_MAP[title] || title }}
+            {{ getTitleName(title) }}
             <span v-if="rpgStatus.equippedTitle === title" class="equipped-badge">已穿戴</span>
           </span>
         </div>

@@ -130,7 +130,7 @@ const categories = computed(() => {
           <span v-if="ach.maxProgress > 1" class="ach-progress-text">
             {{ ach.progress }}/{{ ach.maxProgress }}
           </span>
-          <span v-if="ach.expReward" class="ach-exp">+{{ ach.expReward }} EXP</span>
+          <span v-if="ach.expReward" class="ach-exp">+{{ ach.expReward }} 经验</span>
         </div>
       </div>
     </div>

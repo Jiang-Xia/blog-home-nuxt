@@ -185,7 +185,21 @@ const replyedHandle = (content: string) => {
     <section v-for="commentItem in comments" :key="commentItem.id" class="flex mt-4">
       <!-- 头像 -->
       <div class="w-10 mr-2">
+        <NuxtLink
+          v-if="commentItem.uid"
+          :to="`/user/${commentItem.uid}`"
+          class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100 hover:opacity-80"
+        >
+          <img
+            v-if="commentItem.userInfo.avatar"
+            class="rounded-full"
+            :src="commentItem.userInfo.avatar"
+            :alt="commentItem.userInfo.nickname"
+          >
+          <xia-icon v-else icon="blog-yonghu" />
+        </NuxtLink>
         <div
+          v-else
           class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100"
         >
           <img
@@ -245,7 +259,21 @@ const replyedHandle = (content: string) => {
           <section v-for="replyItem in commentItem.replys" :key="replyItem.id" class="flex mt-4">
             <!-- 头像 -->
             <div class="w-10 mr-2">
+              <NuxtLink
+                v-if="replyItem.uid"
+                :to="`/user/${replyItem.uid}`"
+                class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100 hover:opacity-80"
+              >
+                <img
+                  v-if="replyItem.userInfo.avatar"
+                  class="rounded-full"
+                  :src="replyItem.userInfo.avatar"
+                  :alt="replyItem.userInfo.nickname"
+                >
+                <xia-icon v-else icon="blog-yonghu" />
+              </NuxtLink>
               <div
+                v-else
                 class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100"
               >
                 <img

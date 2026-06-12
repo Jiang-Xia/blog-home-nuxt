@@ -21,6 +21,7 @@ const typeOptions: { key: LeaderboardScoreType; label: string; icon: string }[] 
 
 const periodOptions: { key: LeaderboardPeriod; label: string }[] = [
   { key: 'total', label: '总榜' },
+  { key: 'season', label: '赛季榜' },
   { key: 'week', label: '周榜' },
   { key: 'month', label: '月榜' },
 ];
@@ -42,7 +43,7 @@ const getScoreText = (entry: any) => {
   if (entry.score !== undefined) return String(entry.score);
   switch (activeType.value) {
     case 'exp':
-      return `${entry.exp} EXP`;
+      return `${entry.exp} 经验`;
     case 'reputation':
       return `${entry.reputation} 声望`;
     case 'fragments':

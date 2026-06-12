@@ -30,7 +30,7 @@ const act = async (fn: () => Promise<any>, label: string) => {
     <button
       class="btn btn-sm btn-outline"
       :disabled="loading"
-      @click="act(() => socialCheer(targetUid), '加油成功 +HP')"
+      @click="act(() => socialCheer(targetUid), '加油成功 +生命')"
     >
       👏 加油
     </button>

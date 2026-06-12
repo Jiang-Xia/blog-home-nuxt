@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getMyGuild, listGuilds, createGuild, joinGuild, leaveGuild } from '~~/api/rpg';
+import { getGuildRoleLabel } from '~~/types/rpg';
 import { messageSuccess, messageError } from '~~/utils/toast';
 
 const myGuild = ref<any>(null);
@@ -76,7 +77,7 @@ onMounted(refresh);
       </p>
       <ul class="mt-3 space-y-1 text-sm">
         <li v-for="m in myGuild.members" :key="m.uid">
-          {{ m.nickname }} · {{ m.role }}
+          {{ m.nickname }} · {{ getGuildRoleLabel(m.role) }}
         </li>
       </ul>
       <button

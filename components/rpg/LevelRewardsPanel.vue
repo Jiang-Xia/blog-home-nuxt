@@ -2,7 +2,7 @@
 /**
    * 等级奖励路线图 - 展示各等级解锁的头像框与称号
    */
-import { AVATAR_FRAME_MAP, TITLE_NAME_MAP } from '~~/types/rpg';
+import { AVATAR_FRAME_MAP, getAvatarFrameName, getTitleName } from '~~/types/rpg';
 import { useRpg } from '~~/composables/use-rpg';
 
 const { rpgStatus, levelRewards, fetchLevelRewards } = useRpg();
@@ -28,10 +28,10 @@ const isUnlocked = (level: number) => currentLevel.value >= level;
 const getRewardSummary = (reward: (typeof levelRewards.value)[number]) => {
   const parts: string[] = [];
   if (reward.avatarFrame) {
-    parts.push(AVATAR_FRAME_MAP[reward.avatarFrame]?.name || reward.avatarFrame);
+    parts.push(getAvatarFrameName(reward.avatarFrame));
   }
   if (reward.title || reward.titleName) {
-    parts.push(reward.titleName || TITLE_NAME_MAP[reward.title!] || reward.title || '');
+    parts.push(reward.titleName || getTitleName(reward.title!));
   }
   return parts.filter(Boolean).join(' · ') || '暂无奖励';
 };
@@ -98,10 +98,10 @@ const getRewardSummary = (reward: (typeof levelRewards.value)[number]) => {
             class="reward-tag frame"
             :style="{ borderColor: AVATAR_FRAME_MAP[reward.avatarFrame]?.color }"
           >
-            🖼 {{ AVATAR_FRAME_MAP[reward.avatarFrame]?.name || reward.avatarFrame }}
+            🖼 {{ getAvatarFrameName(reward.avatarFrame) }}
           </span>
           <span v-if="reward.title || reward.titleName" class="reward-tag title">
-            🏆 {{ reward.titleName || TITLE_NAME_MAP[reward.title!] || reward.title }}
+            🏆 {{ reward.titleName || getTitleName(reward.title!) }}
           </span>
           <span
             v-if="!reward.avatarFrame && !reward.title && !reward.titleName"

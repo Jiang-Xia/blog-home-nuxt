@@ -61,7 +61,7 @@ const getEffectText = (buff: UserBuff): string => {
     case 'exp_boost':
       return `经验+${Math.round(buff.value * 100)}%`;
     case 'hp_regen':
-      return `HP恢复x${buff.value}`;
+      return `生命恢复×${buff.value}`;
     case 'shield':
       return `剩余${buff.remainingUses}次`;
     case 'lucky':
@@ -75,12 +75,12 @@ const getEffectText = (buff: UserBuff): string => {
 <template>
   <div class="buff-section">
     <div class="section-title">
-      <span>激活Buff</span>
+      <span>激活增益</span>
       <span v-if="buffs.length" class="buff-count">{{ buffs.length }}个</span>
     </div>
 
     <div v-if="buffs.length === 0" class="buff-empty">
-      暂无激活的Buff，签到有概率获得哦~
+      暂无激活的增益，签到有概率获得哦~
     </div>
 
     <div v-else class="buff-list">

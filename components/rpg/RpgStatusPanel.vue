@@ -2,7 +2,7 @@
 /**
    * RPG状态面板 - 展示等级、经验进度、生命值、头像框、称号、签到等信息
    */
-import { AVATAR_FRAME_MAP, TITLE_NAME_MAP } from '~~/types/rpg';
+import { AVATAR_FRAME_MAP, getAvatarFrameName, getTitleName } from '~~/types/rpg';
 import type { LevelUpResult, SignInResult } from '~~/types/rpg';
 import { useRpg } from '~~/composables/use-rpg';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
@@ -95,9 +95,7 @@ onMounted(async () => {
     >
       <span class="role-frame" :style="{ color: AVATAR_FRAME_MAP[roleReward.avatarFrame]?.color }">🛡</span>
       <span class="role-title">{{ roleReward.titleName }}</span>
-      <span class="role-frame-name">{{
-        AVATAR_FRAME_MAP[roleReward.avatarFrame]?.name || roleReward.avatarFrame
-      }}</span>
+      <span class="role-frame-name">{{ getAvatarFrameName(roleReward.avatarFrame) }}</span>
     </div>
 
     <!-- 禁言警告 -->
@@ -166,7 +164,7 @@ onMounted(async () => {
         class="sign-result-tip"
       >
         <span v-if="lastSignInResult.bonusExp" class="bonus-tip">🎁 {{ lastSignInResult.bonusLabel }} +{{ lastSignInResult.bonusExp }}经验</span>
-        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip">❤️ +{{ lastSignInResult.lifeRecovered }} HP</span>
+        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip">❤️ +{{ lastSignInResult.lifeRecovered }} 生命</span>
       </div>
     </div>
 
@@ -183,7 +181,7 @@ onMounted(async () => {
           :style="{ borderColor: AVATAR_FRAME_MAP[frame]?.color || '#ccc' }"
         >
           <span class="frame-icon" :style="{ color: AVATAR_FRAME_MAP[frame]?.color }"> 🖼 </span>
-          <span class="frame-name">{{ AVATAR_FRAME_MAP[frame]?.name || frame }}</span>
+          <span class="frame-name">{{ getAvatarFrameName(frame) }}</span>
         </div>
       </div>
     </div>
@@ -195,7 +193,7 @@ onMounted(async () => {
       </div>
       <div class="titles-list">
         <span v-for="title in rpgStatus.unlockedTitles" :key="title" class="title-badge">
-          🏆 {{ TITLE_NAME_MAP[title] || title }}
+          🏆 {{ getTitleName(title) }}
         </span>
       </div>
     </div>

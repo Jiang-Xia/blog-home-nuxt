@@ -2,7 +2,7 @@
 /**
    * 抽奖宝箱组件 - 宝箱开启动画 + 奖品展示
    */
-import { RARITY_MAP } from '~~/types/rpg';
+import { RARITY_MAP, formatRewardDetail } from '~~/types/rpg';
 import type { DrawResult } from '~~/types/rpg';
 import { lotteryDraw } from '~~/api/rpg';
 import { useRpg } from '~~/composables/use-rpg';
@@ -170,7 +170,7 @@ const toggleHistory = async () => {
           {{ currentResult.item.description }}
         </div>
         <div v-if="currentResult.rewardDetail" class="result-reward">
-          {{ currentResult.rewardDetail }}
+          {{ formatRewardDetail(currentResult.rewardDetail) }}
         </div>
         <div class="result-hint">
           {{

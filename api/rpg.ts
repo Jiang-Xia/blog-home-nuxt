@@ -118,12 +118,15 @@ export const unequipLoadout = (slot: string) => request.post('/rpg/loadout/unequ
 export const getMyPets = () => request.get('/rpg/pets');
 export const getPetCatalog = () => request.get('/rpg/pets/catalog');
 export const summonPet = (itemCode: string) => request.post('/rpg/pets/summon', { itemCode });
+export const exchangePet = (petCode: string) => request.post('/rpg/pets/exchange', { petCode });
 export const renamePet = (id: number, nickname: string) =>
   request.patch(`/rpg/pets/${id}/rename`, { nickname });
 
 /** 活动 */
 export const getCurrentActivity = () => request.get('/rpg/activities/current');
 export const getActivities = () => request.get('/rpg/activities');
+export const shareSeasonPoster = () => request.post('/rpg/activities/share-poster');
+export const getWeatherBuff = (city?: string) => request.get('/rpg/weather-buff', { city });
 
 /** 公会 */
 export const getMyGuild = () => request.get('/rpg/guild/my');

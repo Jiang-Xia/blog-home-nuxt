@@ -108,6 +108,7 @@ export const AVATAR_FRAME_MAP: Record<string, { name: string; color: string }> =
   frame_d: { name: '稀有头像框', color: '#fbbf24' },
   frame_super_admin: { name: '至尊站长框', color: '#ef4444' },
   frame_admin: { name: '管理员专属框', color: '#f97316' },
+  lottery_frame_star: { name: '抽奖头像框·星芒', color: '#8b5cf6' },
 };
 
 /** 称号显示名称映射 */
@@ -117,6 +118,14 @@ export const TITLE_NAME_MAP: Record<string, string> = {
   gold_legend: '黄金传说',
   super_admin: '站长',
   admin: '守护者',
+  lottery_title_writer: '抽奖称号·作家',
+};
+
+/** 公会成员角色 */
+export const GUILD_ROLE_MAP: Record<string, string> = {
+  leader: '会长',
+  officer: '官员',
+  member: '成员',
 };
 
 /** 排行榜条目 */
@@ -309,6 +318,52 @@ export interface PublicProfile {
 export type LeaderboardPeriod = 'total' | 'week' | 'month' | 'season';
 export type LeaderboardScoreType = 'exp' | 'signDays' | 'level' | 'reputation' | 'fragments';
 
+/** 系统物品类型（与后端 RpgItemType 一致） */
+export type RpgItemType
+  = | 'title'
+    | 'avatar_frame'
+    | 'pet'
+    | 'equipment'
+    | 'achievement'
+    | 'buff'
+    | 'fragment'
+    | 'consumable';
+
+/** 物品类型显示配置 */
+export const ITEM_TYPE_MAP: Record<string, { label: string; icon: string }> = {
+  title: { label: '称号', icon: '🏅' },
+  avatar_frame: { label: '头像框', icon: '🖼️' },
+  pet: { label: '宠物', icon: '🐾' },
+  equipment: { label: '装备', icon: '⚔️' },
+  achievement: { label: '成就', icon: '🏆' },
+  buff: { label: '增益', icon: '✨' },
+  fragment: { label: '碎片', icon: '💎' },
+  consumable: { label: '消耗品', icon: '🧪' },
+};
+
+/** 抽奖奖池类型显示名称 */
+export const LOTTERY_TYPE_MAP: Record<string, string> = {
+  exp: '经验',
+  buff: '增益',
+  ticket: '抽奖券',
+  achievement: '成就',
+};
+
+/** 背包物品来源显示名称 */
+export const ITEM_SOURCE_MAP: Record<string, string> = {
+  level_up: '等级奖励',
+  lottery: '抽奖',
+  lottery_reward: '抽奖奖励',
+  quest: '任务',
+  admin: '管理员发放',
+  system: '系统',
+  reward: '奖励',
+  egg: '扔鸡蛋',
+  flower: '送鲜花',
+  cheer: '加油',
+  tip: '打赏',
+};
+
 /** 稀有度显示配置 */
 export const RARITY_MAP: Record<string, { color: string; label: string; icon: string }> = {
   common: { color: '#94a3b8', label: '普通', icon: '⚪' },
@@ -316,3 +371,43 @@ export const RARITY_MAP: Record<string, { color: string; label: string; icon: st
   epic: { color: '#8b5cf6', label: '史诗', icon: '🟣' },
   legendary: { color: '#f59e0b', label: '传说', icon: '🟡' },
 };
+
+/** 获取物品类型中文名 */
+export function getItemTypeLabel(type: string): string {
+  return ITEM_TYPE_MAP[type]?.label ?? type;
+}
+
+/** 获取稀有度中文名 */
+export function getRarityLabel(rarity: string): string {
+  return RARITY_MAP[rarity]?.label ?? rarity;
+}
+
+/** 获取抽奖类型中文名 */
+export function getLotteryTypeLabel(type: string): string {
+  return LOTTERY_TYPE_MAP[type] ?? type;
+}
+
+/** 获取物品来源中文名 */
+export function getItemSourceLabel(source: string): string {
+  return ITEM_SOURCE_MAP[source] ?? source;
+}
+
+/** 获取头像框中文名 */
+export function getAvatarFrameName(code: string): string {
+  return AVATAR_FRAME_MAP[code]?.name ?? code;
+}
+
+/** 获取称号中文名 */
+export function getTitleName(code: string): string {
+  return TITLE_NAME_MAP[code] ?? code;
+}
+
+/** 获取公会角色中文名 */
+export function getGuildRoleLabel(role: string): string {
+  return GUILD_ROLE_MAP[role] ?? role;
+}
+
+/** 格式化后端奖励详情文案（替换残留英文） */
+export function formatRewardDetail(detail: string): string {
+  return detail.replace(/Buff/g, '增益').replace(/EXP/g, '经验').replace(/HP/g, '生命');
+}
