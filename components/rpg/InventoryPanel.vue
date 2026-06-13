@@ -11,7 +11,6 @@ import type { InventoryItem } from '~~/types/rpg';
 import { messageSuccess, messageError } from '~~/utils/toast';
 
 const items = ref<InventoryItem[]>([]);
-const fragments = ref(0);
 const loadout = ref<any>(null);
 const loading = ref(false);
 const activeType = ref<string>('all');
@@ -37,7 +36,6 @@ const fetchData = async () => {
   try {
     const [inv, lo] = await Promise.all([getRpgInventory(), getRpgLoadout()]);
     items.value = inv.items || [];
-    fragments.value = inv.fragments || 0;
     loadout.value = lo;
   }
   finally {
@@ -74,7 +72,6 @@ defineExpose({ fetchData });
   <div class="inventory-panel">
     <div class="flex justify-between items-center mb-3">
       <span class="font-semibold">背包</span>
-      <span class="text-sm">💎 钻石 {{ fragments }}</span>
     </div>
     <div v-if="loading" class="text-sm text-base-content/50">
       加载中...
@@ -97,7 +94,7 @@ defineExpose({ fetchData });
       <div class="grid gap-2">
         <div
           v-for="item in filteredItems"
-          :key="item.id"
+          :key="item.id || item.itemCode"
           class="flex items-center justify-between p-2 rounded-lg border border-base-300 bg-base-100"
         >
           <div class="min-w-0 flex-1">

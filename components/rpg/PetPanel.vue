@@ -99,12 +99,12 @@ onMounted(fetchData);
       </h4>
       <div class="flex flex-wrap gap-2">
         <button
-          v-for="c in catalog.filter((x: any) => x.effectJson?.fragmentCost)"
+          v-for="c in catalog.filter((x: any) => x.effectJson?.currencyCost)"
           :key="c.code"
           class="btn btn-sm btn-outline"
           @click="buyPet(c.code)"
         >
-          💎 {{ c.effectJson.fragmentCost }} · {{ c.name }}
+          💎 {{ c.effectJson.currencyCost }} · {{ c.name }}
         </button>
       </div>
     </div>

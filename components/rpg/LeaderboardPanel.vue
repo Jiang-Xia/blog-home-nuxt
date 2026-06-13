@@ -14,7 +14,7 @@ const loading = ref(false);
 const typeOptions: { key: LeaderboardScoreType; label: string; icon: string }[] = [
   { key: 'exp', label: '经验', icon: '✨' },
   { key: 'reputation', label: '声望', icon: '🏅' },
-  { key: 'fragments', label: '钻石', icon: '💎' },
+  { key: 'currency', label: '钻石', icon: '💎' },
   { key: 'level', label: '等级', icon: '⚔️' },
   { key: 'signDays', label: '签到', icon: '📅' },
 ];
@@ -46,8 +46,8 @@ const getScoreText = (entry: any) => {
       return `${entry.exp} 经验`;
     case 'reputation':
       return `${entry.reputation} 声望`;
-    case 'fragments':
-      return `${entry.fragments} 钻石`;
+    case 'currency':
+      return `${entry.currency} 钻石`;
     case 'signDays':
       return `${entry.totalSignDays} 天`;
     case 'level':

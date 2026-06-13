@@ -18,6 +18,7 @@ const rewards = computed(() => {
   if (!props.levelUpData?.unlockedRewards?.length) return [];
   return props.levelUpData.unlockedRewards.map(r => ({
     level: r.level,
+    currencyReward: r.currencyReward || 0,
     frameName: r.avatarFrame ? getAvatarFrameName(r.avatarFrame) : null,
     titleName: r.title ? r.titleName || getTitleName(r.title) : null,
   }));
@@ -45,6 +46,7 @@ const handleClose = () => {
             解锁奖励
           </div>
           <div v-for="r in rewards" :key="r.level" class="reward-item">
+            <span v-if="r.currencyReward" class="reward-diamond">💎 {{ r.currencyReward }} 钻石</span>
             <span v-if="r.frameName" class="reward-frame">🖼 {{ r.frameName }}</span>
             <span v-if="r.titleName" class="reward-title">🏆 {{ r.titleName }}</span>
           </div>

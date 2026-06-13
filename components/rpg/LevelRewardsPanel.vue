@@ -27,6 +27,9 @@ const isUnlocked = (level: number) => currentLevel.value >= level;
 
 const getRewardSummary = (reward: (typeof levelRewards.value)[number]) => {
   const parts: string[] = [];
+  if (reward.currencyReward) {
+    parts.push(`${reward.currencyReward} 钻石`);
+  }
   if (reward.avatarFrame) {
     parts.push(getAvatarFrameName(reward.avatarFrame));
   }
@@ -93,6 +96,9 @@ const getRewardSummary = (reward: (typeof levelRewards.value)[number]) => {
         </div>
 
         <div class="reward-tags">
+          <span v-if="reward.currencyReward" class="reward-tag diamond">
+            💎 {{ reward.currencyReward }} 钻石
+          </span>
           <span
             v-if="reward.avatarFrame"
             class="reward-tag frame"
@@ -104,7 +110,9 @@ const getRewardSummary = (reward: (typeof levelRewards.value)[number]) => {
             🏆 {{ reward.titleName || getTitleName(reward.title!) }}
           </span>
           <span
-            v-if="!reward.avatarFrame && !reward.title && !reward.titleName"
+            v-if="
+              !reward.currencyReward && !reward.avatarFrame && !reward.title && !reward.titleName
+            "
             class="reward-tag empty"
           >
             暂无奖励
@@ -280,6 +288,11 @@ const getRewardSummary = (reward: (typeof levelRewards.value)[number]) => {
   .reward-tag.title {
     background: #fef3c7;
     color: #92400e;
+  }
+
+  .reward-tag.diamond {
+    background: #eff6ff;
+    color: #1d4ed8;
   }
 
   .reward-tag.empty {

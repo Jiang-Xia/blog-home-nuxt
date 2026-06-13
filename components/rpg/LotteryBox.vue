@@ -20,7 +20,7 @@ const {
   lotteryHistory,
 } = useRpg();
 
-const drawCurrency = ref<'ticket' | 'fragments'>('ticket');
+const drawCurrency = ref<'ticket' | 'currency'>('ticket');
 
 // 抽奖结果展示
 const showResult = ref(false);
@@ -34,8 +34,8 @@ onMounted(async () => {
 });
 
 const canDraw = (count: number) => {
-  if (drawCurrency.value === 'fragments') {
-    return (rpgStatus.value?.fragments || 0) >= count * 10;
+  if (drawCurrency.value === 'currency') {
+    return (rpgStatus.value?.currency || 0) >= count * 10;
   }
   return lotteryTickets.value >= count;
 };
@@ -99,7 +99,7 @@ const toggleHistory = async () => {
   <div class="lottery-section">
     <div class="lottery-header">
       <span class="section-title">🎁 幸运宝箱</span>
-      <span class="ticket-count">🎫 {{ lotteryTickets }} · 💎 {{ rpgStatus?.fragments ?? 0 }}</span>
+      <span class="ticket-count">🎫 {{ lotteryTickets }} · 💎 {{ rpgStatus?.currency ?? 0 }}</span>
     </div>
     <div v-if="rpgStatus?.lotteryPityCounter != null" class="text-xs text-base-content/60 mb-2">
       保底进度 {{ rpgStatus.lotteryPityCounter }} / 90
@@ -114,8 +114,8 @@ const toggleHistory = async () => {
       </button>
       <button
         class="btn btn-xs"
-        :class="{ 'btn-primary': drawCurrency === 'fragments' }"
-        @click="drawCurrency = 'fragments'"
+        :class="{ 'btn-primary': drawCurrency === 'currency' }"
+        @click="drawCurrency = 'currency'"
       >
         钻石(10/抽)
       </button>

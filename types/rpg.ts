@@ -24,8 +24,7 @@ export interface RpgStatus {
   equippedTitle?: string | null;
   equippedAvatarFrame?: string | null;
   equippedPetId?: number | null;
-  fragments?: number;
-  diamonds?: number;
+  currency?: number;
   reputation?: number;
   lotteryPityCounter?: number;
   lotteryTickets?: number;
@@ -58,6 +57,7 @@ export interface LevelReward {
   avatarFrame?: string;
   title?: string;
   titleName?: string;
+  currencyReward?: number;
 }
 
 /** 角色专属奖励配置 */
@@ -327,7 +327,7 @@ export interface PublicProfile {
 
 /** 排行榜 period/type 扩展 */
 export type LeaderboardPeriod = 'total' | 'week' | 'month' | 'season';
-export type LeaderboardScoreType = 'exp' | 'signDays' | 'level' | 'reputation' | 'fragments';
+export type LeaderboardScoreType = 'exp' | 'signDays' | 'level' | 'reputation' | 'currency';
 
 /** 系统物品类型（与后端 RpgItemType 一致） */
 export type RpgItemType
@@ -337,7 +337,7 @@ export type RpgItemType
     | 'equipment'
     | 'achievement'
     | 'buff'
-    | 'fragment'
+    | 'currency'
     | 'consumable';
 
 /** 物品类型显示配置 */
@@ -348,7 +348,7 @@ export const ITEM_TYPE_MAP: Record<string, { label: string; icon: string }> = {
   equipment: { label: '装备', icon: '⚔️' },
   achievement: { label: '成就', icon: '🏆' },
   buff: { label: '增益', icon: '✨' },
-  fragment: { label: '钻石', icon: '💎' },
+  currency: { label: '钻石', icon: '💎' },
   consumable: { label: '消耗品', icon: '🧪' },
 };
 

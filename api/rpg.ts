@@ -25,14 +25,9 @@ export const getRpgLevelRewards = () => {
   return request.get('/rpg/level-rewards');
 };
 
-/** 获取角色专属奖励配置 */
-export const getRpgRoleRewards = () => {
-  return request.get('/rpg/role-rewards');
-};
-
 /** 获取RPG排行榜 */
 export const getRpgLeaderboard = (
-  type: 'exp' | 'signDays' | 'level' | 'reputation' | 'fragments' = 'exp',
+  type: 'exp' | 'signDays' | 'level' | 'reputation' | 'currency' = 'exp',
   limit = 10,
   period: 'total' | 'week' | 'month' | 'season' = 'total',
 ) => {
@@ -42,11 +37,6 @@ export const getRpgLeaderboard = (
 /** 获取禁言状态 */
 export const getRpgBanStatus = () => {
   return request.get('/rpg/ban-status');
-};
-
-/** 获取成就列表（公开） */
-export const getAchievements = () => {
-  return request.get('/rpg/achievements');
 };
 
 /** 获取我的成就进度（需登录） */
@@ -69,11 +59,6 @@ export const claimQuestReward = (questCode: string) => {
   return request.post('/rpg/quest/claim', { questCode });
 };
 
-/** 获取任务统计（需登录） */
-export const getQuestStats = () => {
-  return request.get('/rpg/quest-stats');
-};
-
 /** 获取我的Buff列表（需登录） */
 export const getMyBuffs = () => {
   return request.get('/rpg/my-buffs');
@@ -85,7 +70,7 @@ export const getLotteryPool = () => {
 };
 
 /** 执行抽奖（需登录） */
-export const lotteryDraw = (count = 1, currency: 'ticket' | 'fragments' = 'ticket') => {
+export const lotteryDraw = (count = 1, currency: 'ticket' | 'currency' = 'ticket') => {
   return request.post('/rpg/lottery/draw', { count, currency });
 };
 
@@ -124,7 +109,6 @@ export const renamePet = (id: number, nickname: string) =>
 
 /** 活动 */
 export const getCurrentActivity = () => request.get('/rpg/activities/current');
-export const getActivities = () => request.get('/rpg/activities');
 export const shareSeasonPoster = () => request.post('/rpg/activities/share-poster');
 export const getWeatherBuff = (city?: string) => request.get('/rpg/weather-buff', { city });
 
