@@ -2,8 +2,7 @@
 /**
    * RPG状态面板 - 展示等级、经验进度、生命值、头像框、称号、签到等信息
    */
-import { AVATAR_FRAME_MAP, getAvatarFrameName, getTitleName } from '~~/types/rpg';
-import type { LevelUpResult, SignInResult } from '~~/types/rpg';
+import type { LevelUpResult } from '~~/types/rpg';
 import { useRpg } from '~~/composables/use-rpg';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
 
@@ -25,7 +24,7 @@ const {
   initRpg,
 } = useRpg();
 
-const { connected, connect, onLevelUp, onLifeChange, onBanStatus } = useRpgSocket();
+const { connect, onLevelUp, onLifeChange, onBanStatus } = useRpgSocket();
 
 // 升级弹窗
 const showLevelUp = ref(false);
@@ -91,11 +90,13 @@ onMounted(async () => {
     <div
       v-if="roleReward"
       class="role-badge"
-      :style="{ borderColor: AVATAR_FRAME_MAP[roleReward.avatarFrame]?.color || '#ccc' }"
+      :style="{ borderColor: roleReward.avatarFrameColor || '#ccc' }"
     >
-      <span class="role-frame" :style="{ color: AVATAR_FRAME_MAP[roleReward.avatarFrame]?.color }">🛡</span>
+      <span class="role-frame" :style="{ color: roleReward.avatarFrameColor || '#ccc' }">🛡</span>
       <span class="role-title">{{ roleReward.titleName }}</span>
-      <span class="role-frame-name">{{ getAvatarFrameName(roleReward.avatarFrame) }}</span>
+      <span class="role-frame-name">{{
+        roleReward.avatarFrameName || roleReward.avatarFrame
+      }}</span>
     </div>
 
     <!-- 禁言警告 -->
@@ -176,12 +177,12 @@ onMounted(async () => {
       <div class="frames-list">
         <div
           v-for="frame in rpgStatus.unlockedAvatarFrames"
-          :key="frame"
+          :key="frame.code"
           class="frame-item"
-          :style="{ borderColor: AVATAR_FRAME_MAP[frame]?.color || '#ccc' }"
+          :style="{ borderColor: frame.color || '#ccc' }"
         >
-          <span class="frame-icon" :style="{ color: AVATAR_FRAME_MAP[frame]?.color }"> 🖼 </span>
-          <span class="frame-name">{{ getAvatarFrameName(frame) }}</span>
+          <span class="frame-icon" :style="{ color: frame.color || '#ccc' }"> 🖼 </span>
+          <span class="frame-name">{{ frame.name }}</span>
         </div>
       </div>
     </div>
@@ -192,8 +193,8 @@ onMounted(async () => {
         已获得称号
       </div>
       <div class="titles-list">
-        <span v-for="title in rpgStatus.unlockedTitles" :key="title" class="title-badge">
-          🏆 {{ getTitleName(title) }}
+        <span v-for="title in rpgStatus.unlockedTitles" :key="title.code" class="title-badge">
+          🏆 {{ title.name }}
         </span>
       </div>
     </div>

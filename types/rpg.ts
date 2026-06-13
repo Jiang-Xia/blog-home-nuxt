@@ -1,10 +1,18 @@
+/** 装扮物品摘要（由后端物品配置返回） */
+export interface CosmeticItemSummary {
+  code: string;
+  name: string;
+  rarity: string;
+  color?: string | null;
+}
+
 /** RPG状态完整响应 */
 export interface RpgStatus {
   level: number;
   exp: number;
   lifeValue: number;
-  unlockedAvatarFrames: string[];
-  unlockedTitles: string[];
+  unlockedAvatarFrames: CosmeticItemSummary[];
+  unlockedTitles: CosmeticItemSummary[];
   totalSignDays: number;
   consecutiveSignDays: number;
   lastSignDate: string | null;
@@ -17,6 +25,7 @@ export interface RpgStatus {
   equippedAvatarFrame?: string | null;
   equippedPetId?: number | null;
   fragments?: number;
+  diamonds?: number;
   reputation?: number;
   lotteryPityCounter?: number;
   lotteryTickets?: number;
@@ -58,6 +67,8 @@ export interface RoleReward {
   avatarFrame: string;
   title: string;
   titleName: string;
+  avatarFrameName?: string;
+  avatarFrameColor?: string | null;
 }
 
 /** 签到信息 */
@@ -337,7 +348,7 @@ export const ITEM_TYPE_MAP: Record<string, { label: string; icon: string }> = {
   equipment: { label: '装备', icon: '⚔️' },
   achievement: { label: '成就', icon: '🏆' },
   buff: { label: '增益', icon: '✨' },
-  fragment: { label: '碎片', icon: '💎' },
+  fragment: { label: '钻石', icon: '💎' },
   consumable: { label: '消耗品', icon: '🧪' },
 };
 

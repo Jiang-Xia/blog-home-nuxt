@@ -3,7 +3,8 @@ import type { LocationQueryValue } from 'vue-router';
 import dayjs from 'dayjs';
 import { useStorage } from '@vueuse/core';
 import api from '@/api/index';
-import { originUrl, apiPrefix } from '~/config';
+import { originUrl } from '~/config';
+import { messageError } from '@/utils/toast';
 
 // 分类
 const categoryOptions: any = ref([]);
@@ -72,6 +73,11 @@ export const updateLikes = async (data: any) => {
 // 更新点赞数
 export const updateLikesHandle = async (item: any) => {
   const { uid } = useUserInfo().value;
+  if (!uid) {
+    messageError('请先登录');
+    await navigateTo('/login');
+    return;
+  }
   const id = item.id as never;
   const send = {
     articleId: item.id,
@@ -90,6 +96,13 @@ export const updateLikesHandle = async (item: any) => {
     item.likes = ++item.likes;
   }
   await updateLikes(send);
+  try {
+    const { fetchQuests } = useRpg();
+    await fetchQuests();
+  }
+  catch {
+    // 非组件上下文时忽略
+  }
 };
 
 export const formactDate = (str: string) => {

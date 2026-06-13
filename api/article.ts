@@ -80,6 +80,21 @@ export const getMyCollectList = (params: { page?: number; pageSize?: number }) =
   return request.get('/collect/list', params);
 };
 
+/** 收藏/取消收藏（toggle） */
+export const toggleCollect = (articleId: string | number) => {
+  return request.post('/collect', { articleId: String(articleId) });
+};
+
+/** 检查当前用户是否已收藏 */
+export const checkCollected = (articleId: string | number) => {
+  return request.get('/collect/check', { articleId: String(articleId) });
+};
+
+/** 获取文章收藏总数 */
+export const getCollectCount = (articleId: string | number) => {
+  return request.get('/collect/count', { articleId: String(articleId) });
+};
+
 // 获取我的评论列表（分页）
 export const getMyComments = (params: { page?: number; pageSize?: number }) => {
   return request.get('/comment/my-list', params);

@@ -74,7 +74,7 @@ defineExpose({ fetchData });
   <div class="inventory-panel">
     <div class="flex justify-between items-center mb-3">
       <span class="font-semibold">背包</span>
-      <span class="text-sm">💎 碎片 {{ fragments }}</span>
+      <span class="text-sm">💎 钻石 {{ fragments }}</span>
     </div>
     <div v-if="loading" class="text-sm text-base-content/50">
       加载中...

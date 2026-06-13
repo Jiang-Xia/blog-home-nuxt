@@ -20,7 +20,7 @@ const submit = async () => {
   loading.value = true;
   try {
     await tipArticle(props.articleId, amount.value);
-    messageSuccess(`打赏 ${amount.value} 碎片成功`);
+    messageSuccess(`打赏 ${amount.value} 钻石成功`);
     emit('tipped');
   }
   catch (e: any) {

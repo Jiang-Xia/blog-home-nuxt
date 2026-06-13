@@ -6,7 +6,7 @@ import { useRpg } from '~~/composables/use-rpg';
 import { getMyQuests } from '~~/api/rpg';
 import type { UserQuestProgress } from '~~/types/rpg';
 
-const { claimQuest } = useRpg();
+const { claimQuest, fetchQuests } = useRpg();
 
 type QuestTab = 'daily' | 'bounty' | 'special';
 const activeTab = ref<QuestTab>('daily');
@@ -51,6 +51,7 @@ const handleClaim = async (questCode: string) => {
   try {
     await claimQuest(questCode);
     await loadQuests();
+    await fetchQuests();
   }
   finally {
     claimingCode.value = null;

@@ -2,14 +2,7 @@
 /**
    * 个人空间RPG综合卡片 - 整合等级、成就、任务、Buff等所有RPG数据
    */
-import {
-  AVATAR_FRAME_MAP,
-  ACHIEVEMENT_ICON_MAP,
-  BUFF_TYPE_MAP,
-  getAvatarFrameName,
-  getTitleName,
-} from '~~/types/rpg';
-import type { LevelUpResult, SignInResult } from '~~/types/rpg';
+import type { LevelUpResult } from '~~/types/rpg';
 import { messageInfo, messageSuccess, messageError } from '~~/utils/toast';
 import { equipLoadout, unequipLoadout } from '~~/api/rpg';
 import { useRpg } from '~~/composables/use-rpg';
@@ -27,7 +20,6 @@ const {
   lifePercent,
   isBanned,
   roleReward,
-  banRemainingText,
   signingIn,
   signIn,
   completedAchievementCount,
@@ -163,11 +155,13 @@ onMounted(async () => {
     <div
       v-if="roleReward"
       class="role-badge"
-      :style="{ borderColor: AVATAR_FRAME_MAP[roleReward.avatarFrame]?.color || '#ccc' }"
+      :style="{ borderColor: roleReward.avatarFrameColor || '#ccc' }"
     >
-      <span class="role-frame" :style="{ color: AVATAR_FRAME_MAP[roleReward.avatarFrame]?.color }">🛡</span>
+      <span class="role-frame" :style="{ color: roleReward.avatarFrameColor || '#ccc' }">🛡</span>
       <span class="role-title">{{ roleReward.titleName }}</span>
-      <span class="role-frame-name">{{ getAvatarFrameName(roleReward.avatarFrame) }}</span>
+      <span class="role-frame-name">{{
+        roleReward.avatarFrameName || roleReward.avatarFrame
+      }}</span>
     </div>
 
     <!-- 禁言警告 -->
@@ -291,21 +285,21 @@ onMounted(async () => {
         <div class="collection-items">
           <span
             v-for="frame in rpgStatus.unlockedAvatarFrames"
-            :key="frame"
+            :key="frame.code"
             class="collection-tag clickable"
-            :class="{ equipped: rpgStatus.equippedAvatarFrame === frame }"
+            :class="{ equipped: rpgStatus.equippedAvatarFrame === frame.code }"
             :style="{
-              borderColor: AVATAR_FRAME_MAP[frame]?.color,
-              color: AVATAR_FRAME_MAP[frame]?.color,
+              borderColor: frame.color || undefined,
+              color: frame.color || undefined,
             }"
             @click="
-              rpgStatus.equippedAvatarFrame === frame
+              rpgStatus.equippedAvatarFrame === frame.code
                 ? handleUnequip('avatar_frame')
-                : handleEquip('avatar_frame', frame)
+                : handleEquip('avatar_frame', frame.code)
             "
           >
-            {{ getAvatarFrameName(frame) }}
-            <span v-if="rpgStatus.equippedAvatarFrame === frame" class="equipped-badge">已穿戴</span>
+            {{ frame.name }}
+            <span v-if="rpgStatus.equippedAvatarFrame === frame.code" class="equipped-badge">已穿戴</span>
           </span>
         </div>
       </div>
@@ -314,17 +308,17 @@ onMounted(async () => {
         <div class="collection-items">
           <span
             v-for="title in rpgStatus.unlockedTitles"
-            :key="title"
+            :key="title.code"
             class="collection-tag title-tag clickable"
-            :class="{ equipped: rpgStatus.equippedTitle === title }"
+            :class="{ equipped: rpgStatus.equippedTitle === title.code }"
             @click="
-              rpgStatus.equippedTitle === title
+              rpgStatus.equippedTitle === title.code
                 ? handleUnequip('title')
-                : handleEquip('title', title)
+                : handleEquip('title', title.code)
             "
           >
-            {{ getTitleName(title) }}
-            <span v-if="rpgStatus.equippedTitle === title" class="equipped-badge">已穿戴</span>
+            {{ title.name }}
+            <span v-if="rpgStatus.equippedTitle === title.code" class="equipped-badge">已穿戴</span>
           </span>
         </div>
       </div>

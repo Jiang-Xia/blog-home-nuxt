@@ -2,7 +2,7 @@
 import { socialCheer, socialEgg, socialFlower } from '~~/api/rpg';
 import { messageSuccess, messageError } from '~~/utils/toast';
 
-const props = defineProps<{ targetUid: number }>();
+defineProps<{ targetUid: number }>();
 const userInfo = useUserInfo();
 const loading = ref(false);
 
@@ -39,14 +39,14 @@ const act = async (fn: () => Promise<any>, label: string) => {
       :disabled="loading"
       @click="act(() => socialEgg(targetUid), '扔鸡蛋成功')"
     >
-      🥚 扔鸡蛋 (-15碎片)
+      🥚 扔鸡蛋 (-15钻石)
     </button>
     <button
       class="btn btn-sm btn-outline btn-secondary"
       :disabled="loading"
       @click="act(() => socialFlower(targetUid), '送鲜花成功')"
     >
-      🌸 送鲜花 (-10碎片)
+      🌸 送鲜花 (-10钻石)
     </button>
   </div>
 </template>

@@ -2,7 +2,7 @@
 /**
    * RPG 排行榜面板 - 支持经验/签到/等级三种维度
    */
-import type { LeaderboardType, LeaderboardPeriod, LeaderboardScoreType } from '~~/types/rpg';
+import type { LeaderboardPeriod, LeaderboardScoreType } from '~~/types/rpg';
 import { getRpgLeaderboard } from '~~/api/rpg';
 
 const leaderboard = ref<any[]>([]);
@@ -14,7 +14,7 @@ const loading = ref(false);
 const typeOptions: { key: LeaderboardScoreType; label: string; icon: string }[] = [
   { key: 'exp', label: '经验', icon: '✨' },
   { key: 'reputation', label: '声望', icon: '🏅' },
-  { key: 'fragments', label: '碎片', icon: '💎' },
+  { key: 'fragments', label: '钻石', icon: '💎' },
   { key: 'level', label: '等级', icon: '⚔️' },
   { key: 'signDays', label: '签到', icon: '📅' },
 ];
@@ -47,7 +47,7 @@ const getScoreText = (entry: any) => {
     case 'reputation':
       return `${entry.reputation} 声望`;
     case 'fragments':
-      return `${entry.fragments} 碎片`;
+      return `${entry.fragments} 钻石`;
     case 'signDays':
       return `${entry.totalSignDays} 天`;
     case 'level':

@@ -90,6 +90,11 @@ watch(activeTab, (val) => {
 
 onMounted(() => {
   loadComments();
+  getMyReplies({ page: 1, pageSize: 1 })
+    .then((res) => {
+      replyTotal.value = res?.pagination?.total || 0;
+    })
+    .catch(() => {});
 });
 </script>
 

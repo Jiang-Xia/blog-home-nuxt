@@ -1,8 +1,15 @@
-import { getPublicProfile, getPublicArticles } from '~~/api/profile';
+import {
+  getPublicProfile,
+  getPublicArticles,
+  getPublicCollects,
+  getPublicLikes,
+} from '~~/api/profile';
 
 export function usePublicProfile(uid: Ref<number | string | undefined>) {
   const profile = ref<any>(null);
   const articles = ref<any[]>([]);
+  const collects = ref<any[]>([]);
+  const likes = ref<any[]>([]);
   const loading = ref(false);
 
   const fetchProfile = async () => {
@@ -30,14 +37,46 @@ export function usePublicProfile(uid: Ref<number | string | undefined>) {
     }
   };
 
-  watch(
-    uid,
-    () => {
-      fetchProfile();
-      fetchArticles();
-    },
-    { immediate: true },
-  );
+  const fetchCollects = async (page = 1) => {
+    if (!uid.value) return;
+    try {
+      const res = await getPublicCollects(uid.value, page);
+      collects.value = res.list || [];
+    }
+    catch (e) {
+      console.error('[usePublicProfile] collects', e);
+    }
+  };
 
-  return { profile, articles, loading, fetchProfile, fetchArticles };
+  const fetchLikes = async (page = 1) => {
+    if (!uid.value) return;
+    try {
+      const res = await getPublicLikes(uid.value, page);
+      likes.value = res.list || [];
+    }
+    catch (e) {
+      console.error('[usePublicProfile] likes', e);
+    }
+  };
+
+  const fetchAll = () => {
+    fetchProfile();
+    fetchArticles();
+    fetchCollects();
+    fetchLikes();
+  };
+
+  watch(uid, fetchAll, { immediate: true });
+
+  return {
+    profile,
+    articles,
+    collects,
+    likes,
+    loading,
+    fetchProfile,
+    fetchArticles,
+    fetchCollects,
+    fetchLikes,
+  };
 }

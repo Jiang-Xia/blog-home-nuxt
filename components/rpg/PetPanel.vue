@@ -95,7 +95,7 @@ onMounted(fetchData);
   <div class="pet-panel space-y-4">
     <div v-if="catalog.length">
       <h4 class="text-sm font-semibold mb-2">
-        碎片兑换
+        钻石兑换
       </h4>
       <div class="flex flex-wrap gap-2">
         <button

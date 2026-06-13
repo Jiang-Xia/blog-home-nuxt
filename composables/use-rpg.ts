@@ -249,7 +249,7 @@ export function useRpg() {
     signingIn.value = true;
     try {
       const result = await rpgSignIn();
-      await Promise.all([fetchStatus(), fetchSignInfo(), fetchBanStatus()]);
+      await Promise.all([fetchStatus(), fetchSignInfo(), fetchBanStatus(), fetchQuests()]);
       return result;
     }
     catch (e) {

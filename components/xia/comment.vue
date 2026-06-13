@@ -21,7 +21,7 @@ defineProps({
 const emits = defineEmits(['commented']);
 const userInfo = useUserInfo();
 const route = useRoute();
-const { isBanned } = useRpg();
+const { isBanned, fetchQuests } = useRpg();
 const formactTime = (item: any) => {
   const time = new Date(item.createTime).getTime();
   return beforeTimeNow(time);
@@ -51,6 +51,7 @@ const addCommentHandle = async () => {
     messageSuccess('评论成功');
     emits('commented');
     inputContent.value = '';
+    await fetchQuests();
   }
 };
 const delCommentHandle = async (id: string) => {

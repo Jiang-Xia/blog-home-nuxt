@@ -117,7 +117,7 @@ const toggleHistory = async () => {
         :class="{ 'btn-primary': drawCurrency === 'fragments' }"
         @click="drawCurrency = 'fragments'"
       >
-        碎片(10/抽)
+        钻石(10/抽)
       </button>
     </div>
 
