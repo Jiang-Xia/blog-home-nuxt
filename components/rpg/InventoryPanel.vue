@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { getRpgInventory, equipLoadout, unequipLoadout, getRpgLoadout } from '~~/api/rpg';
 import {
   ITEM_TYPE_MAP,
   RARITY_MAP,
@@ -8,15 +7,22 @@ import {
   getRarityLabel,
 } from '~~/types/rpg';
 import type { InventoryItem } from '~~/types/rpg';
-import { messageSuccess, messageError } from '~~/utils/toast';
 
-const items = ref<InventoryItem[]>([]);
-const loadout = ref<any>(null);
-const loading = ref(false);
+const props = defineProps<{
+  items: InventoryItem[];
+  loadout: any;
+  loading: boolean;
+}>();
+
+const emit = defineEmits<{
+  equip: [slot: string, itemCode: string];
+  unequip: [slot: string];
+}>();
+
 const activeType = ref<string>('all');
 
 const typeTabs = computed(() => {
-  const types = new Set(items.value.map(i => i.config?.itemType).filter(Boolean));
+  const types = new Set(props.items.map(i => i.config?.itemType).filter(Boolean));
   return [
     { key: 'all', label: '全部' },
     ...Array.from(types).map(key => ({
@@ -27,45 +33,9 @@ const typeTabs = computed(() => {
 });
 
 const filteredItems = computed(() => {
-  if (activeType.value === 'all') return items.value;
-  return items.value.filter(i => i.config?.itemType === activeType.value);
+  if (activeType.value === 'all') return props.items;
+  return props.items.filter(i => i.config?.itemType === activeType.value);
 });
-
-const fetchData = async () => {
-  loading.value = true;
-  try {
-    const [inv, lo] = await Promise.all([getRpgInventory(), getRpgLoadout()]);
-    items.value = inv.items || [];
-    loadout.value = lo;
-  }
-  finally {
-    loading.value = false;
-  }
-};
-
-const equip = async (slot: string, itemCode: string) => {
-  try {
-    await equipLoadout({ slot, itemCode });
-    messageSuccess('穿戴成功');
-    await fetchData();
-  }
-  catch (e: any) {
-    messageError(e?.message || '穿戴失败');
-  }
-};
-
-const unequip = async (slot: string) => {
-  try {
-    await unequipLoadout(slot);
-    await fetchData();
-  }
-  catch (e: any) {
-    messageError(e?.message || '卸下失败');
-  }
-};
-
-onMounted(fetchData);
-defineExpose({ fetchData });
 </script>
 
 <template>
@@ -131,7 +101,11 @@ defineExpose({ fetchData });
             <button
               class="btn btn-xs btn-primary"
               @click="
-                equip(item.config!.itemType === 'title' ? 'title' : 'avatar_frame', item.itemCode)
+                emit(
+                  'equip',
+                  item.config!.itemType === 'title' ? 'title' : 'avatar_frame',
+                  item.itemCode,
+                )
               "
             >
               穿戴
@@ -142,7 +116,7 @@ defineExpose({ fetchData });
                   === item.itemCode
               "
               class="btn btn-xs btn-ghost"
-              @click="unequip(item.config!.itemType === 'title' ? 'title' : 'avatar_frame')"
+              @click="emit('unequip', item.config!.itemType === 'title' ? 'title' : 'avatar_frame')"
             >
               卸下
             </button>

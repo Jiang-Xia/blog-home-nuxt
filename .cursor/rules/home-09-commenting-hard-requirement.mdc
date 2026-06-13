@@ -1,12 +1,44 @@
 ---
-description: 注释硬约束（保留已有注释 + composables/复杂逻辑必注释）
+description: 注释硬约束（函数/方法必注释，超 5 行与核心逻辑必注释）
 alwaysApply: true
 ---
 
 # 注释硬约束
 
-- 修改或新增代码时**禁止删除**已有中文/文件头注释；仅在与代码矛盾时改写注释内容
-- `composables/**`、`utils/**` 新增导出函数必须有 1 行中文 JSDoc，说明用途及后端约定（如 WebSocket `auth.token`）
-- 复杂逻辑（无感 refresh、加密网关、请求队列、Socket 重连）在关键分支前补中文注释
-- Vue 组件新增含副作用或跨组件约定的方法，需简短中文注释
-- 页面/组件文件头保留模块说明块注释（参考 `pages/rpg/index.vue`、`components/user/article-list.vue`）
+注释说明**意图、规则与边界**，禁止翻译代码。修改或新增代码时**禁止删除**已有中文/文件头注释。
+
+## 必须加注释的场景
+
+1. **所有新增/修改的函数与方法**（含 composable 导出、组件内方法、页面 handler）：至少 1 行中文 JSDoc 或块注释，说明用途与副作用（是否调 API、是否改共享状态）
+2. **函数体超过 5 行**：在函数头写 JSDoc；函数内按逻辑块分段，核心分支前补 1 行中文注释
+3. **复杂逻辑**：多条件组合、异步并发、缓存/去重、WebSocket、请求队列、跨组件数据流
+4. **核心逻辑代码块**：Tab 懒加载、父组件统一请求、mutation 后 refresh、幂等/限流相关分支
+
+## 文件级要求
+
+- `composables/**`、`utils/**`：每个导出函数必须有中文 JSDoc
+- `pages/**`、`components/**`：文件头保留模块说明；含副作用的方法需简短中文注释
+- Vue 模板中非显然的 `v-if`/事件绑定，在 script 侧用注释说明约定即可
+
+## 可不注释
+
+- 命名已自解释的单行 getter/简单映射（≤5 行且无分支）
+- 禁止废话注释（如 `// 赋值给 x`）
+
+## 示例
+
+```typescript
+/** 冒险状态 Tab 首屏数据：各接口只请求一次，写入页面级 ref 供子组件 props 渲染 */
+const loadStatusTab = async () => {
+  if (loadedTabs.value.has('status')) return;
+
+  statusLoading.value = true;
+  try {
+    // 合并并发，避免 ProfileCard / LotteryBox 等子组件重复打相同接口
+    const [status, sign, ...rest] = await Promise.all([...]);
+    ...
+  } finally {
+    statusLoading.value = false;
+  }
+};
+```

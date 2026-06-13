@@ -1,63 +1,19 @@
 <script setup lang="ts">
-import { getMyGuild, listGuilds, createGuild, joinGuild, leaveGuild } from '~~/api/rpg';
 import { getGuildRoleLabel } from '~~/types/rpg';
-import { messageSuccess, messageError } from '~~/utils/toast';
 
-const myGuild = ref<any>(null);
-const guildList = ref<any[]>([]);
+defineProps<{
+  myGuild: any;
+  guildList: any[];
+  loading: boolean;
+}>();
+
+const emit = defineEmits<{
+  create: [name: string];
+  join: [guildId: number];
+  leave: [];
+}>();
+
 const guildName = ref('');
-const loading = ref(false);
-
-const refresh = async () => {
-  loading.value = true;
-  try {
-    myGuild.value = await getMyGuild();
-    if (!myGuild.value) {
-      const res = await listGuilds(1);
-      guildList.value = res.list || [];
-    }
-  }
-  finally {
-    loading.value = false;
-  }
-};
-
-const create = async () => {
-  if (!guildName.value.trim()) return;
-  try {
-    await createGuild(guildName.value.trim());
-    messageSuccess('公会创建成功');
-    guildName.value = '';
-    await refresh();
-  }
-  catch (e: any) {
-    messageError(e?.message || '创建失败');
-  }
-};
-
-const join = async (guildId: number) => {
-  try {
-    await joinGuild(guildId);
-    messageSuccess('加入成功');
-    await refresh();
-  }
-  catch (e: any) {
-    messageError(e?.message || '加入失败');
-  }
-};
-
-const leave = async () => {
-  try {
-    await leaveGuild();
-    messageSuccess('已退出公会');
-    await refresh();
-  }
-  catch (e: any) {
-    messageError(e?.message || '退出失败');
-  }
-};
-
-onMounted(refresh);
 </script>
 
 <template>
@@ -83,7 +39,7 @@ onMounted(refresh);
       <button
         v-if="myGuild.leaderUid !== myGuild.members?.find((x: any) => x.role === 'leader')?.uid"
         class="btn btn-sm btn-outline mt-3"
-        @click="leave"
+        @click="emit('leave')"
       >
         退出公会
       </button>
@@ -102,7 +58,13 @@ onMounted(refresh);
             class="input input-sm input-bordered flex-1"
             placeholder="公会名称"
           >
-          <button class="btn btn-sm btn-primary" @click="create">
+          <button
+            class="btn btn-sm btn-primary"
+            @click="
+              emit('create', guildName);
+              guildName = '';
+            "
+          >
             创建
           </button>
         </div>
@@ -116,7 +78,7 @@ onMounted(refresh);
         class="flex justify-between items-center py-2 border-b border-base-200"
       >
         <span>{{ g.name }} ({{ g.memberCount }}人)</span>
-        <button class="btn btn-xs btn-primary" @click="join(g.id)">
+        <button class="btn btn-xs btn-primary" @click="emit('join', g.id)">
           加入
         </button>
       </div>

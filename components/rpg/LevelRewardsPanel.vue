@@ -1,31 +1,31 @@
 <script setup lang="ts">
 /**
-   * 等级奖励路线图 - 展示各等级解锁的头像框与称号
+   * 等级奖励路线图 - 展示各等级解锁的头像框与称号（纯展示）
    */
 import { AVATAR_FRAME_MAP, getAvatarFrameName, getTitleName } from '~~/types/rpg';
-import { useRpg } from '~~/composables/use-rpg';
+import type { LevelReward, RpgStatus } from '~~/types/rpg';
 
-const { rpgStatus, levelRewards, fetchLevelRewards } = useRpg();
+const props = defineProps<{
+  rpgStatus: RpgStatus | null;
+  levelRewards: LevelReward[];
+  loading?: boolean;
+}>();
 
-onMounted(() => {
-  fetchLevelRewards();
-});
-
-const currentLevel = computed(() => rpgStatus.value?.level ?? 0);
+const currentLevel = computed(() => props.rpgStatus?.level ?? 0);
 
 const unlockedCount = computed(
-  () => levelRewards.value.filter(r => currentLevel.value >= r.level).length,
+  () => props.levelRewards.filter(r => currentLevel.value >= r.level).length,
 );
 
 const unlockPercent = computed(() =>
-  levelRewards.value.length > 0
-    ? Math.round((unlockedCount.value / levelRewards.value.length) * 100)
+  props.levelRewards.length > 0
+    ? Math.round((unlockedCount.value / props.levelRewards.length) * 100)
     : 0,
 );
 
 const isUnlocked = (level: number) => currentLevel.value >= level;
 
-const getRewardSummary = (reward: (typeof levelRewards.value)[number]) => {
+const getRewardSummary = (reward: LevelReward) => {
   const parts: string[] = [];
   if (reward.currencyReward) {
     parts.push(`${reward.currencyReward} 钻石`);
@@ -75,7 +75,7 @@ const getRewardSummary = (reward: (typeof levelRewards.value)[number]) => {
       </div>
     </div>
 
-    <div v-if="levelRewards.length === 0" class="empty">
+    <div v-if="loading || levelRewards.length === 0" class="empty">
       加载中...
     </div>
     <div v-else class="reward-grid">

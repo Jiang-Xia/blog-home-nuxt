@@ -1,17 +1,18 @@
 <script setup lang="ts">
 /**
-   * 成就展示面板 - 分类展示用户成就进度
+   * 成就展示面板 - 分类展示用户成就进度（纯展示）
    */
 import { ACHIEVEMENT_CATEGORY_MAP, ACHIEVEMENT_ICON_MAP } from '~~/types/rpg';
 import type { UserAchievementProgress } from '~~/types/rpg';
-import { useRpg } from '~~/composables/use-rpg';
 
-const { achievements } = useRpg();
+const props = defineProps<{
+  achievements: UserAchievementProgress[];
+}>();
 
 // 按分类分组
 const groupedAchievements = computed(() => {
   const groups: Record<string, UserAchievementProgress[]> = {};
-  for (const a of achievements.value) {
+  for (const a of props.achievements) {
     if (!groups[a.category]) groups[a.category] = [];
     groups[a.category]!.push(a);
   }
@@ -19,8 +20,8 @@ const groupedAchievements = computed(() => {
 });
 
 // 统计
-const totalCount = computed(() => achievements.value.length);
-const completedCount = computed(() => achievements.value.filter(a => a.completed).length);
+const totalCount = computed(() => props.achievements.length);
+const completedCount = computed(() => props.achievements.filter(a => a.completed).length);
 const completionPercent = computed(() =>
   totalCount.value > 0 ? Math.round((completedCount.value / totalCount.value) * 100) : 0,
 );
@@ -29,7 +30,7 @@ const completionPercent = computed(() =>
 const activeCategory = ref<string>('all');
 
 const filteredAchievements = computed(() => {
-  if (activeCategory.value === 'all') return achievements.value;
+  if (activeCategory.value === 'all') return props.achievements;
   return groupedAchievements.value[activeCategory.value] || [];
 });
 

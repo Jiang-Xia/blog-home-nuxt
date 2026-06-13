@@ -1,61 +1,96 @@
 <script setup lang="ts">
 /**
-   * 个人空间RPG综合卡片 - 整合等级、成就、任务、Buff等所有RPG数据
+   * 个人空间RPG综合卡片 - 整合等级、成就、任务、Buff等所有RPG数据（纯展示 + 事件上报）
    */
-import type { LevelUpResult } from '~~/types/rpg';
-import { messageInfo, messageSuccess, messageError } from '~~/utils/toast';
-import { equipLoadout, unequipLoadout } from '~~/api/rpg';
-import { useRpg } from '~~/composables/use-rpg';
+import type {
+  BanStatus,
+  LevelUpResult,
+  RpgStatus,
+  SensitiveHitRecord,
+  SignInfo,
+  SignInResult,
+  UserAchievementProgress,
+  UserBuff,
+  UserQuestProgress,
+} from '~~/types/rpg';
+import { messageInfo, messageSuccess } from '~~/utils/toast';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
 import RpgQuestPanel from './QuestPanel.vue';
 import RpgAchievementPanel from './AchievementPanel.vue';
 import RpgBuffList from './BuffList.vue';
 
-const {
-  rpgStatus,
-  signInfo,
-  banStatus,
-  expProgress,
-  lifeColor,
-  lifePercent,
-  isBanned,
-  roleReward,
-  signingIn,
-  signIn,
-  completedAchievementCount,
-  questProgressText,
-  claimableQuests,
-  activeBuffCount,
-  initRpg,
-  fetchHitRecords,
-  fetchAchievements,
-  fetchQuests,
-  fetchBuffs,
-  fetchStatus,
-  hitRecords,
-  hitRecordsTotal,
-} = useRpg();
+const props = defineProps<{
+  rpgStatus: RpgStatus;
+  signInfo: SignInfo | null;
+  banStatus: BanStatus | null;
+  achievements: UserAchievementProgress[];
+  questGroups: {
+    daily: UserQuestProgress[];
+    bounty: UserQuestProgress[];
+    special: UserQuestProgress[];
+  };
+  buffs: UserBuff[];
+  hitRecords: SensitiveHitRecord[];
+  hitRecordsTotal: number;
+  signingIn: boolean;
+}>();
 
-const handleEquip = async (slot: 'title' | 'avatar_frame', code: string) => {
-  try {
-    await equipLoadout({ slot, itemCode: code });
-    messageSuccess('穿戴成功');
-    await fetchStatus();
-  }
-  catch (e: any) {
-    messageError(e?.message || '穿戴失败');
-  }
+const emit = defineEmits<{
+  signIn: [];
+  equip: [slot: 'title' | 'avatar_frame', code: string];
+  unequip: [slot: 'title' | 'avatar_frame'];
+  claimQuest: [questCode: string];
+  loadHitRecords: [];
+  refresh: [scope: 'status' | 'achievements' | 'quests' | 'buffs'];
+  toggleBuff: [buff: UserBuff & { triggerMode?: string; isActive?: boolean }];
+}>();
+
+const getLevelThreshold = (level: number): number => {
+  if (level <= 1) return 0;
+  return level * (level - 1) * 50;
 };
 
-const handleUnequip = async (slot: 'title' | 'avatar_frame') => {
-  try {
-    await unequipLoadout(slot);
-    await fetchStatus();
-  }
-  catch (e: any) {
-    messageError(e?.message || '卸下失败');
-  }
-};
+/** 当前等级段内经验进度（current/required/percent） */
+const expProgress = computed(() => {
+  const { level, exp } = props.rpgStatus;
+  const currentThreshold = getLevelThreshold(level);
+  const nextThreshold = getLevelThreshold(level + 1);
+  const current = exp - currentThreshold;
+  const required = nextThreshold - currentThreshold;
+  const percent = required > 0 ? Math.min(100, Math.round((current / required) * 100)) : 100;
+  return { current, required, percent };
+});
+
+const lifeColor = computed(() => {
+  const life = props.rpgStatus.lifeValue;
+  if (life > 60) return '#4ade80';
+  if (life > 30) return '#fbbf24';
+  return '#ef4444';
+});
+
+const lifePercent = computed(() => props.rpgStatus.lifeValue ?? 100);
+const isBanned = computed(() => props.banStatus?.banned ?? false);
+const roleReward = computed(() => props.rpgStatus.roleReward ?? null);
+
+const completedAchievementCount = computed(
+  () => props.achievements.filter(a => a.completed).length,
+);
+
+const allQuests = computed(() => [
+  ...props.questGroups.daily,
+  ...props.questGroups.bounty,
+  ...props.questGroups.special,
+]);
+
+const questProgressText = computed(() => {
+  if (allQuests.value.length === 0) return '—';
+  const completed = allQuests.value.filter(q => q.completed).length;
+  return `${completed}/${allQuests.value.length}`;
+});
+
+const claimableQuests = computed(() => allQuests.value.filter(q => q.completed && !q.claimed));
+
+const activeBuffCount = computed(() => props.buffs.length);
 
 const {
   connect,
@@ -67,78 +102,78 @@ const {
   onBuffGranted,
 } = useRpgSocket();
 
-// 升级弹窗
 const showLevelUp = ref(false);
 const levelUpData = ref<LevelUpResult | null>(null);
 
-// WebSocket事件处理
+/** WebSocket：升级推送 → 弹出升级动画 */
 onLevelUp.value = (data: LevelUpResult) => {
   levelUpData.value = data;
   showLevelUp.value = true;
 };
 
-onLifeChange.value = (data: { lifeDeducted: number; currentLife: number }) => {
-  if (rpgStatus.value) {
-    rpgStatus.value.lifeValue = data.currentLife;
-  }
+/** WebSocket：生命值变化 → 通知父组件 refresh status */
+onLifeChange.value = () => {
+  emit('refresh', 'status');
 };
 
-onBanStatus.value = (data: any) => {
-  if (banStatus.value) {
-    banStatus.value.banned = data.banned;
-    banStatus.value.banEndTime = data.banEndTime;
-  }
+/** WebSocket：禁言状态变化 → 通知父组件 refresh status */
+onBanStatus.value = () => {
+  emit('refresh', 'status');
 };
 
+/** WebSocket：成就达成 → toast + 刷新成就与核心状态 */
 onAchievementComplete.value = (data: { name: string; expReward: number }) => {
   messageSuccess(`🏆 成就达成：${data.name} +${data.expReward} 经验`);
-  fetchAchievements();
-  fetchStatus();
+  emit('refresh', 'achievements');
+  emit('refresh', 'status');
 };
 
+/** WebSocket：任务奖励 → toast + 刷新任务与核心状态 */
 onQuestReward.value = (data: { questName: string; expReward: number }) => {
   messageSuccess(`📋 任务奖励：${data.questName} +${data.expReward} 经验`);
-  fetchQuests();
-  fetchStatus();
+  emit('refresh', 'quests');
+  emit('refresh', 'status');
 };
 
+/** WebSocket：获得 Buff → toast + 刷新 Buff 列表 */
 onBuffGranted.value = (data: { name: string; description?: string }) => {
   messageInfo(`✨ 获得增益：${data.name}`);
-  fetchBuffs();
+  emit('refresh', 'buffs');
 };
 
-// 签到
 const lastSignInResult = ref<any>(null);
-const handleSignIn = async () => {
-  const result = await signIn();
-  lastSignInResult.value = result;
-  if (result?.levelUp) {
-    levelUpData.value = result.levelUp;
-    showLevelUp.value = true;
-  }
-};
 
-// 当前激活的 Tab
+/** 暴露给父组件：签到成功后回填结果并触发升级动画 */
+defineExpose({
+  setSignInResult: (result: SignInResult | null) => {
+    lastSignInResult.value = result;
+    if (result?.levelUp) {
+      levelUpData.value = result.levelUp;
+      showLevelUp.value = true;
+    }
+  },
+});
+
 type RpgTab = 'quests' | 'achievements' | 'buffs';
 const activeTab = ref<RpgTab>('quests');
-
 const switchTab = (tab: RpgTab) => {
   activeTab.value = tab;
 };
 
-// 命中记录
 const showHitRecords = ref(false);
-const toggleHitRecords = async () => {
+
+/** 展开敏感词记录时懒加载（首次展开 emit 给父组件请求） */
+const toggleHitRecords = () => {
   showHitRecords.value = !showHitRecords.value;
-  if (showHitRecords.value && hitRecords.value.length === 0) {
-    await fetchHitRecords();
+  if (showHitRecords.value && props.hitRecords.length === 0) {
+    emit('loadHitRecords');
   }
 };
 
-// 初始化RPG数据 + 连接WebSocket
 const userInfo = useUserInfo();
-onMounted(async () => {
-  await initRpg();
+
+/** uid 就绪后连接 RPG WebSocket，实时事件通过 emit refresh 交给父组件刷新 */
+onMounted(() => {
   watch(
     () => userInfo.value?.uid,
     (uid) => {
@@ -207,7 +242,7 @@ onMounted(async () => {
       <button
         class="sign-btn"
         :disabled="signInfo?.signedToday || signingIn || isBanned"
-        @click="handleSignIn"
+        @click="emit('signIn')"
       >
         {{ signInfo?.signedToday ? '✓ 已签到' : signingIn ? '...' : '签到 +10经验' }}
       </button>
@@ -265,13 +300,13 @@ onMounted(async () => {
     <!-- Tab 内容 -->
     <div class="rpg-panels">
       <div v-show="activeTab === 'quests'" class="rpg-panel" role="tabpanel">
-        <RpgQuestPanel />
+        <RpgQuestPanel :quest-groups="questGroups" @claim="emit('claimQuest', $event)" />
       </div>
       <div v-show="activeTab === 'achievements'" class="rpg-panel" role="tabpanel">
-        <RpgAchievementPanel />
+        <RpgAchievementPanel :achievements="achievements" />
       </div>
       <div v-show="activeTab === 'buffs'" class="rpg-panel" role="tabpanel">
-        <RpgBuffList />
+        <RpgBuffList :buffs="buffs" @toggle="emit('toggleBuff', $event)" />
       </div>
     </div>
 
@@ -294,8 +329,8 @@ onMounted(async () => {
             }"
             @click="
               rpgStatus.equippedAvatarFrame === frame.code
-                ? handleUnequip('avatar_frame')
-                : handleEquip('avatar_frame', frame.code)
+                ? emit('unequip', 'avatar_frame')
+                : emit('equip', 'avatar_frame', frame.code)
             "
           >
             {{ frame.name }}
@@ -313,8 +348,8 @@ onMounted(async () => {
             :class="{ equipped: rpgStatus.equippedTitle === title.code }"
             @click="
               rpgStatus.equippedTitle === title.code
-                ? handleUnequip('title')
-                : handleEquip('title', title.code)
+                ? emit('unequip', 'title')
+                : emit('equip', 'title', title.code)
             "
           >
             {{ title.name }}
@@ -327,7 +362,7 @@ onMounted(async () => {
     <!-- 敏感词记录 -->
     <div class="hits-toggle">
       <div class="section-title clickable" @click="toggleHitRecords">
-        敏感词记录 ({{ hitRecordsTotal }})
+        敏感词记录 ({{ hitRecordsTotal || rpgStatus.sensitiveHitsCount || 0 }})
         <span class="toggle-icon">{{ showHitRecords ? '▼' : '▶' }}</span>
       </div>
       <div v-if="showHitRecords" class="hits-list">
@@ -354,9 +389,6 @@ onMounted(async () => {
       :level-up-data="levelUpData"
       @close="showLevelUp = false"
     />
-  </div>
-  <div v-else class="rpg-loading">
-    加载中...
   </div>
 </template>
 

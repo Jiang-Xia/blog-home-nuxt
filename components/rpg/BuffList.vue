@@ -1,29 +1,28 @@
 <script setup lang="ts">
 /**
-   * Buff列表组件 - 展示当前激活的Buff，带倒计时
+   * Buff列表组件 - 展示当前激活的Buff，带倒计时（纯展示）
    */
 import { BUFF_TYPE_MAP } from '~~/types/rpg';
 import type { UserBuff, BuffType } from '~~/types/rpg';
-import { useRpg } from '~~/composables/use-rpg';
-import { activateBuff, deactivateBuff } from '~~/api/rpg';
-import { messageSuccess } from '~~/utils/toast';
 
-const { buffs, fetchBuffs } = useRpg();
+const props = defineProps<{
+  buffs: UserBuff[];
+}>();
 
-const toggleBuff = async (buff: UserBuff & { triggerMode?: string; isActive?: boolean }) => {
+const emit = defineEmits<{
+  toggle: [buff: UserBuff & { triggerMode?: string; isActive?: boolean }];
+}>();
+
+const toggleBuff = (buff: UserBuff & { triggerMode?: string; isActive?: boolean }) => {
   if (buff.triggerMode !== 'manual') return;
-  if (buff.isActive) await deactivateBuff(buff.id);
-  else await activateBuff(buff.id);
-  messageSuccess(buff.isActive ? '已停用' : '已激活');
-  await fetchBuffs();
+  emit('toggle', buff);
 };
 
 // 倒计时状态
 const now = ref(Date.now());
 let timer: ReturnType<typeof setInterval> | null = null;
 
-onMounted(async () => {
-  await fetchBuffs();
+onMounted(() => {
   timer = setInterval(() => {
     now.value = Date.now();
   }, 1000);

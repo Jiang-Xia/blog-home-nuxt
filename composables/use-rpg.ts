@@ -48,6 +48,11 @@ export function useRpg() {
   const levelRewards = useState<LevelReward[]>('rpg-level-rewards', () => []);
   const achievements = useState<UserAchievementProgress[]>('rpg-achievements', () => []);
   const quests = useState<UserQuestProgress[]>('rpg-quests', () => []);
+  const questGroups = useState<{
+    daily: UserQuestProgress[];
+    bounty: UserQuestProgress[];
+    special: UserQuestProgress[];
+  }>('rpg-quest-groups', () => ({ daily: [], bounty: [], special: [] }));
   const buffs = useState<UserBuff[]>('rpg-buffs', () => []);
   const lotteryPool = useState<LotteryPoolItem[]>('rpg-lottery-pool', () => []);
   const lotteryTickets = useState('rpg-lottery-tickets', () => 0);
@@ -275,9 +280,19 @@ export function useRpg() {
       const data = (await getMyQuests()) as any;
       if (Array.isArray(data)) {
         quests.value = data;
+        questGroups.value = { daily: data, bounty: [], special: [] };
       }
       else {
-        quests.value = [...(data.daily || []), ...(data.bounty || []), ...(data.special || [])];
+        questGroups.value = {
+          daily: data.daily || [],
+          bounty: data.bounty || [],
+          special: data.special || [],
+        };
+        quests.value = [
+          ...questGroups.value.daily,
+          ...questGroups.value.bounty,
+          ...questGroups.value.special,
+        ];
       }
     }
     catch (e) {
@@ -312,7 +327,6 @@ export function useRpg() {
       fetchQuests(),
       fetchBuffs(),
       fetchLotteryTickets(),
-      fetchHitRecords(),
     ]);
   };
 
@@ -326,6 +340,7 @@ export function useRpg() {
     levelRewards,
     achievements,
     quests,
+    questGroups,
     buffs,
     lotteryPool,
     lotteryTickets,

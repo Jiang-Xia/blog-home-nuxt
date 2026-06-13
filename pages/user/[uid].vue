@@ -47,7 +47,7 @@ useHead({
 
 <template>
   <div class="public-profile padding-top-bar">
-    <div class="container max-w-4xl mx-auto px-4 py-6">
+    <div class="public-profile-container">
       <div v-if="loading" class="text-center py-12 text-base-content/50">
         加载中...
       </div>
@@ -174,6 +174,13 @@ useHead({
 <style scoped>
   .public-profile {
     min-height: 100vh;
+    padding: 104px 16px 32px;
+  }
+
+  .public-profile-container {
+    max-width: 896px;
+    margin: 0 auto;
+    padding-top: 20px;
   }
 
   .hero-card {

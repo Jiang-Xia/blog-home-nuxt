@@ -1,15 +1,16 @@
 <script setup lang="ts">
 /**
-   * RPG 排行榜面板 - 支持经验/签到/等级三种维度
+   * RPG 排行榜面板 - 支持经验/签到/等级等多种维度（纯展示）
    */
 import type { LeaderboardPeriod, LeaderboardScoreType } from '~~/types/rpg';
-import { getRpgLeaderboard } from '~~/api/rpg';
 
-const leaderboard = ref<any[]>([]);
+defineProps<{
+  leaderboard: any[];
+  loading: boolean;
+}>();
 
-const activeType = ref<LeaderboardScoreType>('exp');
-const activePeriod = ref<LeaderboardPeriod>('total');
-const loading = ref(false);
+const activeType = defineModel<LeaderboardScoreType>('activeType', { default: 'exp' });
+const activePeriod = defineModel<LeaderboardPeriod>('activePeriod', { default: 'total' });
 
 const typeOptions: { key: LeaderboardScoreType; label: string; icon: string }[] = [
   { key: 'exp', label: '经验', icon: '✨' },
@@ -25,19 +26,6 @@ const periodOptions: { key: LeaderboardPeriod; label: string }[] = [
   { key: 'week', label: '周榜' },
   { key: 'month', label: '月榜' },
 ];
-
-const loadLeaderboard = async () => {
-  loading.value = true;
-  try {
-    leaderboard.value = await getRpgLeaderboard(activeType.value as any, 20, activePeriod.value);
-  }
-  finally {
-    loading.value = false;
-  }
-};
-
-watch([activeType, activePeriod], loadLeaderboard);
-onMounted(loadLeaderboard);
 
 const getScoreText = (entry: any) => {
   if (entry.score !== undefined) return String(entry.score);

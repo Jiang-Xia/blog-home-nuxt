@@ -50,6 +50,7 @@ const form: formState = reactive({
 });
 const authCodeUrl = ref('');
 const authCodeLoadError = ref(false);
+const captchaId = ref('');
 
 request
   .get('/resources/files', {
@@ -99,6 +100,7 @@ const okHandle = async () => {
   if (registerType.value === 'mobile') {
     params.mobile = form.mobile;
     params.authCode = form.authCode;
+    params.captchaId = captchaId.value;
   }
   else {
     params.email = form.email;
@@ -116,6 +118,7 @@ const okHandle = async () => {
   catch (err: any) {
     if (registerType.value === 'mobile' && shouldRefreshGraphicCaptcha(err?.bizCode)) {
       form.authCode = '';
+      captchaId.value = '';
       void changeAuthCode();
     }
   }
@@ -125,10 +128,12 @@ const changeAuthCode = async () => {
   try {
     const res = await request.get('/user/authCode', { t: Date.now() });
     authCodeUrl.value = `data:image/svg+xml;base64,${res.captchaBase64}`;
+    captchaId.value = res.captchaId || '';
     authCodeLoadError.value = false;
   }
   catch {
     authCodeUrl.value = '';
+    captchaId.value = '';
     authCodeLoadError.value = true;
     // 错误提示由 request 拦截器统一处理
   }

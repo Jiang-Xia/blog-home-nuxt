@@ -1,13 +1,16 @@
 <script setup lang="ts">
 /* global QRCode, html2canvas */
-import { getCurrentActivity, getWeatherBuff, shareSeasonPoster } from '~~/api/rpg';
+import { shareSeasonPoster } from '~~/api/rpg';
 import { messageSuccess, messageError } from '~~/utils/toast';
 import { loadScreenshotScripts, loadBarcodeScripts } from '~~/utils/script-loader';
 import { originUrl } from '~~/config';
 
+const props = defineProps<{
+  activity: any;
+  weatherBuff: any;
+}>();
+
 const userInfo = useUserInfo();
-const activity = ref<any>(null);
-const weatherBuff = ref<any>(null);
 const sharing = ref(false);
 const posterRef = ref<HTMLElement>();
 const qrContainerRef = ref<HTMLElement>();
@@ -19,20 +22,6 @@ const posterRenderData = ref<{
   description: string;
   expBuffRate?: number;
 } | null>(null);
-
-onMounted(async () => {
-  try {
-    const [act, weather] = await Promise.all([
-      getCurrentActivity(),
-      getWeatherBuff().catch(() => null),
-    ]);
-    activity.value = act;
-    weatherBuff.value = weather;
-  }
-  catch {
-    /* ignore */
-  }
-});
 
 const resolvePosterUrl = (url: string) => {
   if (!url) return '';
@@ -67,12 +56,12 @@ const downloadPosterImage = async (res: {
   shareUrl: string;
 }) => {
   posterRenderData.value = {
-    posterUrl: resolvePosterUrl(res.posterUrl || activity.value?.posterUrl || ''),
+    posterUrl: resolvePosterUrl(res.posterUrl || props.activity?.posterUrl || ''),
     activityName: res.activityName,
     activityCode: res.activityCode,
     shareUrl: res.shareUrl,
-    description: activity.value?.description || '',
-    expBuffRate: activity.value?.expBuffRate,
+    description: props.activity?.description || '',
+    expBuffRate: props.activity?.expBuffRate,
   };
   await nextTick();
   await Promise.all([loadBarcodeScripts(), loadScreenshotScripts()]);

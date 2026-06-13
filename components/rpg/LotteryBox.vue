@@ -1,68 +1,62 @@
 <script setup lang="ts">
 /**
-   * 抽奖宝箱组件 - 宝箱开启动画 + 奖品展示
+   * 抽奖宝箱组件 - 宝箱开启动画 + 奖品展示（纯展示 + 事件上报）
    */
 import { RARITY_MAP, formatRewardDetail } from '~~/types/rpg';
-import type { DrawResult } from '~~/types/rpg';
-import { lotteryDraw } from '~~/api/rpg';
-import { useRpg } from '~~/composables/use-rpg';
+import type { DrawResult, LotteryPoolItem, LotteryRecord, RpgStatus } from '~~/types/rpg';
 import { formactDate } from '@/utils/common';
 
-const {
-  lotteryPool,
-  lotteryTickets,
-  rpgStatus,
-  drawing,
-  fetchLotteryPool,
-  fetchLotteryTickets,
-  fetchLotteryHistory,
-  fetchStatus,
-  lotteryHistory,
-} = useRpg();
+const props = defineProps<{
+  lotteryPool: LotteryPoolItem[];
+  lotteryTickets: number;
+  rpgStatus: RpgStatus | null;
+  lotteryHistory: LotteryRecord[];
+  drawing: boolean;
+}>();
+
+const emit = defineEmits<{
+  draw: [count: number, currency: 'ticket' | 'currency'];
+  loadHistory: [];
+}>();
 
 const drawCurrency = ref<'ticket' | 'currency'>('ticket');
-
-// 抽奖结果展示
 const showResult = ref(false);
 const drawResults = ref<DrawResult[]>([]);
 const currentResultIndex = ref(0);
 const isAnimating = ref(false);
 const showHistory = ref(false);
 
-onMounted(async () => {
-  await Promise.all([fetchLotteryPool(), fetchLotteryTickets(), fetchStatus()]);
-});
-
+/** 判断是否可抽奖（券或钻石） */
 const canDraw = (count: number) => {
   if (drawCurrency.value === 'currency') {
-    return (rpgStatus.value?.currency || 0) >= count * 10;
+    return (props.rpgStatus?.currency || 0) >= count * 10;
   }
-  return lotteryTickets.value >= count;
+  return props.lotteryTickets >= count;
 };
 
-/** 执行抽奖 */
+/**
+   * 触发抽奖：先播开箱动画，再 emit 给父组件调 API。
+   * 结果展示由父组件调用 showDrawResults 回填。
+   */
 const handleDraw = async (count = 1) => {
-  if (drawing.value || isAnimating.value) return;
+  if (props.drawing || isAnimating.value) return;
   if (!canDraw(count)) return;
 
   isAnimating.value = true;
   await new Promise(resolve => setTimeout(resolve, 600));
+  emit('draw', count, drawCurrency.value);
+  isAnimating.value = false;
+};
 
-  drawing.value = true;
-  try {
-    const results = await lotteryDraw(count, drawCurrency.value);
+/** 父组件抽奖成功后调用，展示结果弹窗 */
+defineExpose({
+  showDrawResults: (results: DrawResult[]) => {
     drawResults.value = results;
     currentResultIndex.value = 0;
     showResult.value = true;
-    await Promise.all([fetchLotteryTickets(), fetchStatus()]);
-  }
-  finally {
-    drawing.value = false;
-    isAnimating.value = false;
-  }
-};
+  },
+});
 
-/** 查看下一个结果 */
 const nextResult = () => {
   if (currentResultIndex.value < drawResults.value.length - 1) {
     currentResultIndex.value++;
@@ -72,10 +66,8 @@ const nextResult = () => {
   }
 };
 
-/** 当前展示的结果 */
 const currentResult = computed(() => drawResults.value[currentResultIndex.value]);
 
-/** 稀有度对应动画样式 */
 const getRarityGlow = (rarity: string): string => {
   const map: Record<string, string> = {
     common: '0 0 20px rgba(148, 163, 184, 0.3)',
@@ -83,14 +75,14 @@ const getRarityGlow = (rarity: string): string => {
     epic: '0 0 40px rgba(139, 92, 246, 0.6)',
     legendary: '0 0 50px rgba(245, 158, 11, 0.8)',
   };
-  return map[rarity] || map.common;
+  return map[rarity] || map.common || '';
 };
 
-/** 切换抽奖记录 */
-const toggleHistory = async () => {
+/** 展开抽奖记录时懒加载（首次展开 emit 给父组件） */
+const toggleHistory = () => {
   showHistory.value = !showHistory.value;
-  if (showHistory.value && lotteryHistory.value.length === 0) {
-    await fetchLotteryHistory();
+  if (showHistory.value && props.lotteryHistory.length === 0) {
+    emit('loadHistory');
   }
 };
 </script>
@@ -121,7 +113,6 @@ const toggleHistory = async () => {
       </button>
     </div>
 
-    <!-- 宝箱区域 -->
     <div class="chest-area">
       <div
         class="chest"
@@ -134,7 +125,6 @@ const toggleHistory = async () => {
         </div>
       </div>
 
-      <!-- 批量抽奖按钮 -->
       <div class="draw-actions">
         <button
           class="draw-btn"
@@ -153,7 +143,6 @@ const toggleHistory = async () => {
       </div>
     </div>
 
-    <!-- 抽奖结果弹窗 -->
     <div v-if="showResult && currentResult" class="result-overlay" @click="nextResult">
       <div class="result-card" :style="{ boxShadow: getRarityGlow(currentResult.item.rarity) }">
         <div
@@ -182,7 +171,6 @@ const toggleHistory = async () => {
       </div>
     </div>
 
-    <!-- 奖池预览 -->
     <div class="pool-preview">
       <div class="pool-title">
         奖池一览
@@ -200,7 +188,6 @@ const toggleHistory = async () => {
       </div>
     </div>
 
-    <!-- 抽奖记录 -->
     <div class="history-toggle">
       <div class="history-btn" @click="toggleHistory">
         📜 抽奖记录 <span class="toggle-icon">{{ showHistory ? '▼' : '▶' }}</span>
@@ -248,7 +235,6 @@ const toggleHistory = async () => {
     border-radius: 12px;
   }
 
-  /* Chest */
   .chest-area {
     display: flex;
     flex-direction: column;
@@ -340,7 +326,6 @@ const toggleHistory = async () => {
     background: linear-gradient(135deg, #f59e0b, #d97706);
   }
 
-  /* Result overlay */
   .result-overlay {
     position: fixed;
     top: 0;
@@ -419,7 +404,6 @@ const toggleHistory = async () => {
     color: #94a3b8;
   }
 
-  /* Pool preview */
   .pool-preview {
     margin-bottom: 12px;
   }
@@ -456,7 +440,6 @@ const toggleHistory = async () => {
     font-weight: 500;
   }
 
-  /* History */
   .history-toggle {
     margin-top: 8px;
   }

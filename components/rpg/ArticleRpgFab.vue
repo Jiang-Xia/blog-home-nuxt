@@ -19,6 +19,7 @@ const collected = ref(false);
 const collectLoading = ref(false);
 const showTipModal = ref(false);
 const isLiked = ref(false);
+const fabOpen = ref(true);
 
 const ensureLogin = async () => {
   if (!userInfo.value?.uid) {
@@ -93,12 +94,17 @@ watch(
 </script>
 
 <template>
-  <div class="fab fab-flower bottom-20 right-4 z-40">
-    <div tabindex="0" role="button" class="btn btn-circle btn-primary text-xl shadow-lg">
+  <div class="fab fab-flower bottom-20 right-4 z-40" :class="{ 'fab-open': fabOpen }">
+    <div
+      tabindex="0"
+      role="button"
+      class="btn btn-circle btn-primary text-xl shadow-lg"
+      @click="fabOpen = true"
+    >
       ⚔️
     </div>
-    <div class="fab-close">
-      <span class="btn btn-circle btn-error text-xl shadow-lg">✕</span>
+    <div class="fab-close" @click="fabOpen = false">
+      <span class="btn btn-circle btn-primary text-xl shadow-lg">⚔️</span>
     </div>
     <div class="tooltip tooltip-left" :data-tip="isLiked ? '取消点赞' : '点赞'">
       <button
@@ -147,3 +153,17 @@ watch(
     </form>
   </dialog>
 </template>
+
+<style scoped>
+  .fab.fab-open > [tabindex]:first-child {
+    pointer-events: none;
+    opacity: 0;
+    rotate: 90deg;
+  }
+
+  .fab.fab-open > :nth-child(n + 2) {
+    visibility: visible;
+    scale: 1;
+    opacity: 1;
+  }
+</style>

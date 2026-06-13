@@ -20,6 +20,7 @@ if (import.meta.client) {
 }
 const authCodeUrl = ref('');
 const authCodeLoadError = ref(false);
+const captchaId = ref('');
 const token = useToken();
 definePageMeta({
   layout: 'custom', // 不使用default布局
@@ -79,6 +80,7 @@ const okHandle = async () => {
     if (loginType.value === 'mobile') {
       params.mobile = form.mobile;
       params.authCode = form.authCode;
+      params.captchaId = captchaId.value;
     }
     else {
       params.email = form.email;
@@ -97,6 +99,7 @@ const okHandle = async () => {
     console.error(err);
     if (loginType.value === 'mobile' && shouldRefreshGraphicCaptcha(err?.bizCode)) {
       form.authCode = '';
+      captchaId.value = '';
       void changeAuthCode();
     }
   }
@@ -106,10 +109,12 @@ const changeAuthCode = async () => {
   try {
     const res = await request.get('/user/authCode', { t: Date.now() });
     authCodeUrl.value = `data:image/svg+xml;base64,${res.captchaBase64}`;
+    captchaId.value = res.captchaId || '';
     authCodeLoadError.value = false;
   }
   catch {
     authCodeUrl.value = '';
+    captchaId.value = '';
     authCodeLoadError.value = true;
     // 错误提示由 request 拦截器统一处理
   }
@@ -200,134 +205,147 @@ onMounted(() => {
             欢 迎 登 录
           </h1>
 
-          <!-- 账号登录表单 -->
-          <template v-if="loginType === 'mobile'">
-            <div class="form-control">
-              <label class="login-label">
-                <span class="login-label-text">账号</span>
-              </label>
-              <label class="login-input input">
-                <xia-icon icon="blog-shoujihao" />
-                <input v-model="form.mobile" type="text" maxlength="11" placeholder="账号">
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="login-label">
-                <span class="login-label-text">密码</span>
-              </label>
-              <label class="login-input input">
-                <xia-icon icon="blog-mima" />
-                <input v-model="form.password" type="password" maxlength="16" placeholder="密码">
-              </label>
-            </div>
-
-            <div class="form-control">
-              <label class="login-label">
-                <span class="login-label-text">验证码</span>
-              </label>
-              <label class="login-input input">
-                <xia-icon icon="blog-yanzhengma" />
-                <input v-model="form.authCode" maxlength="4" placeholder="验证码">
-                <ClientOnly>
-                  <img
-                    v-if="authCodeUrl && !authCodeLoadError"
-                    class="rounded-sm h-10 cursor-pointer select-none"
-                    :src="authCodeUrl"
-                    alt="验证码"
-                    @click="changeAuthCodeDebounced"
-                    @error="authCodeLoadError = true"
+          <form @submit.prevent="okHandle">
+            <!-- 账号登录表单 -->
+            <template v-if="loginType === 'mobile'">
+              <div class="form-control">
+                <label class="login-label">
+                  <span class="login-label-text">账号</span>
+                </label>
+                <label class="login-input input">
+                  <xia-icon icon="blog-shoujihao" />
+                  <input v-model="form.mobile" type="text" maxlength="11" placeholder="账号">
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="login-label">
+                  <span class="login-label-text">密码</span>
+                </label>
+                <label class="login-input input">
+                  <xia-icon icon="blog-mima" />
+                  <input
+                    v-model="form.password"
+                    type="password"
+                    maxlength="16"
+                    placeholder="密码"
                   >
+                </label>
+              </div>
+
+              <div class="form-control">
+                <label class="login-label">
+                  <span class="login-label-text">验证码</span>
+                </label>
+                <label class="login-input input">
+                  <xia-icon icon="blog-yanzhengma" />
+                  <input v-model="form.authCode" maxlength="4" placeholder="验证码">
+                  <ClientOnly>
+                    <img
+                      v-if="authCodeUrl && !authCodeLoadError"
+                      class="rounded-sm h-10 cursor-pointer select-none"
+                      :src="authCodeUrl"
+                      alt="验证码"
+                      @click="changeAuthCodeDebounced"
+                      @error="authCodeLoadError = true"
+                    >
+                    <button
+                      v-else
+                      type="button"
+                      class="btn btn-ghost btn-xs h-10 min-h-10 px-2 opacity-80"
+                      @click="changeAuthCodeDebounced"
+                    >
+                      点击获取
+                    </button>
+                  </ClientOnly>
+                </label>
+              </div>
+            </template>
+
+            <!-- 邮箱登录表单 -->
+            <template v-else>
+              <div class="form-control">
+                <label class="login-label">
+                  <span class="login-label-text">邮箱</span>
+                </label>
+                <label class="login-input input">
+                  <xia-icon icon="blog-youxiang" />
+                  <input v-model="form.email" type="email" placeholder="邮箱地址">
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="login-label">
+                  <span class="login-label-text">密码</span>
+                </label>
+                <label class="login-input input">
+                  <xia-icon icon="blog-mima" />
+                  <input
+                    v-model="form.password"
+                    type="password"
+                    maxlength="16"
+                    placeholder="密码"
+                  >
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="login-label">
+                  <span class="login-label-text">邮箱验证码</span>
+                </label>
+                <label class="login-input input">
+                  <xia-icon icon="blog-yanzhengma" />
+                  <input v-model="form.verificationCode" maxlength="6" placeholder="邮箱验证码">
                   <button
-                    v-else
                     type="button"
-                    class="btn btn-ghost btn-xs h-10 min-h-10 px-2 opacity-80"
-                    @click="changeAuthCodeDebounced"
+                    class="btn btn-primary btn-sm mr-1"
+                    :disabled="emailCodeDisabled || emailCodeLoading"
+                    @click="sendEmailCode"
                   >
-                    点击获取
+                    <span v-if="!emailCodeLoading">{{ emailCodeText }}</span>
+                    <span v-else class="loading loading-spinner" />
                   </button>
-                </ClientOnly>
+                </label>
+              </div>
+            </template>
+            <div class="flex justify-between mt-1">
+              <a href="/register" class="link text-xs text-gray-600 hover:text-gray-500">还没有账号?快去注册吧！</a>
+              <a href="/" class="link text-xs text-gray-600 hover:text-gray-500">返回首页</a>
+            </div>
+            <div class="flex justify-between mt-1">
+              <label>
+                <div
+                  v-if="loginType === 'mobile'"
+                  class="link text-xs text-gray-600 hover:text-gray-500"
+                  @click="loginType = 'email'"
+                >邮箱登录</div>
+                <div
+                  v-else
+                  class="link text-xs text-gray-600 hover:text-gray-500"
+                  @click="loginType = 'mobile'"
+                >账号登录</div>
               </label>
             </div>
-          </template>
-
-          <!-- 邮箱登录表单 -->
-          <template v-else>
-            <div class="form-control">
-              <label class="login-label">
-                <span class="login-label-text">邮箱</span>
-              </label>
-              <label class="login-input input">
-                <xia-icon icon="blog-youxiang" />
-                <input v-model="form.email" type="email" placeholder="邮箱地址">
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="login-label">
-                <span class="login-label-text">密码</span>
-              </label>
-              <label class="login-input input">
-                <xia-icon icon="blog-mima" />
-                <input v-model="form.password" type="password" maxlength="16" placeholder="密码">
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="login-label">
-                <span class="login-label-text">邮箱验证码</span>
-              </label>
-              <label class="login-input input">
-                <xia-icon icon="blog-yanzhengma" />
-                <input v-model="form.verificationCode" maxlength="6" placeholder="邮箱验证码">
-                <button
-                  type="button"
-                  class="btn btn-primary btn-sm mr-1"
-                  :disabled="emailCodeDisabled || emailCodeLoading"
-                  @click="sendEmailCode"
-                >
-                  <span v-if="!emailCodeLoading">{{ emailCodeText }}</span>
-                  <span v-else class="loading loading-spinner" />
-                </button>
-              </label>
-            </div>
-          </template>
-          <div class="flex justify-between mt-1">
-            <a href="/register" class="link text-xs text-gray-600 hover:text-gray-500">还没有账号?快去注册吧！</a>
-            <a href="/" class="link text-xs text-gray-600 hover:text-gray-500">返回首页</a>
-          </div>
-          <div class="flex justify-between mt-1">
-            <label>
-              <div
-                v-if="loginType === 'mobile'"
-                class="link text-xs text-gray-600 hover:text-gray-500"
-                @click="loginType = 'email'"
-              >邮箱登录</div>
-              <div
-                v-else
-                class="link text-xs text-gray-600 hover:text-gray-500"
-                @click="loginType = 'mobile'"
-              >账号登录</div>
-            </label>
-          </div>
-          <button
-            class="btn bg-black btn-circle text-white border-black block w-full"
-            @click="githubLogin"
-          >
-            <span v-if="githubLoginLoading" class="loading loading-spinner" />
-            <xia-icon icon="blog-github" width="40px" height="40px" />
-            Login with GitHub
-          </button>
-          <div class="form-control mt-2">
-            <InShimmerButton
-              class="shadow-2xl btn-block text-gray-300 hover:text-gray-100 dark:from-white dark:to-slate-900/10"
-              shimmer-size="2px"
-              @click.prevent="okHandle"
+            <button
+              type="button"
+              class="btn bg-black btn-circle text-white border-black block w-full"
+              @click="githubLogin"
             >
-              <span
-                class="whitespace-pre-wrap text-center text-sm font-medium leading-none tracking-tight text-white lg:text-lg dark:from-white dark:to-slate-900/10"
+              <span v-if="githubLoginLoading" class="loading loading-spinner" />
+              <xia-icon icon="blog-github" width="40px" height="40px" />
+              Login with GitHub
+            </button>
+            <div class="form-control mt-2">
+              <InShimmerButton
+                type="submit"
+                class="shadow-2xl btn-block text-gray-300 hover:text-gray-100 dark:from-white dark:to-slate-900/10"
+                shimmer-size="2px"
               >
-                <span class="pr-16">登</span>录
-              </span>
-            </InShimmerButton>
-          </div>
+                <span
+                  class="whitespace-pre-wrap text-center text-sm font-medium leading-none tracking-tight text-white lg:text-lg dark:from-white dark:to-slate-900/10"
+                >
+                  <span class="pr-16">登</span>录
+                </span>
+              </InShimmerButton>
+            </div>
+          </form>
         </div>
       </div>
     </div>

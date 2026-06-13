@@ -1,40 +1,23 @@
 <script setup lang="ts">
 /**
-   * 任务面板 - 每日 / 悬赏 / 特殊任务
+   * 任务面板 - 每日 / 悬赏 / 特殊任务（纯展示）
    */
-import { useRpg } from '~~/composables/use-rpg';
-import { getMyQuests } from '~~/api/rpg';
 import type { UserQuestProgress } from '~~/types/rpg';
 
-const { claimQuest, fetchQuests } = useRpg();
+const props = defineProps<{
+  questGroups: {
+    daily: UserQuestProgress[];
+    bounty: UserQuestProgress[];
+    special: UserQuestProgress[];
+  };
+}>();
+
+const emit = defineEmits<{
+  claim: [questCode: string];
+}>();
 
 type QuestTab = 'daily' | 'bounty' | 'special';
 const activeTab = ref<QuestTab>('daily');
-const questGroups = ref<{
-  daily: UserQuestProgress[];
-  bounty: UserQuestProgress[];
-  special: UserQuestProgress[];
-}>({
-  daily: [],
-  bounty: [],
-  special: [],
-});
-
-const loadQuests = async () => {
-  const data = (await getMyQuests()) as any;
-  if (Array.isArray(data)) {
-    questGroups.value = { daily: data, bounty: [], special: [] };
-  }
-  else {
-    questGroups.value = {
-      daily: data.daily || [],
-      bounty: data.bounty || [],
-      special: data.special || [],
-    };
-  }
-};
-
-onMounted(loadQuests);
 
 const tabOptions: { key: QuestTab; label: string }[] = [
   { key: 'daily', label: '每日' },
@@ -42,16 +25,14 @@ const tabOptions: { key: QuestTab; label: string }[] = [
   { key: 'special', label: '特殊' },
 ];
 
-const currentQuests = computed(() => questGroups.value[activeTab.value] || []);
+const currentQuests = computed(() => props.questGroups[activeTab.value] || []);
 
 const claimingCode = ref<string | null>(null);
 
 const handleClaim = async (questCode: string) => {
   claimingCode.value = questCode;
   try {
-    await claimQuest(questCode);
-    await loadQuests();
-    await fetchQuests();
+    emit('claim', questCode);
   }
   finally {
     claimingCode.value = null;

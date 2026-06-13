@@ -2,7 +2,9 @@
 /**
    * RPG状态面板 - 展示等级、经验进度、生命值、头像框、称号、签到等信息
    */
-import type { LevelUpResult } from '~~/types/rpg';
+import type { LevelUpResult, UserBuff } from '~~/types/rpg';
+import { activateBuff, deactivateBuff } from '~~/api/rpg';
+import { messageSuccess } from '~~/utils/toast';
 import { useRpg } from '~~/composables/use-rpg';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
 
@@ -19,6 +21,8 @@ const {
   signingIn,
   signIn,
   fetchHitRecords,
+  fetchBuffs,
+  buffs,
   hitRecords,
   hitRecordsTotal,
   initRpg,
@@ -67,6 +71,16 @@ const toggleHitRecords = async () => {
   if (showHitRecords.value && hitRecords.value.length === 0) {
     await fetchHitRecords();
   }
+};
+
+const handleToggleBuff = async (
+  buff: UserBuff & { triggerMode?: string; isActive?: boolean },
+) => {
+  if (buff.triggerMode !== 'manual') return;
+  if (buff.isActive) await deactivateBuff(buff.id);
+  else await activateBuff(buff.id);
+  messageSuccess(buff.isActive ? '已停用' : '已激活');
+  await fetchBuffs();
 };
 
 // 初始化RPG数据 + 连接WebSocket
@@ -200,7 +214,7 @@ onMounted(async () => {
     </div>
 
     <!-- Buff列表 -->
-    <RpgBuffList />
+    <RpgBuffList :buffs="buffs" @toggle="handleToggleBuff" />
 
     <!-- 敏感词命中记录 -->
     <div class="hits-section">
