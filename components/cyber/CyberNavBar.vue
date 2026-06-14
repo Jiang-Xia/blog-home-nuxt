@@ -34,9 +34,10 @@ function isActive(path: string) {
           :class="[
             'cyber-nav-link block no-underline',
             isActive(item.path) && 'cyber-nav-link-active',
+            item.highlight && 'rpg-nav-link',
           ]"
         >
-          {{ item.title }}
+          <span v-if="item.icon" class="mr-0.5">{{ item.icon }}</span>{{ item.title }}
         </NuxtLink>
       </li>
     </ul>

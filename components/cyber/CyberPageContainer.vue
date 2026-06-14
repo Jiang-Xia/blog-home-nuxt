@@ -1,15 +1,15 @@
 <template>
-  <div :class="['mx-auto px-4 py-8 md:py-12', maxWidth]">
+  <div :class="['mx-auto px-4 py-4 md:py-6', maxWidth]">
     <NuxtLink
       v-if="backTo"
       :to="backTo"
-      class="mb-6 inline-flex text-sm text-tech-muted no-underline transition-colors hover:text-primary"
+      class="mb-4 inline-flex text-sm text-tech-muted no-underline transition-colors hover:text-primary"
     >
       ← {{ backLabel }}
     </NuxtLink>
     <CyberSectionHeader
       v-if="title"
-      class="mb-8"
+      class="mb-5"
       :label="label"
       :title="title"
       :subtitle="subtitle"

@@ -4,9 +4,7 @@ import { MdPreview } from 'md-editor-v3';
 
 import { useScroll } from '@vueuse/core';
 import { getArticleInfo, getComment } from '@/api/article';
-import { updateViews, xBLogStore, updateLikesHandle, formactDate } from '@/utils/common';
-import defaultImg from '@/assets/images/create.webp';
-import { isTrueCoverLink } from '@/utils';
+import { updateViews, xBLogStore, updateLikesHandle } from '@/utils/common';
 import type { tocInter } from '@/utils';
 import Qie from '@/assets/images/animal/qie.svg';
 import { SiteTitle } from '@/utils/constant';
@@ -176,42 +174,11 @@ watch(
 
 <template>
   <div class="article-detail">
-    <section class="relative overflow-hidden border-b border-tech">
-      <div class="absolute inset-0">
-        <img
-          :alt="ArticleInfo.category.label"
-          :src="isTrueCoverLink(ArticleInfo.cover) || defaultImg"
-          class="h-full w-full object-cover opacity-25 blur-md scale-105"
-        >
-      </div>
-      <div class="relative mx-auto max-w-4xl px-4 py-14 text-center text-tech">
-        <h1 class="mb-4 text-3xl font-bold md:text-4xl">
-          {{ ArticleInfo.title }}
-        </h1>
-        <p class="detail inline-flex items-center justify-center text-sm text-tech-muted">
-          <xia-icon icon="blog-category" />
-          {{ ArticleInfo.category.label }}
-          <xia-icon class="ml-3" icon="blog-tag" />
-          {{ tagLabel }}
-        </p>
-        <p class="detail mt-2 flex items-center justify-center text-sm text-tech-muted">
-          <xia-icon icon="blog-time" />更新于{{ formactDate(ArticleInfo.uTime) }}
-        </p>
-        <p class="detail mt-2 text-sm text-tech-muted">
-          <span class="mr-2 inline-flex items-center cursor-pointer">
-            <xia-icon icon="blog-view" />
-            {{ ArticleInfo['views'] }}
-          </span>
-          <span
-            class="mr-2 inline-flex items-center cursor-pointer"
-            @click.stop="updateLikesHandle(ArticleInfo)"
-          >
-            <xia-icon :icon="ArticleInfo['checked'] ? 'blog-like-solid' : 'blog-like'" />
-            {{ ArticleInfo['likes'] }}
-          </span>
-        </p>
-      </div>
-    </section>
+    <RpgArticleDetailHero
+      :article="ArticleInfo"
+      :tag-label="tagLabel"
+      @like="updateLikesHandle(ArticleInfo)"
+    />
     <div ref="mainViewArea" class="main-view-area mx-auto w-full max-w-5xl px-4 py-8 xl:w-4/5">
       <section class="main-content max-w-full rounded-2xl p-3 cyber-glass-card">
         <section class="module-wrap__detail article-info">
@@ -275,14 +242,6 @@ watch(
             :theme="mdEditorTheme"
             @on-get-catalog="onGetCatalogHandle"
           />
-          <div
-            v-if="ArticleInfo.articleLevel || ArticleInfo.isMasterpiece"
-            class="flex gap-2 mt-3 text-sm"
-          >
-            <span v-if="ArticleInfo.isMasterpiece" class="badge badge-error">神作</span>
-            <span v-if="ArticleInfo.articleLevel" class="badge badge-outline">文章 Lv{{ ArticleInfo.articleLevel }}</span>
-            <span v-if="ArticleInfo.tipTotal" class="badge badge-ghost">💎 {{ ArticleInfo.tipTotal }} 打赏</span>
-          </div>
         </section>
         <XiaComment
           class="module-wrap__detail comment-module"

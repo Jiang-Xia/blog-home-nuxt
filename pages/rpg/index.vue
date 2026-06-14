@@ -3,7 +3,7 @@
    * RPG 冒险模块 - 冒险状态、等级奖励、抽奖与排行榜
    * 所有接口请求在本页统一发起，子组件仅负责渲染
    */
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { messageError, messageSuccess } from '~~/utils/toast';
 import { useRpgPage } from '~~/composables/use-rpg-page';
 
@@ -11,6 +11,10 @@ const route = useRoute();
 const router = useRouter();
 const profileCardRef = ref<{ setSignInResult: (result: any) => void } | null>(null);
 const lotteryBoxRef = ref<{ showDrawResults: (results: any[]) => void } | null>(null);
+const onboardingRef = ref<{ open: () => void } | null>(null);
+
+const token = useToken();
+const isLoggedIn = computed(() => !!token.value);
 
 const activeTab = ref<'status' | 'inventory' | 'pet' | 'guild' | 'leaderboard'>('status');
 
@@ -297,9 +301,40 @@ const onLeaveGuild = async () => {
     back-label="返回个人中心"
   >
     <div class="rpg-theme">
+      <RpgOnboarding ref="onboardingRef" />
+
+      <div v-if="!isLoggedIn" class="mb-6 space-y-4">
+        <RpgPreviewDemo />
+        <div
+          class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--rpg-border)] bg-[var(--rpg-bg-alt)] px-4 py-3"
+        >
+          <p class="text-sm text-[var(--rpg-text-body)]">
+            登录后即可保存冒险进度、签到升级、领取任务奖励
+          </p>
+          <div class="flex gap-2">
+            <CyberButton variant="primary" to="/login" class="!px-4 !py-2 text-sm">
+              登录开启冒险
+            </CyberButton>
+            <CyberButton variant="secondary" to="/register" class="!px-4 !py-2 text-sm">
+              注册
+            </CyberButton>
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="mb-3 flex justify-end">
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs text-[var(--rpg-text-muted)]"
+          @click="onboardingRef?.open()"
+        >
+          📖 新手引导
+        </button>
+      </div>
+
       <RpgSeasonBanner :activity="activity" :weather-buff="weatherBuff" />
 
-      <div role="tablist" class="tabs tabs-border mb-4 flex-wrap">
+      <div v-if="isLoggedIn" role="tablist" class="tabs tabs-border mb-4 flex-wrap">
         <a
           role="tab"
           class="tab"
@@ -333,122 +368,131 @@ const onLeaveGuild = async () => {
       </div>
 
       <client-only>
-        <div v-if="activeTab === 'status'">
-          <div class="cyber-glass-card p-5">
-            <div class="card-body p-4 sm:p-5">
-              <RpgProfileCard
-                v-if="!statusLoading && rpgStatus"
-                ref="profileCardRef"
-                :rpg-status="rpgStatus"
-                :sign-info="signInfo"
-                :ban-status="banStatus"
-                :achievements="achievements"
-                :quest-groups="questGroups"
-                :buffs="buffs"
-                :hit-records="hitRecords"
-                :hit-records-total="hitRecordsTotal"
-                :signing-in="signingIn"
-                @sign-in="onSignIn"
-                @equip="onEquipLoadout"
-                @unequip="onUnequipLoadout"
-                @claim-quest="onClaimQuest"
-                @load-hit-records="loadHitRecords"
-                @refresh="handleSocketRefresh"
-                @toggle-buff="onToggleBuff"
-              />
-              <div v-else class="text-center text-tech-muted py-8">
-                加载中...
+        <div
+          v-if="!isLoggedIn"
+          class="cyber-glass-card p-8 text-center text-[var(--rpg-text-muted)]"
+        >
+          请先登录以查看冒险数据
+        </div>
+
+        <template v-else>
+          <div v-if="activeTab === 'status'">
+            <div class="cyber-glass-card p-5">
+              <div class="card-body p-4 sm:p-5">
+                <RpgProfileCard
+                  v-if="!statusLoading && rpgStatus"
+                  ref="profileCardRef"
+                  :rpg-status="rpgStatus"
+                  :sign-info="signInfo"
+                  :ban-status="banStatus"
+                  :achievements="achievements"
+                  :quest-groups="questGroups"
+                  :buffs="buffs"
+                  :hit-records="hitRecords"
+                  :hit-records-total="hitRecordsTotal"
+                  :signing-in="signingIn"
+                  @sign-in="onSignIn"
+                  @equip="onEquipLoadout"
+                  @unequip="onUnequipLoadout"
+                  @claim-quest="onClaimQuest"
+                  @load-hit-records="loadHitRecords"
+                  @refresh="handleSocketRefresh"
+                  @toggle-buff="onToggleBuff"
+                />
+                <div v-else class="text-center text-tech-muted py-8">
+                  加载中...
+                </div>
+              </div>
+            </div>
+            <div class="cyber-glass-card mt-5 p-5">
+              <div class="card-body p-5">
+                <RpgLevelRewardsPanel
+                  :rpg-status="rpgStatus"
+                  :level-rewards="levelRewards"
+                  :loading="statusLoading"
+                />
+              </div>
+            </div>
+            <div class="cyber-glass-card mt-5 p-5">
+              <div class="card-body p-5">
+                <RpgLotteryBox
+                  ref="lotteryBoxRef"
+                  :lottery-pool="lotteryPool"
+                  :lottery-tickets="lotteryTickets"
+                  :rpg-status="rpgStatus"
+                  :lottery-history="lotteryHistory"
+                  :drawing="drawing"
+                  @draw="onDraw"
+                  @load-history="loadLotteryHistory"
+                />
               </div>
             </div>
           </div>
-          <div class="cyber-glass-card mt-5 p-5">
-            <div class="card-body p-5">
-              <RpgLevelRewardsPanel
-                :rpg-status="rpgStatus"
-                :level-rewards="levelRewards"
-                :loading="statusLoading"
-              />
-            </div>
-          </div>
-          <div class="cyber-glass-card mt-5 p-5">
-            <div class="card-body p-5">
-              <RpgLotteryBox
-                ref="lotteryBoxRef"
-                :lottery-pool="lotteryPool"
-                :lottery-tickets="lotteryTickets"
-                :rpg-status="rpgStatus"
-                :lottery-history="lotteryHistory"
-                :drawing="drawing"
-                @draw="onDraw"
-                @load-history="loadLotteryHistory"
-              />
-            </div>
-          </div>
-        </div>
 
-        <div v-if="activeTab === 'inventory'">
-          <div class="cyber-glass-card p-5">
-            <div class="card-body p-5">
-              <RpgInventoryPanel
-                :items="inventoryItems"
-                :loadout="loadout"
-                :loading="inventoryLoading"
-                @equip="onInventoryEquip"
-                @unequip="onInventoryUnequip"
-              />
+          <div v-if="activeTab === 'inventory'">
+            <div class="cyber-glass-card p-5">
+              <div class="card-body p-5">
+                <RpgInventoryPanel
+                  :items="inventoryItems"
+                  :loadout="loadout"
+                  :loading="inventoryLoading"
+                  @equip="onInventoryEquip"
+                  @unequip="onInventoryUnequip"
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div v-if="activeTab === 'pet'">
-          <div class="cyber-glass-card p-5">
-            <div class="card-body p-5">
-              <RpgPetPanel
-                :pets="pets"
-                :eggs="petEggs"
-                :catalog="petCatalog"
-                :equipped-pet-id="equippedPetId"
-                :loading="petLoading"
-                @hatch="onHatchPet"
-                @buy="onBuyPet"
-                @deploy="onDeployPet"
-                @rest="onRestPet"
-                @rename="onRenamePet"
-              />
+          <div v-if="activeTab === 'pet'">
+            <div class="cyber-glass-card p-5">
+              <div class="card-body p-5">
+                <RpgPetPanel
+                  :pets="pets"
+                  :eggs="petEggs"
+                  :catalog="petCatalog"
+                  :equipped-pet-id="equippedPetId"
+                  :loading="petLoading"
+                  @hatch="onHatchPet"
+                  @buy="onBuyPet"
+                  @deploy="onDeployPet"
+                  @rest="onRestPet"
+                  @rename="onRenamePet"
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div v-if="activeTab === 'guild'">
-          <div class="cyber-glass-card p-5">
-            <div class="card-body p-5">
-              <RpgGuildPanel
-                :my-guild="myGuild"
-                :guild-list="guildList"
-                :loading="guildLoading"
-                @create="onCreateGuild"
-                @join="onJoinGuild"
-                @leave="onLeaveGuild"
-              />
+          <div v-if="activeTab === 'guild'">
+            <div class="cyber-glass-card p-5">
+              <div class="card-body p-5">
+                <RpgGuildPanel
+                  :my-guild="myGuild"
+                  :guild-list="guildList"
+                  :loading="guildLoading"
+                  @create="onCreateGuild"
+                  @join="onJoinGuild"
+                  @leave="onLeaveGuild"
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div v-if="activeTab === 'leaderboard'">
-          <div class="cyber-glass-card p-5">
-            <div class="card-body p-5">
-              <h3 class="card-title text-base mb-3">
-                冒险排行榜
-              </h3>
-              <RpgLeaderboardPanel
-                v-model:active-type="leaderboardType"
-                v-model:active-period="leaderboardPeriod"
-                :leaderboard="leaderboard"
-                :loading="leaderboardLoading"
-              />
+          <div v-if="activeTab === 'leaderboard'">
+            <div class="cyber-glass-card p-5">
+              <div class="card-body p-5">
+                <h3 class="card-title text-base mb-3">
+                  冒险排行榜
+                </h3>
+                <RpgLeaderboardPanel
+                  v-model:active-type="leaderboardType"
+                  v-model:active-period="leaderboardPeriod"
+                  :leaderboard="leaderboard"
+                  :loading="leaderboardLoading"
+                />
+              </div>
             </div>
           </div>
-        </div>
+        </template>
       </client-only>
     </div>
   </CyberPageContainer>

@@ -98,6 +98,9 @@ useHead({
 });
 // 博客运行时间
 const runTime = Math.ceil((dayjs().unix() - dayjs('2022-03-01').unix()) / (24 * 60 * 60));
+
+const route = useRoute();
+const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
 </script>
 
 <template>
@@ -131,10 +134,11 @@ const runTime = Math.ceil((dayjs().unix() - dayjs('2022-03-01').unix()) / (24 * 
         Powered By Typescript & Vue3 & Nuxt3 & Tailwindcss & DaisyUI & Node.js & NestJS
       </p>
     </footer>
-    <!-- 回到顶部 -->
-    <xia-backtop class="shake-slow right-4">
+    <!-- 回到顶部（文章详情页由冒险 FAB 提供） -->
+    <xia-backtop v-if="showGlobalBacktop" class="shake-slow right-4">
       <xia-icon icon="blog-rocket4" width="34px" height="34px" />
     </xia-backtop>
+    <RpgGlobalInit />
   </div>
 </template>
 

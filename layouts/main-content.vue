@@ -20,10 +20,10 @@ defineProps({
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-8 md:py-12">
+  <div class="mx-auto max-w-6xl px-4 py-4 md:py-6">
     <CyberSectionHeader
       v-if="title"
-      class="mb-8"
+      class="mb-5"
       :label="label"
       :title="title"
       :subtitle="subtitle"

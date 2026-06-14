@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="mx-auto max-w-6xl px-4 py-8 md:py-12">
+    <div class="mx-auto max-w-6xl px-4 py-4 md:py-6">
       <CyberSectionHeader
-        class="mb-8"
+        class="mb-5"
         label="TOOLS"
         title="工具箱"
         subtitle="实用开发与日常工具集合"

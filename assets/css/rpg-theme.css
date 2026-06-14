@@ -22,6 +22,7 @@ html.tech-shell {
   --rpg-empty-bg: color-mix(in oklch, var(--color-base-200) 50%, var(--color-base-100));
   --rpg-empty-border: color-mix(in oklch, var(--color-base-content) 12%, var(--color-base-100));
   --rpg-overlay: color-mix(in oklch, var(--color-base-content) 55%, transparent);
+  --rpg-modal-surface: var(--color-base-100);
 
   /* 语义色 — 两主题共用，保证状态识别一致 */
   --rpg-amber: #f59e0b;
@@ -93,7 +94,8 @@ html.tech-shell[data-theme='cyber'] {
   --rpg-stat-hover: rgb(255 255 255 / 0.08);
   --rpg-empty-bg: rgb(255 255 255 / 0.03);
   --rpg-empty-border: rgb(255 255 255 / 0.1);
-  --rpg-overlay: rgba(0, 0, 0, 0.65);
+  --rpg-overlay: rgba(0, 0, 0, 0.78);
+  --rpg-modal-surface: #1e293b;
 
   --rpg-amber-text: #fde68a;
   --rpg-amber-text-soft: #fcd34d;
@@ -146,6 +148,7 @@ html.tech-shell[data-theme='cyber-light'] {
   --rpg-empty-bg: #f8fafc;
   --rpg-empty-border: #e2e8f0;
   --rpg-overlay: rgba(0, 0, 0, 0.55);
+  --rpg-modal-surface: #ffffff;
 
   --rpg-life-track: rgba(0, 0, 0, 0.1);
   --rpg-life-track-bg: rgba(0, 0, 0, 0.04);
@@ -202,5 +205,56 @@ html.tech-shell[data-theme='cyber-light'] {
 
   .rpg-theme .card-title {
     color: var(--rpg-text);
+  }
+
+  /* 主导航 RPG 入口高亮 */
+  .rpg-nav-link {
+    color: var(--rpg-amber-light) !important;
+    font-weight: 600;
+    position: relative;
+  }
+
+  .rpg-nav-link::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0.5rem;
+    bottom: 0.15rem;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--rpg-exp-gradient);
+    opacity: 0.55;
+  }
+
+  .rpg-nav-link.cyber-nav-link-active {
+    background: var(--rpg-amber-bg-faint);
+    border-radius: 0.75rem;
+  }
+
+  @keyframes rpg-pulse-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgb(245 158 11 / 0.35);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgb(245 158 11 / 0);
+    }
+  }
+
+  .rpg-hud-pulse {
+    animation: rpg-pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes rpg-fab-bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  .rpg-fab-bounce {
+    animation: rpg-fab-bounce 2.5s ease-in-out infinite;
   }
 }

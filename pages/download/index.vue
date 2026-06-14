@@ -29,30 +29,23 @@ const entries = [
     color: 'from-orange-500 to-red-500',
   },
   {
-    icon: '🎮',
+    icon: '⚔️',
     title: 'RPG 冒险',
-    desc: '文字冒险 · 排行榜',
+    desc: '签到升级 · 任务 · 抽奖 · 排行榜',
     to: '/rpg',
-    color: 'from-green-500 to-teal-500',
+    color: 'from-amber-500 to-orange-500',
   },
 ];
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-12 md:py-20">
-    <CyberSectionHeader
-      class="mb-12"
-      label="EXPLORE"
-      title="快速入口"
-      subtitle="选择你感兴趣的方向，一键直达"
-    />
-
+  <CyberPageContainer label="EXPLORE" title="快速入口" subtitle="选择你感兴趣的方向，一键直达">
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <NuxtLink v-for="item in entries" :key="item.to" :to="item.to" class="group no-underline">
-        <CyberCard hover class="flex flex-col items-center text-center !p-8">
+        <CyberCard hover class="flex flex-col items-center text-center !p-6">
           <div
             :class="[
-              'mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-2xl shadow-lg',
+              'mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-xl shadow-lg',
               item.color,
             ]"
           >
@@ -63,7 +56,7 @@ const entries = [
           >
             {{ item.title }}
           </h3>
-          <p class="mb-6 text-sm text-tech-subtle">
+          <p class="mb-4 text-sm text-tech-subtle">
             {{ item.desc }}
           </p>
           <span
@@ -86,7 +79,7 @@ const entries = [
       </NuxtLink>
     </div>
 
-    <div class="mt-8 space-y-4">
+    <div class="mt-6 space-y-3">
       <CyberAlert variant="warning">
         <p>
           <strong>新用户提示：</strong>
@@ -95,10 +88,10 @@ const entries = [
       </CyberAlert>
       <CyberAlert variant="info">
         <p>
-          <strong>工具箱推荐：</strong>
-          试试 AI 文章摘要、RSA/SM 加密、水印处理等实用工具，全部免费开放使用。
+          <strong>冒险玩法：</strong>
+          登录后进入「冒险」页签到、做任务、抽奖开宝箱，阅读评论也能推进任务进度，解锁称号与头像框。
         </p>
       </CyberAlert>
     </div>
-  </div>
+  </CyberPageContainer>
 </template>

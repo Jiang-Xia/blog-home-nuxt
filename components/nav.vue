@@ -159,9 +159,14 @@ function isNavActive(path: string) {
           >
             <NuxtLink
               class="!px-2 !py-1 text-tech-muted hover:text-tech"
-              :class="{ 'text-tech': isNavActive(item.path) }"
+              :class="[
+                { 'text-tech': isNavActive(item.path) },
+                item.highlight && 'font-semibold text-[var(--rpg-amber-light)]',
+              ]"
               :to="item.path"
-            >{{ item.title }}</NuxtLink>
+            >
+              <span v-if="item.icon">{{ item.icon }} </span>{{ item.title }}
+            </NuxtLink>
           </li>
         </ul>
       </div>
@@ -195,6 +200,7 @@ function isNavActive(path: string) {
       <XiaTheme />
 
       <ClientOnly>
+        <RpgNavHud v-if="token" class="mr-1" />
         <CyberButton v-if="!token" variant="primary" to="/login" class="!px-4 !py-2 text-sm">
           登录
         </CyberButton>
@@ -215,7 +221,12 @@ function isNavActive(path: string) {
               <NuxtLink to="/user/profile" class="text-tech-muted hover:text-tech">个人中心</NuxtLink>
             </li>
             <li>
-              <NuxtLink to="/rpg" class="text-tech-muted hover:text-tech">RPG 冒险</NuxtLink>
+              <NuxtLink
+                to="/rpg"
+                class="font-semibold text-[var(--rpg-amber-light)] hover:text-[var(--rpg-amber-light)]"
+              >
+                ⚔️ RPG 冒险
+              </NuxtLink>
             </li>
             <li @click="clear">
               <a class="text-tech-muted hover:text-tech">退出</a>

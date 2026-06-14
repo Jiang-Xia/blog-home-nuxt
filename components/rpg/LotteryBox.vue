@@ -143,33 +143,39 @@ const toggleHistory = () => {
       </div>
     </div>
 
-    <div v-if="showResult && currentResult" class="result-overlay" @click="nextResult">
-      <div class="result-card" :style="{ boxShadow: getRarityGlow(currentResult.item.rarity) }">
+    <Teleport to="body">
+      <div v-if="showResult && currentResult" class="result-overlay" @click="nextResult">
         <div
-          class="rarity-badge"
-          :style="{ backgroundColor: RARITY_MAP[currentResult.item.rarity]?.color || '#ccc' }"
+          class="result-card"
+          :style="{ '--rarity-glow': getRarityGlow(currentResult.item.rarity) }"
+          @click.stop
         >
-          {{ RARITY_MAP[currentResult.item.rarity]?.icon }}
-          {{ RARITY_MAP[currentResult.item.rarity]?.label }}
-        </div>
-        <div class="result-name">
-          {{ currentResult.item.name }}
-        </div>
-        <div class="result-desc">
-          {{ currentResult.item.description }}
-        </div>
-        <div v-if="currentResult.rewardDetail" class="result-reward">
-          {{ formatRewardDetail(currentResult.rewardDetail) }}
-        </div>
-        <div class="result-hint">
-          {{
-            drawResults.length > 1 && currentResultIndex < drawResults.length - 1
-              ? '点击查看下一个 →'
-              : '点击关闭'
-          }}
+          <div
+            class="rarity-badge"
+            :style="{ backgroundColor: RARITY_MAP[currentResult.item.rarity]?.color || '#ccc' }"
+          >
+            {{ RARITY_MAP[currentResult.item.rarity]?.icon }}
+            {{ RARITY_MAP[currentResult.item.rarity]?.label }}
+          </div>
+          <div class="result-name">
+            {{ currentResult.item.name }}
+          </div>
+          <div class="result-desc">
+            {{ currentResult.item.description }}
+          </div>
+          <div v-if="currentResult.rewardDetail" class="result-reward">
+            {{ formatRewardDetail(currentResult.rewardDetail) }}
+          </div>
+          <div class="result-hint">
+            {{
+              drawResults.length > 1 && currentResultIndex < drawResults.length - 1
+                ? '点击查看下一个 →'
+                : '点击关闭'
+            }}
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
 
     <div class="pool-preview">
       <div class="pool-title">
@@ -328,15 +334,14 @@ const toggleHistory = () => {
 
   .result-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: var(--rpg-overlay);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 10050;
     animation: fadeIn 0.2s ease;
   }
 
@@ -350,11 +355,17 @@ const toggleHistory = () => {
   }
 
   .result-card {
-    background: var(--rpg-surface);
+    background: var(--rpg-modal-surface, var(--rpg-surface));
+    border: 1.5px solid var(--rpg-border);
     border-radius: 16px;
     padding: 28px 32px;
     text-align: center;
-    max-width: 280px;
+    min-width: 280px;
+    max-width: 320px;
+    box-shadow:
+      var(--rarity-glow, 0 0 24px rgb(148 163 184 / 0.25)),
+      0 0 0 1px rgb(255 255 255 / 0.06),
+      0 24px 64px rgb(0 0 0 / 0.55);
     animation: popIn 0.3s ease;
   }
 

@@ -55,22 +55,19 @@ const steps = [
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-12 md:py-20">
-    <CyberSectionHeader
-      class="mb-12"
-      label="FEATURES"
-      title="为技术分享而生"
-      subtitle="把繁琐的操作交给工具，你只管专注阅读与创作"
-    />
-
-    <div class="mb-20 grid grid-cols-1 gap-4 md:grid-cols-12">
+  <CyberPageContainer
+    label="FEATURES"
+    title="为技术分享而生"
+    subtitle="把繁琐的操作交给工具，你只管专注阅读与创作"
+  >
+    <div class="mb-12 grid grid-cols-1 gap-4 md:grid-cols-12">
       <NuxtLink
         v-for="item in features"
         :key="item.title"
         :to="item.to"
         :class="['group no-underline', item.span]"
       >
-        <CyberCard hover :class="['flex flex-col', item.large ? '!p-8 md:!p-10' : '!p-6']">
+        <CyberCard hover :class="['flex flex-col', item.large ? '!p-6 md:!p-8' : '!p-5']">
           <div
             :class="[
               'mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-lg',
@@ -113,7 +110,7 @@ const steps = [
     </div>
 
     <CyberSectionHeader
-      class="mb-10"
+      class="mb-6"
       label="GET STARTED"
       title="三步开始使用"
       subtitle="注册登录后即可畅享，遇到问题可在留言板反馈"
@@ -134,5 +131,5 @@ const steps = [
         </p>
       </CyberCard>
     </div>
-  </div>
+  </CyberPageContainer>
 </template>

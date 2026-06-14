@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { getArticleList, getComment } from '@/api/article';
 import { beforeTimeNow } from '@/utils';
 import { getWeather } from '@/api/index';
@@ -13,6 +13,7 @@ import {
 } from '@/utils/common';
 import { colorRgb } from '~~/utils/color';
 import { isDarkTheme, useTheme } from '@/composables/use-home';
+import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels';
 
 interface queryState {
   page: number;
@@ -197,6 +198,15 @@ const { data: commentsData } = await useAsyncData('articleList_GetComment', () =
   getComment('', { pageSize: 16 }),
 );
 commentsList.value = commentsData.value.list;
+
+const { getAuthorLevel, fetchLevelsForUids } = useAuthorRpgLevels();
+
+const syncAuthorLevels = (list: any[]) => {
+  fetchLevelsForUids(list.map((item: any) => item.uid).filter(Boolean));
+};
+
+syncAuthorLevels(articleList.value);
+watch(articleList, syncAuthorLevels);
 </script>
 
 <template>
@@ -300,25 +310,34 @@ commentsList.value = commentsData.value.list;
           <div
             v-for="item in articleList"
             :key="item.id"
-            class="article-item cyber-glass-card cyber-glass-card--hover mb-5 transition-all"
+            class="article-item cyber-glass-card cyber-glass-card--hover mb-5 overflow-hidden transition-all"
           >
-            <figure>
+            <figure
+              class="article-item-cover m-0"
+              :class="{ 'article-item-cover--light': !isDark }"
+            >
               <XiaCardBorderLight v-if="isDark" :pic="item.cover" style="--border-size: 8px" />
               <xia-image
                 v-else
                 :src="item.cover"
                 lazyload
-                class="h-52 w-full bg-base-300"
+                class="article-item-cover-img h-52 w-full bg-base-300 [&_img]:object-cover"
                 :alt="item.category.label"
               />
               <!-- <XiaCardBorderLight :pic="item.cover" /> -->
             </figure>
             <div class="card-body text-base-content/70">
-              <h2 class="card-title text-base-content">
+              <h2 class="card-title text-base-content flex-wrap gap-1">
                 {{ item.title }}
                 <div v-if="item.topping" class="badge badge-soft badge-secondary">
                   TOP
                 </div>
+                <RpgLevelBadge
+                  v-if="item.articleLevel && item.articleLevel > 1"
+                  :level="item.articleLevel"
+                  variant="article"
+                />
+                <RpgLevelBadge v-if="item.isMasterpiece" :level="0" variant="masterpiece" />
               </h2>
               <p class="text-sm text-overflow-hidden-3">
                 {{ item.description }}
@@ -361,11 +380,11 @@ commentsList.value = commentsData.value.list;
                   </span>
                 </div>
                 <div class="flex justify-between w-full items-center">
-                  <div class="flex items-center">
+                  <div class="flex items-center gap-2">
                     <NuxtLink
                       v-if="item.uid"
                       :to="`/user/${item.uid}`"
-                      class="author-link group inline-flex items-center rounded-full transition-all hover:opacity-90"
+                      class="author-link group inline-flex items-center gap-1.5 rounded-full transition-all hover:opacity-90"
                       title="查看作者主页"
                       @click.stop
                     >
@@ -376,17 +395,29 @@ commentsList.value = commentsData.value.list;
                           <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
                         </div>
                       </div>
-                      <span class="pr-3 pt-2 link link-hover">{{ item.userInfo.nickname }}</span>
+                      <span class="link link-hover">{{ item.userInfo.nickname }}</span>
+                      <RpgLevelBadge
+                        v-if="getAuthorLevel(item.uid)"
+                        :level="getAuthorLevel(item.uid)!"
+                        variant="author"
+                      />
                     </NuxtLink>
                     <template v-else>
-                      <div class="avatar btn btn-ghost btn-circle btn-xs">
-                        <div class="rounded-full">
-                          <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
+                      <div class="inline-flex items-center gap-1.5">
+                        <div class="avatar btn btn-ghost btn-circle btn-xs">
+                          <div class="rounded-full">
+                            <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
+                          </div>
                         </div>
+                        <span>{{ item.userInfo.nickname }}</span>
+                        <RpgLevelBadge
+                          v-if="getAuthorLevel(item.uid)"
+                          :level="getAuthorLevel(item.uid)!"
+                          variant="author"
+                        />
                       </div>
-                      <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
                     </template>
-                    <span class="pt-2">{{ formactDate(item.createTime) }}</span>
+                    <span>{{ formactDate(item.createTime) }}</span>
                   </div>
                   <span @click="$router.push(`detail/${item.id}`)">
                     <button class="btn btn-neutral btn-xs xia-btn">Read</button>
@@ -649,9 +680,28 @@ commentsList.value = commentsData.value.list;
       .article-item {
         max-height: 408px;
         width: 100%;
+
+        .article-item-cover {
+          padding: 12px 12px 0;
+        }
+
+        .article-item-cover--light {
+          padding: 12px;
+        }
+
+        .article-item-cover-img {
+          display: block;
+          border-radius: 8px;
+          overflow: hidden;
+
+          :deep(img) {
+            display: block;
+            object-fit: cover;
+          }
+        }
       }
 
-      @media (min-width: 768px) {
+      @media (min-width: 1080px) {
         .article-item {
           width: calc(50% - 0.625rem);
         }
