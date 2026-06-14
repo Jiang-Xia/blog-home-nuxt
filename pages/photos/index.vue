@@ -214,7 +214,7 @@ const exportAll = () => {
       >
         <div class="avatar relative">
           <div
-            class="absolute rounded-tr right-0 top-0 bg-gray-500 opacity-60 text-gray-200 p-1 flex items-center justify-center text-xs leading-none"
+            class="absolute rounded-tr right-0 top-0 bg-base-content/60 text-base-100 p-1 flex items-center justify-center text-xs leading-none"
             @click.stop="deleteImage(item)"
           >
             X

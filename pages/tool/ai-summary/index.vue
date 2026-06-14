@@ -6,7 +6,7 @@
           <xia-icon icon="blog-ai" />
           AI 文章摘要生成器
         </h2>
-        <p class="text-sm text-gray-600">
+        <p class="text-sm text-tech-muted">
           将长文章转换为简洁摘要，支持多种摘要风格
         </p>
 
@@ -61,7 +61,7 @@
             :disabled="loading"
           />
           <div class="card-actions justify-between">
-            <div class="text-xs text-gray-500">
+            <div class="text-xs text-tech-subtle">
               字数: {{ originalText.length }} / 推荐: 500-3000字
             </div>
             <button
@@ -84,7 +84,7 @@
           </h3>
           <div
             v-if="!summary && !loading"
-            class="flex items-center justify-center h-80 text-gray-400"
+            class="flex items-center justify-center h-80 text-tech-faint"
           >
             <div class="text-center">
               <xia-icon icon="blog-ai" width="48px" height="48px" class="opacity-50" />
@@ -100,14 +100,14 @@
           >
             <div class="text-center">
               <span class="loading loading-dots loading-lg" />
-              <p class="mt-2 text-gray-600">
+              <p class="mt-2 text-tech-muted">
                 AI 正在分析文章内容...
               </p>
             </div>
           </div>
 
           <div v-else class="space-y-4">
-            <div class="bg-gray-50 rounded-lg p-4 min-h-[200px]">
+            <div class="bg-base-200 rounded-lg p-4 min-h-[200px]">
               <p class="text-sm leading-relaxed">
                 {{ summary }}
               </p>
@@ -142,10 +142,10 @@
           <div
             v-for="(item, index) in summaryHistory"
             :key="index"
-            class="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
+            class="border border-tech rounded-lg p-3 hover:bg-base-200 cursor-pointer"
             @click="loadFromHistory(item)"
           >
-            <div class="text-xs text-gray-500 mb-1">
+            <div class="text-xs text-tech-subtle mb-1">
               {{ formatDate(item.timestamp) }} - {{ item.style }} - {{ item.length }}
             </div>
             <p class="text-sm line-clamp-2">

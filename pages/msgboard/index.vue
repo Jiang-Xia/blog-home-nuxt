@@ -144,13 +144,18 @@ useHead({
 </script>
 
 <template>
-  <NuxtLayout name="main-content">
+  <NuxtLayout
+    name="main-content"
+    label="MSG BOARD"
+    title="留言板"
+    subtitle="欢迎留言交流，分享你的想法"
+  >
     <h1 class="hidden">
       网站留言板 - {{ SiteTitle }}
     </h1>
     <div class="msgboard-container">
       <fieldset
-        class="fieldset max-w-3xl mx-auto bg-base-100 border-base-300 rounded-box border p-4"
+        class="fieldset max-w-3xl mx-auto rounded-2xl border border-tech cyber-glass-card p-4"
       >
         <div v-show="showToast" role="alert" class="alert alert-warning relative">
           <svg
@@ -226,7 +231,7 @@ useHead({
         <section v-for="item in msgboardList" :key="item.id" class="bg-base-100 mb-3 rounded-box">
           <div class="card mb-3">
             <div class="card-body">
-              <h2 class="card-title text-sm font-normal text-gray-400 flex">
+              <h2 class="card-title text-sm font-normal text-tech-subtle flex">
                 <div class="avatar h-7 w-7">
                   <div class="w-7 rounded-full bg-base-300" title="点击跳转他的主页！">
                     <a :href="item.address" target="_blank">
@@ -247,7 +252,7 @@ useHead({
                 />
               </h2>
               <p>{{ item.comment }}</p>
-              <div class="card-actions justify-end text-xs text-gray-400">
+              <div class="card-actions justify-end text-xs text-tech-subtle">
                 <button class="mr-auto" @click.stop="clickReplyHandle(item)">
                   <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
                 </button>
@@ -267,7 +272,7 @@ useHead({
               <!-- 头像 -->
               <div class="w-10 mr-2">
                 <div
-                  class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100"
+                  class="rounded-full h-8 w-8 bg-base-300 inline-flex items-center justify-center text-base-content"
                 >
                   <xia-image
                     v-if="replyItem.avatar"
@@ -280,16 +285,16 @@ useHead({
                 </div>
               </div>
               <div class="flex-1">
-                <span class="text-xs text-gray-400">
+                <span class="text-xs text-tech-subtle">
                   {{ replyItem.name + ' @ ' + replyItem.respondent }}
                 </span>
-                <span class="text-xs pl-2 text-gray-400">{{
+                <span class="text-xs pl-2 text-tech-subtle">{{
                   beforeTimeNow(replyItem.createAt)
                 }}</span>
                 <xia-icon
                   v-if="showDelBtn"
                   width="14px"
-                  class="text-gray-400 ml-auto cursor-pointer"
+                  class="text-tech-subtle ml-auto cursor-pointer"
                   icon="blog-shanchu"
                   @click="delComment(1, replyItem)"
                 />
@@ -297,7 +302,7 @@ useHead({
                   {{ replyItem.comment }}
                 </div>
 
-                <div class="py-1 text-xs text-gray-400 flex justify-end gap-2">
+                <div class="py-1 text-xs text-tech-subtle flex justify-end gap-2">
                   <button class="action mr-auto" @click.stop="clickReplyHandle(replyItem)">
                     <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
                   </button>

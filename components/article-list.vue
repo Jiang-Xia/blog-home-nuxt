@@ -12,6 +12,7 @@ import {
   xBLogStore,
 } from '@/utils/common';
 import { colorRgb } from '~~/utils/color';
+import { isDarkTheme, useTheme } from '@/composables/use-home';
 
 interface queryState {
   page: number;
@@ -188,6 +189,7 @@ onMounted(
   },
 );
 const theme = useTheme();
+const isDark = computed(() => isDarkTheme(theme.value));
 
 // 最新评论
 const commentsList = ref<any>([]);
@@ -277,7 +279,7 @@ commentsList.value = commentsData.value.list;
                 size="small"
                 :style="{
                   backgroundColor: item.checked ? item.color : toRgb(item.color),
-                  color: item.checked ? '#fff' : item.color,
+                  color: item.checked ? 'var(--color-primary-content)' : item.color,
                 }"
                 @click="clickTagHandle(item, '标签')"
               >
@@ -298,19 +300,15 @@ commentsList.value = commentsData.value.list;
           <div
             v-for="item in articleList"
             :key="item.id"
-            class="article-item card bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-sm"
+            class="article-item cyber-glass-card cyber-glass-card--hover mb-5 transition-all"
           >
             <figure>
-              <XiaCardBorderLight
-                v-if="theme === 'dark'"
-                :pic="item.cover"
-                style="--border-size: 8px"
-              />
+              <XiaCardBorderLight v-if="isDark" :pic="item.cover" style="--border-size: 8px" />
               <xia-image
                 v-else
                 :src="item.cover"
                 lazyload
-                class="h-52 w-full bg-gray-900"
+                class="h-52 w-full bg-base-300"
                 :alt="item.category.label"
               />
               <!-- <XiaCardBorderLight :pic="item.cover" /> -->
@@ -545,14 +543,14 @@ commentsList.value = commentsData.value.list;
       overflow-y: auto;
     }
     .category-item {
-      --current-color: #e5e6e6;
+      --current-color: var(--tech-border);
       padding: 5px 10px;
       transition: all 0.5s;
       border-radius: 2px 2px;
       .category__inner {
         cursor: pointer;
         position: relative;
-        border-bottom: 1px solid #e5e6e6;
+        border-bottom: 1px solid var(--tech-border);
         &:after {
           // background: none repeat scroll 0 0 transparent;
           position: absolute;
@@ -585,7 +583,7 @@ commentsList.value = commentsData.value.list;
       line-height: 14px;
       font-size: 12px;
       height: 14px;
-      color: #fff;
+      color: var(--color-primary-content);
       padding: 0 9px;
     }
     .category__text {
@@ -679,7 +677,7 @@ commentsList.value = commentsData.value.list;
 
     .xia-btn {
       text-transform: uppercase;
-      background: linear-gradient(to right, #d926a9 50%, #3d4451 50%);
+      background: linear-gradient(to right, var(--color-secondary) 50%, var(--color-neutral) 50%);
       background-size: 200% 100%;
       background-position: right bottom;
       transition: all 2s ease;

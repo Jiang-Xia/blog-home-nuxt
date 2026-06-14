@@ -4,30 +4,630 @@
   themes: all;
 }
 
-/* 自定义类名 只能该css文件上自定义类名 */
+/* ── 深色科技 cyber ── */
+@plugin "daisyui/theme" {
+  name: 'cyber';
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+  --color-base-100: oklch(8% 0.02 260);
+  --color-base-200: oklch(12% 0.03 260);
+  --color-base-300: oklch(18% 0.04 260);
+  --color-base-content: oklch(95% 0 0);
+  --color-primary: oklch(75% 0.15 195);
+  --color-primary-content: oklch(15% 0.02 260);
+  --color-secondary: oklch(60% 0.2 280);
+  --color-secondary-content: oklch(95% 0 0);
+  --color-accent: oklch(70% 0.15 220);
+  --color-accent-content: oklch(15% 0.02 260);
+  --color-neutral: oklch(20% 0.03 260);
+  --color-neutral-content: oklch(90% 0 0);
+  --color-info: oklch(70% 0.12 220);
+  --color-info-content: oklch(15% 0.02 260);
+  --color-success: oklch(70% 0.15 160);
+  --color-success-content: oklch(15% 0.02 260);
+  --color-warning: oklch(80% 0.15 85);
+  --color-warning-content: oklch(20% 0.02 260);
+  --color-error: oklch(65% 0.2 25);
+  --color-error-content: oklch(95% 0 0);
+  --radius-box: 1rem;
+  --radius-field: 0.5rem;
+  --radius-selector: 0.5rem;
+}
+
+/* ── 浅色科技 cyber-light ── */
+@plugin "daisyui/theme" {
+  name: 'cyber-light';
+  default: false;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: oklch(97% 0.012 250);
+  --color-base-200: oklch(94% 0.015 250);
+  --color-base-300: oklch(90% 0.02 250);
+  --color-base-content: oklch(22% 0.04 260);
+  --color-primary: oklch(55% 0.16 220);
+  --color-primary-content: oklch(98% 0 0);
+  --color-secondary: oklch(50% 0.18 280);
+  --color-secondary-content: oklch(98% 0 0);
+  --color-accent: oklch(58% 0.14 200);
+  --color-accent-content: oklch(98% 0 0);
+  --color-neutral: oklch(88% 0.02 250);
+  --color-neutral-content: oklch(25% 0.04 260);
+  --color-info: oklch(58% 0.12 220);
+  --color-info-content: oklch(98% 0 0);
+  --color-success: oklch(55% 0.14 160);
+  --color-success-content: oklch(98% 0 0);
+  --color-warning: oklch(72% 0.14 85);
+  --color-warning-content: oklch(22% 0.04 260);
+  --color-error: oklch(55% 0.2 25);
+  --color-error-content: oklch(98% 0 0);
+  --radius-box: 1rem;
+  --radius-field: 0.5rem;
+  --radius-selector: 0.5rem;
+}
+
+/* 任意 DaisyUI 主题：壳层令牌跟随当前主题色，布局始终 cyber 风格
+   注意：muted 类颜色必须与 base-100 混合，不能用 transparent（浅色主题会几乎看不见） */
+html.tech-shell {
+  --tech-shell: var(--color-base-100);
+  --tech-shell-header: color-mix(in oklch, var(--color-base-100) 88%, var(--color-base-200));
+  --tech-fg: var(--color-base-content);
+  --tech-fg-muted: color-mix(in oklch, var(--color-base-content) 68%, var(--color-base-100));
+  --tech-fg-subtle: color-mix(in oklch, var(--color-base-content) 52%, var(--color-base-100));
+  --tech-fg-faint: color-mix(in oklch, var(--color-base-content) 38%, var(--color-base-100));
+  --tech-border: color-mix(in oklch, var(--color-base-content) 16%, var(--color-base-100));
+  --tech-glass: color-mix(in oklch, var(--color-base-300) 55%, var(--color-base-100));
+  --tech-grid-line: color-mix(in oklch, var(--color-base-content) 10%, var(--color-base-100));
+  --tech-glow-purple: color-mix(in oklch, var(--color-secondary) 22%, transparent);
+  --tech-glow-cyan: color-mix(in oklch, var(--color-primary) 18%, transparent);
+  --tech-glow-blue: color-mix(in oklch, var(--color-accent) 12%, transparent);
+  --tech-nav-fg: color-mix(in oklch, var(--color-base-content) 62%, var(--color-base-100));
+  --tech-nav-active-bg: color-mix(in oklch, var(--color-primary) 12%, var(--color-base-100));
+  --tech-input-bg: color-mix(in oklch, var(--color-base-100) 94%, var(--color-base-content));
+  --tech-input-border: color-mix(in oklch, var(--color-base-content) 24%, var(--color-base-100));
+  --tech-btn-secondary-border: color-mix(
+    in oklch,
+    var(--color-base-content) 22%,
+    var(--color-base-100)
+  );
+  --tech-btn-secondary-hover-bg: color-mix(
+    in oklch,
+    var(--color-base-200) 72%,
+    var(--color-base-100)
+  );
+  --tech-section-label: var(--color-primary);
+  --tech-gradient-from: var(--color-primary);
+  --tech-gradient-mid: var(--color-accent);
+  --tech-gradient-to: var(--color-secondary);
+  --tech-primary-glow: color-mix(in oklch, var(--color-primary) 35%, transparent);
+  --tech-primary-glow-hover: color-mix(in oklch, var(--color-primary) 50%, transparent);
+  --tech-dropdown-bg: color-mix(in oklch, var(--color-base-200) 94%, var(--color-base-100));
+}
+
+/* cyber 专用微调（优先级高于上方通用规则） */
+html.tech-shell[data-theme='cyber'] {
+  --tech-shell: #050505;
+  --tech-shell-header: rgb(5 5 5 / 0.72);
+  --tech-fg: #ffffff;
+  --tech-fg-muted: rgb(255 255 255 / 0.55);
+  --tech-fg-subtle: rgb(255 255 255 / 0.4);
+  --tech-fg-faint: rgb(255 255 255 / 0.3);
+  --tech-border: rgb(255 255 255 / 0.1);
+  --tech-glass: rgb(17 24 39 / 0.45);
+  --tech-grid-line: rgb(255 255 255 / 0.035);
+  --tech-glow-purple: rgb(147 51 234 / 0.22);
+  --tech-glow-cyan: rgb(34 211 238 / 0.16);
+  --tech-glow-blue: rgb(37 99 235 / 0.1);
+  --tech-nav-fg: rgb(255 255 255 / 0.6);
+  --tech-nav-active-bg: rgb(255 255 255 / 0.1);
+  --tech-input-bg: rgb(255 255 255 / 0.05);
+  --tech-input-border: rgb(255 255 255 / 0.1);
+  --tech-btn-secondary-border: rgb(255 255 255 / 0.2);
+  --tech-btn-secondary-hover-bg: rgb(255 255 255 / 0.05);
+  --tech-section-label: oklch(78% 0.14 195);
+  --tech-gradient-from: #67e8f9;
+  --tech-gradient-mid: #60a5fa;
+  --tech-gradient-to: #a78bfa;
+  --tech-primary-glow: rgba(34, 211, 238, 0.35);
+  --tech-primary-glow-hover: rgba(34, 211, 238, 0.5);
+  --tech-dropdown-bg: rgb(17 24 39 / 0.96);
+}
+
+html.tech-shell[data-theme='cyber-light'] {
+  --tech-shell: #f0f4f9;
+  --tech-shell-header: rgb(240 244 249 / 0.88);
+  --tech-fg: #0f172a;
+  --tech-fg-muted: rgb(15 23 42 / 0.62);
+  --tech-fg-subtle: rgb(15 23 42 / 0.48);
+  --tech-fg-faint: rgb(15 23 42 / 0.36);
+  --tech-border: rgb(15 23 42 / 0.12);
+  --tech-glass: rgb(255 255 255 / 0.82);
+  --tech-grid-line: rgb(15 23 42 / 0.08);
+  --tech-glow-purple: rgb(139 92 246 / 0.14);
+  --tech-glow-cyan: rgb(6 182 212 / 0.14);
+  --tech-glow-blue: rgb(59 130 246 / 0.1);
+  --tech-nav-fg: rgb(15 23 42 / 0.62);
+  --tech-nav-active-bg: rgb(6 182 212 / 0.12);
+  --tech-input-bg: #ffffff;
+  --tech-input-border: rgb(15 23 42 / 0.22);
+  --tech-btn-secondary-border: rgb(15 23 42 / 0.18);
+  --tech-btn-secondary-hover-bg: rgb(255 255 255 / 0.7);
+  --tech-section-label: oklch(52% 0.14 220);
+  --tech-gradient-from: #0891b2;
+  --tech-gradient-mid: #2563eb;
+  --tech-gradient-to: #7c3aed;
+  --tech-primary-glow: rgba(6, 182, 212, 0.25);
+  --tech-primary-glow-hover: rgba(6, 182, 212, 0.38);
+  --tech-dropdown-bg: rgb(255 255 255 / 0.98);
+}
 @layer components {
+  .bg-tech-shell {
+    background-color: var(--tech-shell);
+  }
+
+  .bg-tech-header {
+    background-color: var(--tech-shell-header);
+  }
+
+  .text-tech {
+    color: var(--tech-fg);
+  }
+
+  .text-tech-muted {
+    color: var(--tech-fg-muted);
+  }
+
+  .text-tech-subtle {
+    color: var(--tech-fg-subtle);
+  }
+
+  .text-tech-faint {
+    color: var(--tech-fg-faint);
+  }
+
+  .border-tech {
+    border-color: var(--tech-border);
+  }
+
+  .cyber-grid-bg {
+    background-color: var(--tech-shell);
+    background-image:
+      linear-gradient(var(--tech-grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--tech-grid-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .tech-glow-purple {
+    background-color: var(--tech-glow-purple);
+  }
+
+  .tech-glow-cyan {
+    background-color: var(--tech-glow-cyan);
+  }
+
+  .tech-glow-blue {
+    background-color: var(--tech-glow-blue);
+  }
+
+  .cyber-glass-card {
+    border-radius: 1.5rem;
+    border: 1px solid var(--tech-border);
+    background-color: var(--tech-glass);
+    color: var(--tech-fg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .cyber-glass-card--hover {
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+
+  .cyber-glass-card--hover:hover {
+    border-color: color-mix(in srgb, var(--tech-border) 160%, var(--tech-fg) 25%);
+    background-color: color-mix(in oklch, var(--color-base-300) 65%, var(--color-base-100));
+  }
+
+  .cyber-gradient-text {
+    background: linear-gradient(
+      to right,
+      var(--tech-gradient-from),
+      var(--tech-gradient-mid),
+      var(--tech-gradient-to)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .cyber-section-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--tech-section-label);
+  }
+
+  .cyber-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    border: 0;
+    background: linear-gradient(to right, var(--tech-gradient-from), var(--tech-gradient-mid));
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    color: var(--color-primary-content);
+    box-shadow: 0 0 30px var(--tech-primary-glow);
+    transition: all 0.2s;
+  }
+
+  .cyber-btn-primary:hover {
+    box-shadow: 0 0 40px var(--tech-primary-glow-hover);
+    filter: brightness(1.08);
+  }
+
+  .cyber-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--tech-btn-secondary-border);
+    background: transparent;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    color: var(--tech-fg);
+    transition: all 0.2s;
+  }
+
+  .cyber-btn-secondary:hover {
+    border-color: var(--tech-section-label);
+    background-color: var(--tech-btn-secondary-hover-bg);
+  }
+
+  .cyber-nav-link {
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--tech-nav-fg);
+    transition: color 0.2s;
+  }
+
+  .cyber-nav-link:hover {
+    color: var(--tech-fg);
+  }
+
+  .cyber-nav-link-active {
+    background-color: var(--tech-nav-active-bg);
+    color: var(--tech-fg);
+  }
+
+  .cyber-alert {
+    display: flex;
+    gap: 0.75rem;
+    border-radius: 1.5rem;
+    border: 1px solid var(--tech-border);
+    background-color: var(--tech-glass);
+    padding: 1rem;
+    font-size: 0.875rem;
+    color: var(--tech-fg-muted);
+    backdrop-filter: blur(12px);
+  }
+
+  .cyber-alert strong {
+    color: var(--tech-fg);
+    font-weight: 600;
+  }
+
+  .cyber-alert-warning {
+    border-left: 4px solid var(--color-warning);
+  }
+
+  .cyber-logo-badge {
+    border: 1px solid color-mix(in oklch, var(--color-primary) 30%, transparent);
+    background-color: color-mix(in oklch, var(--color-primary) 10%, transparent);
+    box-shadow: 0 0 20px color-mix(in oklch, var(--color-primary) 22%, transparent);
+  }
+
+  .cyber-alert-info {
+    border-left: 4px solid var(--tech-section-label);
+  }
+
+  .app-layout,
+  .custom-layout-container {
+    color: var(--tech-fg);
+
+    .gradient-text {
+      background: linear-gradient(
+        to right,
+        var(--tech-gradient-from),
+        var(--tech-gradient-mid),
+        var(--tech-gradient-to)
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .collapse:not(.collapse-arrow),
+    .collapse-arrow {
+      border-color: var(--tech-border);
+      background-color: var(--tech-glass);
+      backdrop-filter: blur(12px);
+    }
+
+    .modal-box {
+      border: 1px solid var(--tech-border);
+      background-color: var(--tech-dropdown-bg);
+      color: var(--tech-fg);
+      backdrop-filter: blur(16px);
+    }
+
+    .dropdown-content.menu,
+    .menu.dropdown-content {
+      border: 1px solid var(--tech-border);
+      background-color: var(--tech-dropdown-bg);
+      backdrop-filter: blur(16px);
+    }
+
+    .mockup-window {
+      border-color: var(--tech-border);
+      background-color: var(--tech-glass);
+    }
+
+    .mockup-phone {
+      border-color: var(--tech-border);
+    }
+
+    .text-gray-600 {
+      color: var(--tech-fg-muted);
+    }
+
+    .text-gray-950 {
+      color: var(--tech-fg);
+    }
+
+    .text-gray-400,
+    .text-gray-500 {
+      color: var(--tech-fg-subtle);
+    }
+
+    .hover\:text-gray-500:hover {
+      color: var(--tech-fg-muted);
+    }
+
+    .text-base-content\/60,
+    .text-base-content\/55,
+    .text-base-content\/50 {
+      color: var(--tech-fg-muted);
+    }
+
+    .fieldset {
+      border-color: var(--tech-border);
+    }
+
+    .input,
+    .select,
+    .textarea {
+      border-color: var(--tech-input-border);
+      background-color: var(--tech-input-bg);
+      color: var(--tech-fg);
+    }
+
+    .input::placeholder,
+    .textarea::placeholder {
+      color: var(--tech-fg-subtle);
+    }
+
+    .input:focus,
+    .select:focus,
+    .textarea:focus {
+      border-color: var(--tech-section-label);
+      outline: none;
+    }
+
+    .tabs-border .tab {
+      color: var(--tech-fg-muted);
+    }
+
+    .tabs-border .tab-active {
+      border-color: var(--tech-section-label);
+      color: var(--tech-section-label);
+    }
+  }
+
   .padding-top-bar {
     position: relative;
+    padding-top: 0;
   }
+
   .padding-top-bar::after {
-    content: '';
-    height: 104px;
-    @apply absolute left-0 top-0 w-full from-black bg-gradient-to-r to-gray-700;
+    display: none;
   }
+
   .link-item {
-    @apply transition border border-base-300 h-36 w-36 text-sm rounded-lg flex flex-col justify-center items-center bg-base-100 hover:border-base-100;
-    @apply hover:scale-105 active:bg-base-300;
+    display: flex;
+    height: 9rem;
+    width: 9rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    border: 1px solid var(--tech-border);
+    background-color: var(--tech-glass);
+    font-size: 0.875rem;
+    color: var(--tech-fg-muted);
+    backdrop-filter: blur(12px);
+    transition:
+      transform 0.2s,
+      border-color 0.2s,
+      background-color 0.2s,
+      color 0.2s;
   }
+
+  .link-item:hover {
+    transform: scale(1.05);
+    border-color: color-mix(in srgb, var(--tech-section-label) 40%, transparent);
+    background-color: color-mix(in srgb, var(--tech-section-label) 12%, transparent);
+    color: var(--tech-section-label);
+  }
+
   .selected {
     @apply border-solid border-red-500 border-2;
   }
 
-  /* 登录注册 */
   .login-label .login-label-text {
-    @apply text-gray-300 hover:text-gray-400;
+    color: var(--tech-fg-muted);
+  }
+
+  .login-label .login-label-text:hover {
+    color: var(--tech-fg-subtle);
+  }
+
+  /* 表单内层 input 必须显式设色（DaisyUI 不会继承 label 颜色） */
+  .login-input input,
+  label.input input,
+  .input input,
+  .textarea,
+  select,
+  .select {
+    color: var(--tech-fg);
+    -webkit-text-fill-color: var(--tech-fg);
+  }
+
+  .login-input input::placeholder,
+  .input input::placeholder,
+  .textarea::placeholder {
+    color: var(--tech-fg-subtle);
+    opacity: 1;
+  }
+
+  .fieldset-legend,
+  .label-text {
+    color: var(--tech-fg-muted);
   }
 }
-/* 自定义类名组件 */
+
 @utility login-input {
-  @apply w-full outline-none pr-0 bg-transparent text-gray-200 border border-gray-700 focus:border-gray-600 focus:outline-info-content focus-within:outline-info-content;
+  width: 100%;
+  outline: none;
+  padding-right: 0;
+  background: transparent;
+  color: var(--tech-fg);
+  border: 1px solid var(--tech-input-border);
+
+  &:focus-within {
+    border-color: var(--tech-section-label);
+    outline: none;
+  }
+
+  & input {
+    color: var(--tech-fg);
+    -webkit-text-fill-color: var(--tech-fg);
+  }
+
+  & input::placeholder {
+    color: var(--tech-fg-subtle);
+    opacity: 1;
+  }
+}
+
+/*
+ * 主题感知 utility 覆盖（无 layer，优先级高于 Tailwind @layer utilities）
+ * 页面里大量 text-white/* 是为深色 cyber 写的，亮色主题需映射到 --tech-fg 系列
+ */
+html.tech-shell :where(.app-layout, .custom-layout-container) {
+  .text-white {
+    color: var(--tech-fg);
+  }
+
+  .text-white\/90 {
+    color: color-mix(in srgb, var(--tech-fg) 90%, var(--tech-shell));
+  }
+
+  .text-white\/80 {
+    color: color-mix(in srgb, var(--tech-fg) 80%, var(--tech-shell));
+  }
+
+  .text-white\/70 {
+    color: color-mix(in srgb, var(--tech-fg) 70%, var(--tech-shell));
+  }
+
+  .text-white\/60 {
+    color: color-mix(in srgb, var(--tech-fg) 60%, var(--tech-shell));
+  }
+
+  .text-white\/50 {
+    color: var(--tech-fg-muted);
+  }
+
+  .text-white\/40 {
+    color: var(--tech-fg-subtle);
+  }
+
+  .text-white\/30 {
+    color: var(--tech-fg-faint);
+  }
+
+  .border-white\/5 {
+    border-color: color-mix(in srgb, var(--tech-border) 70%, var(--tech-shell));
+  }
+
+  .border-white\/10 {
+    border-color: var(--tech-border);
+  }
+
+  .border-white\/20 {
+    border-color: color-mix(in srgb, var(--tech-border) 160%, var(--tech-fg) 25%);
+  }
+
+  .bg-white\/5 {
+    background-color: var(--tech-input-bg);
+  }
+
+  .bg-white\/10 {
+    background-color: var(--tech-btn-secondary-hover-bg);
+  }
+
+  .hover\:text-white:hover {
+    color: var(--tech-fg);
+  }
+
+  .hover\:bg-white\/5:hover,
+  .hover\:bg-white\/10:hover {
+    background-color: var(--tech-btn-secondary-hover-bg);
+  }
+
+  .hover\:border-white\/20:hover {
+    border-color: color-mix(in srgb, var(--tech-border) 160%, var(--tech-fg) 25%);
+  }
+
+  .hover\:text-cyan-300:hover,
+  .hover\:text-cyan-400:hover,
+  .group-hover\:text-cyan-300,
+  .text-cyan-300,
+  .text-cyan-400 {
+    color: var(--tech-section-label);
+  }
+
+  .group:hover .group-hover\:text-cyan-300 {
+    color: var(--tech-section-label);
+  }
+
+  .group-hover\:text-white\/60 {
+    color: var(--tech-fg-muted);
+  }
+
+  .group:hover .group-hover\:text-white\/60 {
+    color: color-mix(in srgb, var(--tech-fg) 60%, var(--tech-shell));
+  }
+
+  .placeholder\:text-white\/30::placeholder {
+    color: var(--tech-fg-subtle);
+    opacity: 1;
+  }
 }

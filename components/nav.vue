@@ -17,46 +17,15 @@ import { TokenKey, RefreshTokenKey, getToken, removeToken } from '@/utils/cookie
 import { useThemeActions } from '@/composables/use-home';
 
 const navList = ref([
-  {
-    path: '/',
-    title: '首页',
-    icon: 'blog-shouye',
-  },
-  {
-    path: '/archives',
-    title: '归档',
-    icon: 'blog-guidang2',
-  },
-  {
-    path: '/links',
-    title: '友链',
-    icon: 'blog-youlian',
-  },
-  {
-    path: '/msgboard',
-    title: '留言板',
-    icon: 'blog-liuyanban3',
-  },
-  {
-    path: '/about',
-    title: '关于',
-    icon: 'blog-about2',
-  },
-  {
-    path: '/projects',
-    title: '项目',
-    icon: 'blog-xiangmu3',
-  },
-  {
-    path: '/tool/sm',
-    title: '工具箱',
-    icon: 'blog-tool',
-  },
-  {
-    path: '/features',
-    title: '特色',
-    icon: 'blog-gongneng',
-  },
+  { path: '/', title: '首页' },
+  { path: '/download', title: '快速入口' },
+  { path: '/features', title: '特性' },
+  { path: '/archives', title: '归档' },
+  { path: '/links', title: '友链' },
+  { path: '/msgboard', title: '留言板' },
+  { path: '/about', title: '关于' },
+  { path: '/projects', title: '项目' },
+  { path: '/tool', title: '工具箱' },
 ]);
 
 const token = useToken();
@@ -132,210 +101,128 @@ if (import.meta.client) {
     clear();
   }
 }
-// 菜单控制
 const checked = ref(false);
+const showSearch = ref(false);
 </script>
 
 <template>
-  <div class="navbar bg-transparent">
-    <div class="navbar-start w-auto">
-      <div class="dropdown">
-        <label class="swap swap-rotate" @click.stop="">
-          <input v-model="checked" type="checkbox" @click="checked = !checked">
+  <CyberNavBar>
+    <template #actions>
+      <!-- Mobile menu -->
+      <div class="dropdown lg:hidden">
+        <label
+          class="btn btn-ghost btn-sm btn-circle text-tech-muted hover:text-tech"
+          @click.stop=""
+        >
+          <input v-model="checked" type="checkbox" class="hidden" @click="checked = !checked">
           <svg
-            class="swap-off fill-current"
             xmlns="http://www.w3.org/2000/svg"
-            width="32"
-            height="32"
+            width="20"
+            height="20"
             viewBox="0 0 512 512"
+            fill="currentColor"
           >
             <path d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z" />
           </svg>
-          <svg
-            class="swap-on fill-current"
-            xmlns="http://www.w3.org/2000/svg"
-            width="32"
-            height="32"
-            viewBox="0 0 512 512"
-          >
-            <polygon
-              points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49"
-            />
-          </svg>
         </label>
         <ul
           tabindex="0"
-          :style="{
-            visibility: checked ? 'visible' : undefined,
-            opacity: Number(checked),
-          }"
-          class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-zinc-500"
+          :style="{ visibility: checked ? 'visible' : undefined, opacity: Number(checked) }"
+          class="menu dropdown-content menu-sm z-50 mt-2 w-40 rounded-xl border p-2 shadow-xl backdrop-blur-md"
         >
           <li v-for="(item, index) in navList" :key="item.path + index">
-            <NuxtLink class="menu-link py-2 px-4 flex" :to="item.path" :title="item.title">
-              <xia-icon :icon="item.icon" />
-              <span>{{ item.title }}</span>
-            </NuxtLink>
+            <NuxtLink class="text-tech-muted hover:text-tech" :to="item.path">{{
+              item.title
+            }}</NuxtLink>
           </li>
         </ul>
       </div>
-      <a class="hidden sm:inline-flex btn btn-ghost normal-case text-3xl gradient-text" href="/">Xia</a>
-    </div>
-    <div class="navbar-center hidden md:flex">
-      <ul class="menu menu-horizontal p-0">
-        <li v-for="(item, index) in navList" :key="item.path + index" class="mr-2">
-          <NuxtLink
-            :to="item.path"
-            class="router-link-item leading-6 flex items-center px-4 py-3 rounded-lg"
-            :title="item.title"
-          >
-            <xia-icon class="hidden md:flex" :icon="item.icon" />
-            <span class="hidden xl:flex">{{ item.title }}</span>
-          </NuxtLink>
-        </li>
-      </ul>
-    </div>
 
-    <!-- 右边搜索 -->
-    <div class="navbar-end flex-1 flex items-center">
-      <div class="dropdown relative">
-        <label tabindex="0">
-          <input
-            v-model="searchText"
-            type="text"
-            placeholder="搜索"
-            class="input w-full input-bordered input-ghost input-md"
-            autocomplete="off"
-            @input="onSearchHandle"
-            @keyup.enter="onSearchHandle"
-          >
-        </label>
-        <ul
-          v-if="articleList.length"
-          tabindex="0"
-          class="mt-3 p-2 shadow menu menu-md dropdown-content bg-base-100 rounded-box w-52 max-h-72 text-gray-500 text-xs overflow-auto"
+      <!-- Search toggle -->
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm btn-circle text-tech-muted hover:text-tech"
+        aria-label="搜索"
+        @click="showSearch = !showSearch"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
         >
-          <li v-for="item in articleList" class="flex items-center">
-            <NuxtLink class="py-2 px-4" :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
-          </li>
-        </ul>
-      </div>
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+      </button>
 
-      <xia-icon class="cursor-pointer px-3" :icon="'blog-' + theme" @click="clickIcon" />
+      <xia-icon
+        class="cursor-pointer px-1 text-tech-muted hover:text-tech"
+        :icon="'blog-' + theme"
+        @click="clickIcon"
+      />
       <XiaTheme />
+
       <ClientOnly>
-        <NuxtLink
-          v-if="!token"
-          class="btn btn-ghost inline-flex tracking-wide"
-          to="/login"
-          title="登录"
-        >
+        <CyberButton v-if="!token" variant="primary" to="/login" class="!px-4 !py-2 text-sm">
           登录
-        </NuxtLink>
+        </CyberButton>
         <div v-else class="dropdown dropdown-end">
           <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-            <div class="w-10 rounded-full text-center leading-loose">
+            <div class="w-9 rounded-full">
               <img :src="userInfo.avatar || Yaya" :alt="userInfo.nickname">
             </div>
           </label>
           <ul
             tabindex="0"
-            class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-36 text-gray-500 text-xs"
+            class="menu menu-sm dropdown-content z-50 mt-2 w-36 rounded-xl border p-2 text-xs shadow-xl backdrop-blur-md"
           >
             <li>
-              <NuxtLink to="/user/article/edit" class="leading-5 flex items-center py-2 px-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-                写文章
-              </NuxtLink>
+              <NuxtLink to="/user/article/edit" class="text-tech-muted hover:text-tech">写文章</NuxtLink>
             </li>
             <li>
-              <NuxtLink to="/user/profile" class="leading-5 flex items-center py-2 px-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-                个人中心
-              </NuxtLink>
+              <NuxtLink to="/user/profile" class="text-tech-muted hover:text-tech">个人中心</NuxtLink>
             </li>
             <li>
-              <NuxtLink to="/rpg" class="leading-5 flex items-center py-2 px-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-                RPG 冒险
-              </NuxtLink>
+              <NuxtLink to="/rpg" class="text-tech-muted hover:text-tech">RPG 冒险</NuxtLink>
             </li>
             <li @click="clear">
-              <a class="leading-5 flex items-center py-2 px-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-                退出
-              </a>
+              <a class="text-tech-muted hover:text-tech">退出</a>
             </li>
           </ul>
         </div>
       </ClientOnly>
+    </template>
+  </CyberNavBar>
+
+  <!-- Search overlay -->
+  <div
+    v-if="showSearch"
+    class="fixed inset-x-0 top-16 z-[10020] border-b border-tech bg-tech-header px-4 py-3 backdrop-blur-md"
+  >
+    <div class="relative mx-auto max-w-xl">
+      <input
+        v-model="searchText"
+        type="text"
+        placeholder="搜索文章..."
+        class="input input-bordered w-full"
+        autocomplete="off"
+        @input="onSearchHandle"
+        @keyup.enter="onSearchHandle"
+      >
+      <ul
+        v-if="articleList.length"
+        class="menu absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-auto rounded-xl border p-2 shadow-xl"
+      >
+        <li v-for="item in articleList" :key="item.id">
+          <NuxtLink class="text-sm text-tech-muted hover:text-tech" :to="'/detail/' + item.id">{{
+            item.value
+          }}</NuxtLink>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
-
-<style lang="less" scoped>
-  .navbar {
-    // color: var(--color-base-100);
-    color: var(--color-neutral-content);
-    .router-link-active {
-      border-radius: var(--rounded-btn, 0.5rem);
-      background: hsl(0 0% 100% / var(--tw-bg-opacity));
-      --tw-bg-opacity: 0.1;
-      .menu-link {
-        // color: var(--color-base-100);
-      }
-    }
-  }
-</style>

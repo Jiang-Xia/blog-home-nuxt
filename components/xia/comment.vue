@@ -189,7 +189,7 @@ const replyedHandle = (content: string) => {
         <NuxtLink
           v-if="commentItem.uid"
           :to="`/user/${commentItem.uid}`"
-          class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100 hover:opacity-80"
+          class="rounded-full h-8 w-8 bg-base-300 inline-flex items-center justify-center text-base-content hover:opacity-80"
         >
           <img
             v-if="commentItem.userInfo.avatar"
@@ -201,7 +201,7 @@ const replyedHandle = (content: string) => {
         </NuxtLink>
         <div
           v-else
-          class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100"
+          class="rounded-full h-8 w-8 bg-base-300 inline-flex items-center justify-center text-base-content"
         >
           <img
             v-if="commentItem.userInfo.avatar"
@@ -225,21 +225,21 @@ const replyedHandle = (content: string) => {
         <div class="py-1">
           <button
             v-show="commentItem.id !== currentReplyBoxId"
-            class="btn btn-ghost btn-xs text-xs text-gray-500"
+            class="btn btn-ghost btn-xs text-xs text-tech-subtle"
             @click="clickReplyHandle('comment', commentItem)"
           >
             <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
           </button>
           <button
             v-if="commentItem.id === currentReplyBoxId"
-            class="btn btn-ghost btn-xs text-xs text-gray-500"
+            class="btn btn-ghost btn-xs text-xs text-tech-subtle"
             @click="currentReplyBoxId = ''"
           >
             取消回复
           </button>
           <button
             v-if="uid === commentItem.uid"
-            class="btn btn-ghost btn-xs text-xs text-gray-500"
+            class="btn btn-ghost btn-xs text-xs text-tech-subtle"
             @click="delCommentHandle(commentItem.id)"
           >
             <xia-icon icon="blog-shanchu" width="14px" class="mr-1" />删除
@@ -263,7 +263,7 @@ const replyedHandle = (content: string) => {
               <NuxtLink
                 v-if="replyItem.uid"
                 :to="`/user/${replyItem.uid}`"
-                class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100 hover:opacity-80"
+                class="rounded-full h-8 w-8 bg-base-300 inline-flex items-center justify-center text-base-content hover:opacity-80"
               >
                 <img
                   v-if="replyItem.userInfo.avatar"
@@ -275,7 +275,7 @@ const replyedHandle = (content: string) => {
               </NuxtLink>
               <div
                 v-else
-                class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100"
+                class="rounded-full h-8 w-8 bg-base-300 inline-flex items-center justify-center text-base-content"
               >
                 <img
                   v-if="replyItem.userInfo.avatar"
@@ -303,21 +303,21 @@ const replyedHandle = (content: string) => {
               <div class="py-1">
                 <button
                   v-show="replyItem.id !== currentReplyBoxId"
-                  class="btn btn-ghost btn-xs text-xs text-gray-500"
+                  class="btn btn-ghost btn-xs text-xs text-tech-subtle"
                   @click="clickReplyHandle('reply', replyItem, commentItem.id)"
                 >
                   <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
                 </button>
                 <button
                   v-if="replyItem.id === currentReplyBoxId"
-                  class="btn btn-ghost btn-xs text-xs text-gray-500"
+                  class="btn btn-ghost btn-xs text-xs text-tech-subtle"
                   @click="currentReplyBoxId = ''"
                 >
                   取消回复
                 </button>
                 <button
                   v-if="uid === replyItem.uid"
-                  class="btn btn-ghost btn-xs text-xs text-gray-500"
+                  class="btn btn-ghost btn-xs text-xs text-tech-subtle"
                   @click="delReplytHandle(replyItem.id)"
                 >
                   <xia-icon icon="blog-shanchu" width="14px" class="mr-1" />删除

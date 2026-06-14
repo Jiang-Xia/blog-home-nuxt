@@ -11,7 +11,7 @@ import type { tocInter } from '@/utils';
 import Qie from '@/assets/images/animal/qie.svg';
 import { SiteTitle } from '@/utils/constant';
 
-const theme: any = useTheme();
+const mdEditorTheme = useMdEditorTheme();
 interface FormState {
   [propName: string]: any;
 }
@@ -175,47 +175,45 @@ watch(
 </script>
 
 <template>
-  <div class="article-detail bg-base-200">
-    <section class="banner-container">
-      <div class="banner-content">
+  <div class="article-detail">
+    <section class="relative overflow-hidden border-b border-tech">
+      <div class="absolute inset-0">
         <img
           :alt="ArticleInfo.category.label"
           :src="isTrueCoverLink(ArticleInfo.cover) || defaultImg"
+          class="h-full w-full object-cover opacity-25 blur-md scale-105"
         >
-        <!-- <div>文章详情</div> -->
-        <div class="article-header text-gray-200">
-          <h1 class="title">
-            {{ ArticleInfo.title }}
-          </h1>
-          <p class="detail inline-flex items-center justify-center">
-            <xia-icon icon="blog-category" />
-            {{ ArticleInfo.category.label }}
-            <xia-icon class="ml-3" icon="blog-tag" />
-            {{ tagLabel }}
-          </p>
-          <p class="detail flex items-center justify-center">
-            <xia-icon icon="blog-time" />更新于{{ formactDate(ArticleInfo.uTime) }}
-          </p>
-          <p class="detail">
-            <!-- 阅读量 -->
-            <span class="mr-2 cursor-pointer inline-flex items-center">
-              <xia-icon icon="blog-view" />
-              {{ ArticleInfo['views'] }}
-            </span>
-            <!-- 点赞数 -->
-            <span
-              class="mr-2 cursor-pointer inline-flex items-center"
-              @click.stop="updateLikesHandle(ArticleInfo)"
-            >
-              <xia-icon :icon="ArticleInfo['checked'] ? 'blog-like-solid' : 'blog-like'" />
-              {{ ArticleInfo['likes'] }}
-            </span>
-          </p>
-        </div>
+      </div>
+      <div class="relative mx-auto max-w-4xl px-4 py-14 text-center text-tech">
+        <h1 class="mb-4 text-3xl font-bold md:text-4xl">
+          {{ ArticleInfo.title }}
+        </h1>
+        <p class="detail inline-flex items-center justify-center text-sm text-tech-muted">
+          <xia-icon icon="blog-category" />
+          {{ ArticleInfo.category.label }}
+          <xia-icon class="ml-3" icon="blog-tag" />
+          {{ tagLabel }}
+        </p>
+        <p class="detail mt-2 flex items-center justify-center text-sm text-tech-muted">
+          <xia-icon icon="blog-time" />更新于{{ formactDate(ArticleInfo.uTime) }}
+        </p>
+        <p class="detail mt-2 text-sm text-tech-muted">
+          <span class="mr-2 inline-flex items-center cursor-pointer">
+            <xia-icon icon="blog-view" />
+            {{ ArticleInfo['views'] }}
+          </span>
+          <span
+            class="mr-2 inline-flex items-center cursor-pointer"
+            @click.stop="updateLikesHandle(ArticleInfo)"
+          >
+            <xia-icon :icon="ArticleInfo['checked'] ? 'blog-like-solid' : 'blog-like'" />
+            {{ ArticleInfo['likes'] }}
+          </span>
+        </p>
       </div>
     </section>
-    <div ref="mainViewArea" class="main-view-area w-full xl:w-4/5">
-      <section class="main-content rounded-lg max-w-full p-3">
+    <div ref="mainViewArea" class="main-view-area mx-auto w-full max-w-5xl px-4 py-8 xl:w-4/5">
+      <section class="main-content max-w-full rounded-2xl p-3 cyber-glass-card">
         <section class="module-wrap__detail article-info">
           <div class="flex items-center">
             <div class="flex items-center justify-between">
@@ -245,10 +243,10 @@ watch(
           <MdPreview
             :key="mdKey"
             v-model="ArticleInfo.content"
-            class="x-md-editor rounded-lg p-3 bg-base-100"
+            class="x-md-editor rounded-lg p-3 bg-transparent"
             preview-only
             :preview-theme="previewTheme"
-            :theme="theme"
+            :theme="mdEditorTheme"
             @on-get-catalog="onGetCatalogHandle"
           />
           <div

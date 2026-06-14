@@ -7,14 +7,8 @@ import { SiteTitle } from '@/utils/constant';
 const { data: articleData } = await useAsyncData('about_GetInfo', () =>
   getArticleInfo({ id: 44 }),
 );
-const theme = useTheme();
+const mdEditorTheme = useMdEditorTheme();
 const content = articleData.value.info.content;
-const images = [
-  {
-    url: articleData.value.info.cover,
-    title: '关于',
-  },
-];
 const mdKey = ref(new Date().getTime());
 onMounted(() => {
   mdKey.value = new Date().getTime();
@@ -26,10 +20,7 @@ useHead({
 </script>
 
 <template>
-  <NuxtLayout
-    name="main-content"
-    :images="images"
-  >
+  <NuxtLayout name="main-content" label="ABOUT" title="关于我" subtitle="个人简介与站点说明">
     <div class="about-container">
       <h1 class="hidden">
         关于我 - {{ SiteTitle }}
@@ -40,7 +31,7 @@ useHead({
         class="x-md-editor bg-transparent p-4 rounded-box shadow-xl"
         preview-theme="mk-cute"
         preview-only
-        :theme="theme"
+        :theme="mdEditorTheme"
       />
     </div>
   </NuxtLayout>

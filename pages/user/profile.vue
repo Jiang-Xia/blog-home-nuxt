@@ -6,7 +6,6 @@ import { ref, watch } from 'vue';
 
 const route = useRoute();
 const userInfo = useUserInfo();
-const { theme, clickIcon } = useThemeActions();
 
 type ProfileTab = 'card' | 'article' | 'collect' | 'comment';
 const TAB_VALUES: ProfileTab[] = ['card', 'article', 'collect', 'comment'];
@@ -38,30 +37,9 @@ useHead({
 </script>
 
 <template>
-  <div class="profile-page padding-top-bar">
-    <!-- 顶部闪烁网格背景 -->
-    <div class="absolute inset-0 z-10" style="height: 104px">
-      <InFlickeringGrid
-        class="relative inset-0 z-0 [mask-image:radial-gradient(650px_circle_at_center,white,transparent)]"
-        :square-size="4"
-        :grid-gap="6"
-        color="#4ba6c6"
-        :max-opacity="0.5"
-        :flicker-chance="0.1"
-      />
-      <xia-icon
-        class="cursor-pointer px-3 absolute right-2 top-10 text-white"
-        :icon="'blog-' + theme"
-        @click="clickIcon"
-      />
-    </div>
-
+  <CyberPageContainer label="PROFILE" title="个人中心" subtitle="管理你的资料与内容">
     <div class="profile-container">
-      <!-- 用户基础信息（名片 Tab 内已展示完整资料，此处省略） -->
-      <div
-        v-if="userInfo?.nickname && activeTab !== 'card'"
-        class="card bg-base-100 shadow-md mb-6"
-      >
+      <div v-if="userInfo?.nickname && activeTab !== 'card'" class="cyber-glass-card mb-6 p-5">
         <div class="card-body flex-row items-center gap-4 p-5">
           <div class="avatar placeholder">
             <div
@@ -129,7 +107,7 @@ useHead({
 
         <!-- 我的文章 -->
         <div v-show="activeTab === 'article'">
-          <div class="card bg-base-100 shadow-md">
+          <div class="cyber-glass-card p-5">
             <div class="card-body p-5">
               <div class="flex items-center justify-between gap-3 mb-2">
                 <h3 class="card-title text-base">
@@ -144,7 +122,7 @@ useHead({
 
         <!-- 收藏 -->
         <div v-show="activeTab === 'collect'">
-          <div class="card bg-base-100 shadow-md">
+          <div class="cyber-glass-card p-5">
             <div class="card-body p-5">
               <h3 class="card-title text-base">
                 我的收藏
@@ -156,7 +134,7 @@ useHead({
 
         <!-- 评论/回复 -->
         <div v-show="activeTab === 'comment'">
-          <div class="card bg-base-100 shadow-md">
+          <div class="cyber-glass-card p-5">
             <div class="card-body p-5">
               <h3 class="card-title text-base">
                 我的评论/回复
@@ -167,17 +145,11 @@ useHead({
         </div>
       </client-only>
     </div>
-  </div>
+  </CyberPageContainer>
 </template>
 
 <style scoped>
-  .profile-page {
-    min-height: 100vh;
-    padding: 104px 16px 32px;
-  }
-
   .profile-container {
-    padding-top: 20px;
     max-width: 720px;
     margin: 0 auto;
   }

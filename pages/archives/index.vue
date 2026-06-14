@@ -18,7 +18,7 @@ useHead({
 
 <template>
   <!-- default布局和custom布局只能二选一 -->
-  <NuxtLayout name="main-content">
+  <NuxtLayout name="main-content" label="ARCHIVES" title="文章归档" subtitle="按年份浏览全部文章">
     <div class="archives-container">
       <h1 class="hidden">
         文章归档 - {{ SiteTitle }}
@@ -27,7 +27,7 @@ useHead({
         v-for="(archive, idx) in archivesList"
         :key="idx"
         tabindex="0"
-        class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box shadow-xl mb-4"
+        class="collapse collapse-arrow mb-4 rounded-2xl border border-tech cyber-glass-card backdrop-blur-md"
       >
         <!-- 设置选择就勾选了 -->
         <input type="checkbox" checked>
@@ -39,13 +39,13 @@ useHead({
             <h4 class="month">
               {{ key2 }}
             </h4>
-            <ul class="menu menu-md lg:menu-lg lg:w-4/5 bg-base-100 p-2 rounded-box">
+            <ul class="menu menu-md lg:menu-lg lg:w-4/5 rounded-xl p-2">
               <li v-for="(item, index) in value2" :key="index" class="font-semibold">
                 <nuxt-link :to="'/detail/' + item.id" class="flex">
                   <span class="badge badge-neutral badge-md min-w-fit">{{
                     dayjs(item.createTime).format('YYYY-MM-DD')
                   }}</span>
-                  <div class="hover:text-green-700 hover:underline flex-1">
+                  <div class="flex-1 hover:text-primary hover:underline">
                     {{ item['title'] }}
                   </div>
                 </nuxt-link>

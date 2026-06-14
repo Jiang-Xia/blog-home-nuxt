@@ -45,7 +45,12 @@ useHead({
 </script>
 
 <template>
-  <NuxtLayout name="main-content">
+  <NuxtLayout
+    name="main-content"
+    label="LINKS"
+    title="友情链接"
+    subtitle="与志同道合的站点互联互通"
+  >
     <div class="links-container pt-3 rounded-box xl:p-4">
       <h1 class="hidden">
         友情链接 - {{ SiteTitle }}

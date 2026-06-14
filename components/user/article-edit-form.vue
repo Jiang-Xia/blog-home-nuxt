@@ -20,7 +20,7 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
-const theme = useTheme();
+const mdEditorTheme = useMdEditorTheme();
 const loading = ref(false);
 const submitting = ref(false);
 const categoryOptions = ref<any[]>([]);
@@ -375,7 +375,7 @@ onMounted(async () => {
             <MdEditor
               v-model="formState.content"
               class="x-md-editor article-md-editor"
-              :theme="theme === 'dark' ? 'dark' : 'light'"
+              :theme="mdEditorTheme"
               @on-html-changed="onHtmlChanged"
               @on-upload-img="onUploadImg"
             />

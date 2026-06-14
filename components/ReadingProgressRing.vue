@@ -28,7 +28,7 @@
           stroke="currentColor"
           :stroke-width="strokeWidth"
           fill="none"
-          class="text-gray-200 dark:text-gray-700"
+          class="text-[var(--tech-border)]"
         />
 
         <!-- 进度圆环 -->
@@ -48,8 +48,8 @@
       </svg>
 
       <!-- 中心内容 -->
-      <div class="absolute inset-0 flex items-center justify-center" :class="centerTextClass">
-        <div class="text-center dark:text-gray-500">
+      <div class="absolute inset-0 flex items-center justify-center text-tech">
+        <div class="text-center text-tech-muted">
           <div class="font-bold text-lg">
             {{ Math.round(progress) }}%
           </div>
@@ -62,7 +62,7 @@
       <!-- 工具提示 -->
       <div
         v-if="showTooltip && !expanded"
-        class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10"
+        class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-[var(--tech-dropdown-bg)] text-tech border border-tech text-xs rounded px-2 py-1 whitespace-nowrap z-10 backdrop-blur-md"
       >
         点击展开目录
       </div>
@@ -72,7 +72,7 @@
     <Transition name="slide-fade">
       <div
         v-if="expanded"
-        class="absolute top-full text-white mt-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl border p-4 w-80 max-h-96 overflow-y-auto"
+        class="absolute top-full mt-4 cyber-glass-card text-tech border border-tech rounded-lg shadow-xl p-4 w-80 max-h-96 overflow-y-auto"
         :class="menuPosition"
       >
         <div class="flex items-center justify-between mb-3">
@@ -95,41 +95,43 @@
           <div
             v-for="(heading, index) in headings"
             :key="index"
-            class="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            class="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-base-200 transition-colors"
             :class="[
-              { 'bg-blue-50 dark:bg-blue-900': currentHeading === index },
+              { 'bg-primary/10': currentHeading === index },
               `ml-${(heading.level - 1) * 2}`,
             ]"
             @click="scrollToHeading(heading, index)"
           >
             <div
               class="w-2 h-2 rounded-full flex-shrink-0"
-              :class="currentHeading === index ? 'bg-blue-500' : 'bg-gray-300'"
+              :class="currentHeading === index ? 'bg-primary' : 'bg-base-300'"
             />
             <span
               class="text-sm truncate"
               :class="[
-                currentHeading === index ? 'text-blue-600 dark:text-blue-400 font-medium' : '',
+                currentHeading === index ? 'text-primary font-medium' : 'text-tech',
                 `text-${getTextSize(heading.level)}`,
               ]"
             >
               {{ heading.text }}
             </span>
-            <span class="text-xs text-gray-500 ml-auto"> {{ Math.round(heading.progress) }}% </span>
+            <span class="text-xs text-tech-subtle ml-auto">
+              {{ Math.round(heading.progress) }}%
+            </span>
           </div>
         </div>
 
         <!-- 阅读统计 -->
-        <div class="mt-4 pt-3 border-t space-y-2">
-          <div class="flex justify-between text-xs text-gray-600">
+        <div class="mt-4 pt-3 border-t border-tech space-y-2">
+          <div class="flex justify-between text-xs text-tech-muted">
             <span>阅读时间</span>
             <span>{{ readingTime }}</span>
           </div>
-          <div class="flex justify-between text-xs text-gray-600">
+          <div class="flex justify-between text-xs text-tech-muted">
             <span>预计剩余</span>
             <span>{{ remainingTime }}</span>
           </div>
-          <div class="flex justify-between text-xs text-gray-600">
+          <div class="flex justify-between text-xs text-tech-muted">
             <span>文章字数</span>
             <span>{{ wordCount.toLocaleString() }}</span>
           </div>
@@ -189,13 +191,11 @@ const circumference = computed(() => 2 * Math.PI * radius.value);
 const offset = computed(() => circumference.value - (progress.value / 100) * circumference.value);
 
 const progressColor = computed(() => {
-  if (progress.value < 25) return 'text-red-500';
-  if (progress.value < 50) return 'text-yellow-500';
-  if (progress.value < 75) return 'text-blue-500';
-  return 'text-green-500';
+  if (progress.value < 25) return 'text-error';
+  if (progress.value < 50) return 'text-warning';
+  if (progress.value < 75) return 'text-info';
+  return 'text-success';
 });
-
-const centerTextClass = computed(() => `text-gray-800 dark:text-gray-200`);
 
 const menuPosition = computed(() => {
   if (props.position.includes('right')) return 'right-0';

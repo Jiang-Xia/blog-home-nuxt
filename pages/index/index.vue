@@ -2,12 +2,11 @@
 import { gushici } from '@/api/index';
 import { SiteTitle } from '@/utils/constant';
 
-const banners = useBanners();
-// console.log(imagesData);
 useHead({
-  title: '文章列表',
+  title: '首页',
   titleTemplate: title => `${title} - ${SiteTitle}`,
 });
+
 interface GushiciData {
   content?: string;
   author?: string;
@@ -24,119 +23,111 @@ catch (error) {
   console.log(error);
 }
 
-// 下一页
-const goToNextPage = () => {
-  window.scroll({ top: window.innerHeight, left: 0, behavior: 'smooth' });
+const scrollToArticles = () => {
+  document.getElementById('articles')?.scrollIntoView({ behavior: 'smooth' });
 };
 </script>
 
 <template>
-  <div class="home-container">
+  <div>
     <h1 class="hidden">
       首页 - {{ SiteTitle }}
     </h1>
-    <section class="banner-container">
-      <!-- 文字信息 -->
-      <div class="site-info">
-        <!-- <div id="site-title" class="site-title">江夏</div> -->
-        <div id="site-subtitle" class="site-subtitle">
-          <p class="content">
-            {{ gushiciData.content }}
-          </p>
-          <br>
-          <p v-if="gushiciData.author" class="author-info">
-            {{ gushiciData.author }}-[{{ gushiciData.origin }}]
-          </p>
+
+    <!-- Hero -->
+    <section
+      class="relative flex flex-col items-center px-4 pb-16 pt-12 text-center md:pb-24 md:pt-20"
+    >
+      <!-- Logo icon -->
+      <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl cyber-logo-badge">
+        <span class="text-2xl font-bold cyber-gradient-text">X</span>
+      </div>
+
+      <!-- Badge -->
+      <div
+        class="mb-8 inline-flex items-center gap-2 rounded-full border border-tech bg-tech-header px-4 py-1.5 text-sm text-tech-muted"
+      >
+        <span class="h-1.5 w-1.5 rounded-full bg-success" />
+        v2.0 · 个人技术博客 · 持续更新中
+      </div>
+
+      <!-- Title -->
+      <h2 class="mb-4 text-4xl font-bold leading-tight text-tech md:text-6xl">
+        让技术分享<br>
+        <span class="cyber-gradient-text">更有温度</span>
+      </h2>
+
+      <!-- Subtitle -->
+      <p class="mb-2 max-w-xl text-sm text-tech-muted md:text-base">
+        前端与后端技术笔记 · 工作心得 · 生活点滴
+      </p>
+      <p v-if="gushiciData.content" class="mb-8 max-w-lg text-xs text-tech-faint md:text-sm">
+        {{ gushiciData.content }}
+        <span v-if="gushiciData.author"> — {{ gushiciData.author }}</span>
+      </p>
+      <p v-else class="mb-8" />
+
+      <!-- CTAs -->
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <CyberButton variant="primary" class="!px-8 !py-3.5" @click="scrollToArticles">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 4H20v16H6.5a2.5 2.5 0 0 1 0-5H20" />
+          </svg>
+          浏览文章
+        </CyberButton>
+        <CyberButton variant="secondary" to="/features" class="!px-8 !py-3.5">
+          查看特性
+        </CyberButton>
+      </div>
+
+      <!-- Stats -->
+      <div class="mt-16 flex flex-wrap items-center justify-center gap-10 md:gap-16">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-primary md:text-3xl">
+            100+
+          </div>
+          <div class="mt-1 text-sm text-tech-subtle">
+            技术文章
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-primary md:text-3xl">
+            15+
+          </div>
+          <div class="mt-1 text-sm text-tech-subtle">
+            实用工具
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-primary md:text-3xl">
+            4 年
+          </div>
+          <div class="mt-1 text-sm text-tech-subtle">
+            持续更新
+          </div>
         </div>
       </div>
-      <!-- 向下提示箭头 -->
-      <div class="go-down" @click="goToNextPage">
-        <xia-icon icon="blog-double-down" height="32px" width="32px" />
-      </div>
-      <div class="banner-content">
-        <xia-carousel :images="banners" :duration="60000" interval arrow />
-      </div>
     </section>
-    <section class="home-content">
-      <ArticleList />
+
+    <!-- Articles -->
+    <section id="articles" class="mx-auto max-w-6xl px-4 pb-20">
+      <CyberSectionHeader
+        class="mb-10"
+        label="ARTICLES"
+        title="最新文章"
+        subtitle="技术分享与生活记录，欢迎阅读与交流"
+      />
+      <div class="cyber-glass-card p-4 md:p-6">
+        <ArticleList />
+      </div>
     </section>
   </div>
 </template>
-
-<style lang="less" scoped>
-  .grayscale {
-    filter: grayscale(0.95);
-  }
-
-  .home-content {
-    position: relative;
-    min-height: 150vh;
-    min-width: 40%;
-    overflow: hidden;
-    z-index: 0;
-  }
-
-  .banner-container {
-    height: 100vh;
-    .site-info {
-      pointer-events: none;
-      position: absolute;
-      width: 100%;
-      top: 50%;
-      left: 0;
-      transform: translate3d(0, -50%, 0);
-      z-index: 2;
-      font-size: 24px;
-      color: #fff;
-      text-align: center;
-      .site-title {
-        // letter-spacing: .5em;
-        font-size: 38px;
-      }
-
-      .content {
-        letter-spacing: 0.5em;
-      }
-      .author-info {
-        font-size: 16px;
-      }
-    }
-    .go-down {
-      cursor: pointer;
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translate3d(-50%, 0, 0);
-      z-index: 3;
-      color: rgba(255, 255, 255, 0.3);
-      animation: arrow-down 2s infinite;
-    }
-    .banner-content {
-      position: relative;
-      height: 100%;
-
-      img {
-        color: #fff;
-        height: 100%;
-        width: 100%;
-      }
-
-      .text-wrap {
-        position: absolute;
-        width: 100%;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 2;
-
-        h2 {
-          color: #fff;
-          font-size: 56px;
-          text-shadow: 3px 3px #000;
-          text-align: center;
-          font-weight: 500;
-        }
-      }
-    }
-  }
-</style>

@@ -120,6 +120,48 @@ function CheckIcon(props, context) {
         </li><li>
           <button
             class="gap-3 px-2"
+            data-set-theme="cyber"
+            data-act-class="[&amp;_svg]:visible"
+            @click="changeTheme"
+          >
+            <div
+              data-theme="cyber"
+              class="bg-base-100 grid shrink-0 grid-cols-2 gap-0.5 rounded-md p-1 shadow-sm"
+            >
+              <div class="bg-base-content size-1 rounded-full" />
+              <div class="bg-cyan-400 size-1 rounded-full" />
+              <div class="bg-purple-500 size-1 rounded-full" />
+              <div class="bg-blue-500 size-1 rounded-full" />
+            </div>
+            <div class="w-32 truncate">
+              cyber
+            </div>
+            <CheckIcon />
+          </button>
+        </li><li>
+          <button
+            class="gap-3 px-2"
+            data-set-theme="cyber-light"
+            data-act-class="[&amp;_svg]:visible"
+            @click="changeTheme"
+          >
+            <div
+              data-theme="cyber-light"
+              class="bg-base-100 grid shrink-0 grid-cols-2 gap-0.5 rounded-md p-1 shadow-sm"
+            >
+              <div class="bg-slate-800 size-1 rounded-full" />
+              <div class="bg-cyan-500 size-1 rounded-full" />
+              <div class="bg-blue-400 size-1 rounded-full" />
+              <div class="bg-violet-400 size-1 rounded-full" />
+            </div>
+            <div class="w-32 truncate">
+              cyber-light
+            </div>
+            <CheckIcon />
+          </button>
+        </li><li>
+          <button
+            class="gap-3 px-2"
             data-set-theme="cupcake"
             data-act-class="[&amp;_svg]:visible"
             @click="changeTheme"

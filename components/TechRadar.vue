@@ -50,14 +50,14 @@
             <div
               v-for="(skill, index) in skills"
               :key="skill.name"
-              class="legend-item flex items-center gap-2 p-2 rounded hover:bg-gray-50"
-              :class="{ 'bg-blue-50': hoveredSkill === index }"
+              class="legend-item flex items-center gap-2 p-2 rounded border border-transparent hover:bg-base-200"
+              :class="{ 'bg-primary/10 border-primary/20': hoveredSkill === index }"
               @mouseenter="hoveredSkill = index"
               @mouseleave="hoveredSkill = -1"
             >
               <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: skill.color }" />
               <span class="text-sm">{{ skill.name }}</span>
-              <span class="text-xs text-gray-500 ml-auto">{{ skill.level }}%</span>
+              <span class="text-xs text-tech-subtle ml-auto">{{ skill.level }}%</span>
             </div>
           </div>
         </div>
@@ -71,7 +71,7 @@
             <div
               v-for="(skill, index) in skills"
               :key="skill.name"
-              class="flex items-center gap-3 p-3 border rounded-lg"
+              class="flex items-center gap-3 p-3 border border-tech rounded-lg"
             >
               <input
                 v-model="skill.name"
@@ -104,11 +104,40 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, nextTick } from 'vue';
+import { useTheme } from '@/composables/use-home';
 
 interface Skill {
   name: string;
   level: number;
   color: string;
+}
+
+interface RadarThemeColors {
+  grid: string;
+  label: string;
+  labelActive: string;
+  level: string;
+  areaStroke: string;
+  pointStroke: string;
+  tooltipText: string;
+}
+
+function themeColor(cssVar: string, fallback: string): string {
+  if (!import.meta.client) return fallback;
+  const value = getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim();
+  return value || fallback;
+}
+
+function getRadarTheme(): RadarThemeColors {
+  return {
+    grid: themeColor('--tech-grid-line', '#e5e7eb'),
+    label: themeColor('--tech-fg', '#374151'),
+    labelActive: themeColor('--tech-section-label', '#3b82f6'),
+    level: themeColor('--tech-fg-muted', '#9ca3af'),
+    areaStroke: themeColor('--tech-section-label', '#3b82f6'),
+    pointStroke: themeColor('--tech-shell', '#ffffff'),
+    tooltipText: themeColor('--tech-fg', '#1f2937'),
+  };
 }
 
 const canvasRef = ref<HTMLCanvasElement>();
@@ -164,6 +193,7 @@ const presets = [
 ];
 
 const skills = ref<Skill[]>([...presets[0].skills]);
+const theme = useTheme();
 
 let ctx: CanvasRenderingContext2D | null = null;
 let animationProgress = 0;
@@ -196,7 +226,8 @@ const loadPreset = (presetName: string) => {
 const drawGrid = () => {
   if (!ctx || !showGrid.value) return;
 
-  ctx.strokeStyle = '#e5e7eb';
+  const colors = getRadarTheme();
+  ctx.strokeStyle = colors.grid;
   ctx.lineWidth = 1;
 
   // 绘制同心圆
@@ -222,8 +253,7 @@ const drawGrid = () => {
 const drawLabels = () => {
   if (!ctx) return;
 
-  ctx.fillStyle = '#374151';
-  ctx.font = '12px sans-serif';
+  const colors = getRadarTheme();
   ctx.textAlign = 'center';
 
   const angleStep = (Math.PI * 2) / skills.value.length;
@@ -233,13 +263,12 @@ const drawLabels = () => {
     const x = centerX + Math.cos(angle) * labelRadius;
     const y = centerY + Math.sin(angle) * labelRadius;
 
-    // 高亮悬停的技能
     if (hoveredSkill.value === i) {
-      ctx.fillStyle = '#3b82f6';
+      ctx.fillStyle = colors.labelActive;
       ctx.font = 'bold 13px sans-serif';
     }
     else {
-      ctx.fillStyle = '#374151';
+      ctx.fillStyle = colors.label;
       ctx.font = '12px sans-serif';
     }
 
@@ -272,15 +301,16 @@ const drawDataArea = () => {
   }
   ctx.closePath();
 
-  // 渐变填充
-  const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
-  gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
-  gradient.addColorStop(1, 'rgba(59, 130, 246, 0.1)');
-  ctx.fillStyle = gradient;
-  ctx.fill();
+  const colors = getRadarTheme();
+  const areaColor = colors.areaStroke;
 
-  // 描边
-  ctx.strokeStyle = '#3b82f6';
+  ctx.save();
+  ctx.globalAlpha = 0.28;
+  ctx.fillStyle = areaColor;
+  ctx.fill();
+  ctx.restore();
+
+  ctx.strokeStyle = areaColor;
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -297,13 +327,12 @@ const drawDataArea = () => {
     ctx.arc(x, y, hoveredSkill.value === i ? 6 : 4, 0, Math.PI * 2);
     ctx.fillStyle = skills.value[i].color;
     ctx.fill();
-    ctx.strokeStyle = '#ffffff';
+    ctx.strokeStyle = colors.pointStroke;
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // 显示数值
     if (hoveredSkill.value === i) {
-      ctx.fillStyle = '#1f2937';
+      ctx.fillStyle = colors.tooltipText;
       ctx.font = 'bold 12px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(`${skills.value[i].level}%`, x, y - 10);
@@ -315,7 +344,8 @@ const drawDataArea = () => {
 const drawLevelLabels = () => {
   if (!ctx || !showGrid.value) return;
 
-  ctx.fillStyle = '#9ca3af';
+  const colors = getRadarTheme();
+  ctx.fillStyle = colors.level;
   ctx.font = '10px sans-serif';
   ctx.textAlign = 'left';
 
@@ -421,6 +451,10 @@ watch([showGrid, showAnimation], () => {
     draw();
   }
 });
+
+watch(theme, () => {
+  draw();
+});
 </script>
 
 <style scoped>
@@ -436,9 +470,10 @@ watch([showGrid, showAnimation], () => {
   }
 
   .radar-canvas {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--tech-border);
     border-radius: 8px;
     cursor: crosshair;
+    background: var(--tech-input-bg);
   }
 
   .legend-item {

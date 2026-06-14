@@ -1,10 +1,10 @@
 <template>
   <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
-    <div class="text-center pb-4 text-gray-950">
+    <div class="text-center pb-4 text-tech">
       <h2 class="text-xl">
         批量加水印工具
       </h2>
-      <p class="text-sm text-gray-500">
+      <p class="text-sm text-tech-subtle">
         本功能ts部分由chatGPT编写的(图片查看器全部chatGPT编写)
       </p>
     </div>
@@ -39,7 +39,7 @@
       <span v-if="loading" class="loading loading-dots loading-md bg-accent" />
       <div class="card-body p-0 sm:p-4">
         <div>
-          <span class="text-sm text-gray-500">瀑布流展示已选照片</span>
+          <span class="text-sm text-tech-subtle">瀑布流展示已选照片</span>
           <div class="card-actions justify-end">
             <button class="btn btn-neutral btn-sm" @click="downloadAllImages">
               下载所有图片
@@ -176,7 +176,7 @@ onMounted(async () => {
   .image-item {
     width: 100%;
     height: 200px;
-    background-color: #ccc;
+    background-color: var(--tech-border);
     opacity: 0;
     transform: translateY(20px);
     transition:

@@ -39,6 +39,6 @@ Nuxt 4 · Vue 3 Composition API · TypeScript · Pinia · Nuxt UI 4 · Tailwind 
 - 最小 diff：只改任务相关文件，不重构无关模块。
 - 复用现有抽象：`xia-*` 组件、`useUserInfo`、`request.get/post`、DaisyUI class。
 - SSR 安全：浏览器 API 包在 `import.meta.client` 或 `.client.vue` 内。
-- 路由/layout 约束见 `home-10-pages-layout-routing.mdc`。
+- 路由/layout 约束见 `home-10-pages-layout-routing.mdc`；新页面开发与样式见 `home-14-page-development.mdc`（详 `docs/page-development-guide.md`）。
 - 注释约束见 `home-09-commenting-hard-requirement.mdc`。
 - Pinia / Server / Plugins 专项见 `home-11` ~ `home-13`。
