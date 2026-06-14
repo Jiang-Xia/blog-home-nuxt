@@ -30,6 +30,11 @@ export const getWeather = () => {
   return request.get('/resources/weather');
 };
 
+/** 注册页可选头像（公开，无需登录） */
+export const getRegisterAvatars = (): Promise<{ avatars: string[] }> => {
+  return request.get('/resources/register-avatars');
+};
+
 // 发送邮箱验证码
 export const sendEmailCode = (email: string, type: 'login' | 'register') => {
   return request.post('/user/sendEmailCode', { email, type });
@@ -67,6 +72,7 @@ const api = {
   getUserInfo,
   gushici,
   getWeather,
+  getRegisterAvatars,
   sendEmailCode,
   emailLogin,
   emailRegister,

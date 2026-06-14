@@ -9,6 +9,7 @@ import { setToken, TokenKey, RefreshTokenKey } from '@/utils/cookie';
 import { rsaEncrypt as rsaEncryptUtil } from '~~/utils/jsencrypt';
 import { loadRsaScript } from '~/utils/script-loader';
 import { shouldRefreshGraphicCaptcha } from '~~/utils/graphic-captcha-error';
+import { USERNAME_MAX_LENGTH, validateUsernameForLogin } from '~~/utils/username';
 
 let rsaEncrypt: any;
 // 客户端才加载
@@ -31,17 +32,17 @@ useHead({
 });
 
 // 登录方式切换
-const loginType = ref<'mobile' | 'email'>('mobile');
+const loginType = ref<'account' | 'email'>('account');
 
 interface formState extends StringKey {
-  mobile: string;
+  username: string;
   email: string;
   password: string;
   authCode: string;
   verificationCode: string;
 }
 const form: formState = reactive({
-  mobile: '',
+  username: '',
   email: '',
   password: '',
   authCode: '',
@@ -50,12 +51,12 @@ const form: formState = reactive({
   /* 登录 */
 const okHandle = async () => {
   const requiredFields
-    = loginType.value === 'mobile'
-      ? ['mobile', 'password', 'authCode']
+    = loginType.value === 'account'
+      ? ['username', 'password', 'authCode']
       : ['email', 'password', 'verificationCode'];
 
   const msg: StringKey = {
-    mobile: '填写账号',
+    username: '填写用户名',
     email: '填写邮箱',
     password: '填写密码',
     authCode: '填写验证码',
@@ -69,6 +70,14 @@ const okHandle = async () => {
     }
   }
 
+  if (loginType.value === 'account') {
+    const usernameErr = validateUsernameForLogin(form.username);
+    if (usernameErr) {
+      messageDanger(usernameErr);
+      return;
+    }
+  }
+
   let res: any;
 
   try {
@@ -77,8 +86,8 @@ const okHandle = async () => {
       loginType: loginType.value,
     };
     let url = '/user/login';
-    if (loginType.value === 'mobile') {
-      params.mobile = form.mobile;
+    if (loginType.value === 'account') {
+      params.username = form.username;
       params.authCode = form.authCode;
       params.captchaId = captchaId.value;
     }
@@ -97,7 +106,7 @@ const okHandle = async () => {
   }
   catch (err: any) {
     console.error(err);
-    if (loginType.value === 'mobile' && shouldRefreshGraphicCaptcha(err?.bizCode)) {
+    if (loginType.value === 'account' && shouldRefreshGraphicCaptcha(err?.bizCode)) {
       form.authCode = '';
       captchaId.value = '';
       void changeAuthCode();
@@ -207,14 +216,19 @@ onMounted(() => {
 
           <form @submit.prevent="okHandle">
             <!-- 账号登录表单 -->
-            <template v-if="loginType === 'mobile'">
+            <template v-if="loginType === 'account'">
               <div class="form-control">
                 <label class="login-label">
-                  <span class="login-label-text">账号</span>
+                  <span class="login-label-text">用户名 / 手机号</span>
                 </label>
                 <label class="login-input input">
                   <xia-icon icon="blog-shoujihao" />
-                  <input v-model="form.mobile" type="text" maxlength="11" placeholder="账号">
+                  <input
+                    v-model="form.username"
+                    type="text"
+                    :maxlength="USERNAME_MAX_LENGTH"
+                    placeholder="用户名 / 手机号"
+                  >
                 </label>
               </div>
               <div class="form-control">
@@ -312,14 +326,14 @@ onMounted(() => {
             <div class="flex justify-between mt-1">
               <label>
                 <div
-                  v-if="loginType === 'mobile'"
+                  v-if="loginType === 'account'"
                   class="link text-xs text-gray-600 hover:text-gray-500"
                   @click="loginType = 'email'"
                 >邮箱登录</div>
                 <div
                   v-else
                   class="link text-xs text-gray-600 hover:text-gray-500"
-                  @click="loginType = 'mobile'"
+                  @click="loginType = 'account'"
                 >账号登录</div>
               </label>
             </div>

@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import request from '~~/api/request.js';
-import { getRandomAvatar, isPC } from '~~/utils/common';
+import { getRegisterAvatars } from '~~/api/index';
+import {
+  DEFAULT_AVATAR_FALLBACK,
+  getRandomAvatar,
+  getRandomNickname,
+  isPC,
+  resolveStaticUrl,
+} from '~~/utils/common';
 import { messageDanger, messageSuccess } from '~~/utils/toast';
 import { debounce } from '~~/utils/index';
-import { baseUrl } from '~~/config';
 import { rsaEncrypt as rsaEncryptUtil } from '~~/utils/jsencrypt';
 import { loadRsaScript } from '~/utils/script-loader';
 import { shouldRefreshGraphicCaptcha } from '~~/utils/graphic-captcha-error';
+import { USERNAME_MAX_LENGTH, validateUsernameForRegister } from '~~/utils/username';
 
 let rsaEncrypt: any;
 // 客户端才加载
@@ -26,10 +33,10 @@ useHead({
 });
 
 // 注册方式切换
-const registerType = ref<'mobile' | 'email'>('mobile');
+const registerType = ref<'account' | 'email'>('account');
 
 interface formState extends StringKey {
-  mobile: string;
+  username: string;
   email: string;
   password: string;
   passwordRepeat: string;
@@ -41,10 +48,10 @@ interface formState extends StringKey {
 const form: formState = reactive({
   password: '',
   passwordRepeat: '',
-  nickname: '',
-  mobile: '',
+  nickname: getRandomNickname(),
+  username: '',
   email: '',
-  avatar: '',
+  avatar: DEFAULT_AVATAR_FALLBACK,
   authCode: '',
   verificationCode: '',
 });
@@ -52,29 +59,51 @@ const authCodeUrl = ref('');
 const authCodeLoadError = ref(false);
 const captchaId = ref('');
 
-request
-  .get('/resources/files', {
-    page: 1,
-    pageSize: 100,
-    pid: 'f25ca7bc-bd12-4c42-95ef-6c1b70f05012',
-    originalname: '',
-    type: '',
-  })
-  .then((res: any) => {
-    const urls = res[0].map((v: any) => baseUrl + v.url);
-    form.avatar = getRandomAvatar(urls);
-  });
+const registerAvatarPool = ref<string[]>([]);
+
+const pickRandomAvatar = () => {
+  if (!registerAvatarPool.value.length) return;
+  form.avatar = getRandomAvatar(registerAvatarPool.value);
+};
+
+const pickRandomNickname = () => {
+  form.nickname = getRandomNickname();
+};
+
+const loadRegisterAvatars = async () => {
+  try {
+    const { avatars } = await getRegisterAvatars();
+    if (!avatars?.length) return;
+    registerAvatarPool.value = avatars.map(resolveStaticUrl);
+    form.avatar = getRandomAvatar(registerAvatarPool.value);
+  }
+  catch {
+    // 接口失败时保留本地兜底图
+  }
+};
+
+const onAvatarError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  if (img.src.includes(DEFAULT_AVATAR_FALLBACK)) return;
+  img.src = DEFAULT_AVATAR_FALLBACK;
+  form.avatar = DEFAULT_AVATAR_FALLBACK;
+};
+
+if (import.meta.client) {
+  void loadRegisterAvatars();
+}
+
 /* 注册 */
 const okHandle = async () => {
   form.passwordRepeat = form.password;
 
   const requiredFields
-    = registerType.value === 'mobile'
-      ? ['mobile', 'password', 'nickname', 'authCode']
+    = registerType.value === 'account'
+      ? ['username', 'password', 'nickname', 'authCode']
       : ['email', 'password', 'nickname', 'verificationCode'];
 
   const msg: StringKey = {
-    mobile: '填写账号',
+    username: '填写用户名',
     email: '填写邮箱',
     password: '填写密码',
     nickname: '填写昵称',
@@ -89,6 +118,14 @@ const okHandle = async () => {
     }
   }
 
+  if (registerType.value === 'account') {
+    const usernameErr = validateUsernameForRegister(form.username);
+    if (usernameErr) {
+      messageDanger(usernameErr);
+      return;
+    }
+  }
+
   const params: any = {
     password: form.password,
     passwordRepeat: form.password,
@@ -97,8 +134,8 @@ const okHandle = async () => {
     registerType: registerType.value,
   };
   let url = '/user/register';
-  if (registerType.value === 'mobile') {
-    params.mobile = form.mobile;
+  if (registerType.value === 'account') {
+    params.username = form.username;
     params.authCode = form.authCode;
     params.captchaId = captchaId.value;
   }
@@ -116,7 +153,7 @@ const okHandle = async () => {
     }, 500);
   }
   catch (err: any) {
-    if (registerType.value === 'mobile' && shouldRefreshGraphicCaptcha(err?.bizCode)) {
+    if (registerType.value === 'account' && shouldRefreshGraphicCaptcha(err?.bizCode)) {
       form.authCode = '';
       captchaId.value = '';
       void changeAuthCode();
@@ -207,23 +244,28 @@ if (import.meta.client) {
             <div
               class="avatar btn btn-ghost btn-circle btn-sm"
               title="点击切换头像"
-              @click="form.avatar = getRandomAvatar()"
+              @click="pickRandomAvatar()"
             >
               <div class="rounded-full">
-                <img :src="form.avatar">
+                <img :src="form.avatar" alt="头像" @error="onAvatarError">
               </div>
             </div>
           </div>
 
           <!-- 账号注册表单 -->
-          <template v-if="registerType === 'mobile'">
+          <template v-if="registerType === 'account'">
             <div class="form-control">
               <label class="login-label">
-                <span class="login-label-text">账号</span>
+                <span class="login-label-text">用户名 / 手机号</span>
               </label>
               <label class="login-input input">
                 <xia-icon icon="blog-shoujihao" />
-                <input v-model="form.mobile" type="text" maxlength="11" placeholder="账号">
+                <input
+                  v-model="form.username"
+                  type="text"
+                  :maxlength="USERNAME_MAX_LENGTH"
+                  placeholder="用户名 / 手机号"
+                >
               </label>
             </div>
 
@@ -233,7 +275,20 @@ if (import.meta.client) {
               </label>
               <label class="login-input input">
                 <xia-icon icon="blog-yonghuming" />
-                <input v-model="form.nickname" type="text" maxlength="16" placeholder="昵称">
+                <input
+                  v-model="form.nickname"
+                  type="text"
+                  maxlength="6"
+                  placeholder="昵称（最多6字）"
+                >
+                <button
+                  type="button"
+                  class="nickname-switch-btn"
+                  title="随机昵称"
+                  @click="pickRandomNickname"
+                >
+                  换一换
+                </button>
               </label>
             </div>
             <div class="form-control">
@@ -292,7 +347,20 @@ if (import.meta.client) {
 
               <label class="login-input input">
                 <xia-icon icon="blog-yonghuming" />
-                <input v-model="form.nickname" type="text" maxlength="16" placeholder="昵称">
+                <input
+                  v-model="form.nickname"
+                  type="text"
+                  maxlength="6"
+                  placeholder="昵称（最多6字）"
+                >
+                <button
+                  type="button"
+                  class="nickname-switch-btn"
+                  title="随机昵称"
+                  @click="pickRandomNickname"
+                >
+                  换一换
+                </button>
               </label>
             </div>
             <div class="form-control">
@@ -327,14 +395,14 @@ if (import.meta.client) {
           <div class="flex justify-between mt-1">
             <label>
               <div
-                v-if="registerType === 'mobile'"
+                v-if="registerType === 'account'"
                 class="link text-xs text-gray-600 hover:text-gray-500"
                 @click="registerType = 'email'"
               >邮箱注册</div>
               <div
                 v-else
                 class="link text-xs text-gray-600 hover:text-gray-500"
-                @click="registerType = 'mobile'"
+                @click="registerType = 'account'"
               >账号注册
               </div>
             </label>
@@ -400,6 +468,30 @@ if (import.meta.client) {
       // filter: blur(28px) brightness(0.95);
       // backdrop-filter: blur(20px);
       backdrop-filter: blur(40px);
+    }
+  }
+
+  .nickname-switch-btn {
+    flex-shrink: 0;
+    height: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0 0.5rem;
+    border: none;
+    background: transparent;
+    color: rgb(156 163 175);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    opacity: 0.8;
+    cursor: pointer;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background: transparent;
+      color: rgb(156 163 175);
+      opacity: 0.8;
+      outline: none;
+      box-shadow: none;
     }
   }
 </style>
