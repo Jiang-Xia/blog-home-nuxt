@@ -7,21 +7,20 @@ useHead({
   titleTemplate: title => `${title} - ${SiteTitle}`,
 });
 
-interface GushiciData {
-  content?: string;
-  author?: string;
-  origin?: string;
-}
+const { data: gushiciData } = await useAsyncData('gushici_Get', () => gushici());
 
-const gushiciData = ref<GushiciData>({});
+const poetryContent = computed(() => gushiciData.value?.content || '每日诗词');
+const poetryAuthor = computed(() => {
+  const { author, origin } = gushiciData.value || {};
+  if (author && origin) return `${author} — ${origin}`;
+  return author || origin || '';
+});
 
-try {
-  const { data } = await useAsyncData('gushici_Get', () => gushici());
-  gushiciData.value = data.value || {};
-}
-catch (error) {
-  console.log(error);
-}
+const { typedContent, typedAuthor, isTypingContent, isTypingAuthor, showTyped }
+  = usePoetryTypewriter(
+    () => poetryContent.value,
+    () => poetryAuthor.value,
+  );
 
 const scrollToArticles = () => {
   document.getElementById('articles')?.scrollIntoView({ behavior: 'smooth' });
@@ -34,16 +33,13 @@ const scrollToArticles = () => {
       首页 - {{ SiteTitle }}
     </h1>
 
-    <!-- Hero -->
     <section
       class="relative flex flex-col items-center px-4 pb-16 pt-12 text-center md:pb-24 md:pt-20"
     >
-      <!-- Logo icon -->
       <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl cyber-logo-badge">
         <span class="text-2xl font-bold cyber-gradient-text">X</span>
       </div>
 
-      <!-- Badge -->
       <div
         class="mb-8 inline-flex items-center gap-2 rounded-full border border-tech bg-tech-header px-4 py-1.5 text-sm text-tech-muted"
       >
@@ -51,23 +47,37 @@ const scrollToArticles = () => {
         v2.0 · 个人技术博客 · 持续更新中
       </div>
 
-      <!-- Title -->
-      <h2 class="mb-4 text-4xl font-bold leading-tight text-tech md:text-6xl">
-        让技术分享<br>
-        <span class="cyber-gradient-text">更有温度</span>
-      </h2>
+      <div class="poetry-typewriter relative mb-8 w-full max-w-3xl">
+        <div class="pointer-events-none select-none opacity-0" aria-hidden="true">
+          <h2 class="mb-4 text-3xl font-bold leading-relaxed md:text-5xl">
+            <span class="cyber-gradient-text">{{ poetryContent }}</span>
+          </h2>
+          <p class="mx-auto max-w-xl text-sm md:text-base">
+            {{ poetryAuthor || '\u00A0' }}
+          </p>
+        </div>
 
-      <!-- Subtitle -->
-      <p class="mb-2 max-w-xl text-sm text-tech-muted md:text-base">
-        前端与后端技术笔记 · 工作心得 · 生活点滴
-      </p>
-      <p v-if="gushiciData.content" class="mb-8 max-w-lg text-xs text-tech-faint md:text-sm">
-        {{ gushiciData.content }}
-        <span v-if="gushiciData.author"> — {{ gushiciData.author }}</span>
-      </p>
-      <p v-else class="mb-8" />
+        <div class="absolute inset-x-0 top-0 text-center">
+          <h2 class="mb-4 text-3xl font-bold leading-relaxed text-tech md:text-5xl">
+            <span class="cyber-gradient-text">
+              <template v-if="showTyped">{{ typedContent }}</template>
+              <template v-else>{{ poetryContent }}</template>
+            </span>
+            <span v-if="showTyped && isTypingContent" class="typing-cursor">|</span>
+          </h2>
 
-      <!-- CTAs -->
+          <p class="mx-auto max-w-xl text-sm text-tech-muted md:text-base">
+            <template v-if="!showTyped">
+              {{ poetryAuthor }}
+            </template>
+            <template v-else>
+              {{ typedAuthor }}
+            </template>
+            <span v-if="showTyped && isTypingAuthor" class="typing-cursor">|</span>
+          </p>
+        </div>
+      </div>
+
       <div class="flex flex-wrap items-center justify-center gap-4">
         <CyberButton variant="primary" class="!px-8 !py-3.5" @click="scrollToArticles">
           <svg
@@ -83,12 +93,11 @@ const scrollToArticles = () => {
           </svg>
           浏览文章
         </CyberButton>
-        <CyberButton variant="secondary" to="/features" class="!px-8 !py-3.5">
-          查看特性
+        <CyberButton variant="secondary" to="/tool" class="!px-8 !py-3.5">
+          查看工具
         </CyberButton>
       </div>
 
-      <!-- Stats -->
       <div class="mt-16 flex flex-wrap items-center justify-center gap-10 md:gap-16">
         <div class="text-center">
           <div class="text-2xl font-bold text-primary md:text-3xl">
@@ -117,7 +126,6 @@ const scrollToArticles = () => {
       </div>
     </section>
 
-    <!-- Articles -->
     <section id="articles" class="mx-auto max-w-6xl px-4 pb-20">
       <CyberSectionHeader
         class="mb-10"

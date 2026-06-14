@@ -1,9 +1,11 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
+  <div class="space-y-4">
     <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div class="mt-4 card w-full bg-base-100 shadow-xl border border-base-300">
+      <div
+        class="mt-4 card w-full border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
+      >
         <div class="card-body">
-          <h2 class="card-title">
+          <h2 class="card-title text-tech">
             秘钥设置
           </h2>
           <div class="flex justify-center :flex-nowrap w-full">
@@ -35,9 +37,11 @@
     </div>
 
     <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
+      <div
+        class="mt-4 card w-full sm:w-2/5 border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
+      >
         <div class="card-body">
-          <h2 class="card-title">
+          <h2 class="card-title text-tech">
             原文
           </h2>
           <textarea
@@ -68,9 +72,11 @@
           <xia-icon icon="blog-jiesuo" /> 解密密文
         </button>
       </div>
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
+      <div
+        class="mt-4 card w-full sm:w-2/5 border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
+      >
         <div class="card-body">
-          <h2 class="card-title">
+          <h2 class="card-title text-tech">
             密文
           </h2>
           <textarea
@@ -82,7 +88,9 @@
       </div>
     </div>
 
-    <div class="mt-4 card w-full bg-base-100 shadow-xl border border-base-300">
+    <div
+      class="mt-4 card w-full border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
+    >
       <div class="card-body">
         <h2 class="card-title">
           对称加密算法介绍

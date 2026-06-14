@@ -296,158 +296,160 @@ const onLeaveGuild = async () => {
     back-to="/user/profile"
     back-label="返回个人中心"
   >
-    <RpgSeasonBanner :activity="activity" :weather-buff="weatherBuff" />
+    <div class="rpg-theme">
+      <RpgSeasonBanner :activity="activity" :weather-buff="weatherBuff" />
 
-    <div role="tablist" class="tabs tabs-border mb-4 flex-wrap">
-      <a
-        role="tab"
-        class="tab"
-        :class="{ 'tab-active': activeTab === 'status' }"
-        @click="switchTab('status')"
-      >冒险状态</a>
-      <a
-        role="tab"
-        class="tab"
-        :class="{ 'tab-active': activeTab === 'inventory' }"
-        @click="switchTab('inventory')"
-      >背包</a>
-      <a
-        role="tab"
-        class="tab"
-        :class="{ 'tab-active': activeTab === 'pet' }"
-        @click="switchTab('pet')"
-      >宠物</a>
-      <a
-        role="tab"
-        class="tab"
-        :class="{ 'tab-active': activeTab === 'guild' }"
-        @click="switchTab('guild')"
-      >公会</a>
-      <a
-        role="tab"
-        class="tab"
-        :class="{ 'tab-active': activeTab === 'leaderboard' }"
-        @click="switchTab('leaderboard')"
-      >排行</a>
-    </div>
+      <div role="tablist" class="tabs tabs-border mb-4 flex-wrap">
+        <a
+          role="tab"
+          class="tab"
+          :class="{ 'tab-active': activeTab === 'status' }"
+          @click="switchTab('status')"
+        >冒险状态</a>
+        <a
+          role="tab"
+          class="tab"
+          :class="{ 'tab-active': activeTab === 'inventory' }"
+          @click="switchTab('inventory')"
+        >背包</a>
+        <a
+          role="tab"
+          class="tab"
+          :class="{ 'tab-active': activeTab === 'pet' }"
+          @click="switchTab('pet')"
+        >宠物</a>
+        <a
+          role="tab"
+          class="tab"
+          :class="{ 'tab-active': activeTab === 'guild' }"
+          @click="switchTab('guild')"
+        >公会</a>
+        <a
+          role="tab"
+          class="tab"
+          :class="{ 'tab-active': activeTab === 'leaderboard' }"
+          @click="switchTab('leaderboard')"
+        >排行</a>
+      </div>
 
-    <client-only>
-      <div v-if="activeTab === 'status'">
-        <div class="cyber-glass-card p-5">
-          <div class="card-body p-4 sm:p-5">
-            <RpgProfileCard
-              v-if="!statusLoading && rpgStatus"
-              ref="profileCardRef"
-              :rpg-status="rpgStatus"
-              :sign-info="signInfo"
-              :ban-status="banStatus"
-              :achievements="achievements"
-              :quest-groups="questGroups"
-              :buffs="buffs"
-              :hit-records="hitRecords"
-              :hit-records-total="hitRecordsTotal"
-              :signing-in="signingIn"
-              @sign-in="onSignIn"
-              @equip="onEquipLoadout"
-              @unequip="onUnequipLoadout"
-              @claim-quest="onClaimQuest"
-              @load-hit-records="loadHitRecords"
-              @refresh="handleSocketRefresh"
-              @toggle-buff="onToggleBuff"
-            />
-            <div v-else class="text-center text-base-content/50 py-8">
-              加载中...
+      <client-only>
+        <div v-if="activeTab === 'status'">
+          <div class="cyber-glass-card p-5">
+            <div class="card-body p-4 sm:p-5">
+              <RpgProfileCard
+                v-if="!statusLoading && rpgStatus"
+                ref="profileCardRef"
+                :rpg-status="rpgStatus"
+                :sign-info="signInfo"
+                :ban-status="banStatus"
+                :achievements="achievements"
+                :quest-groups="questGroups"
+                :buffs="buffs"
+                :hit-records="hitRecords"
+                :hit-records-total="hitRecordsTotal"
+                :signing-in="signingIn"
+                @sign-in="onSignIn"
+                @equip="onEquipLoadout"
+                @unequip="onUnequipLoadout"
+                @claim-quest="onClaimQuest"
+                @load-hit-records="loadHitRecords"
+                @refresh="handleSocketRefresh"
+                @toggle-buff="onToggleBuff"
+              />
+              <div v-else class="text-center text-tech-muted py-8">
+                加载中...
+              </div>
+            </div>
+          </div>
+          <div class="cyber-glass-card mt-5 p-5">
+            <div class="card-body p-5">
+              <RpgLevelRewardsPanel
+                :rpg-status="rpgStatus"
+                :level-rewards="levelRewards"
+                :loading="statusLoading"
+              />
+            </div>
+          </div>
+          <div class="cyber-glass-card mt-5 p-5">
+            <div class="card-body p-5">
+              <RpgLotteryBox
+                ref="lotteryBoxRef"
+                :lottery-pool="lotteryPool"
+                :lottery-tickets="lotteryTickets"
+                :rpg-status="rpgStatus"
+                :lottery-history="lotteryHistory"
+                :drawing="drawing"
+                @draw="onDraw"
+                @load-history="loadLotteryHistory"
+              />
             </div>
           </div>
         </div>
-        <div class="cyber-glass-card mt-5 p-5">
-          <div class="card-body p-5">
-            <RpgLevelRewardsPanel
-              :rpg-status="rpgStatus"
-              :level-rewards="levelRewards"
-              :loading="statusLoading"
-            />
-          </div>
-        </div>
-        <div class="cyber-glass-card mt-5 p-5">
-          <div class="card-body p-5">
-            <RpgLotteryBox
-              ref="lotteryBoxRef"
-              :lottery-pool="lotteryPool"
-              :lottery-tickets="lotteryTickets"
-              :rpg-status="rpgStatus"
-              :lottery-history="lotteryHistory"
-              :drawing="drawing"
-              @draw="onDraw"
-              @load-history="loadLotteryHistory"
-            />
-          </div>
-        </div>
-      </div>
 
-      <div v-if="activeTab === 'inventory'">
-        <div class="cyber-glass-card p-5">
-          <div class="card-body p-5">
-            <RpgInventoryPanel
-              :items="inventoryItems"
-              :loadout="loadout"
-              :loading="inventoryLoading"
-              @equip="onInventoryEquip"
-              @unequip="onInventoryUnequip"
-            />
+        <div v-if="activeTab === 'inventory'">
+          <div class="cyber-glass-card p-5">
+            <div class="card-body p-5">
+              <RpgInventoryPanel
+                :items="inventoryItems"
+                :loadout="loadout"
+                :loading="inventoryLoading"
+                @equip="onInventoryEquip"
+                @unequip="onInventoryUnequip"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div v-if="activeTab === 'pet'">
-        <div class="cyber-glass-card p-5">
-          <div class="card-body p-5">
-            <RpgPetPanel
-              :pets="pets"
-              :eggs="petEggs"
-              :catalog="petCatalog"
-              :equipped-pet-id="equippedPetId"
-              :loading="petLoading"
-              @hatch="onHatchPet"
-              @buy="onBuyPet"
-              @deploy="onDeployPet"
-              @rest="onRestPet"
-              @rename="onRenamePet"
-            />
+        <div v-if="activeTab === 'pet'">
+          <div class="cyber-glass-card p-5">
+            <div class="card-body p-5">
+              <RpgPetPanel
+                :pets="pets"
+                :eggs="petEggs"
+                :catalog="petCatalog"
+                :equipped-pet-id="equippedPetId"
+                :loading="petLoading"
+                @hatch="onHatchPet"
+                @buy="onBuyPet"
+                @deploy="onDeployPet"
+                @rest="onRestPet"
+                @rename="onRenamePet"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div v-if="activeTab === 'guild'">
-        <div class="cyber-glass-card p-5">
-          <div class="card-body p-5">
-            <RpgGuildPanel
-              :my-guild="myGuild"
-              :guild-list="guildList"
-              :loading="guildLoading"
-              @create="onCreateGuild"
-              @join="onJoinGuild"
-              @leave="onLeaveGuild"
-            />
+        <div v-if="activeTab === 'guild'">
+          <div class="cyber-glass-card p-5">
+            <div class="card-body p-5">
+              <RpgGuildPanel
+                :my-guild="myGuild"
+                :guild-list="guildList"
+                :loading="guildLoading"
+                @create="onCreateGuild"
+                @join="onJoinGuild"
+                @leave="onLeaveGuild"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div v-if="activeTab === 'leaderboard'">
-        <div class="cyber-glass-card p-5">
-          <div class="card-body p-5">
-            <h3 class="card-title text-base mb-3">
-              冒险排行榜
-            </h3>
-            <RpgLeaderboardPanel
-              v-model:active-type="leaderboardType"
-              v-model:active-period="leaderboardPeriod"
-              :leaderboard="leaderboard"
-              :loading="leaderboardLoading"
-            />
+        <div v-if="activeTab === 'leaderboard'">
+          <div class="cyber-glass-card p-5">
+            <div class="card-body p-5">
+              <h3 class="card-title text-base mb-3">
+                冒险排行榜
+              </h3>
+              <RpgLeaderboardPanel
+                v-model:active-type="leaderboardType"
+                v-model:active-period="leaderboardPeriod"
+                :leaderboard="leaderboard"
+                :loading="leaderboardLoading"
+              />
+            </div>
           </div>
         </div>
-      </div>
-    </client-only>
+      </client-only>
+    </div>
   </CyberPageContainer>
 </template>

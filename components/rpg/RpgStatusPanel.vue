@@ -257,8 +257,8 @@ onMounted(async () => {
     max-width: 1080px;
     padding: 24px;
     border-radius: 16px;
-    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-    border: 1px solid #e2e8f0;
+    background: var(--rpg-card-gradient);
+    border: 1px solid var(--rpg-border);
   }
 
   .role-badge {
@@ -268,7 +268,7 @@ onMounted(async () => {
     padding: 8px 14px;
     border-radius: 10px;
     border: 2px solid;
-    background: linear-gradient(135deg, #fef9c3, #fde68a);
+    background: var(--rpg-amber-bg-gradient);
     margin-bottom: 12px;
   }
 
@@ -279,12 +279,12 @@ onMounted(async () => {
   .role-title {
     font-weight: 800;
     font-size: 14px;
-    color: #92400e;
+    color: var(--rpg-amber-text);
   }
 
   .role-frame-name {
     font-size: 12px;
-    color: #b45309;
+    color: var(--rpg-amber-text-soft);
     margin-left: auto;
   }
 
@@ -300,13 +300,13 @@ onMounted(async () => {
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #fbbf24, #d97706);
+    background: var(--rpg-level-badge-gradient);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+    box-shadow: 0 4px 12px var(--rpg-level-shadow);
   }
 
   .lv-text {
@@ -327,25 +327,25 @@ onMounted(async () => {
 
   .exp-label {
     font-size: 13px;
-    color: #475569;
+    color: var(--rpg-text-label);
     margin-bottom: 6px;
   }
 
   .exp-progress-text {
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     font-size: 12px;
   }
 
   .exp-bar {
     height: 8px;
-    background: #e2e8f0;
+    background: var(--rpg-track);
     border-radius: 4px;
     overflow: hidden;
   }
 
   .exp-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    background: var(--rpg-exp-gradient);
     border-radius: 4px;
     transition: width 0.5s ease;
   }
@@ -358,7 +358,7 @@ onMounted(async () => {
     display: flex;
     justify-content: space-between;
     font-size: 13px;
-    color: #475569;
+    color: var(--rpg-text-label);
     margin-bottom: 6px;
   }
 
@@ -368,7 +368,7 @@ onMounted(async () => {
 
   .life-bar {
     height: 10px;
-    background: #e2e8f0;
+    background: var(--rpg-track);
     border-radius: 5px;
     overflow: hidden;
   }
@@ -384,7 +384,7 @@ onMounted(async () => {
   .ban-inline {
     margin-top: 6px;
     font-size: 12px;
-    color: #dc2626;
+    color: var(--rpg-danger);
     font-weight: 600;
   }
 
@@ -395,7 +395,7 @@ onMounted(async () => {
   .sign-btn {
     padding: 8px 20px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: var(--rpg-primary-gradient);
     color: white;
     font-weight: 700;
     font-size: 14px;
@@ -406,7 +406,7 @@ onMounted(async () => {
   }
 
   .sign-btn:disabled {
-    background: #94a3b8;
+    background: var(--rpg-disabled);
     cursor: not-allowed;
   }
 
@@ -419,22 +419,22 @@ onMounted(async () => {
     align-items: center;
     gap: 12px;
     font-size: 13px;
-    color: #64748b;
+    color: var(--rpg-text-secondary);
   }
 
   .consecutive-badge {
-    background: #fef3c7;
+    background: var(--rpg-amber-bg);
     padding: 2px 8px;
     border-radius: 4px;
     font-weight: 600;
-    color: #b45309;
+    color: var(--rpg-amber-text-soft);
     font-size: 12px;
   }
 
   .next-bonus-hint {
     margin-top: 4px;
     font-size: 11px;
-    color: #f59e0b;
+    color: var(--rpg-amber);
     font-weight: 500;
   }
 
@@ -447,12 +447,12 @@ onMounted(async () => {
   }
 
   .bonus-tip {
-    color: #d97706;
+    color: var(--rpg-amber-dark);
     font-weight: 600;
   }
 
   .hp-tip {
-    color: #16a34a;
+    color: var(--rpg-success);
     font-weight: 600;
   }
 
@@ -470,7 +470,7 @@ onMounted(async () => {
   .section-title {
     font-size: 13px;
     font-weight: 600;
-    color: #475569;
+    color: var(--rpg-text-label);
     margin-bottom: 8px;
   }
 
@@ -498,7 +498,7 @@ onMounted(async () => {
     padding: 4px 10px;
     border-radius: 6px;
     border: 2px solid;
-    background: white;
+    background: var(--rpg-surface);
     font-size: 12px;
   }
 
@@ -512,9 +512,9 @@ onMounted(async () => {
   .title-badge {
     padding: 4px 10px;
     border-radius: 6px;
-    background: #fef3c7;
+    background: var(--rpg-amber-bg);
     font-size: 12px;
-    color: #92400e;
+    color: var(--rpg-amber-text);
     font-weight: 600;
   }
 
@@ -529,39 +529,39 @@ onMounted(async () => {
 
   .hits-empty {
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     padding: 8px;
   }
 
   .hit-item {
     padding: 8px;
     border-radius: 6px;
-    background: white;
+    background: var(--rpg-surface);
     margin-bottom: 4px;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--rpg-border-subtle);
   }
 
   .hit-content {
     font-size: 12px;
-    color: #374151;
+    color: var(--rpg-text-body);
     margin-bottom: 2px;
     word-break: break-all;
   }
 
   .hit-words {
     font-size: 11px;
-    color: #dc2626;
+    color: var(--rpg-danger);
   }
 
   .hit-time {
     font-size: 10px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     margin-top: 2px;
   }
 
   .rpg-loading {
     padding: 24px;
     text-align: center;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
   }
 </style>

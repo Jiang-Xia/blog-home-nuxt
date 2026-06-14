@@ -1,8 +1,10 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
-    <div class="card bg-base-100 shadow-xl mx-auto rounded-xl mb-4">
+  <div class="space-y-4">
+    <div
+      class="card border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech mx-auto mb-4"
+    >
       <div class="card-body">
-        <h2 class="card-title">
+        <h2 class="card-title text-tech">
           参数配置
         </h2>
         <div class="pl-8 pt-4">
@@ -46,13 +48,13 @@
       </div>
     </div>
 
-    <div class="mockup-browser border-base-300 border mx-auto">
+    <div class="mockup-browser border border-tech bg-[var(--tech-input-bg)] mx-auto text-tech">
       <div class="mockup-browser-toolbar">
-        <div class="input border-base-300 border">
+        <div class="input border-tech border">
           {{ model }}
         </div>
       </div>
-      <div class="border-base-300 border-t px-4 py-16">
+      <div class="border-tech border-t px-4 py-16">
         <template v-for="(item, index) in chatList">
           <div v-if="item.role === 'assistant'" class="chat chat-start">
             <div class="chat-image avatar">

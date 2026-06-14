@@ -44,7 +44,7 @@ watch(
 </script>
 
 <template>
-  <div v-if="userInfo?.uid && rpgStatus" class="rpg-interact-bar">
+  <div v-if="userInfo?.uid && rpgStatus" class="rpg-interact-bar rpg-theme">
     <RpgBanWarning :ban-status="banStatus" />
     <div v-if="!isBanned" class="interact-hint">
       <RpgLifeIndicator :life-value="rpgStatus.lifeValue" />
@@ -67,7 +67,7 @@ watch(
 
   .hint-text {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     line-height: 1.4;
   }
 </style>

@@ -5,7 +5,7 @@
     <section class="flex items-center justify-center mb-4">
       <audio ref="audio" controls :src="mp3Src" />
     </section>
-    <section ref="canvasWrap" class="bg-base-300 rounded-lg">
+    <section ref="canvasWrap" class="border border-tech bg-[var(--tech-input-bg)] rounded-lg">
       <span v-if="!isInit" class="loading loading-dots loading-md bg-accent" />
       <canvas ref="canvas" />
     </section>

@@ -1,9 +1,11 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
+  <div class="space-y-4">
     <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
+      <div
+        class="mt-4 card w-full sm:w-2/5 border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
+      >
         <div class="card-body">
-          <h2 class="card-title">
+          <h2 class="card-title text-tech">
             私钥(Private Key)
           </h2>
           <textarea
@@ -32,9 +34,11 @@
         </button>
       </div>
 
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
+      <div
+        class="mt-4 card w-full sm:w-2/5 border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
+      >
         <div class="card-body">
-          <h2 class="card-title">
+          <h2 class="card-title text-tech">
             公钥(Public Key)
           </h2>
           <textarea
@@ -47,9 +51,11 @@
     </div>
 
     <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
+      <div
+        class="mt-4 card w-full sm:w-2/5 border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
+      >
         <div class="card-body">
-          <h2 class="card-title">
+          <h2 class="card-title text-tech">
             原文
           </h2>
           <textarea
@@ -79,9 +85,11 @@
           <xia-icon icon="blog-jiesuo" /> 解密密文
         </button>
       </div>
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
+      <div
+        class="mt-4 card w-full sm:w-2/5 border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
+      >
         <div class="card-body">
-          <h2 class="card-title">
+          <h2 class="card-title text-tech">
             密文
           </h2>
           <textarea
@@ -93,7 +101,9 @@
       </div>
     </div>
 
-    <div class="mt-4 card w-full bg-base-100 shadow-xl border border-base-300">
+    <div
+      class="mt-4 card w-full border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
+    >
       <div class="card-body">
         <h2 class="card-title">
           国密SM2加密解密介绍
@@ -124,18 +134,28 @@ import { loadSm2Script } from '~/utils/script-loader';
 definePageMeta({
   keepalive: true, // nuxt 默认缓存所有页面
 });
+
+function getSm2Api() {
+  return (window as typeof window & { sm2?: any }).sm2;
+}
+
 const keySize = ref(130);
 const cipherMode = ref<number>(1);
 const privateKey = ref('');
 const publicKey = ref('');
 const createKey = () => {
-  const keypair = sm2.generateKeyPairHex();
+  const sm2Api = getSm2Api();
+  if (!sm2Api?.generateKeyPairHex) {
+    messageDanger('SM2 脚本未就绪');
+    return;
+  }
+  const keypair = sm2Api.generateKeyPairHex();
   publicKey.value = keypair.publicKey; // 公钥
   privateKey.value = keypair.privateKey; // 私钥
   if (keySize.value === 66) {
     // 默认生成公钥 130 位太长，可以压缩公钥到 66 位
-    const compressedPublicKey = sm2.compressPublicKeyHex(publicKey.value); // compressedPublicKey 和 publicKey 等价
-    sm2.comparePublicKeyHex(publicKey.value, compressedPublicKey); // 判断公钥是否等价
+    const compressedPublicKey = sm2Api.compressPublicKeyHex(publicKey.value); // compressedPublicKey 和 publicKey 等价
+    sm2Api.comparePublicKeyHex(publicKey.value, compressedPublicKey); // 判断公钥是否等价
     publicKey.value = compressedPublicKey;
   }
 };
@@ -143,28 +163,44 @@ const createKey = () => {
 const plaintext = ref('');
 const ciphertext = ref('');
 const encrypted = () => {
+  const sm2Api = getSm2Api();
+  if (!sm2Api?.doEncrypt) {
+    messageDanger('SM2 脚本未就绪');
+    return;
+  }
   if (!plaintext.value) {
     messageDanger('请先输入原文');
     return;
   }
-  ciphertext.value = sm2.doEncrypt(plaintext.value, publicKey.value, cipherMode.value);
+  ciphertext.value = sm2Api.doEncrypt(plaintext.value, publicKey.value, cipherMode.value);
 };
 const decrypt = () => {
+  const sm2Api = getSm2Api();
+  if (!sm2Api?.doDecrypt) {
+    messageDanger('SM2 脚本未就绪');
+    return;
+  }
   if (!ciphertext.value) {
     messageDanger('请先输入密文');
     return;
   }
-  plaintext.value = sm2.doDecrypt(ciphertext.value, privateKey.value, cipherMode.value);
+  plaintext.value = sm2Api.doDecrypt(ciphertext.value, privateKey.value, cipherMode.value);
   if (!plaintext.value) {
     messageDanger('解密失败！');
   }
 };
 
-onMounted(async () => {
-  // 按需加载国密 SM2 脚本
-  await loadSm2Script();
+// 须在 setup 中注册，onMounted 内调用 useNuxtApp 会抛错
+const transitionDone = waitForPageTransition();
 
-  createKey();
-  // console.log(crypto.rsaEncrypt)
+onMounted(async () => {
+  try {
+    await loadSm2Script();
+    await transitionDone;
+    createKey();
+  }
+  catch {
+    messageDanger('SM2 脚本加载失败');
+  }
 });
 </script>

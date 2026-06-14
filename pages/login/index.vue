@@ -212,6 +212,23 @@ onMounted(() => {
       </h1>
 
       <form autocomplete="off" class="space-y-4" @submit.prevent="okHandle">
+        <!-- 阻止浏览器自动填充 -->
+        <input
+          type="text"
+          name="prevent_autofill"
+          tabindex="-1"
+          autocomplete="off"
+          class="hidden"
+          aria-hidden="true"
+        >
+        <input
+          type="password"
+          name="prevent_autofill_pw"
+          tabindex="-1"
+          autocomplete="new-password"
+          class="hidden"
+          aria-hidden="true"
+        >
         <template v-if="loginType === 'account'">
           <div class="form-control">
             <label class="login-label">
@@ -222,6 +239,8 @@ onMounted(() => {
               <input
                 v-model="form.username"
                 type="text"
+                name="login_username"
+                autocomplete="off"
                 :maxlength="USERNAME_MAX_LENGTH"
                 placeholder="用户名 / 手机号"
               >
@@ -233,7 +252,14 @@ onMounted(() => {
             </label>
             <label class="login-input input">
               <xia-icon icon="blog-mima" />
-              <input v-model="form.password" type="password" maxlength="16" placeholder="密码">
+              <input
+                v-model="form.password"
+                type="password"
+                name="login_password"
+                autocomplete="new-password"
+                maxlength="16"
+                placeholder="密码"
+              >
             </label>
           </div>
           <div class="form-control">
@@ -242,7 +268,13 @@ onMounted(() => {
             </label>
             <label class="login-input input">
               <xia-icon icon="blog-yanzhengma" />
-              <input v-model="form.authCode" maxlength="4" placeholder="验证码">
+              <input
+                v-model="form.authCode"
+                name="login_auth_code"
+                autocomplete="off"
+                maxlength="4"
+                placeholder="验证码"
+              >
               <ClientOnly>
                 <img
                   v-if="authCodeUrl && !authCodeLoadError"
@@ -272,7 +304,13 @@ onMounted(() => {
             </label>
             <label class="login-input input">
               <xia-icon icon="blog-youxiang" />
-              <input v-model="form.email" type="email" placeholder="邮箱地址">
+              <input
+                v-model="form.email"
+                type="email"
+                name="login_email"
+                autocomplete="off"
+                placeholder="邮箱地址"
+              >
             </label>
           </div>
           <div class="form-control">
@@ -281,7 +319,14 @@ onMounted(() => {
             </label>
             <label class="login-input input">
               <xia-icon icon="blog-mima" />
-              <input v-model="form.password" type="password" maxlength="16" placeholder="密码">
+              <input
+                v-model="form.password"
+                type="password"
+                name="login_email_password"
+                autocomplete="new-password"
+                maxlength="16"
+                placeholder="密码"
+              >
             </label>
           </div>
           <div class="form-control">
@@ -290,7 +335,13 @@ onMounted(() => {
             </label>
             <label class="login-input input">
               <xia-icon icon="blog-yanzhengma" />
-              <input v-model="form.verificationCode" maxlength="6" placeholder="邮箱验证码">
+              <input
+                v-model="form.verificationCode"
+                name="login_verification_code"
+                autocomplete="one-time-code"
+                maxlength="6"
+                placeholder="邮箱验证码"
+              >
               <button
                 type="button"
                 class="btn btn-primary btn-sm mr-1"

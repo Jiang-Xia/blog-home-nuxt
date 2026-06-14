@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
+  <div class="space-y-4">
     <div class="text-center pb-4 text-tech">
       <h2 class="text-xl">
         批量加水印工具
@@ -35,7 +35,9 @@
       >
       <!-- <button class="btn join-item" @click="mergeFileHandle">清空文件</button> -->
     </section>
-    <div class="m-auto card bg-base-100 w-full sm:w-3/5 shadow-xl">
+    <div
+      class="m-auto card border border-tech bg-[var(--tech-input-bg)] w-full sm:w-3/5 shadow-xl rounded-2xl text-tech"
+    >
       <span v-if="loading" class="loading loading-dots loading-md bg-accent" />
       <div class="card-body p-0 sm:p-4">
         <div>

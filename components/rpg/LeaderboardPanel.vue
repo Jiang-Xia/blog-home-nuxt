@@ -118,17 +118,17 @@ const getScoreText = (entry: any) => {
   .type-tab {
     padding: 6px 14px;
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    background: white;
+    border: 1px solid var(--rpg-border);
+    background: var(--rpg-surface);
     font-size: 13px;
     font-weight: 600;
-    color: #64748b;
+    color: var(--rpg-text-secondary);
     cursor: pointer;
     transition: all 0.2s;
   }
 
   .type-tab.active {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: var(--rpg-primary-gradient);
     color: white;
     border-color: transparent;
   }
@@ -136,7 +136,7 @@ const getScoreText = (entry: any) => {
   .loading,
   .empty {
     text-align: center;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     padding: 32px 0;
   }
 
@@ -152,13 +152,13 @@ const getScoreText = (entry: any) => {
     gap: 10px;
     padding: 10px 12px;
     border-radius: 10px;
-    background: #f8fafc;
-    border: 1px solid #f1f5f9;
+    background: var(--rpg-empty-bg);
+    border: 1px solid var(--rpg-border-subtle);
   }
 
   .rank-item.top-three {
-    background: linear-gradient(135deg, #fffbeb, #fef3c7);
-    border-color: #fde68a;
+    background: var(--rpg-amber-bg-gradient);
+    border-color: var(--rpg-amber-border);
   }
 
   .rank-num {
@@ -166,7 +166,7 @@ const getScoreText = (entry: any) => {
     text-align: center;
     font-weight: 800;
     font-size: 14px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
   }
 
   .rank-avatar {
@@ -174,7 +174,7 @@ const getScoreText = (entry: any) => {
     height: 36px;
     border-radius: 50%;
     overflow: hidden;
-    background: #e2e8f0;
+    background: var(--rpg-track);
     flex-shrink: 0;
   }
 
@@ -191,7 +191,7 @@ const getScoreText = (entry: any) => {
     width: 100%;
     height: 100%;
     font-weight: 700;
-    color: #64748b;
+    color: var(--rpg-text-secondary);
     font-size: 14px;
   }
 
@@ -204,7 +204,7 @@ const getScoreText = (entry: any) => {
 
   .rank-name {
     font-weight: 600;
-    color: #334155;
+    color: var(--rpg-text-heading);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -212,12 +212,12 @@ const getScoreText = (entry: any) => {
 
   .rank-sub {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
   }
 
   .rank-score {
     font-weight: 700;
-    color: #d97706;
+    color: var(--rpg-amber-dark);
     font-size: 13px;
     white-space: nowrap;
   }

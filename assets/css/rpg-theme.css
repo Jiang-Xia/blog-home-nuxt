@@ -1,0 +1,206 @@
+/* RPG 冒险模块主题令牌 — 跟随 cyber / cyber-light 切换 */
+
+html.tech-shell {
+  --rpg-bg: color-mix(in oklch, var(--color-base-200) 55%, var(--color-base-100));
+  --rpg-bg-alt: color-mix(in oklch, var(--color-base-300) 45%, var(--color-base-100));
+  --rpg-surface: var(--color-base-100);
+  --rpg-border: color-mix(in oklch, var(--color-base-content) 14%, var(--color-base-100));
+  --rpg-border-subtle: color-mix(in oklch, var(--color-base-content) 10%, var(--color-base-100));
+  --rpg-card-gradient: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--color-base-200) 60%, var(--color-base-100)),
+    color-mix(in oklch, var(--color-base-300) 40%, var(--color-base-100))
+  );
+  --rpg-text: var(--color-base-content);
+  --rpg-text-heading: color-mix(in oklch, var(--color-base-content) 92%, var(--color-base-100));
+  --rpg-text-body: color-mix(in oklch, var(--color-base-content) 78%, var(--color-base-100));
+  --rpg-text-label: color-mix(in oklch, var(--color-base-content) 62%, var(--color-base-100));
+  --rpg-text-secondary: color-mix(in oklch, var(--color-base-content) 52%, var(--color-base-100));
+  --rpg-text-muted: color-mix(in oklch, var(--color-base-content) 42%, var(--color-base-100));
+  --rpg-track: color-mix(in oklch, var(--color-base-content) 12%, var(--color-base-100));
+  --rpg-stat-hover: color-mix(in oklch, var(--color-base-content) 6%, var(--color-base-100));
+  --rpg-empty-bg: color-mix(in oklch, var(--color-base-200) 50%, var(--color-base-100));
+  --rpg-empty-border: color-mix(in oklch, var(--color-base-content) 12%, var(--color-base-100));
+  --rpg-overlay: color-mix(in oklch, var(--color-base-content) 55%, transparent);
+
+  /* 语义色 — 两主题共用，保证状态识别一致 */
+  --rpg-amber: #f59e0b;
+  --rpg-amber-light: #fbbf24;
+  --rpg-amber-dark: #d97706;
+  --rpg-amber-text: #92400e;
+  --rpg-amber-text-soft: #b45309;
+  --rpg-amber-bg: #fef3c7;
+  --rpg-amber-bg-soft: #fef9c3;
+  --rpg-amber-bg-faint: rgba(251, 191, 36, 0.15);
+  --rpg-amber-bg-gradient: linear-gradient(135deg, #fffbeb, #fef3c7);
+  --rpg-amber-border: #fde68a;
+  --rpg-exp-gradient: linear-gradient(90deg, #fbbf24, #f59e0b);
+  --rpg-level-badge-gradient: linear-gradient(135deg, #fbbf24, #d97706);
+  --rpg-level-shadow: rgba(217, 119, 6, 0.3);
+
+  --rpg-primary: #3b82f6;
+  --rpg-primary-dark: #2563eb;
+  --rpg-primary-gradient: linear-gradient(135deg, #3b82f6, #2563eb);
+  --rpg-diamond-bg: #eff6ff;
+  --rpg-diamond-text: #1d4ed8;
+
+  --rpg-violet: #7c3aed;
+  --rpg-violet-light: #8b5cf6;
+  --rpg-violet-bg: #ede9fe;
+  --rpg-violet-gradient: linear-gradient(135deg, #8b5cf6, #7c3aed);
+
+  --rpg-success: #16a34a;
+  --rpg-success-bg: #f0fdf4;
+  --rpg-success-border: #bbf7d0;
+  --rpg-success-gradient: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  --rpg-progress-green: linear-gradient(90deg, #4ade80, #22c55e);
+  --rpg-life-ok: #4ade80;
+  --rpg-life-warn: #fbbf24;
+  --rpg-life-danger: #ef4444;
+
+  --rpg-danger: #dc2626;
+  --rpg-danger-text: #991b1b;
+  --rpg-danger-text-soft: #b91c1c;
+  --rpg-danger-bg: #fef2f2;
+  --rpg-danger-border: #fecaca;
+  --rpg-badge-alert: #ef4444;
+
+  --rpg-disabled: #94a3b8;
+  --rpg-life-track: rgba(0, 0, 0, 0.1);
+  --rpg-life-track-bg: rgba(0, 0, 0, 0.04);
+
+  --rpg-banner-bg: color-mix(in oklch, var(--color-secondary) 12%, var(--color-base-100));
+  --rpg-banner-border: color-mix(in oklch, var(--color-secondary) 28%, var(--color-base-100));
+  --rpg-banner-label: var(--color-secondary);
+  --rpg-banner-info: var(--color-info);
+}
+
+/* ── 深色 cyber ── */
+html.tech-shell[data-theme='cyber'] {
+  --rpg-bg: rgb(255 255 255 / 0.04);
+  --rpg-bg-alt: rgb(255 255 255 / 0.06);
+  --rpg-surface: rgb(255 255 255 / 0.06);
+  --rpg-border: rgb(255 255 255 / 0.12);
+  --rpg-border-subtle: rgb(255 255 255 / 0.08);
+  --rpg-card-gradient: linear-gradient(135deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.03));
+  --rpg-text: #f8fafc;
+  --rpg-text-heading: #f1f5f9;
+  --rpg-text-body: #e2e8f0;
+  --rpg-text-label: #cbd5e1;
+  --rpg-text-secondary: #94a3b8;
+  --rpg-text-muted: #64748b;
+  --rpg-track: rgb(255 255 255 / 0.1);
+  --rpg-stat-hover: rgb(255 255 255 / 0.08);
+  --rpg-empty-bg: rgb(255 255 255 / 0.03);
+  --rpg-empty-border: rgb(255 255 255 / 0.1);
+  --rpg-overlay: rgba(0, 0, 0, 0.65);
+
+  --rpg-amber-text: #fde68a;
+  --rpg-amber-text-soft: #fcd34d;
+  --rpg-amber-bg: rgb(245 158 11 / 0.15);
+  --rpg-amber-bg-soft: rgb(245 158 11 / 0.12);
+  --rpg-amber-bg-faint: rgb(245 158 11 / 0.12);
+  --rpg-amber-bg-gradient: linear-gradient(135deg, rgb(245 158 11 / 0.18), rgb(217 119 6 / 0.12));
+  --rpg-amber-border: rgb(245 158 11 / 0.35);
+  --rpg-level-shadow: rgba(245, 158, 11, 0.35);
+
+  --rpg-diamond-bg: rgb(59 130 246 / 0.15);
+  --rpg-diamond-text: #93c5fd;
+
+  --rpg-violet-bg: rgb(139 92 246 / 0.18);
+
+  --rpg-success-bg: rgb(34 197 94 / 0.12);
+  --rpg-success-border: rgb(34 197 94 / 0.28);
+  --rpg-success-gradient: linear-gradient(135deg, rgb(34 197 94 / 0.12), rgb(34 197 94 / 0.08));
+
+  --rpg-danger-bg: rgb(239 68 68 / 0.12);
+  --rpg-danger-border: rgb(239 68 68 / 0.28);
+  --rpg-danger-text: #fca5a5;
+  --rpg-danger-text-soft: #f87171;
+
+  --rpg-life-track: rgb(255 255 255 / 0.12);
+  --rpg-life-track-bg: rgb(255 255 255 / 0.06);
+
+  --rpg-banner-bg: rgb(139 92 246 / 0.12);
+  --rpg-banner-border: rgb(139 92 246 / 0.28);
+  --rpg-banner-label: #c4b5fd;
+  --rpg-banner-info: #67e8f9;
+}
+
+/* ── 浅色 cyber-light ── */
+html.tech-shell[data-theme='cyber-light'] {
+  --rpg-bg: #f8fafc;
+  --rpg-bg-alt: #f1f5f9;
+  --rpg-surface: #ffffff;
+  --rpg-border: #e2e8f0;
+  --rpg-border-subtle: #f1f5f9;
+  --rpg-card-gradient: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  --rpg-text: #1e293b;
+  --rpg-text-heading: #334155;
+  --rpg-text-body: #374151;
+  --rpg-text-label: #475569;
+  --rpg-text-secondary: #64748b;
+  --rpg-text-muted: #94a3b8;
+  --rpg-track: #e2e8f0;
+  --rpg-stat-hover: #f1f5f9;
+  --rpg-empty-bg: #f8fafc;
+  --rpg-empty-border: #e2e8f0;
+  --rpg-overlay: rgba(0, 0, 0, 0.55);
+
+  --rpg-life-track: rgba(0, 0, 0, 0.1);
+  --rpg-life-track-bg: rgba(0, 0, 0, 0.04);
+
+  --rpg-amber-bg-faint: rgba(251, 191, 36, 0.15);
+
+  --rpg-banner-bg: rgb(139 92 246 / 0.08);
+  --rpg-banner-border: rgb(139 92 246 / 0.22);
+  --rpg-banner-label: #7c3aed;
+  --rpg-banner-info: #0284c7;
+}
+
+@layer components {
+  .rpg-theme {
+    color: var(--rpg-text);
+  }
+
+  .rpg-banner {
+    border: 1px solid var(--rpg-banner-border);
+    background: var(--rpg-banner-bg);
+  }
+
+  .rpg-banner-label {
+    color: var(--rpg-banner-label);
+  }
+
+  .rpg-banner-info {
+    color: var(--rpg-banner-info);
+  }
+
+  .rpg-banner-cover {
+    border-color: var(--rpg-banner-border);
+  }
+
+  .rpg-theme .text-base-content\/50,
+  .rpg-theme .text-base-content\/40,
+  .rpg-theme .text-base-content\/60,
+  .rpg-theme .text-base-content\/70 {
+    color: var(--rpg-text-muted);
+  }
+
+  .rpg-theme .border-base-200,
+  .rpg-theme .border-base-300 {
+    border-color: var(--rpg-border);
+  }
+
+  .rpg-theme .bg-base-100 {
+    background-color: var(--rpg-surface);
+  }
+
+  .rpg-theme .bg-base-200\/50 {
+    background-color: var(--rpg-bg-alt);
+  }
+
+  .rpg-theme .card-title {
+    color: var(--rpg-text);
+  }
+}

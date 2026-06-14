@@ -1,5 +1,15 @@
 <script setup lang="ts">
 import config from '~~/config';
+import { SiteTitle } from '@/utils/constant';
+
+definePageMeta({
+  layout: 'custom',
+});
+
+useHead({
+  title: '404',
+  titleTemplate: title => `${title} - ${SiteTitle}`,
+});
 
 const route = useRoute();
 </script>

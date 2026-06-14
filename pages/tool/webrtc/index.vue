@@ -4,8 +4,10 @@ import VideoChat from './components/VideoChat.client.vue';
 </script>
 
 <template>
-  <ClientComponent />
-  <VideoChat />
+  <div>
+    <ClientComponent />
+    <VideoChat />
+  </div>
 </template>
 
 <style lang="less" scoped></style>

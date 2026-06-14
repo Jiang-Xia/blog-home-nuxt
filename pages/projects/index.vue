@@ -2,7 +2,9 @@
   <CyberPageContainer label="PROJECTS" title="项目展示" subtitle="个人项目与作品演示">
     <div class="page-container m-auto">
       <section>
-        <div class="navbar bg-base-100 mb-4 shadow-xl rounded-box">
+        <div
+          class="navbar cyber-glass-card border border-tech mb-4 shadow-xl rounded-2xl text-tech"
+        >
           <div class="navbar-start">
             <label class="swap swap-flip text-3xl">
               <input type="checkbox">
@@ -19,15 +21,17 @@
             </button>
           </div>
         </div>
-        <div class="mockup-window border border-base-300 bg-base-100">
-          <div class="flex justify-center p-4 bg-base-200 h-full">
+        <div class="mockup-window border border-tech bg-[var(--tech-input-bg)]">
+          <div class="flex justify-center p-4 bg-tech-header h-full">
             <iframe class="iframe" :src="goUrl" />
           </div>
         </div>
       </section>
 
       <section class="mt-10">
-        <div class="navbar bg-base-100 mb-4 shadow-xl rounded-box">
+        <div
+          class="navbar cyber-glass-card border border-tech mb-4 shadow-xl rounded-2xl text-tech"
+        >
           <div class="navbar-start">
             <label class="swap swap-flip text-3xl">
               <input type="checkbox">
@@ -58,7 +62,7 @@
           </div>
           <div class="flex flex-1 flex-wrap justify-center items-start">
             <div
-              class="card w-full max-w-96 mt-4 h-auto bg-base-100 shadow-xl md:w-56 md:h-96 md:mr-4"
+              class="card w-full max-w-96 mt-4 h-auto border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech md:w-56 md:h-96 md:mr-4"
             >
               <figure>
                 <img
@@ -67,14 +71,14 @@
                 >
               </figure>
               <div class="card-body">
-                <h2 class="card-title">
+                <h2 class="card-title text-tech">
                   APP
                 </h2>
                 <p>扫码下载安装即可体验App</p>
               </div>
             </div>
             <div
-              class="card w-full max-w-96 mt-4 h-auto bg-base-100 shadow-xl md:w-56 md:h-96 md:mr-4"
+              class="card w-full max-w-96 mt-4 h-auto border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech md:w-56 md:h-96 md:mr-4"
             >
               <figure>
                 <img
@@ -83,14 +87,14 @@
                 >
               </figure>
               <div class="card-body">
-                <h2 class="card-title">
+                <h2 class="card-title text-tech">
                   h5页面
                 </h2>
                 <p>扫码即可体验h5页面！</p>
               </div>
             </div>
             <div
-              class="card w-full max-w-96 mt-4 h-auto bg-base-100 shadow-xl md:w-56 md:h-96 md:mr-4"
+              class="card w-full max-w-96 mt-4 h-auto border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech md:w-56 md:h-96 md:mr-4"
             >
               <figure>
                 <img
@@ -99,14 +103,14 @@
                 >
               </figure>
               <div class="card-body">
-                <h2 class="card-title">
+                <h2 class="card-title text-tech">
                   微信小程序
                 </h2>
                 <p>微信扫码即可体验微信小程序！</p>
               </div>
             </div>
             <div
-              class="card w-full max-w-96 mt-4 h-auto bg-base-100 shadow-xl md:w-56 md:h-96 md:mr-4"
+              class="card w-full max-w-96 mt-4 h-auto border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech md:w-56 md:h-96 md:mr-4"
             >
               <figure>
                 <img
@@ -115,7 +119,7 @@
                 >
               </figure>
               <div class="card-body">
-                <h2 class="card-title">
+                <h2 class="card-title text-tech">
                   支付宝小程序
                 </h2>
                 <p>支付宝扫码即可体验微信小程序！</p>
@@ -126,7 +130,9 @@
       </section>
 
       <section class="mt-10">
-        <div class="navbar bg-base-100 mb-4 shadow-xl rounded-box">
+        <div
+          class="navbar cyber-glass-card border border-tech mb-4 shadow-xl rounded-2xl text-tech"
+        >
           <div class="navbar-start">
             <label class="swap swap-flip text-3xl">
               <input type="checkbox">
@@ -143,8 +149,8 @@
             </button>
           </div>
         </div>
-        <div class="mockup-window border border-base-300 bg-base-100">
-          <div class="flex justify-center p-4 bg-base-200 h-full">
+        <div class="mockup-window border border-tech bg-[var(--tech-input-bg)]">
+          <div class="flex justify-center p-4 bg-tech-header h-full">
             <iframe class="iframe" :src="zoneAdminUrl" />
           </div>
         </div>
@@ -176,8 +182,6 @@ const goTargetPage = (type: number) => {
 
 <style lang="less" scoped>
   .page-container {
-    // background: var(--main-bgc);
-    // padding: 124px 24px 24px 24px;
     padding: 24px 12px 12px 12px;
 
     .iframe-wrap {
@@ -201,9 +205,6 @@ const goTargetPage = (type: number) => {
       .iframe {
         min-height: 65vh;
       }
-    }
-
-    .mockup-phone {
     }
   }
 </style>

@@ -132,7 +132,7 @@ watch(
     </div>
   </div>
 
-  <dialog class="modal" :class="{ 'modal-open': showTipModal }">
+  <dialog class="modal rpg-theme" :class="{ 'modal-open': showTipModal }">
     <div class="modal-box max-w-sm">
       <h3 class="font-bold text-lg mb-2">
         💎 打赏作者

@@ -1,14 +1,7 @@
 <script setup lang="ts">
-const route = useRoute();
+import { NAV_LINKS } from '@/utils/constant';
 
-const navLinks = [
-  { path: '/', title: '首页', hash: '' },
-  { path: '/download', title: '快速入口', hash: '' },
-  { path: '/features', title: '特性', hash: '' },
-  { path: '/archives', title: '归档', hash: '' },
-  { path: '/tool', title: '工具箱', hash: '' },
-  { path: '/about', title: '关于', hash: '' },
-];
+const route = useRoute();
 
 function isActive(path: string) {
   if (path === '/') return route.path === '/';
@@ -27,11 +20,21 @@ function isActive(path: string) {
     </NuxtLink>
 
     <!-- Center links -->
-    <ul class="hidden items-center gap-1 lg:flex">
-      <li v-for="item in navLinks" :key="item.path">
+    <ul
+      class="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-x-auto px-1 lg:flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      <li
+        v-for="item in NAV_LINKS"
+        :key="item.path"
+        class="shrink-0 rounded-xl transition-colors"
+        :class="isActive(item.path) && 'bg-[var(--tech-nav-active-bg)]'"
+      >
         <NuxtLink
           :to="item.path"
-          :class="['cyber-nav-link no-underline', isActive(item.path) && 'cyber-nav-link-active']"
+          :class="[
+            'cyber-nav-link block no-underline',
+            isActive(item.path) && 'cyber-nav-link-active',
+          ]"
         >
           {{ item.title }}
         </NuxtLink>

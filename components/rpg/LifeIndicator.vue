@@ -3,6 +3,8 @@
    * 小型生命值指示器 - 用于评论区/留言区输入框附近
    * 显示当前生命值状态（绿色正常/黄色警告/红色危险）
    */
+import { getRpgLifeColor } from '~~/composables/use-rpg-theme';
+
 const props = defineProps<{
   lifeValue: number;
   maxLife?: number;
@@ -10,11 +12,7 @@ const props = defineProps<{
 
 const maxLife = props.maxLife ?? 100;
 
-const lifeColor = computed(() => {
-  if (props.lifeValue > 60) return '#4ade80';
-  if (props.lifeValue > 30) return '#fbbf24';
-  return '#ef4444';
-});
+const lifeColor = computed(() => getRpgLifeColor(props.lifeValue));
 
 const lifePercent = computed(() => {
   return Math.max(0, Math.min(100, (props.lifeValue / maxLife) * 100));
@@ -51,13 +49,13 @@ const statusText = computed(() => {
     font-size: 12px;
     padding: 4px 8px;
     border-radius: 6px;
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--rpg-life-track-bg);
   }
 
   .life-bar-bg {
     width: 60px;
     height: 6px;
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--rpg-life-track);
     border-radius: 3px;
     overflow: hidden;
   }

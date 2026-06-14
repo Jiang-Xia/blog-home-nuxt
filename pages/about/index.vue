@@ -20,21 +20,23 @@ useHead({
 </script>
 
 <template>
-  <NuxtLayout name="main-content" label="ABOUT" title="关于我" subtitle="个人简介与站点说明">
-    <div class="about-container">
-      <h1 class="hidden">
-        关于我 - {{ SiteTitle }}
-      </h1>
-      <MdPreview
-        :key="mdKey"
-        v-model="content"
-        class="x-md-editor bg-transparent p-4 rounded-box shadow-xl"
-        preview-theme="mk-cute"
-        preview-only
-        :theme="mdEditorTheme"
-      />
-    </div>
-  </NuxtLayout>
+  <div>
+    <NuxtLayout name="main-content" label="ABOUT" title="关于我" subtitle="个人简介与站点说明">
+      <div class="about-container">
+        <h1 class="hidden">
+          关于我 - {{ SiteTitle }}
+        </h1>
+        <MdPreview
+          :key="mdKey"
+          v-model="content"
+          class="x-md-editor bg-transparent p-4 rounded-box shadow-xl"
+          preview-theme="mk-cute"
+          preview-only
+          :theme="mdEditorTheme"
+        />
+      </div>
+    </NuxtLayout>
+  </div>
 </template>
 
 <style lang="less" scoped>

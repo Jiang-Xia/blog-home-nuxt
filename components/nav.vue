@@ -8,30 +8,20 @@
 -->
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import Yaya from '../assets/images/animal/yaya.svg';
 import { getArticleList } from '@/api/article';
-import { throttle } from '~~/utils';
+import { debounce } from '~~/utils';
 import api from '@/api';
 import { TokenKey, RefreshTokenKey, getToken, removeToken } from '@/utils/cookie';
-import { useThemeActions } from '@/composables/use-home';
-
-const navList = ref([
-  { path: '/', title: '首页' },
-  { path: '/download', title: '快速入口' },
-  { path: '/features', title: '特性' },
-  { path: '/archives', title: '归档' },
-  { path: '/links', title: '友链' },
-  { path: '/msgboard', title: '留言板' },
-  { path: '/about', title: '关于' },
-  { path: '/projects', title: '项目' },
-  { path: '/tool', title: '工具箱' },
-]);
+import { isDarkTheme, useThemeActions } from '@/composables/use-home';
+import { NAV_LINKS } from '@/utils/constant';
 
 const token = useToken();
 const userInfo = useUserInfo();
 // 主题相关逻辑重构
 const { theme, clickIcon, initTheme, disposeTheme } = useThemeActions();
+const themeToggleIcon = computed(() => (isDarkTheme(theme.value) ? 'blog-light' : 'blog-dark'));
 
 onMounted(() => {
   document.addEventListener('click', onDocumentClick);
@@ -45,44 +35,71 @@ onUnmounted(() => {
 
 const onDocumentClick = () => {
   checked.value = false;
+  closeSearch();
 };
-  /* 切换主题 结束 */
+
+function closeSearch() {
+  showSearch.value = false;
+  searchText.value = '';
+  articleList.value = [];
+  queryPrams.title = '';
+  queryPrams.description = '';
+  queryPrams.content = '';
+}
+
+function toggleSearch() {
+  if (showSearch.value) {
+    closeSearch();
+  }
+  else {
+    showSearch.value = true;
+  }
+}
+/* 切换主题 结束 */
 
 /* 搜索文章 */
 
 // 搜索文章
-const queryPrams = reactive<queryState>({
+const queryPrams = reactive({
   page: 1,
   pageSize: 20,
   title: '',
   description: '',
   content: '',
+  client: true,
+  sort: 'DESC',
 });
 const searchText = ref('');
 const articleList: any = ref([]);
 const getArticleListHandle = async () => {
-  const res = await getArticleList(queryPrams);
-  articleList.value = res.list.map((v: any) => {
-    return {
+  try {
+    const res = await getArticleList(queryPrams);
+    articleList.value = (res?.list ?? []).map((v: any) => ({
       value: v.title,
       label: v.title,
       id: v.id,
-    };
-  });
+    }));
+  }
+  catch {
+    articleList.value = [];
+  }
 };
 
-const onSearchHandle = throttle(() => {
-  if (searchText.value) {
+const onSearchHandle = debounce(() => {
+  if (searchText.value.trim()) {
     queryPrams.page = 1;
-    queryPrams.title = searchText.value;
-    queryPrams.description = searchText.value;
-    queryPrams.content = searchText.value;
+    queryPrams.title = searchText.value.trim();
+    queryPrams.description = searchText.value.trim();
+    queryPrams.content = searchText.value.trim();
     getArticleListHandle();
   }
   else {
+    queryPrams.title = '';
+    queryPrams.description = '';
+    queryPrams.content = '';
     articleList.value = [];
   }
-}, 500);
+}, 300);
 
 const clear = () => {
   token.value = '';
@@ -103,18 +120,23 @@ if (import.meta.client) {
 }
 const checked = ref(false);
 const showSearch = ref(false);
+
+const route = useRoute();
+function isNavActive(path: string) {
+  if (path === '/') return route.path === '/';
+  return route.path === path || route.path.startsWith(path + '/');
+}
 </script>
 
 <template>
   <CyberNavBar>
     <template #actions>
       <!-- Mobile menu -->
-      <div class="dropdown lg:hidden">
+      <div class="dropdown lg:hidden" :class="{ 'dropdown-open': checked }">
         <label
           class="btn btn-ghost btn-sm btn-circle text-tech-muted hover:text-tech"
-          @click.stop=""
+          @click.stop="checked = !checked"
         >
-          <input v-model="checked" type="checkbox" class="hidden" @click="checked = !checked">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -127,13 +149,19 @@ const showSearch = ref(false);
         </label>
         <ul
           tabindex="0"
-          :style="{ visibility: checked ? 'visible' : undefined, opacity: Number(checked) }"
-          class="menu dropdown-content menu-sm z-50 mt-2 w-40 rounded-xl border p-2 shadow-xl backdrop-blur-md"
+          class="menu menu-sm dropdown-content z-50 mt-2 w-40 rounded-xl border shadow-xl backdrop-blur-md"
         >
-          <li v-for="(item, index) in navList" :key="item.path + index">
-            <NuxtLink class="text-tech-muted hover:text-tech" :to="item.path">{{
-              item.title
-            }}</NuxtLink>
+          <li
+            v-for="(item, index) in NAV_LINKS"
+            :key="item.path + index"
+            class="rounded-lg"
+            :class="{ 'bg-[var(--tech-nav-active-bg)]': isNavActive(item.path) }"
+          >
+            <NuxtLink
+              class="!px-2 !py-1 text-tech-muted hover:text-tech"
+              :class="{ 'text-tech': isNavActive(item.path) }"
+              :to="item.path"
+            >{{ item.title }}</NuxtLink>
           </li>
         </ul>
       </div>
@@ -143,7 +171,7 @@ const showSearch = ref(false);
         type="button"
         class="btn btn-ghost btn-sm btn-circle text-tech-muted hover:text-tech"
         aria-label="搜索"
-        @click="showSearch = !showSearch"
+        @click.stop="toggleSearch"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -161,7 +189,7 @@ const showSearch = ref(false);
 
       <xia-icon
         class="cursor-pointer px-1 text-tech-muted hover:text-tech"
-        :icon="'blog-' + theme"
+        :icon="themeToggleIcon"
         @click="clickIcon"
       />
       <XiaTheme />
@@ -202,25 +230,29 @@ const showSearch = ref(false);
   <div
     v-if="showSearch"
     class="fixed inset-x-0 top-16 z-[10020] border-b border-tech bg-tech-header px-4 py-3 backdrop-blur-md"
+    @click.stop
   >
     <div class="relative mx-auto max-w-xl">
       <input
         v-model="searchText"
         type="text"
         placeholder="搜索文章..."
-        class="input input-bordered w-full"
+        class="input input-bordered w-full bg-[var(--tech-dropdown-bg)]"
         autocomplete="off"
         @input="onSearchHandle"
         @keyup.enter="onSearchHandle"
+        @keyup.esc="closeSearch"
       >
       <ul
         v-if="articleList.length"
-        class="menu absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-auto rounded-xl border p-2 shadow-xl"
+        class="menu absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-auto rounded-xl border border-tech bg-[var(--tech-dropdown-bg)] p-2 shadow-xl backdrop-blur-xl"
       >
         <li v-for="item in articleList" :key="item.id">
-          <NuxtLink class="text-sm text-tech-muted hover:text-tech" :to="'/detail/' + item.id">{{
-            item.value
-          }}</NuxtLink>
+          <NuxtLink
+            class="text-sm text-tech-muted hover:text-tech"
+            :to="'/detail/' + item.id"
+            @click="closeSearch"
+          >{{ item.value }}</NuxtLink>
         </li>
       </ul>
     </div>

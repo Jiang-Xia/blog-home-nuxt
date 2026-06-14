@@ -1,18 +1,23 @@
 <template>
-  <component
-    :is="to ? NuxtLink : 'button'"
+  <NuxtLink
+    v-if="to"
     :to="to"
-    :type="to ? undefined : type"
     :class="variant === 'primary' ? 'cyber-btn-primary' : 'cyber-btn-secondary'"
     v-bind="$attrs"
   >
     <slot />
-  </component>
+  </NuxtLink>
+  <button
+    v-else
+    :type="type"
+    :class="variant === 'primary' ? 'cyber-btn-primary' : 'cyber-btn-secondary'"
+    v-bind="$attrs"
+  >
+    <slot />
+  </button>
 </template>
 
 <script setup lang="ts">
-import { NuxtLink } from '#components';
-
 withDefaults(
   defineProps<{
     variant?: 'primary' | 'secondary';

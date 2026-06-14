@@ -13,7 +13,7 @@ import type {
   UserBuff,
   UserQuestProgress,
 } from '~~/types/rpg';
-import { messageInfo, messageSuccess } from '~~/utils/toast';
+import { getRpgLifeColor } from '~~/composables/use-rpg-theme';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
 import RpgQuestPanel from './QuestPanel.vue';
 import RpgAchievementPanel from './AchievementPanel.vue';
@@ -61,12 +61,7 @@ const expProgress = computed(() => {
   return { current, required, percent };
 });
 
-const lifeColor = computed(() => {
-  const life = props.rpgStatus.lifeValue;
-  if (life > 60) return '#4ade80';
-  if (life > 30) return '#fbbf24';
-  return '#ef4444';
-});
+const lifeColor = computed(() => getRpgLifeColor(props.rpgStatus.lifeValue ?? 100));
 
 const lifePercent = computed(() => props.rpgStatus.lifeValue ?? 100);
 const isBanned = computed(() => props.banStatus?.banned ?? false);
@@ -397,8 +392,8 @@ onMounted(() => {
     width: 100%;
     padding: 16px;
     border-radius: 16px;
-    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-    border: 1px solid #e2e8f0;
+    background: var(--rpg-card-gradient);
+    border: 1px solid var(--rpg-border);
   }
 
   .role-badge {
@@ -408,7 +403,7 @@ onMounted(() => {
     padding: 8px 12px;
     border-radius: 10px;
     border: 2px solid;
-    background: linear-gradient(135deg, #fef9c3, #fde68a);
+    background: var(--rpg-amber-bg-gradient);
     margin-bottom: 12px;
   }
 
@@ -418,11 +413,11 @@ onMounted(() => {
   .role-title {
     font-weight: 800;
     font-size: 13px;
-    color: #92400e;
+    color: var(--rpg-amber-text);
   }
   .role-frame-name {
     font-size: 11px;
-    color: #b45309;
+    color: var(--rpg-amber-text-soft);
     margin-left: auto;
   }
 
@@ -439,13 +434,13 @@ onMounted(() => {
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #fbbf24, #d97706);
+    background: var(--rpg-level-badge-gradient);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 3px 10px rgba(217, 119, 6, 0.3);
+    box-shadow: 0 3px 10px var(--rpg-level-shadow);
   }
 
   .lv-text {
@@ -476,28 +471,28 @@ onMounted(() => {
 
   .exp-label {
     font-size: 12px;
-    color: #64748b;
+    color: var(--rpg-text-secondary);
   }
   .exp-num {
     font-size: 15px;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--rpg-text);
   }
   .exp-fraction {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
   }
 
   .exp-bar {
     height: 7px;
-    background: #e2e8f0;
+    background: var(--rpg-track);
     border-radius: 4px;
     overflow: hidden;
   }
 
   .exp-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    background: var(--rpg-exp-gradient);
     border-radius: 4px;
     transition: width 0.5s ease;
   }
@@ -520,7 +515,7 @@ onMounted(() => {
 
   .life-bar {
     height: 8px;
-    background: #e2e8f0;
+    background: var(--rpg-track);
     border-radius: 4px;
     overflow: hidden;
   }
@@ -552,7 +547,7 @@ onMounted(() => {
   .sign-btn {
     padding: 6px 16px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: var(--rpg-primary-gradient);
     color: white;
     font-weight: 700;
     font-size: 13px;
@@ -562,7 +557,7 @@ onMounted(() => {
   }
 
   .sign-btn:disabled {
-    background: #94a3b8;
+    background: var(--rpg-disabled);
     cursor: not-allowed;
   }
   .sign-btn:not(:disabled):hover {
@@ -573,15 +568,15 @@ onMounted(() => {
     display: flex;
     gap: 10px;
     font-size: 12px;
-    color: #64748b;
+    color: var(--rpg-text-secondary);
   }
 
   .stat.streak {
-    background: #fef3c7;
+    background: var(--rpg-amber-bg);
     padding: 1px 6px;
     border-radius: 4px;
     font-weight: 600;
-    color: #b45309;
+    color: var(--rpg-amber-text-soft);
   }
 
   .sign-result-tip {
@@ -592,11 +587,11 @@ onMounted(() => {
   }
 
   .bonus-tip {
-    color: #d97706;
+    color: var(--rpg-amber-dark);
     font-weight: 600;
   }
   .hp-tip {
-    color: #16a34a;
+    color: var(--rpg-success);
     font-weight: 600;
   }
 
@@ -617,8 +612,8 @@ onMounted(() => {
     justify-content: space-around;
     padding: 10px 0;
     margin-bottom: 10px;
-    border-top: 1px solid #e2e8f0;
-    border-bottom: 1px solid #e2e8f0;
+    border-top: 1px solid var(--rpg-border);
+    border-bottom: 1px solid var(--rpg-border);
   }
 
   .stat-item {
@@ -638,30 +633,30 @@ onMounted(() => {
   }
 
   .stat-item:hover {
-    background: #f1f5f9;
+    background: var(--rpg-bg-alt);
   }
 
   .stat-item.active {
-    background: #ede9fe;
+    background: var(--rpg-violet-bg);
   }
 
   .stat-item.active .stat-num {
-    color: #7c3aed;
+    color: var(--rpg-violet);
   }
 
   .stat-item.active .stat-label {
-    color: #7c3aed;
+    color: var(--rpg-violet);
     font-weight: 600;
   }
 
   .stat-num {
     font-size: 16px;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--rpg-text);
   }
   .stat-label {
     font-size: 10px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     margin-top: 1px;
   }
 
@@ -669,7 +664,7 @@ onMounted(() => {
     position: absolute;
     top: 0;
     right: 4px;
-    background: #ef4444;
+    background: var(--rpg-badge-alert);
     color: white;
     font-size: 9px;
     font-weight: 700;
@@ -689,8 +684,8 @@ onMounted(() => {
   .rpg-panel {
     padding: 10px;
     border-radius: 10px;
-    background: white;
-    border: 1px solid #e2e8f0;
+    background: var(--rpg-surface);
+    border: 1px solid var(--rpg-border);
   }
 
   /* Collections */
@@ -707,7 +702,7 @@ onMounted(() => {
 
   .collection-label {
     font-size: 11px;
-    color: #64748b;
+    color: var(--rpg-text-secondary);
     white-space: nowrap;
     min-width: 52px;
   }
@@ -745,13 +740,13 @@ onMounted(() => {
       opacity: 0.8;
     }
 
-    background: white;
+    background: var(--rpg-surface);
   }
 
   .title-tag {
-    border-color: #fbbf24;
-    background: #fef3c7;
-    color: #92400e;
+    border-color: var(--rpg-amber-light);
+    background: var(--rpg-amber-bg);
+    color: var(--rpg-amber-text);
   }
 
   /* Hits */
@@ -762,7 +757,7 @@ onMounted(() => {
   .section-title {
     font-size: 12px;
     font-weight: 600;
-    color: #475569;
+    color: var(--rpg-text-label);
     margin-bottom: 6px;
   }
 
@@ -782,36 +777,36 @@ onMounted(() => {
 
   .hits-empty {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     padding: 6px;
   }
 
   .hit-item {
     padding: 6px;
     border-radius: 5px;
-    background: white;
+    background: var(--rpg-surface);
     margin-bottom: 3px;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--rpg-border-subtle);
   }
 
   .hit-content {
     font-size: 11px;
-    color: #374151;
+    color: var(--rpg-text-body);
     word-break: break-all;
   }
   .hit-words {
     font-size: 10px;
-    color: #dc2626;
+    color: var(--rpg-danger);
   }
   .hit-time {
     font-size: 9px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     margin-top: 1px;
   }
 
   .rpg-loading {
     padding: 24px;
     text-align: center;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
   }
 </style>

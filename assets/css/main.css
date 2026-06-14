@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
+@import './rpg-theme.css';
 @plugin "daisyui" {
   themes: all;
 }
@@ -290,9 +291,9 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .cyber-nav-link {
-    border-radius: 0.5rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
+    line-height: 1.25rem;
     color: var(--tech-nav-fg);
     transition: color 0.2s;
   }
@@ -302,7 +303,6 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .cyber-nav-link-active {
-    background-color: var(--tech-nav-active-bg);
     color: var(--tech-fg);
   }
 
@@ -331,6 +331,17 @@ html.tech-shell[data-theme='cyber-light'] {
     border: 1px solid color-mix(in oklch, var(--color-primary) 30%, transparent);
     background-color: color-mix(in oklch, var(--color-primary) 10%, transparent);
     box-shadow: 0 0 20px color-mix(in oklch, var(--color-primary) 22%, transparent);
+    animation: cyber-logo-breathe 3s ease-in-out infinite;
+  }
+
+  .cyber-logo-badge .cyber-gradient-text {
+    animation: cyber-logo-text-glow 3s ease-in-out infinite;
+  }
+
+  .typing-cursor {
+    margin-left: 0.125rem;
+    color: var(--tech-section-label);
+    animation: typing-cursor-blink 0.8s step-end infinite;
   }
 
   .cyber-alert-info {
@@ -534,6 +545,17 @@ html.tech-shell[data-theme='cyber-light'] {
     color: var(--tech-fg-subtle);
     opacity: 1;
   }
+
+  & input:-webkit-autofill,
+  & input:-webkit-autofill:hover,
+  & input:-webkit-autofill:focus,
+  & input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px var(--tech-input-bg) inset !important;
+    box-shadow: 0 0 0 1000px var(--tech-input-bg) inset !important;
+    -webkit-text-fill-color: var(--tech-fg) !important;
+    caret-color: var(--tech-fg);
+    transition: background-color 99999s ease-out 0s;
+  }
 }
 
 /*
@@ -629,5 +651,46 @@ html.tech-shell :where(.app-layout, .custom-layout-container) {
   .placeholder\:text-white\/30::placeholder {
     color: var(--tech-fg-subtle);
     opacity: 1;
+  }
+}
+
+@keyframes cyber-logo-breathe {
+  0%,
+  100% {
+    box-shadow:
+      0 0 12px color-mix(in oklch, var(--color-primary) 20%, transparent),
+      0 0 24px color-mix(in oklch, var(--color-primary) 12%, transparent);
+    border-color: color-mix(in oklch, var(--color-primary) 28%, transparent);
+  }
+
+  50% {
+    box-shadow:
+      0 0 20px color-mix(in oklch, var(--color-primary) 45%, transparent),
+      0 0 40px color-mix(in oklch, var(--color-primary) 28%, transparent),
+      0 0 60px color-mix(in oklch, var(--color-primary) 14%, transparent);
+    border-color: color-mix(in oklch, var(--color-primary) 55%, transparent);
+  }
+}
+
+@keyframes cyber-logo-text-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 4px color-mix(in oklch, var(--color-primary) 35%, transparent));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 10px color-mix(in oklch, var(--color-primary) 70%, transparent))
+      drop-shadow(0 0 18px color-mix(in oklch, var(--color-primary) 40%, transparent));
+  }
+}
+
+@keyframes typing-cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
   }
 }

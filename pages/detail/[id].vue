@@ -217,14 +217,40 @@ watch(
         <section class="module-wrap__detail article-info">
           <div class="flex items-center">
             <div class="flex items-center justify-between">
-              <NuxtLink :to="`/user/${ArticleInfo.uid}`" class="flex items-center hover:opacity-80">
+              <NuxtLink
+                v-if="ArticleInfo.uid"
+                :to="`/user/${ArticleInfo.uid}`"
+                class="author-profile-link group inline-flex items-center rounded-full py-1 pl-1 pr-3 transition-colors hover:bg-base-content/5"
+                title="查看作者主页"
+              >
+                <div
+                  class="btn btn-ghost btn-circle avatar ring-2 ring-primary/25 transition-all group-hover:ring-primary/70 group-hover:scale-105"
+                >
+                  <div class="w-10 rounded-full">
+                    <img
+                      :src="ArticleInfo.userInfo.avatar || Qie"
+                      :alt="ArticleInfo.userInfo.nickname"
+                    >
+                  </div>
+                </div>
+                <span class="text-color font-bold ml-2 link link-hover link-primary">{{
+                  ArticleInfo.userInfo.nickname
+                }}</span>
+                <span
+                  class="ml-2 text-xs text-base-content/45 transition-colors group-hover:text-primary"
+                >主页</span>
+              </NuxtLink>
+              <div v-else class="flex items-center">
                 <div class="btn btn-ghost btn-circle avatar">
                   <div class="w-10 rounded-full">
-                    <img :src="ArticleInfo.userInfo.avatar || Qie">
+                    <img
+                      :src="ArticleInfo.userInfo.avatar || Qie"
+                      :alt="ArticleInfo.userInfo.nickname"
+                    >
                   </div>
                 </div>
                 <span class="text-color font-bold ml-2">{{ ArticleInfo.userInfo.nickname }}</span>
-              </NuxtLink>
+              </div>
             </div>
             <div class="dropdown dropdown-bottom ml-6">
               <div tabindex="0" role="button" class="btn m-1 btn-neutral">
@@ -232,7 +258,7 @@ watch(
               </div>
               <ul
                 tabindex="0"
-                class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                class="dropdown-content z-[1] menu p-2 shadow border border-tech bg-[var(--tech-dropdown-bg)] rounded-box w-52 text-tech"
               >
                 <li v-for="item of themeList" @click="previewThemeChange(item)">
                   <a>{{ item }}</a>

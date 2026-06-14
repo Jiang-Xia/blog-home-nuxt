@@ -139,7 +139,7 @@ const getEffectText = (buff: UserBuff): string => {
     gap: 8px;
     font-size: 13px;
     font-weight: 600;
-    color: #475569;
+    color: var(--rpg-text-label);
     margin-bottom: 8px;
   }
 
@@ -147,19 +147,19 @@ const getEffectText = (buff: UserBuff): string => {
     font-size: 11px;
     padding: 1px 6px;
     border-radius: 10px;
-    background: #ede9fe;
-    color: #7c3aed;
+    background: var(--rpg-violet-bg);
+    color: var(--rpg-violet);
     font-weight: 700;
   }
 
   .buff-empty {
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     padding: 12px;
     text-align: center;
-    background: #f8fafc;
+    background: var(--rpg-empty-bg);
     border-radius: 8px;
-    border: 1px dashed #e2e8f0;
+    border: 1px dashed var(--rpg-empty-border);
   }
 
   .buff-list {
@@ -174,7 +174,7 @@ const getEffectText = (buff: UserBuff): string => {
     gap: 8px;
     padding: 10px;
     border-radius: 10px;
-    background: white;
+    background: var(--rpg-surface);
     border: 1.5px solid;
     transition: transform 0.2s;
     min-height: 120px;
@@ -203,12 +203,12 @@ const getEffectText = (buff: UserBuff): string => {
   .buff-name {
     font-size: 13px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--rpg-text);
   }
 
   .buff-effect {
     font-size: 11px;
-    color: #64748b;
+    color: var(--rpg-text-secondary);
     margin-top: 1px;
   }
 
@@ -222,7 +222,7 @@ const getEffectText = (buff: UserBuff): string => {
   .timer-bar {
     flex: 1;
     height: 4px;
-    background: #e2e8f0;
+    background: var(--rpg-track);
     border-radius: 2px;
     overflow: hidden;
   }
@@ -235,7 +235,7 @@ const getEffectText = (buff: UserBuff): string => {
 
   .timer-text {
     font-size: 10px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     white-space: nowrap;
     min-width: 60px;
     text-align: right;

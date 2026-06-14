@@ -156,16 +156,16 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
     border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
-    border: 1px solid #e2e8f0;
-    background: white;
-    color: #64748b;
+    border: 1px solid var(--rpg-border);
+    background: var(--rpg-surface);
+    color: var(--rpg-text-secondary);
     cursor: pointer;
   }
 
   .type-tab.active {
-    background: #3b82f6;
+    background: var(--rpg-primary);
     color: white;
-    border-color: #3b82f6;
+    border-color: var(--rpg-primary);
   }
 
   .quest-header {
@@ -184,13 +184,13 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
   .quest-label {
     font-size: 13px;
     font-weight: 700;
-    color: #334155;
+    color: var(--rpg-text-heading);
   }
 
   .quest-count {
     font-size: 12px;
-    color: #64748b;
-    background: #f1f5f9;
+    color: var(--rpg-text-secondary);
+    background: var(--rpg-bg-alt);
     padding: 2px 8px;
     border-radius: 4px;
   }
@@ -198,8 +198,8 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
   .claim-badge {
     font-size: 11px;
     font-weight: 600;
-    color: #d97706;
-    background: #fef3c7;
+    color: var(--rpg-amber-dark);
+    background: var(--rpg-amber-bg);
     padding: 2px 8px;
     border-radius: 4px;
     animation: pulse 1.5s infinite;
@@ -217,7 +217,7 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
 
   .quest-empty {
     text-align: center;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     font-size: 12px;
     padding: 24px;
   }
@@ -234,15 +234,15 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
     gap: 6px;
     padding: 10px;
     border-radius: 10px;
-    background: white;
-    border: 1px solid #f1f5f9;
+    background: var(--rpg-surface);
+    border: 1px solid var(--rpg-border-subtle);
     transition: all 0.2s;
     min-height: 148px;
   }
 
   .quest-card.completed {
-    border-color: #bbf7d0;
-    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-color: var(--rpg-success-border);
+    background: var(--rpg-success-gradient);
   }
 
   .quest-card.claimed {
@@ -260,7 +260,7 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
     width: 30px;
     height: 30px;
     border-radius: 8px;
-    background: #f1f5f9;
+    background: var(--rpg-bg-alt);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -270,13 +270,13 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
   .quest-name {
     font-size: 12px;
     font-weight: 700;
-    color: #334155;
+    color: var(--rpg-text-heading);
     line-height: 1.3;
   }
 
   .quest-desc {
     font-size: 10px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     line-height: 1.35;
     flex: 1;
     display: -webkit-box;
@@ -287,14 +287,14 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
 
   .quest-progress-bar {
     height: 3px;
-    background: #e2e8f0;
+    background: var(--rpg-track);
     border-radius: 2px;
     overflow: hidden;
   }
 
   .quest-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #4ade80, #22c55e);
+    background: var(--rpg-progress-green);
     border-radius: 2px;
     transition: width 0.3s ease;
   }
@@ -313,11 +313,11 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
   }
 
   .quest-progress-text {
-    color: #64748b;
+    color: var(--rpg-text-secondary);
   }
 
   .quest-reward {
-    color: #d97706;
+    color: var(--rpg-amber-dark);
     font-weight: 600;
   }
 
@@ -329,7 +329,7 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
   .quest-claim-btn {
     padding: 3px 10px;
     border-radius: 6px;
-    background: linear-gradient(135deg, #f59e0b, #d97706);
+    background: var(--rpg-level-badge-gradient);
     color: white;
     font-size: 11px;
     font-weight: 600;
@@ -344,23 +344,23 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
 
   .quest-claimed {
     font-size: 11px;
-    color: #16a34a;
+    color: var(--rpg-success);
     font-weight: 600;
   }
 
   .quest-pending {
     font-size: 10px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
   }
 
   .quest-all-done {
     margin-top: 10px;
     text-align: center;
     font-size: 12px;
-    color: #16a34a;
+    color: var(--rpg-success);
     font-weight: 600;
     padding: 8px;
-    background: #f0fdf4;
+    background: var(--rpg-success-bg);
     border-radius: 8px;
   }
 </style>

@@ -63,7 +63,7 @@ const categories = computed(() => {
             class="ring-bg"
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
             fill="none"
-            stroke="#e2e8f0"
+            stroke="var(--rpg-track)"
             stroke-width="3"
           />
           <path
@@ -71,7 +71,7 @@ const categories = computed(() => {
             :stroke-dasharray="`${completionPercent}, 100`"
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
             fill="none"
-            stroke="#f59e0b"
+            stroke="var(--rpg-amber)"
             stroke-width="3"
             stroke-linecap="round"
           />
@@ -164,17 +164,17 @@ const categories = computed(() => {
   .ach-num {
     font-size: 24px;
     font-weight: 900;
-    color: #f59e0b;
+    color: var(--rpg-amber);
   }
 
   .ach-total {
     font-size: 14px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
   }
 
   .ach-label {
     font-size: 12px;
-    color: #64748b;
+    color: var(--rpg-text-secondary);
   }
 
   .ach-progress-ring {
@@ -196,7 +196,7 @@ const categories = computed(() => {
     transform: translate(-50%, -50%);
     font-size: 10px;
     font-weight: 700;
-    color: #f59e0b;
+    color: var(--rpg-amber);
   }
 
   .ach-tabs {
@@ -209,18 +209,18 @@ const categories = computed(() => {
   .ach-tab {
     padding: 4px 10px;
     border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    background: white;
+    border: 1px solid var(--rpg-border);
+    background: var(--rpg-surface);
     font-size: 12px;
-    color: #64748b;
+    color: var(--rpg-text-secondary);
     cursor: pointer;
     transition: all 0.2s;
   }
 
   .ach-tab.active {
-    background: #fef3c7;
-    border-color: #fbbf24;
-    color: #92400e;
+    background: var(--rpg-amber-bg);
+    border-color: var(--rpg-amber-light);
+    color: var(--rpg-amber-text);
     font-weight: 600;
   }
 
@@ -245,8 +245,8 @@ const categories = computed(() => {
     gap: 6px;
     padding: 10px;
     border-radius: 10px;
-    background: white;
-    border: 1px solid #f1f5f9;
+    background: var(--rpg-surface);
+    border: 1px solid var(--rpg-border-subtle);
     opacity: 0.72;
     transition: all 0.2s;
     min-height: 132px;
@@ -254,8 +254,8 @@ const categories = computed(() => {
 
   .ach-card.completed {
     opacity: 1;
-    border-color: #fde68a;
-    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-color: var(--rpg-amber-border);
+    background: var(--rpg-amber-bg-gradient);
   }
 
   .ach-card-head {
@@ -279,7 +279,7 @@ const categories = computed(() => {
   .ach-name {
     font-size: 12px;
     font-weight: 700;
-    color: #334155;
+    color: var(--rpg-text-heading);
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -288,14 +288,14 @@ const categories = computed(() => {
   }
 
   .ach-done {
-    color: #16a34a;
+    color: var(--rpg-success);
     font-weight: 900;
     font-size: 12px;
   }
 
   .ach-desc {
     font-size: 10px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     line-height: 1.35;
     flex: 1;
     display: -webkit-box;
@@ -306,14 +306,14 @@ const categories = computed(() => {
 
   .ach-progress-bar {
     height: 3px;
-    background: #e2e8f0;
+    background: var(--rpg-track);
     border-radius: 2px;
     overflow: hidden;
   }
 
   .ach-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    background: var(--rpg-exp-gradient);
     border-radius: 2px;
     transition: width 0.3s ease;
   }
@@ -327,11 +327,11 @@ const categories = computed(() => {
   }
 
   .ach-progress-text {
-    color: #64748b;
+    color: var(--rpg-text-secondary);
   }
 
   .ach-exp {
-    color: #d97706;
+    color: var(--rpg-amber-dark);
     font-weight: 600;
   }
 </style>

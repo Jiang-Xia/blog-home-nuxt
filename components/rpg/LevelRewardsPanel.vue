@@ -58,7 +58,7 @@ const getRewardSummary = (reward: LevelReward) => {
             class="ring-bg"
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
             fill="none"
-            stroke="#e2e8f0"
+            stroke="var(--rpg-track)"
             stroke-width="3"
           />
           <path
@@ -66,7 +66,7 @@ const getRewardSummary = (reward: LevelReward) => {
             :stroke-dasharray="`${unlockPercent}, 100`"
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
             fill="none"
-            stroke="#f59e0b"
+            stroke="var(--rpg-amber)"
             stroke-width="3"
             stroke-linecap="round"
           />
@@ -154,17 +154,17 @@ const getRewardSummary = (reward: LevelReward) => {
   .summary-num {
     font-size: 24px;
     font-weight: 900;
-    color: #f59e0b;
+    color: var(--rpg-amber);
   }
 
   .summary-total {
     font-size: 14px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
   }
 
   .summary-label {
     font-size: 12px;
-    color: #64748b;
+    color: var(--rpg-text-secondary);
   }
 
   .summary-ring {
@@ -186,16 +186,16 @@ const getRewardSummary = (reward: LevelReward) => {
     transform: translate(-50%, -50%);
     font-size: 10px;
     font-weight: 700;
-    color: #f59e0b;
+    color: var(--rpg-amber);
   }
 
   .empty {
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     padding: 12px;
     text-align: center;
-    background: #f8fafc;
+    background: var(--rpg-empty-bg);
     border-radius: 8px;
-    border: 1px dashed #e2e8f0;
+    border: 1px dashed var(--rpg-empty-border);
   }
 
   .reward-grid {
@@ -210,8 +210,8 @@ const getRewardSummary = (reward: LevelReward) => {
     gap: 6px;
     padding: 10px;
     border-radius: 10px;
-    background: white;
-    border: 1px solid #f1f5f9;
+    background: var(--rpg-surface);
+    border: 1px solid var(--rpg-border-subtle);
     opacity: 0.72;
     transition: all 0.2s;
     min-height: 132px;
@@ -219,8 +219,8 @@ const getRewardSummary = (reward: LevelReward) => {
 
   .reward-card.unlocked {
     opacity: 1;
-    border-color: #fde68a;
-    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-color: var(--rpg-amber-border);
+    background: var(--rpg-amber-bg-gradient);
   }
 
   .reward-card-head {
@@ -232,14 +232,14 @@ const getRewardSummary = (reward: LevelReward) => {
   .lv-badge {
     font-weight: 800;
     font-size: 13px;
-    color: #d97706;
+    color: var(--rpg-amber-dark);
     padding: 2px 8px;
     border-radius: 6px;
-    background: rgba(251, 191, 36, 0.15);
+    background: var(--rpg-amber-bg-faint);
   }
 
   .unlocked-tag {
-    color: #16a34a;
+    color: var(--rpg-success);
     font-weight: 900;
     font-size: 12px;
   }
@@ -252,7 +252,7 @@ const getRewardSummary = (reward: LevelReward) => {
   .reward-summary {
     font-size: 11px;
     font-weight: 600;
-    color: #475569;
+    color: var(--rpg-text-label);
     line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -280,25 +280,25 @@ const getRewardSummary = (reward: LevelReward) => {
   }
 
   .reward-tag.frame {
-    background: white;
+    background: var(--rpg-surface);
     border: 1.5px solid;
-    color: #475569;
+    color: var(--rpg-text-label);
   }
 
   .reward-tag.title {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--rpg-amber-bg);
+    color: var(--rpg-amber-text);
   }
 
   .reward-tag.diamond {
-    background: #eff6ff;
-    color: #1d4ed8;
+    background: var(--rpg-diamond-bg);
+    color: var(--rpg-diamond-text);
   }
 
   .reward-tag.empty {
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     font-weight: 400;
-    background: #f8fafc;
+    background: var(--rpg-empty-bg);
   }
 
   .reward-footer {
@@ -307,11 +307,11 @@ const getRewardSummary = (reward: LevelReward) => {
   }
 
   .footer-status.done {
-    color: #16a34a;
+    color: var(--rpg-success);
     font-weight: 600;
   }
 
   .footer-status.pending {
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
   }
 </style>

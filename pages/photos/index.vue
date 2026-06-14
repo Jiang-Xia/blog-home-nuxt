@@ -4,6 +4,8 @@ import FilterBorderCanvas from './components/FilterBorderCanvas.vue';
 import { messageDanger } from '~~/utils/toast';
 import { loadPhotoScripts, loadWatermarkScripts } from '~/utils/script-loader';
 
+definePageMeta({ layout: 'custom' });
+
 const logoImgNameList = [
   'nikon',
   'nikon_full',
@@ -118,11 +120,12 @@ const exportAll = () => {
 </script>
 
 <template>
-  <div class="photos-container">
-    <div class="top-banner p-6 flex justify-center items-start">
-      <section class="w-3/4 h-2/3">
-        <ClientOnly>
-          <!-- <FilterBorderCanvas
+  <CyberPageContainer label="PHOTOS" title="摄影" subtitle="图片浏览与边框滤镜处理">
+    <div class="photos-container">
+      <div class="top-banner p-6 flex justify-center items-start">
+        <section class="w-3/4 h-2/3">
+          <ClientOnly>
+            <!-- <FilterBorderCanvas
             v-for="(item, index) in imageSrcList"
             :key="item+index"
             :pic="item"
@@ -131,101 +134,102 @@ const exportAll = () => {
             :blob-url-list="blobUrlList"
             @processed="processedHandle"
           /> -->
-          <div class="carousel w-full bg-base-content">
-            <div
-              v-for="(item, index) in imageSrcList"
-              :id="'slide' + index"
-              :key="item + index"
-              class="carousel-item relative w-full"
-            >
-              <FilterBorderCanvas
-                class="w-full"
-                :pic="item"
-                :padding="36"
-                :radius="16"
-                :blob-url-list="blobUrlList"
-                @processed="processedHandle"
-              />
+            <div class="carousel w-full bg-base-content">
               <div
-                class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between"
+                v-for="(item, index) in imageSrcList"
+                :id="'slide' + index"
+                :key="item + index"
+                class="carousel-item relative w-full"
               >
-                <a
-                  :href="'#slide' + (index - 1 < 0 ? imageSrcList.length : index - 1)"
-                  class="btn btn-neutral btn-circle"
-                >❮</a>
-                <a
-                  :href="
-                    '#slide' + (index + 1 > imageSrcList.length ? imageSrcList.length : index + 1)
-                  "
-                  class="btn btn-neutral btn-circle"
-                >❯</a>
+                <FilterBorderCanvas
+                  class="w-full"
+                  :pic="item"
+                  :padding="36"
+                  :radius="16"
+                  :blob-url-list="blobUrlList"
+                  @processed="processedHandle"
+                />
+                <div
+                  class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between"
+                >
+                  <a
+                    :href="'#slide' + (index - 1 < 0 ? imageSrcList.length : index - 1)"
+                    class="btn btn-neutral btn-circle"
+                  >❮</a>
+                  <a
+                    :href="
+                      '#slide' + (index + 1 > imageSrcList.length ? imageSrcList.length : index + 1)
+                    "
+                    class="btn btn-neutral btn-circle"
+                  >❯</a>
+                </div>
               </div>
             </div>
-          </div>
-        </ClientOnly>
-      </section>
-    </div>
-    <div class="flex py-2 px-6">
-      <span v-if="exportLoading" class="loading loading-dots loading-md bg-accent" />
-      <button class="btn btn-neutral" :disabled="exportLoading" @click="exportAll">
-        全部导出
-      </button>
-      <!-- <InRainbowButton :disabled="exportLoading" @click="exportAll">
+          </ClientOnly>
+        </section>
+      </div>
+      <div class="flex py-2 px-6">
+        <span v-if="exportLoading" class="loading loading-dots loading-md bg-accent" />
+        <button class="btn btn-neutral" :disabled="exportLoading" @click="exportAll">
+          全部导出
+        </button>
+        <!-- <InRainbowButton :disabled="exportLoading" @click="exportAll">
         <div class="text-white">
           全部导出
         </div>
       </InRainbowButton> -->
-    </div>
-    <div>
-      <input
-        ref="fileContents"
-        multiple
-        type="file"
-        class="file-input file-input-bordered w-full hidden"
-        name="fileContents"
-        accept="image/*"
-        @change="handleFileUpload"
-      >
-    </div>
-    <div
-      class="container columns-3 sm:columns-4 md:columns-6 lg:columns-9 xlg:columns-11 gap-4 px-6 pt-2"
-    >
-      <div class="mb-4 h-24 w-24">
-        <XiaButtonBorder :animation-duration="1" rx="8" @click="add">
-          <div class="h-24 w-24 flex items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="size-6"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-          </div>
-        </XiaButtonBorder>
+      </div>
+      <div>
+        <input
+          ref="fileContents"
+          multiple
+          type="file"
+          class="file-input file-input-bordered w-full hidden"
+          name="fileContents"
+          accept="image/*"
+          @change="handleFileUpload"
+        >
       </div>
       <div
-        v-for="(item, index) in imageSrcList"
-        :key="item + String(index)"
-        class="item h-24 w-24 mb-4 cursor-pointer"
-        @click="selectImage(item)"
+        class="container columns-3 sm:columns-4 md:columns-6 lg:columns-9 xlg:columns-11 gap-4 px-6 pt-2"
       >
-        <div class="avatar relative">
-          <div
-            class="absolute rounded-tr right-0 top-0 bg-base-content/60 text-base-100 p-1 flex items-center justify-center text-xs leading-none"
-            @click.stop="deleteImage(item)"
-          >
-            X
-          </div>
-          <div class="w-24 rounded-lg" :class="{ selected: item === currentImage }">
-            <img :src="item">
+        <div class="mb-4 h-24 w-24">
+          <XiaButtonBorder :animation-duration="1" rx="8" @click="add">
+            <div class="h-24 w-24 flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </div>
+          </XiaButtonBorder>
+        </div>
+        <div
+          v-for="(item, index) in imageSrcList"
+          :key="item + String(index)"
+          class="item h-24 w-24 mb-4 cursor-pointer"
+          @click="selectImage(item)"
+        >
+          <div class="avatar relative">
+            <div
+              class="absolute rounded-tr right-0 top-0 bg-base-content/60 text-base-100 p-1 flex items-center justify-center text-xs leading-none"
+              @click.stop="deleteImage(item)"
+            >
+              X
+            </div>
+            <div class="w-24 rounded-lg" :class="{ selected: item === currentImage }">
+              <img :src="item">
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </CyberPageContainer>
 </template>
 
 <style lang="less" scoped>

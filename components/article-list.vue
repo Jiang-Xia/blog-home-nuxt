@@ -221,7 +221,7 @@ commentsList.value = commentsData.value.list;
             </button>
             <ul
               id="popover-1"
-              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box bg-base-100 shadow-sm"
+              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box border border-tech bg-[var(--tech-dropdown-bg)] shadow-sm text-tech"
               popover
               style="position-anchor: --anchor-1"
             >
@@ -267,7 +267,7 @@ commentsList.value = commentsData.value.list;
             </button>
             <ul
               id="popover-2"
-              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box bg-base-100 shadow-sm"
+              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box border border-tech bg-[var(--tech-dropdown-bg)] shadow-sm text-tech"
               popover
               style="position-anchor: --anchor-2"
             >
@@ -295,7 +295,7 @@ commentsList.value = commentsData.value.list;
         </base-card>
       </div>
       <!-- 文章列表 -->
-      <div class="article-item-wrap flex justify-around flex-wrap w-full max-w-7xl">
+      <div class="article-item-wrap flex flex-wrap w-full max-w-7xl">
         <transition-group key="article-item-wrap" name="list">
           <div
             v-for="item in articleList"
@@ -362,12 +362,30 @@ commentsList.value = commentsData.value.list;
                 </div>
                 <div class="flex justify-between w-full items-center">
                   <div class="flex items-center">
-                    <div class="avatar btn btn-ghost btn-circle btn-xs">
-                      <div class="rounded-full">
-                        <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
+                    <NuxtLink
+                      v-if="item.uid"
+                      :to="`/user/${item.uid}`"
+                      class="author-link group inline-flex items-center rounded-full transition-all hover:opacity-90"
+                      title="查看作者主页"
+                      @click.stop
+                    >
+                      <div
+                        class="avatar btn btn-ghost btn-circle btn-xs ring-1 ring-transparent transition-all group-hover:ring-primary/50"
+                      >
+                        <div class="rounded-full">
+                          <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
+                        </div>
                       </div>
-                    </div>
-                    <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
+                      <span class="pr-3 pt-2 link link-hover">{{ item.userInfo.nickname }}</span>
+                    </NuxtLink>
+                    <template v-else>
+                      <div class="avatar btn btn-ghost btn-circle btn-xs">
+                        <div class="rounded-full">
+                          <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
+                        </div>
+                      </div>
+                      <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
+                    </template>
                     <span class="pt-2">{{ formactDate(item.createTime) }}</span>
                   </div>
                   <span @click="$router.push(`detail/${item.id}`)">
@@ -381,7 +399,7 @@ commentsList.value = commentsData.value.list;
 
         <div
           v-show="!articleList.length"
-          class="min-h-96 bg-base-100 w-full flex items-center rounded-lg shadow-lg"
+          class="min-h-96 border border-tech bg-[var(--tech-input-bg)] w-full flex items-center rounded-lg shadow-lg text-tech"
         >
           <xia-empty
             :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
@@ -482,7 +500,7 @@ commentsList.value = commentsData.value.list;
       </base-card>
 
       <base-card icon="blog-liuyanban3" title="最新评论" class="mx-4 mb-4" :no-padding="false">
-        <ul class="list bg-base-100 rounded-box">
+        <ul class="list border border-tech bg-[var(--tech-input-bg)] rounded-box text-tech">
           <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">
             所有文章最新的评论~
           </li>
@@ -625,37 +643,17 @@ commentsList.value = commentsData.value.list;
       flex: 1;
     }
     .article-item-wrap {
+      gap: 1.25rem;
       transition: all 0.5s;
-    }
-    // 卡片样式
-    .article-item {
-      max-height: 408px;
-    }
-    .article-item-wrap {
-      @media (max-width: 1535px) {
-        //xl
-        .article-item {
-          width: calc(50% - 10px);
-          &:nth-of-type(2n) {
-            margin-right: 0;
-          }
-        }
+
+      .article-item {
+        max-height: 408px;
+        width: 100%;
       }
 
-      @media (max-width: 1024px) {
-        //lg
+      @media (min-width: 768px) {
         .article-item {
-          width: 100%;
-          margin-right: 0;
-        }
-      }
-      @media (min-width: 1336px) {
-        //2xl
-        .article-item {
-          width: calc(33.3333% - 13.33px);
-          &:nth-of-type(3n) {
-            margin-right: 0;
-          }
+          width: calc(50% - 0.625rem);
         }
       }
     }

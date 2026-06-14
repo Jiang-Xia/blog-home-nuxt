@@ -56,7 +56,6 @@ const steps = [
 
 <template>
   <div class="mx-auto max-w-6xl px-4 py-12 md:py-20">
-    <!-- Section header -->
     <CyberSectionHeader
       class="mb-12"
       label="FEATURES"
@@ -64,7 +63,6 @@ const steps = [
       subtitle="把繁琐的操作交给工具，你只管专注阅读与创作"
     />
 
-    <!-- Bento grid -->
     <div class="mb-20 grid grid-cols-1 gap-4 md:grid-cols-12">
       <NuxtLink
         v-for="item in features"
@@ -114,7 +112,6 @@ const steps = [
       </NuxtLink>
     </div>
 
-    <!-- Get Started -->
     <CyberSectionHeader
       class="mb-10"
       label="GET STARTED"

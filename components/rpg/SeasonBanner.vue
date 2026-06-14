@@ -100,27 +100,24 @@ const handleShare = async () => {
 </script>
 
 <template>
-  <div
-    v-if="activity"
-    class="season-banner p-4 rounded-xl bg-gradient-to-r from-violet-500/10 to-blue-500/10 border border-violet-200 mb-4"
-  >
+  <div v-if="activity" class="season-banner rpg-banner p-4 rounded-xl mb-4">
     <div class="flex items-center justify-between gap-4 flex-wrap">
       <div class="flex items-start gap-3">
         <img
           v-if="activity.posterUrl"
           :src="activity.posterUrl"
           alt="赛季海报"
-          class="w-16 h-16 rounded-lg object-cover border border-violet-200"
+          class="w-16 h-16 rounded-lg object-cover border rpg-banner-cover"
         >
         <div>
-          <span class="text-xs uppercase tracking-wide text-violet-600">当前活动</span>
-          <h3 class="font-bold text-lg">
+          <span class="text-xs uppercase tracking-wide rpg-banner-label">当前活动</span>
+          <h3 class="font-bold text-lg text-tech">
             {{ activity.name }}
           </h3>
-          <p class="text-sm text-base-content/70 mt-1">
+          <p class="text-sm text-tech-muted mt-1">
             {{ activity.description }}
           </p>
-          <p v-if="weatherBuff" class="text-xs text-sky-600 mt-1">
+          <p v-if="weatherBuff" class="text-xs rpg-banner-info mt-1">
             🌤 {{ weatherBuff.label }}
           </p>
         </div>
@@ -245,7 +242,7 @@ const handleShare = async () => {
 
   .poster-qr {
     flex-shrink: 0;
-    background: #fff;
+    background: var(--rpg-surface);
     padding: 8px;
     border-radius: 12px;
   }

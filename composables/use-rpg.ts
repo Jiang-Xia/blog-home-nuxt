@@ -1,5 +1,6 @@
 import { computed } from 'vue';
 import { useState } from '#app';
+import { getRpgLifeColor } from '~~/composables/use-rpg-theme';
 import {
   getRpgStatus,
   getRpgSignInfo,
@@ -78,11 +79,8 @@ export function useRpg() {
   });
 
   const lifeColor = computed(() => {
-    if (!rpgStatus.value) return '#4ade80';
-    const life = rpgStatus.value.lifeValue;
-    if (life > 60) return '#4ade80';
-    if (life > 30) return '#fbbf24';
-    return '#ef4444';
+    if (!rpgStatus.value) return 'var(--rpg-life-ok)';
+    return getRpgLifeColor(rpgStatus.value.lifeValue);
   });
 
   const lifePercent = computed(() => {

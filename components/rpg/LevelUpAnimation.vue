@@ -63,7 +63,7 @@ const handleClose = () => {
   .level-up-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--rpg-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -71,7 +71,7 @@ const handleClose = () => {
   }
 
   .level-up-modal {
-    background: linear-gradient(135deg, #fef9c3, #fde68a);
+    background: var(--rpg-amber-bg-gradient);
     border-radius: 20px;
     padding: 32px 48px;
     text-align: center;
@@ -83,7 +83,7 @@ const handleClose = () => {
     font-size: 14px;
     font-weight: 800;
     letter-spacing: 4px;
-    color: #92400e;
+    color: var(--rpg-amber-text);
     margin-bottom: 12px;
     animation: pulse 1s infinite;
   }
@@ -95,17 +95,17 @@ const handleClose = () => {
   }
 
   .old-level {
-    color: #9ca3af;
+    color: var(--rpg-text-muted);
     text-decoration: line-through;
   }
 
   .arrow {
-    color: #d97706;
+    color: var(--rpg-amber-dark);
     margin: 0 12px;
   }
 
   .new-level {
-    color: #d97706;
+    color: var(--rpg-amber-dark);
     text-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
   }
 
@@ -116,7 +116,7 @@ const handleClose = () => {
   .rewards-title {
     font-size: 14px;
     font-weight: 600;
-    color: #92400e;
+    color: var(--rpg-amber-text);
     margin-bottom: 8px;
   }
 
@@ -126,13 +126,13 @@ const handleClose = () => {
     justify-content: center;
     margin-bottom: 4px;
     font-size: 14px;
-    color: #78350f;
+    color: var(--rpg-amber-text-soft);
   }
 
   .close-btn {
     padding: 8px 32px;
     border-radius: 8px;
-    background: #d97706;
+    background: var(--rpg-amber-dark);
     color: white;
     font-weight: 700;
     border: none;
@@ -141,7 +141,7 @@ const handleClose = () => {
   }
 
   .close-btn:hover {
-    background: #b45309;
+    background: var(--rpg-amber-text-soft);
   }
 
   @keyframes pulse {

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100 overflow-hidden flex justify-center">
+  <div class="overflow-hidden flex justify-center">
     <!-- multiple -->
     <section>
       <div class="join">
@@ -13,7 +13,10 @@
         <!-- <button class="btn join-item" @click="mergeFileHandle">合成文件</button> -->
       </div>
 
-      <div v-show="fileBlob" class="flex items-center mt-4 bg-base-100 rounded-sm p-4">
+      <div
+        v-show="fileBlob"
+        class="flex items-center mt-4 border border-tech bg-[var(--tech-input-bg)] rounded-lg p-4 text-tech"
+      >
         <xia-icon icon="blog-wenjian" width="28px" height="28px" class="cursor-pointer" />
         <div class="flex-1 flex flex-col mx-2">
           <div class="text-sm text-ellipsis">

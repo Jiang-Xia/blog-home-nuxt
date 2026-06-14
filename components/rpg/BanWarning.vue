@@ -58,8 +58,12 @@ const banEndTimeText = computed(() => {
     gap: 12px;
     padding: 16px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #fef2f2, #fee2e2);
-    border: 1px solid #fecaca;
+    background: linear-gradient(
+      135deg,
+      var(--rpg-danger-bg),
+      color-mix(in srgb, var(--rpg-danger-bg) 80%, var(--rpg-danger-border))
+    );
+    border: 1px solid var(--rpg-danger-border);
     margin: 12px 0;
   }
 
@@ -75,25 +79,25 @@ const banEndTimeText = computed(() => {
   .ban-title {
     font-size: 16px;
     font-weight: 700;
-    color: #dc2626;
+    color: var(--rpg-danger);
     margin-bottom: 6px;
   }
 
   .ban-detail {
     font-size: 14px;
-    color: #991b1b;
+    color: var(--rpg-danger-text);
     margin-bottom: 4px;
   }
 
   .ban-end-time {
     font-size: 12px;
-    color: #b91c1c;
+    color: var(--rpg-danger-text-soft);
     margin-bottom: 8px;
   }
 
   .ban-tip {
     font-size: 12px;
-    color: #6b7280;
+    color: var(--rpg-text-muted);
     line-height: 1.4;
   }
 </style>

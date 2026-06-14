@@ -35,7 +35,6 @@ const okHandle = async () => {
     desp: '',
   };
   linkList.value = await request.get('/link', { client: true });
-  // console.log(linkList.value)
 };
 const isOpen = ref(false);
 useHead({
@@ -45,112 +44,110 @@ useHead({
 </script>
 
 <template>
-  <NuxtLayout
-    name="main-content"
-    label="LINKS"
-    title="友情链接"
-    subtitle="与志同道合的站点互联互通"
-  >
-    <div class="links-container pt-3 rounded-box xl:p-4">
-      <h1 class="hidden">
-        友情链接 - {{ SiteTitle }}
-      </h1>
-      <div class="flex justify-end">
-        <label for="link-add-modal" class="btn modal-button btn-soft btn-secondary shake-rotate">+ 申请外链</label>
-      </div>
-
-      <!-- 新增弹框 -->
-      <input id="link-add-modal" type="checkbox" class="modal-toggle">
-      <div class="modal">
-        <div class="modal-box relative">
-          <label
-            for="link-add-modal"
-            class="btn btn-neutral btn-sm btn-circle absolute right-2 top-2"
-          >✕</label>
-          <h3 class="text-lg font-bold">
-            申请外链
-          </h3>
-          <div class="pl-8 pt-4">
-            <div class="flex items-center mb-4">
-              <span class="w-16"><span class="text-red-600">*</span>网站名</span>
-              <input
-                v-model="linkState.title"
-                type="text"
-                placeholder="网站名"
-                class="input input-bordered input-sm max-w-xs w-5/6"
-              >
-            </div>
-            <div class="flex items-center mb-4">
-              <span class="w-16"><span class="text-red-600">*</span>网址</span>
-              <input
-                v-model="linkState.url"
-                type="text"
-                placeholder="网址"
-                class="input input-bordered input-sm max-w-xs w-5/6"
-              >
-            </div>
-            <div class="flex items-center mb-4">
-              <span class="w-16"><span class="text-red-600">*</span>图标</span>
-              <input
-                v-model="linkState.icon"
-                type="text"
-                placeholder="图标"
-                class="input input-bordered input-sm max-w-xs w-5/6"
-              >
-            </div>
-            <div class="flex items-center">
-              <span class="w-16"><span class="text-red-600">*</span>个签</span>
-              <input
-                v-model="linkState.desp"
-                type="text"
-                placeholder="个签"
-                class="input input-bordered input-sm max-w-xs w-5/6"
-              >
-            </div>
-            <div class="modal-action">
-              <label for="link-add-modal" class="btn btn-neutral" @click="okHandle">确 认</label>
-            </div>
-          </div>
+  <div>
+    <NuxtLayout
+      name="main-content"
+      label="LINKS"
+      title="友情链接"
+      subtitle="与志同道合的站点互联互通"
+    >
+      <div class="links-container pt-3 rounded-box xl:p-4">
+        <h1 class="hidden">
+          友情链接 - {{ SiteTitle }}
+        </h1>
+        <div class="flex justify-end">
+          <label for="link-add-modal" class="btn modal-button btn-soft btn-secondary shake-rotate">+ 申请外链</label>
         </div>
-      </div>
 
-      <!-- 友链列表 -->
-      <div class="flex flex-wrap justify-start mt-6">
-        <div
-          v-for="item in linkList"
-          class="card w-full lg:w-80 shadow-xl bg-base-100 transition duration-700 ease-in-out hover:scale-105 border border-base-300 m-3"
-        >
-          <div class="card-body p-2 sm:p-4">
-            <h2 class="card-title">
-              <a target="_blank" :href="item.url">{{ item.title }}</a>
-            </h2>
-            <a class="flex items-center" target="_blank" :href="item.url">
-              <div class="avatar">
-                <div class="w-10 rounded-full bg-base-300">
-                  <xia-image
-                    v-show="item.icon"
-                    lazyload
-                    :src="item.icon"
-                    :alt="item.title"
-                    class="h-full"
-                  />
-                </div>
+        <input id="link-add-modal" type="checkbox" class="modal-toggle">
+        <div class="modal">
+          <div class="modal-box relative">
+            <label
+              for="link-add-modal"
+              class="btn btn-neutral btn-sm btn-circle absolute right-2 top-2"
+            >✕</label>
+            <h3 class="text-lg font-bold">
+              申请外链
+            </h3>
+            <div class="pl-8 pt-4">
+              <div class="flex items-center mb-4">
+                <span class="w-16"><span class="text-red-600">*</span>网站名</span>
+                <input
+                  v-model="linkState.title"
+                  type="text"
+                  placeholder="网站名"
+                  class="input input-bordered input-sm max-w-xs w-5/6"
+                >
               </div>
-              <div class="pl-2 text-sm">{{ item.desp }}</div>
-            </a>
+              <div class="flex items-center mb-4">
+                <span class="w-16"><span class="text-red-600">*</span>网址</span>
+                <input
+                  v-model="linkState.url"
+                  type="text"
+                  placeholder="网址"
+                  class="input input-bordered input-sm max-w-xs w-5/6"
+                >
+              </div>
+              <div class="flex items-center mb-4">
+                <span class="w-16"><span class="text-red-600">*</span>图标</span>
+                <input
+                  v-model="linkState.icon"
+                  type="text"
+                  placeholder="图标"
+                  class="input input-bordered input-sm max-w-xs w-5/6"
+                >
+              </div>
+              <div class="flex items-center">
+                <span class="w-16"><span class="text-red-600">*</span>个签</span>
+                <input
+                  v-model="linkState.desp"
+                  type="text"
+                  placeholder="个签"
+                  class="input input-bordered input-sm max-w-xs w-5/6"
+                >
+              </div>
+              <div class="modal-action">
+                <label for="link-add-modal" class="btn btn-neutral" @click="okHandle">确 认</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap justify-start mt-6">
+          <div
+            v-for="item in linkList"
+            class="card w-full lg:w-80 shadow-xl border border-tech bg-[var(--tech-input-bg)] text-tech transition duration-700 ease-in-out hover:scale-105 hover:border-primary/30 m-3 rounded-2xl"
+          >
+            <div class="card-body p-2 sm:p-4">
+              <h2 class="card-title text-tech">
+                <a target="_blank" :href="item.url">{{ item.title }}</a>
+              </h2>
+              <a class="flex items-center" target="_blank" :href="item.url">
+                <div class="avatar">
+                  <div class="w-10 rounded-full bg-tech-header">
+                    <xia-image
+                      v-show="item.icon"
+                      lazyload
+                      :src="item.icon"
+                      :alt="item.title"
+                      class="h-full"
+                    />
+                  </div>
+                </div>
+                <div class="pl-2 text-sm">{{ item.desp }}</div>
+              </a>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </NuxtLayout>
+    </NuxtLayout>
+  </div>
 </template>
 
 <style lang="less" scoped>
   .links-container {
     min-height: 40vh;
-    // background: var(--main-bgc);
     .link-btn {
-      // background: var(--minor-bgc);
       border: none;
     }
   }

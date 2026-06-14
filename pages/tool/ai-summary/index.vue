@@ -1,8 +1,10 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
-    <div class="card bg-base-100 shadow-xl mx-auto rounded-xl mb-4">
+  <div class="space-y-4">
+    <div
+      class="card border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech mx-auto mb-4"
+    >
       <div class="card-body">
-        <h2 class="card-title">
+        <h2 class="card-title text-tech">
           <xia-icon icon="blog-ai" />
           AI 文章摘要生成器
         </h2>
@@ -49,9 +51,11 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- 输入区域 -->
-      <div class="card bg-base-100 shadow-xl">
+      <div
+        class="card border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
+      >
         <div class="card-body">
-          <h3 class="card-title text-lg">
+          <h3 class="card-title text-lg text-tech">
             原文内容
           </h3>
           <textarea
@@ -77,9 +81,11 @@
       </div>
 
       <!-- 输出区域 -->
-      <div class="card bg-base-100 shadow-xl">
+      <div
+        class="card border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
+      >
         <div class="card-body">
-          <h3 class="card-title text-lg">
+          <h3 class="card-title text-lg text-tech">
             AI 摘要
           </h3>
           <div
@@ -133,9 +139,12 @@
     </div>
 
     <!-- 历史记录 -->
-    <div v-if="summaryHistory.length > 0" class="card bg-base-100 shadow-xl mt-6">
+    <div
+      v-if="summaryHistory.length > 0"
+      class="card border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech mt-6"
+    >
       <div class="card-body">
-        <h3 class="card-title text-lg">
+        <h3 class="card-title text-lg text-tech">
           历史记录
         </h3>
         <div class="space-y-3 max-h-60 overflow-y-auto">

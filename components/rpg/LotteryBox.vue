@@ -223,14 +223,14 @@ const toggleHistory = () => {
   .section-title {
     font-size: 14px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--rpg-text);
   }
 
   .ticket-count {
     font-size: 13px;
     font-weight: 700;
-    color: #7c3aed;
-    background: #ede9fe;
+    color: var(--rpg-violet);
+    background: var(--rpg-violet-bg);
     padding: 3px 10px;
     border-radius: 12px;
   }
@@ -247,8 +247,8 @@ const toggleHistory = () => {
     width: 100px;
     height: 100px;
     border-radius: 16px;
-    background: linear-gradient(135deg, #fef3c7, #fde68a);
-    border: 3px solid #f59e0b;
+    background: var(--rpg-amber-bg-gradient);
+    border: 3px solid var(--rpg-amber);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -291,7 +291,7 @@ const toggleHistory = () => {
 
   .chest-label {
     font-size: 10px;
-    color: #92400e;
+    color: var(--rpg-amber-text);
     font-weight: 600;
     margin-top: 2px;
   }
@@ -305,7 +305,7 @@ const toggleHistory = () => {
     padding: 7px 18px;
     border: none;
     border-radius: 8px;
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    background: var(--rpg-violet-gradient);
     color: white;
     font-weight: 700;
     font-size: 13px;
@@ -314,7 +314,7 @@ const toggleHistory = () => {
   }
 
   .draw-btn:disabled {
-    background: #94a3b8;
+    background: var(--rpg-disabled);
     cursor: not-allowed;
   }
 
@@ -323,7 +323,7 @@ const toggleHistory = () => {
   }
 
   .draw-btn-multi {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
+    background: var(--rpg-level-badge-gradient);
   }
 
   .result-overlay {
@@ -332,7 +332,7 @@ const toggleHistory = () => {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--rpg-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -350,7 +350,7 @@ const toggleHistory = () => {
   }
 
   .result-card {
-    background: white;
+    background: var(--rpg-surface);
     border-radius: 16px;
     padding: 28px 32px;
     text-align: center;
@@ -382,26 +382,26 @@ const toggleHistory = () => {
   .result-name {
     font-size: 20px;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--rpg-text);
     margin-bottom: 6px;
   }
 
   .result-desc {
     font-size: 13px;
-    color: #64748b;
+    color: var(--rpg-text-secondary);
     margin-bottom: 10px;
   }
 
   .result-reward {
     font-size: 14px;
     font-weight: 700;
-    color: #16a34a;
+    color: var(--rpg-success);
     margin-bottom: 12px;
   }
 
   .result-hint {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
   }
 
   .pool-preview {
@@ -411,7 +411,7 @@ const toggleHistory = () => {
   .pool-title {
     font-size: 12px;
     font-weight: 600;
-    color: #475569;
+    color: var(--rpg-text-label);
     margin-bottom: 6px;
   }
 
@@ -428,7 +428,7 @@ const toggleHistory = () => {
     padding: 5px 8px;
     border-radius: 6px;
     border: 1.5px solid;
-    background: white;
+    background: var(--rpg-surface);
     font-size: 11px;
   }
 
@@ -436,7 +436,7 @@ const toggleHistory = () => {
     font-size: 12px;
   }
   .pool-name {
-    color: #374151;
+    color: var(--rpg-text-body);
     font-weight: 500;
   }
 
@@ -447,7 +447,7 @@ const toggleHistory = () => {
   .history-btn {
     font-size: 12px;
     font-weight: 600;
-    color: #475569;
+    color: var(--rpg-text-label);
     cursor: pointer;
     user-select: none;
     margin-bottom: 6px;
@@ -465,7 +465,7 @@ const toggleHistory = () => {
 
   .history-empty {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
     padding: 8px;
   }
 
@@ -475,9 +475,9 @@ const toggleHistory = () => {
     gap: 6px;
     padding: 5px 8px;
     border-radius: 5px;
-    background: white;
+    background: var(--rpg-surface);
     margin-bottom: 3px;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--rpg-border-subtle);
   }
 
   .history-rarity {
@@ -485,12 +485,12 @@ const toggleHistory = () => {
   }
   .history-name {
     font-size: 12px;
-    color: #374151;
+    color: var(--rpg-text-body);
     font-weight: 500;
     flex: 1;
   }
   .history-time {
     font-size: 10px;
-    color: #94a3b8;
+    color: var(--rpg-text-muted);
   }
 </style>
