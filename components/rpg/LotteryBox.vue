@@ -1,8 +1,9 @@
 <script setup lang="ts">
 /**
-   * 抽奖宝箱组件 - 宝箱开启动画 + 奖品展示（纯展示 + 事件上报）
+   * 抽奖宝箱
+   * 稀有度展示用 API 的 rarityLabel/rarityColor/rarityIcon，不用 RARITY_MAP
    */
-import { RARITY_MAP, formatRewardDetail } from '~~/types/rpg';
+import { formatRewardDetail } from '~~/types/rpg';
 import type { DrawResult, LotteryPoolItem, LotteryRecord, RpgStatus } from '~~/types/rpg';
 import { formactDate } from '@/utils/common';
 
@@ -152,10 +153,10 @@ const toggleHistory = () => {
         >
           <div
             class="rarity-badge"
-            :style="{ backgroundColor: RARITY_MAP[currentResult.item.rarity]?.color || '#ccc' }"
+            :style="{ backgroundColor: currentResult.item.rarityColor || '#ccc' }"
           >
-            {{ RARITY_MAP[currentResult.item.rarity]?.icon }}
-            {{ RARITY_MAP[currentResult.item.rarity]?.label }}
+            {{ currentResult.item.rarityIcon }}
+            {{ currentResult.item.rarityLabel || currentResult.item.rarity }}
           </div>
           <div class="result-name">
             {{ currentResult.item.name }}
@@ -186,9 +187,9 @@ const toggleHistory = () => {
           v-for="item in lotteryPool"
           :key="item.id"
           class="pool-item"
-          :style="{ borderColor: RARITY_MAP[item.rarity]?.color || '#ccc' }"
+          :style="{ borderColor: item.rarityColor || '#ccc' }"
         >
-          <span class="pool-rarity">{{ RARITY_MAP[item.rarity]?.icon }}</span>
+          <span class="pool-rarity">{{ item.rarityIcon }}</span>
           <span class="pool-name">{{ item.name }}</span>
         </div>
       </div>
@@ -203,8 +204,8 @@ const toggleHistory = () => {
           暂无记录
         </div>
         <div v-for="record in lotteryHistory" :key="record.id" class="history-item">
-          <span class="history-rarity" :style="{ color: RARITY_MAP[record.poolRarity]?.color }">
-            {{ RARITY_MAP[record.poolRarity]?.icon }}
+          <span class="history-rarity" :style="{ color: record.rarityColor || record.poolRarity }">
+            {{ record.rarityIcon }}
           </span>
           <span class="history-name">{{ record.poolName }}</span>
           <span class="history-time">{{ formactDate(record.createTime) }}</span>

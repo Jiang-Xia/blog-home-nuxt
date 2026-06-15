@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
-   * 等级奖励路线图 - 展示各等级解锁的头像框与称号（纯展示）
+   * 等级奖励路线图
+   * 直接使用 API 返回的 avatarFrame/title/currencyName，不做本地物品 map
    */
-import { AVATAR_FRAME_MAP, getAvatarFrameName, getTitleName } from '~~/types/rpg';
 import type { LevelReward, RpgStatus } from '~~/types/rpg';
 
 const props = defineProps<{
@@ -28,16 +28,19 @@ const isUnlocked = (level: number) => currentLevel.value >= level;
 const getRewardSummary = (reward: LevelReward) => {
   const parts: string[] = [];
   if (reward.currencyReward) {
-    parts.push(`${reward.currencyReward} 钻石`);
+    parts.push(`${reward.currencyReward} ${reward.currencyName || '钻石'}`);
   }
-  if (reward.avatarFrame) {
-    parts.push(getAvatarFrameName(reward.avatarFrame));
+  if (reward.avatarFrame?.name) {
+    parts.push(reward.avatarFrame.name);
   }
-  if (reward.title || reward.titleName) {
-    parts.push(reward.titleName || getTitleName(reward.title!));
+  if (reward.title?.name) {
+    parts.push(reward.title.name);
   }
   return parts.filter(Boolean).join(' · ') || '暂无奖励';
 };
+
+const hasAnyReward = (reward: LevelReward) =>
+  !!(reward.currencyReward || reward.avatarFrame?.name || reward.title?.name);
 </script>
 
 <template>
@@ -97,26 +100,19 @@ const getRewardSummary = (reward: LevelReward) => {
 
         <div class="reward-tags">
           <span v-if="reward.currencyReward" class="reward-tag diamond">
-            💎 {{ reward.currencyReward }} 钻石
+            💎 {{ reward.currencyReward }} {{ reward.currencyName || '钻石' }}
           </span>
           <span
-            v-if="reward.avatarFrame"
+            v-if="reward.avatarFrame?.name"
             class="reward-tag frame"
-            :style="{ borderColor: AVATAR_FRAME_MAP[reward.avatarFrame]?.color }"
+            :style="{ borderColor: reward.avatarFrame.color || '#ccc' }"
           >
-            🖼 {{ getAvatarFrameName(reward.avatarFrame) }}
+            🖼 {{ reward.avatarFrame.name }}
           </span>
-          <span v-if="reward.title || reward.titleName" class="reward-tag title">
-            🏆 {{ reward.titleName || getTitleName(reward.title!) }}
+          <span v-if="reward.title?.name" class="reward-tag title">
+            🏆 {{ reward.title.name }}
           </span>
-          <span
-            v-if="
-              !reward.currencyReward && !reward.avatarFrame && !reward.title && !reward.titleName
-            "
-            class="reward-tag empty"
-          >
-            暂无奖励
-          </span>
+          <span v-if="!hasAnyReward(reward)" class="reward-tag empty"> 暂无奖励 </span>
         </div>
 
         <div class="reward-footer">

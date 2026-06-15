@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import {
-  ITEM_TYPE_MAP,
-  RARITY_MAP,
-  getItemSourceLabel,
-  getItemTypeLabel,
-  getRarityLabel,
-} from '~~/types/rpg';
+/** 背包面板：展示字段来自 item.config / item.sourceLabel */
 import type { InventoryItem } from '~~/types/rpg';
 
 const props = defineProps<{
@@ -22,13 +16,17 @@ const emit = defineEmits<{
 const activeType = ref<string>('all');
 
 const typeTabs = computed(() => {
-  const types = new Set(props.items.map(i => i.config?.itemType).filter(Boolean));
+  const typeMap = new Map<string, string>();
+  for (const item of props.items) {
+    const cfg = item.config;
+    if (!cfg?.itemType) continue;
+    if (!typeMap.has(cfg.itemType)) {
+      typeMap.set(cfg.itemType, cfg.itemTypeLabel || cfg.itemType);
+    }
+  }
   return [
     { key: 'all', label: '全部' },
-    ...Array.from(types).map(key => ({
-      key: key as string,
-      label: getItemTypeLabel(key as string),
-    })),
+    ...Array.from(typeMap.entries()).map(([key, label]) => ({ key, label })),
   ];
 });
 
@@ -74,23 +72,23 @@ const filteredItems = computed(() => {
             </div>
             <div class="flex items-center gap-1 mt-1 flex-wrap">
               <span v-if="item.config?.itemType" class="badge badge-xs badge-ghost gap-0.5">
-                {{ ITEM_TYPE_MAP[item.config.itemType]?.icon }}
-                {{ getItemTypeLabel(item.config.itemType) }}
+                {{ item.config.itemTypeIcon }}
+                {{ item.config.itemTypeLabel || item.config.itemType }}
               </span>
               <span
                 v-if="item.config?.rarity"
                 class="badge badge-xs gap-0.5"
                 :style="{
-                  backgroundColor: (RARITY_MAP[item.config.rarity]?.color || '#94a3b8') + '20',
-                  color: RARITY_MAP[item.config.rarity]?.color || '#64748b',
-                  borderColor: RARITY_MAP[item.config.rarity]?.color || '#94a3b8',
+                  backgroundColor: (item.config.rarityColor || '#94a3b8') + '20',
+                  color: item.config.rarityColor || '#64748b',
+                  borderColor: item.config.rarityColor || '#94a3b8',
                 }"
               >
-                {{ RARITY_MAP[item.config.rarity]?.icon }}
-                {{ getRarityLabel(item.config.rarity) }}
+                {{ item.config.rarityIcon }}
+                {{ item.config.rarityLabel || item.config.rarity }}
               </span>
-              <span v-if="item.source" class="text-[10px] text-base-content/40">
-                {{ getItemSourceLabel(item.source) }}
+              <span v-if="item.sourceLabel || item.source" class="text-[10px] text-base-content/40">
+                {{ item.sourceLabel || item.source }}
               </span>
             </div>
           </div>

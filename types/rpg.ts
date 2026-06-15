@@ -1,4 +1,13 @@
-/** 装扮物品摘要（由后端物品配置返回） */
+/**
+ * RPG 前端类型定义
+ *
+ * 物品展示约定（与后端 rpg_item_config 对齐）：
+ * - 称号/头像框/背包/抽奖等：只用 API 返回的 name、itemTypeLabel、rarityColor 等字段
+ * - 禁止新增 AVATAR_FRAME_MAP、RARITY_MAP、ITEM_TYPE_MAP 等本地物品 map
+ * - 详见 blog-home-nuxt/.cursor/rules/home-15-rpg-item-display.mdc
+ */
+
+/** 装扮物品摘要（由后端 rpg_item_config 查询返回） */
 export interface CosmeticItemSummary {
   code: string;
   name: string;
@@ -51,13 +60,13 @@ export interface LevelUpResult {
   unlockedRewards: LevelReward[];
 }
 
-/** 等级奖励配置 */
+/** 等级奖励（展示字段由 GET /rpg/level-rewards 从 rpg_item_config enrich 后返回） */
 export interface LevelReward {
   level: number;
-  avatarFrame?: string;
-  title?: string;
-  titleName?: string;
   currencyReward?: number;
+  currencyName?: string;
+  avatarFrame?: CosmeticItemSummary | null;
+  title?: CosmeticItemSummary | null;
 }
 
 /** 角色专属奖励配置 */
@@ -111,33 +120,29 @@ export interface HitRecordsResponse {
   };
 }
 
-/** 头像框样式映射 */
-export const AVATAR_FRAME_MAP: Record<string, { name: string; color: string }> = {
-  frame_a: { name: '初级头像框', color: '#4ade80' },
-  frame_b: { name: '中级头像框', color: '#60a5fa' },
-  frame_c: { name: '高级头像框', color: '#c084fc' },
-  frame_d: { name: '稀有头像框', color: '#fbbf24' },
-  frame_super_admin: { name: '至尊站长框', color: '#ef4444' },
-  frame_admin: { name: '管理员专属框', color: '#f97316' },
-  lottery_frame_star: { name: '抽奖头像框·星芒', color: '#8b5cf6' },
-};
+/** 物品 config（含后端下发的 itemTypeLabel、rarityColor 等，前端直接渲染） */
+export interface ItemConfigView {
+  code: string;
+  name: string;
+  itemType: string;
+  rarity: string;
+  description?: string;
+  icon?: string;
+  category?: string;
+  effectJson?: Record<string, any> | null;
+  itemTypeLabel?: string;
+  itemTypeIcon?: string;
+  rarityLabel?: string;
+  rarityColor?: string;
+  rarityIcon?: string;
+}
 
-/** 称号显示名称映射 */
-export const TITLE_NAME_MAP: Record<string, string> = {
-  bronze_master: '青铜达人',
-  silver_master: '白银大师',
-  gold_legend: '黄金传说',
-  super_admin: '站长',
-  admin: '守护者',
-  lottery_title_writer: '抽奖称号·作家',
-};
-
-/** 公会成员角色 */
-export const GUILD_ROLE_MAP: Record<string, string> = {
-  leader: '会长',
-  officer: '官员',
-  member: '成员',
-};
+/** 稀有度展示（后端下发） */
+export interface RarityDisplay {
+  rarityLabel?: string;
+  rarityColor?: string;
+  rarityIcon?: string;
+}
 
 /** 排行榜条目 */
 export interface LeaderboardEntry {
@@ -261,18 +266,20 @@ export const BUFF_TYPE_MAP: Record<BuffType, { icon: string; color: string; labe
   lucky: { icon: '⭐', color: '#f59e0b', label: '幸运' },
 };
 
-/** 抽奖奖池物品 */
+/** 抽奖奖池（rarityLabel/Color/Icon 由后端 attachRarityDisplay 下发） */
 export interface LotteryPoolItem {
   id: number;
-  code: string;
+  itemCode: string;
   name: string;
   description: string;
-  type: 'exp' | 'buff' | 'achievement' | 'ticket';
-  rewardData: Record<string, any>;
+  grantType: string;
   probability: number;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  rarity: string;
   active: boolean;
   sort: number;
+  rarityLabel?: string;
+  rarityColor?: string;
+  rarityIcon?: string;
 }
 
 /** 抽奖结果 */
@@ -283,6 +290,9 @@ export interface DrawResult {
     description: string;
     rarity: string;
     type: string;
+    rarityLabel?: string;
+    rarityColor?: string;
+    rarityIcon?: string;
   };
   rewardDetail?: string;
 }
@@ -296,21 +306,19 @@ export interface LotteryRecord {
   poolRarity: string;
   rewardData: Record<string, any>;
   createTime: string;
+  rarityLabel?: string;
+  rarityColor?: string;
+  rarityIcon?: string;
 }
 
-/** 背包物品 */
+/** 背包条目（config、sourceLabel 均由后端格式化，勿本地 map） */
 export interface InventoryItem {
   id: number;
   itemCode: string;
   quantity: number;
   source: string;
-  config: {
-    code: string;
-    name: string;
-    itemType: string;
-    rarity: string;
-    description: string;
-  } | null;
+  sourceLabel?: string;
+  config: ItemConfigView | null;
 }
 
 /** 公开主页 */
@@ -340,78 +348,12 @@ export type RpgItemType
     | 'currency'
     | 'consumable';
 
-/** 物品类型显示配置 */
-export const ITEM_TYPE_MAP: Record<string, { label: string; icon: string }> = {
-  title: { label: '称号', icon: '🏅' },
-  avatar_frame: { label: '头像框', icon: '🖼️' },
-  pet: { label: '宠物', icon: '🐾' },
-  equipment: { label: '装备', icon: '⚔️' },
-  achievement: { label: '成就', icon: '🏆' },
-  buff: { label: '增益', icon: '✨' },
-  currency: { label: '钻石', icon: '💎' },
-  consumable: { label: '消耗品', icon: '🧪' },
+/** 公会成员角色中文名（非 rpg_item_config 数据，保留本地映射） */
+export const GUILD_ROLE_MAP: Record<string, string> = {
+  leader: '会长',
+  officer: '官员',
+  member: '成员',
 };
-
-/** 抽奖奖池类型显示名称 */
-export const LOTTERY_TYPE_MAP: Record<string, string> = {
-  exp: '经验',
-  buff: '增益',
-  ticket: '抽奖券',
-  achievement: '成就',
-};
-
-/** 背包物品来源显示名称 */
-export const ITEM_SOURCE_MAP: Record<string, string> = {
-  level_up: '等级奖励',
-  lottery: '抽奖',
-  lottery_reward: '抽奖奖励',
-  quest: '任务',
-  admin: '管理员发放',
-  system: '系统',
-  reward: '奖励',
-  egg: '扔鸡蛋',
-  flower: '送鲜花',
-  cheer: '加油',
-  tip: '打赏',
-};
-
-/** 稀有度显示配置 */
-export const RARITY_MAP: Record<string, { color: string; label: string; icon: string }> = {
-  common: { color: '#94a3b8', label: '普通', icon: '⚪' },
-  rare: { color: '#3b82f6', label: '稀有', icon: '🔵' },
-  epic: { color: '#8b5cf6', label: '史诗', icon: '🟣' },
-  legendary: { color: '#f59e0b', label: '传说', icon: '🟡' },
-};
-
-/** 获取物品类型中文名 */
-export function getItemTypeLabel(type: string): string {
-  return ITEM_TYPE_MAP[type]?.label ?? type;
-}
-
-/** 获取稀有度中文名 */
-export function getRarityLabel(rarity: string): string {
-  return RARITY_MAP[rarity]?.label ?? rarity;
-}
-
-/** 获取抽奖类型中文名 */
-export function getLotteryTypeLabel(type: string): string {
-  return LOTTERY_TYPE_MAP[type] ?? type;
-}
-
-/** 获取物品来源中文名 */
-export function getItemSourceLabel(source: string): string {
-  return ITEM_SOURCE_MAP[source] ?? source;
-}
-
-/** 获取头像框中文名 */
-export function getAvatarFrameName(code: string): string {
-  return AVATAR_FRAME_MAP[code]?.name ?? code;
-}
-
-/** 获取称号中文名 */
-export function getTitleName(code: string): string {
-  return TITLE_NAME_MAP[code] ?? code;
-}
 
 /** 获取公会角色中文名 */
 export function getGuildRoleLabel(role: string): string {

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
-   * 升级动画组件 - 等级提升时显示弹出动画和解锁奖励
+   * 升级动画
+   * unlockedRewards 已由后端 enrich（avatarFrame.name、title.name 等）
    */
 import type { LevelUpResult } from '~~/types/rpg';
-import { getAvatarFrameName, getTitleName } from '~~/types/rpg';
 
 const props = defineProps<{
   visible: boolean;
@@ -19,8 +19,9 @@ const rewards = computed(() => {
   return props.levelUpData.unlockedRewards.map(r => ({
     level: r.level,
     currencyReward: r.currencyReward || 0,
-    frameName: r.avatarFrame ? getAvatarFrameName(r.avatarFrame) : null,
-    titleName: r.title ? r.titleName || getTitleName(r.title) : null,
+    currencyName: r.currencyName || '钻石',
+    frameName: r.avatarFrame?.name || null,
+    titleName: r.title?.name || null,
   }));
 });
 
@@ -46,7 +47,7 @@ const handleClose = () => {
             解锁奖励
           </div>
           <div v-for="r in rewards" :key="r.level" class="reward-item">
-            <span v-if="r.currencyReward" class="reward-diamond">💎 {{ r.currencyReward }} 钻石</span>
+            <span v-if="r.currencyReward" class="reward-diamond">💎 {{ r.currencyReward }} {{ r.currencyName }}</span>
             <span v-if="r.frameName" class="reward-frame">🖼 {{ r.frameName }}</span>
             <span v-if="r.titleName" class="reward-title">🏆 {{ r.titleName }}</span>
           </div>
