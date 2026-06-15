@@ -4,14 +4,8 @@
     class="card-container"
     :style="{ 'padding': padding + 'px', '--pic': `url(${pic})` }"
   >
-    <img
-      :src="pic"
-      :style="{ borderRadius: radius + 'px' }"
-    >
-    <div
-      ref="cardFilter"
-      class="card-filter"
-    />
+    <img :src="pic" :style="{ borderRadius: radius + 'px' }">
+    <div ref="cardFilter" class="card-filter" />
   </div>
 </template>
 

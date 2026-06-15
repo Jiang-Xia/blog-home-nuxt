@@ -312,19 +312,20 @@ watch(articleList, syncAuthorLevels);
             :key="item.id"
             class="article-item cyber-glass-card cyber-glass-card--hover mb-5 overflow-hidden transition-all"
           >
-            <figure
-              class="article-item-cover m-0"
-              :class="{ 'article-item-cover--light': !isDark }"
-            >
-              <XiaCardBorderLight v-if="isDark" :pic="item.cover" style="--border-size: 8px" />
+            <figure class="article-item-cover m-0">
+              <XiaCardBorderLight
+                v-if="isDark"
+                :pic="item.cover"
+                class="article-item-cover-border"
+                style="--border-size: 8px; --pic-inset: 8px"
+              />
               <xia-image
                 v-else
                 :src="item.cover"
                 lazyload
-                class="article-item-cover-img h-52 w-full bg-base-300 [&_img]:object-cover"
+                class="article-item-cover-img w-full bg-base-300 [&_img]:object-cover"
                 :alt="item.category.label"
               />
-              <!-- <XiaCardBorderLight :pic="item.cover" /> -->
             </figure>
             <div class="card-body text-base-content/70">
               <h2 class="card-title text-base-content flex-wrap gap-1">
@@ -680,22 +681,40 @@ watch(articleList, syncAuthorLevels);
       .article-item {
         max-height: 408px;
         width: 100%;
+        display: flex;
+        flex-direction: column;
 
         .article-item-cover {
-          padding: 12px 12px 0;
+          --cover-height: 160px;
+          flex-shrink: 0;
+          padding: 12px;
+          display: flex;
+
+          :deep(.card-container) {
+            width: 100%;
+            height: var(--cover-height);
+            min-height: var(--cover-height);
+          }
         }
 
-        .article-item-cover--light {
-          padding: 12px;
+        .card-body {
+          flex: 1;
+          min-height: 0;
+          overflow: hidden;
+          padding: 0 12px 12px;
         }
 
         .article-item-cover-img {
+          width: 100%;
+          height: var(--cover-height);
           display: block;
           border-radius: 8px;
           overflow: hidden;
 
           :deep(img) {
             display: block;
+            height: 100%;
+            width: 100%;
             object-fit: cover;
           }
         }

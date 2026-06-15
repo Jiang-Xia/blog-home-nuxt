@@ -63,6 +63,7 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/tool': { redirect: '/tool/sm' },
+    '/photos': { redirect: '/tool/photos' },
   },
   devServer: {
     // 证书安装 https://zhuanlan.zhihu.com/p/678165318

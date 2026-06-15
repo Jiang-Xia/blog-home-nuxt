@@ -44,10 +44,7 @@ async function traverseDir(dirHandle) {
 <template>
   <div class="photos-container">
     <div class="tool-btn mt-2 p-6">
-      <button
-        class="btn"
-        @click="selectAndReadDir"
-      >
+      <button class="btn" @click="selectAndReadDir">
         选择文件夹查看图片
       </button>
     </div>

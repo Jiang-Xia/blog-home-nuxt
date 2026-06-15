@@ -123,8 +123,8 @@ export function loadScreenshotScripts(): Promise<Array<void>> {
 }
 
 /**
- * 加载照片处理脚本
+ * 摄影工具：仅导出 ZIP 需要 JSZip（EXIF/模糊在 Web Worker 内处理）
  */
 export function loadPhotoScripts(): Promise<Array<void>> {
-  return loadScripts([SCRIPTS.KONVA, SCRIPTS.EXIF_READER]);
+  return loadScripts([SCRIPTS.JSZIP]);
 }

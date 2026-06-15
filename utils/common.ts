@@ -3,8 +3,10 @@ import type { LocationQueryValue } from 'vue-router';
 import dayjs from 'dayjs';
 import { useStorage } from '@vueuse/core';
 import api from '@/api/index';
-import { staticBaseUrl } from '~/config';
 import { messageError } from '@/utils/toast';
+import { resolveStaticUrl } from '@/utils/static-url';
+
+export { resolveStaticUrl };
 
 // 分类
 const categoryOptions: any = ref([]);
@@ -111,16 +113,6 @@ export const formactDate = (str: string) => {
 
 /** 头像加载失败时的本地兜底图 */
 export const DEFAULT_AVATAR_FALLBACK = '/assets/images/animal/animal3.svg';
-
-/** 将 /static 路径解析为可访问的完整 URL */
-export const resolveStaticUrl = (path = ''): string => {
-  if (!path) return '';
-  if (path.startsWith('http') || path.includes('base64')) return path;
-  if (path.startsWith('/static')) {
-    return `${staticBaseUrl}${path}`;
-  }
-  return path;
-};
 
 /** 从头像列表中随机取一张；列表为空时返回本地兜底图 */
 export const getRandomAvatar = (list: string[] = []): string => {

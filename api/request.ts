@@ -460,6 +460,16 @@ const put = async (url: string, params = {}): Promise<any> => {
 };
 
 /**
+ * PATCH请求方法
+ * @param url 请求URL
+ * @param params 请求体数据
+ * @returns Promise<any>
+ */
+const patch = async (url: string, params = {}): Promise<any> => {
+  return await $http(url, { method: 'PATCH', body: params }).then(res => res.data);
+};
+
+/**
  * 刷新token函数
  * 使用refreshToken获取新的accessToken和refreshToken
  * 同时更新本地存储和状态管理
@@ -494,4 +504,4 @@ async function refreshToken() {
 }
 
 // 导出所有方法
-export default { http: $http, get, post, put, del, awaitWrap };
+export default { http: $http, get, post, put, patch, del, awaitWrap };

@@ -2,9 +2,14 @@
 /**
    * 用户个人中心页面 - 使用 daisyUI tabs 组织内容
    */
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
+import { getToken, TokenKey } from '@/utils/cookie';
+import { getUserInfo } from '~~/api/index';
+import { messageWarning } from '@/utils/toast';
 
 const route = useRoute();
+const router = useRouter();
+const token = useToken();
 const userInfo = useUserInfo();
 
 type ProfileTab = 'card' | 'article' | 'collect' | 'comment';
@@ -33,6 +38,26 @@ definePageMeta({
 
 useHead({
   title: '个人中心',
+});
+
+onMounted(async () => {
+  const currentToken = token.value || getToken(TokenKey);
+  if (!currentToken) {
+    messageWarning('请先登录后再访问个人中心');
+    router.replace({
+      path: '/login',
+      query: { redirect: route.fullPath },
+    });
+    return;
+  }
+  if (!userInfo.value?.uid) {
+    try {
+      userInfo.value = await getUserInfo();
+    }
+    catch {
+      // 错误由全局拦截器处理
+    }
+  }
 });
 </script>
 

@@ -8,7 +8,8 @@ import dayjs from 'dayjs';
 import { createArticle, editArticle, getArticleInfo, uploadArticleImage } from '@/api/article';
 import { getAllCategory } from '@/api/category';
 import { getAllTag } from '@/api/tag';
-import { originUrl } from '@/config';
+import { uploadImage, parseUploadedUrl } from '@/api/resources';
+import { resolveStaticUrl } from '@/utils/common';
 import { messageDanger, messageSuccess } from '@/utils/toast';
 
 const props = defineProps<{
@@ -26,6 +27,7 @@ const submitting = ref(false);
 const categoryOptions = ref<any[]>([]);
 const tagsOptions = ref<any[]>([]);
 const coverError = ref(false);
+const coverUploading = ref(false);
 
 const isEdit = computed(() => !!props.articleId);
 
@@ -61,14 +63,7 @@ const submitLabel = computed(() => {
   return '发布文章';
 });
 
-const resolveStaticUrl = (path: string) => {
-  if (!path) return '';
-  if (path.startsWith('http')) return path;
-  if (import.meta.env.MODE === 'production') {
-    return `${originUrl}/x-api/blog-server${path}`;
-  }
-  return `${originUrl}${path}`;
-};
+const coverPreviewUrl = computed(() => resolveStaticUrl(formState.cover));
 
 const loadOptions = async () => {
   const [categories, tags] = await Promise.all([getAllCategory(), getAllTag()]);
@@ -187,16 +182,30 @@ const onHtmlChanged = (html: string) => {
 
 const onUploadImg = async (files: File[], callback: (urls: string[]) => void) => {
   try {
-    const results = await Promise.all(files.map(file => uploadArticleImage(file)));
-    callback(
-      results.map((item: any) => {
-        const file = Array.isArray(item) ? item[0] : item?.data?.[0] || item;
-        return resolveStaticUrl(file?.url || '');
-      }),
-    );
+    const urls = await Promise.all(files.map(file => uploadArticleImage(file)));
+    callback(urls);
   }
   catch {
     messageDanger('图片上传失败');
+  }
+};
+
+const onCoverFileChange = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  coverUploading.value = true;
+  try {
+    const res = await uploadImage(file, 'cover');
+    formState.cover = parseUploadedUrl(res);
+    coverError.value = false;
+  }
+  catch {
+    messageDanger('封面上传失败');
+  }
+  finally {
+    coverUploading.value = false;
+    input.value = '';
   }
 };
 
@@ -294,16 +303,29 @@ onMounted(async () => {
             <span
               class="flex items-center gap-1.5 text-[0.8125rem] font-semibold text-base-content/80 mb-1.5"
             >
-              封面链接 <em class="text-error not-italic">*</em>
+              封面 <em class="text-error not-italic">*</em>
             </span>
-            <input
-              v-model="formState.cover"
-              type="url"
-              class="input input-bordered w-full"
-              placeholder="https://example.com/cover.jpg"
-              @input="onCoverInput"
-            >
-            <span class="block mt-1.5 text-[0.6875rem] text-base-content/45">建议 16:9 比例，用于列表与分享展示</span>
+            <div class="flex flex-wrap items-center gap-2">
+              <input
+                v-model="formState.cover"
+                type="url"
+                class="input input-bordered w-full min-w-0 flex-1"
+                placeholder="上传或粘贴封面链接"
+                @input="onCoverInput"
+              >
+              <label class="btn btn-outline btn-sm shrink-0 cursor-pointer">
+                <span v-if="coverUploading" class="loading loading-spinner loading-xs" />
+                <span v-else>上传封面</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  class="hidden"
+                  :disabled="coverUploading"
+                  @change="onCoverFileChange"
+                >
+              </label>
+            </div>
+            <span class="block mt-1.5 text-[0.6875rem] text-base-content/45">建议 16:9，上传后自动压缩</span>
           </label>
           <figure
             class="cover-thumb rounded-lg overflow-hidden shrink-0 border border-dashed transition-colors"
@@ -311,7 +333,7 @@ onMounted(async () => {
           >
             <img
               v-if="formState.cover && !coverError"
-              :src="formState.cover"
+              :src="coverPreviewUrl"
               alt="封面预览"
               class="object-cover w-full h-full"
               @error="onCoverError"

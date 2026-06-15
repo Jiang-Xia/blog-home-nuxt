@@ -2,6 +2,7 @@
 import { reactive } from 'vue';
 import request from '~~/api/request.js';
 import { getRegisterAvatars } from '~~/api/index';
+import { uploadRegisterAvatar, parseUploadedUrl } from '~~/api/resources';
 import {
   DEFAULT_AVATAR_FALLBACK,
   getRandomAvatar,
@@ -60,6 +61,7 @@ const authCodeLoadError = ref(false);
 const captchaId = ref('');
 
 const registerAvatarPool = ref<string[]>([]);
+const avatarUploading = ref(false);
 
 const pickRandomAvatar = () => {
   if (!registerAvatarPool.value.length) return;
@@ -87,6 +89,24 @@ const onAvatarError = (event: Event) => {
   if (img.src.includes(DEFAULT_AVATAR_FALLBACK)) return;
   img.src = DEFAULT_AVATAR_FALLBACK;
   form.avatar = DEFAULT_AVATAR_FALLBACK;
+};
+
+const onAvatarFileChange = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  avatarUploading.value = true;
+  try {
+    const res = await uploadRegisterAvatar(file);
+    form.avatar = parseUploadedUrl(res);
+  }
+  catch {
+    messageDanger('头像上传失败');
+  }
+  finally {
+    avatarUploading.value = false;
+    input.value = '';
+  }
 };
 
 if (import.meta.client) {
@@ -239,14 +259,30 @@ if (import.meta.client) {
           欢迎注册
         </h1>
         <div
-          class="avatar btn btn-ghost btn-circle btn-sm"
-          title="点击切换头像"
+          class="avatar btn btn-ghost btn-circle btn-sm relative"
+          title="点击切换随机头像"
           @click="pickRandomAvatar()"
         >
           <div class="rounded-full">
             <img :src="form.avatar" alt="头像" @error="onAvatarError">
+            <span
+              v-if="avatarUploading"
+              class="absolute inset-0 flex items-center justify-center bg-base-100/70 rounded-full"
+            >
+              <span class="loading loading-spinner loading-xs" />
+            </span>
           </div>
         </div>
+        <label class="btn btn-ghost btn-xs min-h-0 h-7">
+          上传头像
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            class="hidden"
+            :disabled="avatarUploading"
+            @change="onAvatarFileChange"
+          >
+        </label>
       </div>
 
       <!-- 账号注册表单 -->
@@ -388,21 +424,32 @@ if (import.meta.client) {
           </label>
         </div>
       </template>
-      <a href="/login" class="link text-xs text-tech-muted hover:text-primary mt-1">已有账号?快去登录吧！</a>
-      <div class="flex justify-between mt-1">
-        <label>
-          <div
-            v-if="registerType === 'account'"
-            class="link text-xs text-tech-muted hover:text-primary"
-            @click="registerType = 'email'"
-          >邮箱注册</div>
-          <div
-            v-else
-            class="link text-xs text-tech-muted hover:text-primary"
-            @click="registerType = 'account'"
-          >账号注册
-          </div>
-        </label>
+      <div class="flex justify-between items-center gap-3 text-sm">
+        <p class="m-0 text-base-content/75">
+          已有账号？
+          <NuxtLink to="/login" class="font-semibold text-primary hover:underline">
+            去登录
+          </NuxtLink>
+        </p>
+        <NuxtLink to="/" class="text-xs text-tech-muted hover:text-primary shrink-0">返回首页</NuxtLink>
+      </div>
+      <div class="text-xs text-center">
+        <button
+          v-if="registerType === 'account'"
+          type="button"
+          class="text-tech-muted hover:text-primary"
+          @click="registerType = 'email'"
+        >
+          邮箱注册
+        </button>
+        <button
+          v-else
+          type="button"
+          class="text-tech-muted hover:text-primary"
+          @click="registerType = 'account'"
+        >
+          账号注册
+        </button>
       </div>
       <CyberButton type="button" variant="primary" class="mt-4 w-full" @click="okHandle">
         注册

@@ -1,5 +1,6 @@
 import request from '~~/api/request';
 import { filterApprovedComments } from '@/utils/comment';
+import { uploadImage, parseUploadedUrl } from '@/api/resources';
 
 export const getArticleList = (data: any) => {
   return request.post('/article/list', data);
@@ -21,11 +22,9 @@ export const editArticle = (data: any) => {
 };
 
 /** 上传 Markdown 编辑器图片 */
-export const uploadArticleImage = (file: File) => {
-  const form = new FormData();
-  form.append('fileContents', file);
-  form.append('pid', 'd5561c87-f189-4dc1-a28d-ba862a50f01f');
-  return request.post('/resources/uploadFile', form);
+export const uploadArticleImage = async (file: File) => {
+  const res = await uploadImage(file, 'article');
+  return parseUploadedUrl(res);
 };
 
 // 更新阅读量

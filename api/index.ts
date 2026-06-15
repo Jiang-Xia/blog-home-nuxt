@@ -17,6 +17,19 @@ export const getUserInfo = async (): Promise<userInfoState> => {
     role,
   };
 };
+
+export interface UpdateUserProfileParams {
+  id: number;
+  nickname: string;
+  intro?: string;
+  homepage?: string;
+  avatar?: string;
+}
+
+/** 更新当前用户资料（昵称、头像、简介、主页） */
+export const updateUserProfile = (params: UpdateUserProfileParams) => {
+  return request.patch('/user/edit', params);
+};
 // 古诗词
 export const gushici = async () => {
   return await request
@@ -70,6 +83,7 @@ const api = {
   ...category,
   ...tool,
   getUserInfo,
+  updateUserProfile,
   gushici,
   getWeather,
   getRegisterAvatars,

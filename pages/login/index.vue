@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import request from '~~/api/request.js';
-import { messageDanger, messageSuccess } from '~~/utils/toast';
+import { messageDanger, messageSuccess, messageInfo } from '~~/utils/toast';
 import { debounce } from '~~/utils/index';
 import { baseUrl } from '~~/config';
 import { isPC } from '~/utils/common';
@@ -9,7 +9,7 @@ import { setToken, TokenKey, RefreshTokenKey } from '@/utils/cookie';
 import { rsaEncrypt as rsaEncryptUtil } from '~~/utils/jsencrypt';
 import { loadRsaScript } from '~/utils/script-loader';
 import { shouldRefreshGraphicCaptcha } from '~~/utils/graphic-captcha-error';
-import { USERNAME_MAX_LENGTH, validateUsernameForLogin } from '~~/utils/username';
+import { LOGIN_ACCOUNT_MAX_LENGTH, validateUsernameForLogin } from '~~/utils/username';
 
 let rsaEncrypt: any;
 // 客户端才加载
@@ -23,6 +23,14 @@ const authCodeUrl = ref('');
 const authCodeLoadError = ref(false);
 const captchaId = ref('');
 const token = useToken();
+const route = useRoute();
+
+const persistLoginTokens = (accessToken: string, refreshToken: string) => {
+  token.value = accessToken;
+  setToken(TokenKey, accessToken);
+  setToken(RefreshTokenKey, refreshToken, '', 7);
+};
+
 definePageMeta({
   layout: 'custom', // 不使用default布局
 });
@@ -53,7 +61,7 @@ const okHandle = async () => {
   const requiredFields
     = loginType.value === 'account'
       ? ['username', 'password', 'authCode']
-      : ['email', 'password', 'verificationCode'];
+      : ['email', 'verificationCode'];
 
   const msg: StringKey = {
     username: '填写用户名',
@@ -81,13 +89,11 @@ const okHandle = async () => {
   let res: any;
 
   try {
-    const params: any = {
-      password: rsaEncrypt(form.password),
-      loginType: loginType.value,
-    };
     let url = '/user/login';
+    const params: any = { loginType: loginType.value };
     if (loginType.value === 'account') {
       params.username = form.username;
+      params.password = rsaEncrypt(form.password);
       params.authCode = form.authCode;
       params.captchaId = captchaId.value;
     }
@@ -98,10 +104,8 @@ const okHandle = async () => {
     }
 
     res = await request.post(url, params);
-    token.value = res.info.accessToken;
+    persistLoginTokens(res.info.accessToken, res.info.refreshToken);
     await navigateTo('/');
-    setToken(TokenKey, res.info.accessToken);
-    setToken(RefreshTokenKey, res.info.refreshToken, '', 7);
     messageSuccess('登录成功');
   }
   catch (err: any) {
@@ -178,16 +182,38 @@ const sendEmailCode = async () => {
 };
   // viedeo静音了(muted=true)才能自动播放
 const isPcClient = ref(false);
+const oauthTicketLoading = ref(false);
+
+const exchangeOAuthTicket = async (ticket: string) => {
+  oauthTicketLoading.value = true;
+  messageInfo('正在完成登录...', 3000);
+  try {
+    const res: any = await request.post('/user/auth/ticket/exchange', { ticket });
+    persistLoginTokens(res.info.accessToken, res.info.refreshToken);
+    messageSuccess('登录成功');
+    history.replaceState({}, '', route.path);
+    await navigateTo('/');
+  }
+  catch {
+    messageDanger('登录凭证无效或已过期，请重新登录');
+    history.replaceState({}, '', route.path);
+  }
+  finally {
+    oauthTicketLoading.value = false;
+  }
+};
+
 if (import.meta.client) {
   if (isPC()) {
     isPcClient.value = true;
   }
-  // github授权登录
-  const route = useRoute();
   const query: any = route.query;
-  if (query.accessToken || query.refreshToken || query.ticket) {
-    messageDanger('检测到URL携带敏感登录信息，已拦截。请重新通过授权流程登录。');
+  if (query.accessToken || query.refreshToken) {
+    messageDanger('检测到 URL 携带敏感登录信息，已拦截。请重新通过授权流程登录。');
     history.replaceState({}, '', route.path);
+  }
+  else if (query.ticket) {
+    void exchangeOAuthTicket(String(query.ticket));
   }
 }
 const githubLoginLoading = ref(false);
@@ -206,7 +232,13 @@ onMounted(() => {
 
 <template>
   <div class="flex min-h-[60vh] items-center justify-center px-4 py-12">
-    <div class="cyber-glass-card w-full max-w-sm p-6 md:p-8">
+    <div v-if="oauthTicketLoading" class="cyber-glass-card w-full max-w-sm p-8 text-center">
+      <span class="loading loading-spinner loading-lg text-primary" />
+      <p class="mt-4 text-sm text-tech-muted">
+        正在完成 GitHub 登录...
+      </p>
+    </div>
+    <div v-else class="cyber-glass-card w-full max-w-sm p-6 md:p-8">
       <h1 class="mb-6 text-center text-xl font-bold text-tech">
         欢迎登录
       </h1>
@@ -232,7 +264,7 @@ onMounted(() => {
         <template v-if="loginType === 'account'">
           <div class="form-control">
             <label class="login-label">
-              <span class="login-label-text">用户名 / 手机号</span>
+              <span class="login-label-text">用户名 / 邮箱 / 手机号</span>
             </label>
             <label class="login-input input">
               <xia-icon icon="blog-shoujihao" />
@@ -241,8 +273,8 @@ onMounted(() => {
                 type="text"
                 name="login_username"
                 autocomplete="off"
-                :maxlength="USERNAME_MAX_LENGTH"
-                placeholder="用户名 / 手机号"
+                :maxlength="LOGIN_ACCOUNT_MAX_LENGTH"
+                placeholder="用户名 / 邮箱 / 手机号"
               >
             </label>
           </div>
@@ -315,22 +347,6 @@ onMounted(() => {
           </div>
           <div class="form-control">
             <label class="login-label">
-              <span class="login-label-text">密码</span>
-            </label>
-            <label class="login-input input">
-              <xia-icon icon="blog-mima" />
-              <input
-                v-model="form.password"
-                type="password"
-                name="login_email_password"
-                autocomplete="new-password"
-                maxlength="16"
-                placeholder="密码"
-              >
-            </label>
-          </div>
-          <div class="form-control">
-            <label class="login-label">
               <span class="login-label-text">邮箱验证码</span>
             </label>
             <label class="login-input input">
@@ -355,11 +371,16 @@ onMounted(() => {
           </div>
         </template>
 
-        <div class="flex justify-between text-xs">
-          <NuxtLink to="/register" class="text-tech-muted hover:text-primary">还没有账号？注册</NuxtLink>
-          <NuxtLink to="/" class="text-tech-muted hover:text-primary">返回首页</NuxtLink>
+        <div class="flex justify-between items-center gap-3 text-sm">
+          <p class="m-0 text-base-content/75">
+            还没有账号？
+            <NuxtLink to="/register" class="font-semibold text-primary hover:underline">
+              去注册
+            </NuxtLink>
+          </p>
+          <NuxtLink to="/" class="text-xs text-tech-muted hover:text-primary shrink-0">返回首页</NuxtLink>
         </div>
-        <div class="text-xs">
+        <div class="text-xs text-center">
           <button
             type="button"
             class="text-tech-muted hover:text-primary"

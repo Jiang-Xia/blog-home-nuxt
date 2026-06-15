@@ -19,9 +19,11 @@ else {
   adminUrl = ViteEnv.VITE_NUXT_ADMIN_URL;
 }
 
-/** 静态资源域名（开发默认走线上，避免本地同步 uploads） */
+/** 静态资源域名（开发直连 blog-server，生产走网关前缀） */
 const staticOriginUrl = ViteEnv.VITE_NUXT_STATIC_ORIGIN_URL || 'https://jiang-xia.top';
-const staticBaseUrl = `${staticOriginUrl}/x-api/blog-server`;
+const staticBaseUrl = isEnv
+  ? ViteEnv.VITE_NUXT_STATIC_ORIGIN_URL || originUrl
+  : `${staticOriginUrl}/x-api/blog-server`;
 
 const scripts = [
   // 百度统计脚本 - 仅保留首页必需的统计脚本
