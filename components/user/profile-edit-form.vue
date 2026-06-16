@@ -3,7 +3,7 @@
    * 个人资料编辑表单
    */
 import { getUserInfo, updateUserProfile } from '~~/api/index';
-import { uploadImage, parseUploadedUrl } from '~~/api/resources';
+import { uploadAvatar, parseUploadedUrl } from '~~/api/resources';
 import { DEFAULT_AVATAR_FALLBACK } from '~~/utils/common';
 import { messageDanger, messageSuccess } from '@/utils/toast';
 
@@ -48,7 +48,7 @@ const onAvatarFileChange = async (event: Event) => {
   if (!file) return;
   avatarUploading.value = true;
   try {
-    const res = await uploadImage(file, 'avatar');
+    const res = await uploadAvatar(file);
     form.avatar = parseUploadedUrl(res);
   }
   catch {

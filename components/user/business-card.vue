@@ -6,6 +6,11 @@ import { messageDanger, messageSuccess } from '@/utils/toast';
 
 const userInfo = useUserInfo();
 const editing = ref(false);
+const { frame: avatarFrame, fetchStatus } = useEquippedAvatarFrame();
+
+onMounted(() => {
+  fetchStatus().catch(() => {});
+});
 
 const displayHomepage = computed(() => {
   const url = userInfo.value?.homepage || '';
@@ -68,19 +73,19 @@ const finishEdit = () => {
         </button>
       </div>
       <div class="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 z-10">
-        <div
-          class="w-[5.5rem] h-[5.5rem] rounded-full overflow-hidden flex items-center justify-center bg-primary text-primary-content border-[3px] border-base-100 shadow-lg"
+        <CommonAvatarWithFrame
+          :avatar="userInfo?.avatar"
+          :alt="userInfo?.nickname"
+          :frame="avatarFrame"
+          :size="88"
+          class="border-[3px] border-base-100 shadow-lg"
         >
-          <img
-            v-if="userInfo?.avatar"
-            :src="userInfo.avatar"
-            :alt="userInfo.nickname"
-            class="w-full h-full object-cover"
-          >
-          <span v-else class="text-3xl font-bold">
-            {{ userInfo?.nickname?.charAt(0) || '?' }}
-          </span>
-        </div>
+          <template #fallback>
+            <span class="text-3xl font-bold text-primary-content">
+              {{ userInfo?.nickname?.charAt(0) || '?' }}
+            </span>
+          </template>
+        </CommonAvatarWithFrame>
       </div>
     </div>
 

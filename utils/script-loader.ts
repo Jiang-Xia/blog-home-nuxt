@@ -71,7 +71,6 @@ export const SCRIPTS = {
   JSZIP: 'https://cdn.staticfile.net/jszip/3.10.1/jszip.min.js',
   JSBARCODE: 'https://cdn.staticfile.net/jsbarcode/3.11.6/JsBarcode.all.min.js',
   HTML2PDF: 'https://cdn.staticfile.net/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
-  HTML2CANVAS: 'https://cdn.staticfile.net/html2canvas/1.4.1/html2canvas.min.js',
 
   // 图形图像相关
   KONVA: 'https://unpkg.com/konva@9/konva.min.js',
@@ -119,7 +118,7 @@ export function loadBarcodeScripts(): Promise<Array<void>> {
  * 加载截图/导出脚本
  */
 export function loadScreenshotScripts(): Promise<Array<void>> {
-  return loadScripts([SCRIPTS.HTML2CANVAS, SCRIPTS.HTML2PDF]);
+  return loadScripts([SCRIPTS.HTML2PDF]);
 }
 
 /**

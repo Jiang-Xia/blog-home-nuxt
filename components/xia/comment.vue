@@ -190,28 +190,30 @@ const replyedHandle = (content: string) => {
         <NuxtLink
           v-if="commentItem.uid"
           :to="`/user/${commentItem.uid}`"
-          class="rounded-full h-8 w-8 bg-base-300 inline-flex items-center justify-center text-base-content hover:opacity-80"
+          class="inline-block hover:opacity-80"
         >
-          <img
-            v-if="commentItem.userInfo.avatar"
-            class="rounded-full"
-            :src="commentItem.userInfo.avatar"
+          <CommonAvatarWithFrame
+            :avatar="commentItem.userInfo.avatar"
             :alt="commentItem.userInfo.nickname"
+            :frame="commentItem.userInfo.avatarFrame"
+            :size="32"
           >
-          <xia-icon v-else icon="blog-yonghu" />
+            <template #fallback>
+              <xia-icon icon="blog-yonghu" />
+            </template>
+          </CommonAvatarWithFrame>
         </NuxtLink>
-        <div
+        <CommonAvatarWithFrame
           v-else
-          class="rounded-full h-8 w-8 bg-base-300 inline-flex items-center justify-center text-base-content"
+          :avatar="commentItem.userInfo.avatar"
+          :alt="commentItem.userInfo.nickname"
+          :frame="commentItem.userInfo.avatarFrame"
+          :size="32"
         >
-          <img
-            v-if="commentItem.userInfo.avatar"
-            class="rounded-full"
-            :src="commentItem.userInfo.avatar"
-            :alt="commentItem.userInfo.nickname"
-          >
-          <xia-icon v-else icon="blog-yonghu" />
-        </div>
+          <template #fallback>
+            <xia-icon icon="blog-yonghu" />
+          </template>
+        </CommonAvatarWithFrame>
       </div>
       <!-- 评论内容主体 -->
       <div class="flex-1">
@@ -264,28 +266,30 @@ const replyedHandle = (content: string) => {
               <NuxtLink
                 v-if="replyItem.uid"
                 :to="`/user/${replyItem.uid}`"
-                class="rounded-full h-8 w-8 bg-base-300 inline-flex items-center justify-center text-base-content hover:opacity-80"
+                class="inline-block hover:opacity-80"
               >
-                <img
-                  v-if="replyItem.userInfo.avatar"
-                  class="rounded-full"
-                  :src="replyItem.userInfo.avatar"
+                <CommonAvatarWithFrame
+                  :avatar="replyItem.userInfo.avatar"
                   :alt="replyItem.userInfo.nickname"
+                  :frame="replyItem.userInfo.avatarFrame"
+                  :size="32"
                 >
-                <xia-icon v-else icon="blog-yonghu" />
+                  <template #fallback>
+                    <xia-icon icon="blog-yonghu" />
+                  </template>
+                </CommonAvatarWithFrame>
               </NuxtLink>
-              <div
+              <CommonAvatarWithFrame
                 v-else
-                class="rounded-full h-8 w-8 bg-base-300 inline-flex items-center justify-center text-base-content"
+                :avatar="replyItem.userInfo.avatar"
+                :alt="replyItem.userInfo.nickname"
+                :frame="replyItem.userInfo.avatarFrame"
+                :size="32"
               >
-                <img
-                  v-if="replyItem.userInfo.avatar"
-                  class="rounded-full"
-                  :src="replyItem.userInfo.avatar"
-                  :alt="replyItem.userInfo.nickname"
-                >
-                <xia-icon v-else icon="blog-yonghu" />
-              </div>
+                <template #fallback>
+                  <xia-icon icon="blog-yonghu" />
+                </template>
+              </CommonAvatarWithFrame>
             </div>
             <div class="flex-1">
               <span class="text-xs">

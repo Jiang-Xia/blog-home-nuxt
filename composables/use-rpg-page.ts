@@ -47,7 +47,8 @@ import type {
   SignInResult,
   UserAchievementProgress,
   UserBuff,
-  UserQuestProgress, InventoryItem,
+  UserQuestProgress,
+  InventoryItem,
 } from '~~/types/rpg';
 
 /**
@@ -307,7 +308,7 @@ export function useRpgPage() {
     try {
       leaderboard.value = await getRpgLeaderboard(
         leaderboardType.value as any,
-        20,
+        50,
         leaderboardPeriod.value,
       );
       loadedTabs.value.add('leaderboard');

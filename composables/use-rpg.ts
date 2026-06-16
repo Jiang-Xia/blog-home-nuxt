@@ -230,7 +230,7 @@ export function useRpg() {
     }
   };
 
-  const fetchLeaderboard = async (type: LeaderboardType = 'exp', limit = 20) => {
+  const fetchLeaderboard = async (type: LeaderboardType = 'exp', limit = 50) => {
     try {
       leaderboard.value = await getRpgLeaderboard(type, limit);
     }

@@ -4,8 +4,9 @@
    * 展示当前用户编写的所有文章，支持分页加载
    */
 import { ref, onMounted } from 'vue';
-import { getMyArticleList } from '@/api/article';
+import { getMyArticleList, disableArticle } from '@/api/article';
 import { beforeTimeNow } from '@/utils';
+import { messageSuccess, messageError } from '~~/utils/toast';
 
 const loading = ref(false);
 const list = ref<any[]>([]);
@@ -21,19 +22,44 @@ const STATUS_MAP: Record<string, { label: string; class: string }> = {
 };
 
 const getStatusBadge = (item: any) => {
-  if (item.isDelete) {
-    return { label: '已禁用', class: 'badge-outline badge-error' };
-  }
   return STATUS_MAP[item.status] || { label: item.status, class: 'badge-outline' };
 };
 
-const canVisit = (item: any) => item.status === 'publish' && !item.isDelete;
+const canVisit = (item: any) => item.status === 'publish';
 
 const getTagLabels = (item: any) => {
   const tags = item.tags || [];
   return tags
     .map((tag: { label?: string; name?: string }) => tag.label || tag.name)
     .filter(Boolean);
+};
+
+const deletingId = ref<number | null>(null);
+const confirm = useConfirmDialog();
+
+/** 软删除文章 */
+const handleDelete = async (item: { id: number; title?: string }) => {
+  const confirmed = await confirm({
+    title: '删除文章',
+    description: `确定删除「${item.title || '未命名文章'}」吗？删除后将不再对外展示。`,
+    confirmLabel: '删除',
+    cancelLabel: '取消',
+    confirmColor: 'error',
+  });
+  if (!confirmed) return;
+  deletingId.value = item.id;
+  try {
+    await disableArticle(item.id, true);
+    list.value = list.value.filter(row => row.id !== item.id);
+    total.value = Math.max(0, total.value - 1);
+    messageSuccess('文章已删除');
+  }
+  catch {
+    messageError('删除失败，请稍后重试');
+  }
+  finally {
+    deletingId.value = null;
+  }
 };
 
 /** 加载文章列表 */
@@ -137,13 +163,24 @@ onMounted(() => {
               </div>
             </component>
 
-            <NuxtLink
-              :to="`/user/article/edit?id=${item.id}`"
-              class="btn btn-ghost btn-xs shrink-0"
-              title="编辑文章"
-            >
-              编辑
-            </NuxtLink>
+            <div class="flex flex-col gap-1 shrink-0">
+              <NuxtLink
+                :to="`/user/article/edit?id=${item.id}`"
+                class="btn btn-ghost btn-xs"
+                title="编辑文章"
+              >
+                编辑
+              </NuxtLink>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs text-error"
+                title="删除文章"
+                :disabled="deletingId === item.id"
+                @click="handleDelete(item)"
+              >
+                {{ deletingId === item.id ? '删除中...' : '删除' }}
+              </button>
+            </div>
           </div>
         </div>
       </article>

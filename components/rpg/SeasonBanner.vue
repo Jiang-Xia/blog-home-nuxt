@@ -1,8 +1,8 @@
 <script setup lang="ts">
-/* global QRCode, html2canvas */
+import QRCode from 'qrcode';
 import { shareSeasonPoster } from '~~/api/rpg';
 import { messageSuccess, messageError } from '~~/utils/toast';
-import { loadScreenshotScripts, loadBarcodeScripts } from '~~/utils/script-loader';
+import { captureHtmlElement } from '~~/utils/dom-capture';
 import { originUrl } from '~~/config';
 
 const props = defineProps<{
@@ -29,6 +29,8 @@ const resolvePosterUrl = (url: string) => {
   return `${originUrl}${url.startsWith('/') ? url : `/${url}`}`;
 };
 
+const bannerPosterUrl = computed(() => resolvePosterUrl(props.activity?.posterUrl || ''));
+
 const ensureLogin = async () => {
   if (!userInfo.value?.uid) {
     messageError('请先登录');
@@ -38,15 +40,29 @@ const ensureLogin = async () => {
   return true;
 };
 
-const generateQrCode = (url: string) => {
-  if (!qrContainerRef.value || typeof QRCode === 'undefined') return;
+const generateQrCode = async (url: string) => {
+  if (!qrContainerRef.value) return;
   qrContainerRef.value.innerHTML = '';
-  new QRCode(qrContainerRef.value, {
-    text: url,
-    width: 120,
-    height: 120,
-    correctLevel: QRCode.CorrectLevel.H,
-  });
+  const canvas = document.createElement('canvas');
+  await QRCode.toCanvas(canvas, url, { width: 120, margin: 1 });
+  qrContainerRef.value.appendChild(canvas);
+};
+
+const waitForPosterImages = async (root: HTMLElement) => {
+  const images = Array.from(root.querySelectorAll('img'));
+  await Promise.all(
+    images.map(
+      img =>
+        new Promise<void>((resolve) => {
+          if (img.complete) {
+            resolve();
+            return;
+          }
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        }),
+    ),
+  );
 };
 
 const downloadPosterImage = async (res: {
@@ -64,20 +80,19 @@ const downloadPosterImage = async (res: {
     expBuffRate: props.activity?.expBuffRate,
   };
   await nextTick();
-  await Promise.all([loadBarcodeScripts(), loadScreenshotScripts()]);
-  generateQrCode(res.shareUrl);
+  await generateQrCode(res.shareUrl);
   await nextTick();
   if (!posterRef.value) {
     throw new Error('海报渲染失败');
   }
-  const canvas = await html2canvas(posterRef.value, {
-    useCORS: true,
+  await waitForPosterImages(posterRef.value);
+  const dataUrl = await captureHtmlElement(posterRef.value, {
     scale: 2,
     backgroundColor: '#1e1b4b',
   });
   const link = document.createElement('a');
   link.download = `${res.activityCode}-poster.png`;
-  link.href = canvas.toDataURL('image/png');
+  link.href = dataUrl;
   link.click();
 };
 
@@ -90,7 +105,7 @@ const handleShare = async () => {
     messageSuccess('海报已下载');
   }
   catch (e: any) {
-    messageError(e?.message || '分享失败');
+    messageError(e?.message || '海报生成失败，请检查封面图是否可访问');
   }
   finally {
     sharing.value = false;
@@ -104,9 +119,10 @@ const handleShare = async () => {
     <div class="flex items-center justify-between gap-4 flex-wrap">
       <div class="flex items-start gap-3">
         <img
-          v-if="activity.posterUrl"
-          :src="activity.posterUrl"
+          v-if="bannerPosterUrl"
+          :src="bannerPosterUrl"
           alt="赛季海报"
+          crossorigin="anonymous"
           class="w-16 h-16 rounded-lg object-cover border rpg-banner-cover"
         >
         <div>
@@ -131,7 +147,7 @@ const handleShare = async () => {
     </div>
   </div>
 
-  <!-- 屏幕外海报模板，供 html2canvas 捕获 -->
+  <!-- 屏幕外海报模板，供 dom 截图捕获 -->
   <div v-if="posterRenderData" ref="posterRef" class="poster-canvas-template">
     <div class="poster-inner">
       <img
@@ -242,7 +258,7 @@ const handleShare = async () => {
 
   .poster-qr {
     flex-shrink: 0;
-    background: var(--rpg-surface);
+    background: #ffffff;
     padding: 8px;
     border-radius: 12px;
   }

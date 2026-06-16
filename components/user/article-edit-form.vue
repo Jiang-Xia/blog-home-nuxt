@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import { createArticle, editArticle, getArticleInfo, uploadArticleImage } from '@/api/article';
 import { getAllCategory } from '@/api/category';
 import { getAllTag } from '@/api/tag';
-import { uploadImage, parseUploadedUrl } from '@/api/resources';
+import { uploadCover, parseUploadedUrl } from '@/api/resources';
 import { resolveStaticUrl } from '@/utils/common';
 import { messageDanger, messageSuccess } from '@/utils/toast';
 
@@ -196,7 +196,7 @@ const onCoverFileChange = async (event: Event) => {
   if (!file) return;
   coverUploading.value = true;
   try {
-    const res = await uploadImage(file, 'cover');
+    const res = await uploadCover(file);
     formState.cover = parseUploadedUrl(res);
     coverError.value = false;
   }

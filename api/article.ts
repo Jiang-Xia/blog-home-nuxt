@@ -1,6 +1,6 @@
 import request from '~~/api/request';
 import { filterApprovedComments } from '@/utils/comment';
-import { uploadImage, parseUploadedUrl } from '@/api/resources';
+import { uploadArticleImage as uploadArticleContentImage, parseUploadedUrl } from '@/api/resources';
 
 export const getArticleList = (data: any) => {
   return request.post('/article/list', data);
@@ -23,7 +23,7 @@ export const editArticle = (data: any) => {
 
 /** 上传 Markdown 编辑器图片 */
 export const uploadArticleImage = async (file: File) => {
-  const res = await uploadImage(file, 'article');
+  const res = await uploadArticleContentImage(file);
   return parseUploadedUrl(res);
 };
 
@@ -107,4 +107,9 @@ export const getMyReplies = (params: { page?: number; pageSize?: number }) => {
 // 获取我的文章列表（分页）
 export const getMyArticleList = (params: { page?: number; pageSize?: number }) => {
   return request.get('/article/my-list', params);
+};
+
+/** 禁用/恢复文章（软删除） */
+export const disableArticle = (id: number | string, isDelete = true) => {
+  return request.patch('/article/disabled', { id, isDelete });
 };

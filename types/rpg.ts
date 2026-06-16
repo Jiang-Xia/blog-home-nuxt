@@ -96,6 +96,13 @@ export interface BanStatus {
   remainingMs: number;
 }
 
+/** 头像框展示信息（评论 userInfo / 头像组件共用） */
+export interface AvatarFrameInfo {
+  code?: string;
+  name?: string;
+  color?: string | null;
+}
+
 /** 敏感词命中记录 */
 export interface SensitiveHitRecord {
   id: number;

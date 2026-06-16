@@ -43,7 +43,6 @@ declare const Konva: any; // 历史兼容，摄影工具预览已不依赖
 declare const ExifReader: any; // photo-worker 内使用
 declare const JSZip: any; // /tool/watermark 用到
 declare const JsBarcode: any; // /tool/codes 用到
-declare const html2canvas: any; // /tool/test 用到
 declare const html2pdf: any; // /tool/test 用到
 declare const SmoothSignature: any; // /tool/pdf 用到
 declare const QRCode: any; // /tool/codes 用到

@@ -5,6 +5,7 @@
 import type { LevelUpResult, UserBuff } from '~~/types/rpg';
 import { activateBuff, deactivateBuff } from '~~/api/rpg';
 import { messageSuccess } from '~~/utils/toast';
+import { formactDate } from '@/utils/common';
 import { useRpg } from '~~/composables/use-rpg';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
 
@@ -234,7 +235,7 @@ onMounted(async () => {
             命中: {{ hit.hitWords }}
           </div>
           <div class="hit-time">
-            {{ hit.createTime }}
+            {{ formactDate(hit.createTime) }}
           </div>
         </div>
       </div>

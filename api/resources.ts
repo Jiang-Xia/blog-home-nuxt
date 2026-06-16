@@ -1,23 +1,33 @@
 import request from '~~/api/request';
 import { resolveStaticUrl } from '@/utils/static-url';
+import { compressImageFile } from '@/utils/image-compress';
 
-export type UploadCategory = 'avatar' | 'cover' | 'article';
+export type UploadMediaCategory = 'avatar' | 'cover' | 'article';
 
-/** 上传图片到资源库（按 category 写入对应目录并压缩） */
-export const uploadImage = (file: File, category: UploadCategory) => {
+const postUploadMedia = async (file: File, category: UploadMediaCategory) => {
+  const compressed = await compressImageFile(file, category);
   const form = new FormData();
-  form.append('fileContents', file);
+  form.append('fileContents', compressed);
   form.append('category', category);
-  return request.post(`/resources/uploadFile?category=${category}`, form);
+  return request.post(`/resources/upload-media?category=${category}`, form);
 };
 
 /** 注册页上传头像（无需登录） */
-export const uploadRegisterAvatar = (file: File) => {
+export const uploadRegisterAvatar = async (file: File) => {
+  const compressed = await compressImageFile(file, 'avatar');
   const form = new FormData();
-  form.append('fileContents', file);
-  form.append('category', 'avatar');
-  return request.post('/resources/upload-register-avatar?category=avatar', form);
+  form.append('fileContents', compressed);
+  return request.post('/resources/upload-media/register-avatar', form);
 };
+
+/** 修改头像（需登录） */
+export const uploadAvatar = (file: File) => postUploadMedia(file, 'avatar');
+
+/** 文章封面上传（需登录） */
+export const uploadCover = (file: File) => postUploadMedia(file, 'cover');
+
+/** 文章正文图片上传（需登录） */
+export const uploadArticleImage = (file: File) => postUploadMedia(file, 'article');
 
 /** 从上传接口响应中解析 /static 相对路径 */
 export const parseUploadedPath = (res: unknown): string => {

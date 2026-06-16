@@ -40,10 +40,19 @@ const ArticleInfo = reactive({ ...defaultForm });
 const articleId = computed(() => route.params.id as string);
 // console.log({ '文章id:': params.id, })
 // 响应式声明
-const { data: articleData, refresh } = await useAsyncData(
+const {
+  data: articleData,
+  error,
+  refresh,
+} = await useAsyncData(
   () => `detail_GetInfo_${articleId.value}`,
   () => getArticleInfo({ id: articleId.value }),
 );
+
+if (error.value || !articleData.value?.info) {
+  throw createError({ statusCode: 404, statusMessage: '文章不存在或已下线' });
+}
+
 const setArticleData = () => {
   if (articleData) {
     Object.keys(defaultForm).forEach((v: string) => {
@@ -159,6 +168,9 @@ watch(
       return;
     }
     await refresh();
+    if (!articleData.value?.info) {
+      throw createError({ statusCode: 404, statusMessage: '文章不存在或已下线' });
+    }
     setArticleData();
     updateViews(nextId);
 

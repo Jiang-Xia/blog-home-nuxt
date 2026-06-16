@@ -14,6 +14,7 @@ import type {
   UserQuestProgress,
 } from '~~/types/rpg';
 import { getRpgLifeColor } from '~~/composables/use-rpg-theme';
+import { formactDate } from '@/utils/common';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
 import RpgQuestPanel from './QuestPanel.vue';
 import RpgAchievementPanel from './AchievementPanel.vue';
@@ -372,7 +373,7 @@ onMounted(() => {
             命中: {{ hit.hitWords }}
           </div>
           <div class="hit-time">
-            {{ hit.createTime }}
+            {{ formactDate(hit.createTime) }}
           </div>
         </div>
       </div>

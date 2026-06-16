@@ -7,6 +7,8 @@ import { getToken, TokenKey } from '@/utils/cookie';
 import { getUserInfo } from '~~/api/index';
 import { messageWarning } from '@/utils/toast';
 
+const { frame: avatarFrame, fetchStatus } = useEquippedAvatarFrame();
+
 const route = useRoute();
 const router = useRouter();
 const token = useToken();
@@ -58,6 +60,7 @@ onMounted(async () => {
       // 错误由全局拦截器处理
     }
   }
+  fetchStatus().catch(() => {});
 });
 </script>
 
@@ -66,16 +69,18 @@ onMounted(async () => {
     <div class="profile-container">
       <CyberCard v-if="userInfo?.nickname && activeTab !== 'card'" class="mb-6 !p-5">
         <div class="flex flex-row items-center gap-4">
-          <div class="avatar placeholder">
-            <div
-              class="bg-primary text-primary-content rounded-full w-16 ring ring-primary/20 ring-offset-2 ring-offset-base-100"
-            >
-              <img v-if="userInfo.avatar" :src="userInfo.avatar" :alt="userInfo.nickname">
-              <span v-else class="text-2xl font-bold">
+          <CommonAvatarWithFrame
+            :avatar="userInfo.avatar"
+            :alt="userInfo.nickname"
+            :frame="avatarFrame"
+            :size="64"
+          >
+            <template #fallback>
+              <span class="text-2xl font-bold text-primary-content">
                 {{ userInfo.nickname?.charAt(0) || '?' }}
               </span>
-            </div>
-          </div>
+            </template>
+          </CommonAvatarWithFrame>
           <div>
             <h2 class="text-lg font-semibold text-tech">
               {{ userInfo.nickname }}

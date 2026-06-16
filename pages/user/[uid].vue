@@ -37,6 +37,19 @@ const avatarSrc = computed(() => {
   return av ? resolveStaticUrl(av) : '/assets/images/animal/qie.svg';
 });
 
+const publicAvatarFrame = computed(() => {
+  const frame = profile.value?.loadout?.avatarFrame as
+    | { code?: string; name?: string; color?: string | null; effectJson?: { color?: string } }
+    | null
+    | undefined;
+  if (!frame) return null;
+  return {
+    code: frame.code,
+    name: frame.name,
+    color: frame.color ?? frame.effectJson?.color ?? null,
+  };
+});
+
 definePageMeta({ layout: 'default' });
 useHead({
   title: computed(() =>
@@ -57,9 +70,12 @@ useHead({
     <div v-else-if="profile" class="space-y-5">
       <div class="cyber-glass-card p-6">
         <div class="flex gap-5 items-start">
-          <div class="h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-primary/30">
-            <img :src="avatarSrc" :alt="profile.nickname" class="h-full w-full object-cover">
-          </div>
+          <CommonAvatarWithFrame
+            :avatar="avatarSrc"
+            :alt="profile.nickname"
+            :frame="publicAvatarFrame"
+            :size="80"
+          />
           <div class="min-w-0 flex-1">
             <h2 class="text-xl font-bold text-tech">
               {{ profile.nickname }}
