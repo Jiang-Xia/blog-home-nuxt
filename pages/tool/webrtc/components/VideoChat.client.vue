@@ -104,7 +104,7 @@ onMounted(() => {
       class="mockup-window border border-tech bg-[var(--tech-input-bg)] mx-auto md:w-3/4 text-tech"
     >
       <div class="flex flex-col items-center p-4 bg-base-200 h-full">
-        <button class="btn btn-sm btn-neutral" @click="init">
+        <button class="btn btn-sm cyber-btn-secondary" @click="init">
           录制
         </button>
         <video ref="localVideo" autoplay muted />

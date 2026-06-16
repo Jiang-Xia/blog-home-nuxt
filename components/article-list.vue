@@ -421,7 +421,7 @@ watch(articleList, syncAuthorLevels);
                     <span>{{ formactDate(item.createTime) }}</span>
                   </div>
                   <span @click="$router.push(`detail/${item.id}`)">
-                    <button class="btn btn-neutral btn-xs xia-btn">Read</button>
+                    <button class="btn btn-xs cyber-btn-secondary xia-btn">Read</button>
                   </span>
                 </div>
               </div>
@@ -460,7 +460,7 @@ watch(articleList, syncAuthorLevels);
         <div class="join w-full mt-2">
           <button
             :title="queryPrams.sort === 'ASC' ? '升序' : '降序'"
-            class="join-item btn btn-neutral btn-square w-10 btn-sm text-xs"
+            class="join-item btn cyber-btn-secondary btn-square w-10 btn-sm text-xs"
             @click="changeSort"
           >
             <svg
@@ -493,7 +493,10 @@ watch(articleList, syncAuthorLevels);
             class="join-item input input-bordered input-sm max-w-xs"
             @keyup.enter="onSearchHandle"
           >
-          <button class="join-item btn btn-neutral btn-square w-10 btn-sm" @click="onSearchHandle">
+          <button
+            class="join-item btn cyber-btn-secondary btn-square w-10 btn-sm"
+            @click="onSearchHandle"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"

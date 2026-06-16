@@ -31,7 +31,7 @@ const entries = [
   {
     icon: '⚔️',
     title: 'RPG 冒险',
-    desc: '签到升级 · 任务 · 抽奖 · 排行榜',
+    desc: '签到升级 · 任务 · 抽奖 · 查看攻略',
     to: '/rpg',
     color: 'from-amber-500 to-orange-500',
   },

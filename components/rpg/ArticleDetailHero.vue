@@ -139,9 +139,9 @@ const hasRpgHighlights = computed(
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: scale(1.06);
-    filter: blur(18px) saturate(1.15);
-    opacity: 0.45;
+    transform: scale(1.04);
+    filter: blur(10px) saturate(1.1);
+    opacity: 0.72;
   }
 
   .hero-overlay {
@@ -149,9 +149,9 @@ const hasRpgHighlights = computed(
     inset: 0;
     background: linear-gradient(
       180deg,
-      color-mix(in oklch, var(--color-base-100) 55%, transparent) 0%,
-      color-mix(in oklch, var(--color-base-100) 78%, transparent) 45%,
-      color-mix(in oklch, var(--color-base-100) 96%, transparent) 100%
+      color-mix(in oklch, var(--color-base-100) 28%, transparent) 0%,
+      color-mix(in oklch, var(--color-base-100) 42%, transparent) 45%,
+      color-mix(in oklch, var(--color-base-100) 58%, transparent) 100%
     );
   }
 

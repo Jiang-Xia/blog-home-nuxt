@@ -64,8 +64,8 @@ onMounted(async () => {
 <template>
   <CyberPageContainer label="PROFILE" title="个人中心" subtitle="管理你的资料与内容">
     <div class="profile-container">
-      <div v-if="userInfo?.nickname && activeTab !== 'card'" class="cyber-glass-card mb-6 p-5">
-        <div class="card-body flex-row items-center gap-4 p-5">
+      <CyberCard v-if="userInfo?.nickname && activeTab !== 'card'" class="mb-6 !p-5">
+        <div class="flex flex-row items-center gap-4">
           <div class="avatar placeholder">
             <div
               class="bg-primary text-primary-content rounded-full w-16 ring ring-primary/20 ring-offset-2 ring-offset-base-100"
@@ -77,15 +77,15 @@ onMounted(async () => {
             </div>
           </div>
           <div>
-            <h2 class="card-title text-lg">
+            <h2 class="text-lg font-semibold text-tech">
               {{ userInfo.nickname }}
             </h2>
-            <p v-if="userInfo.intro" class="text-sm text-base-content/60 mt-1">
+            <p v-if="userInfo.intro" class="mt-1 text-sm text-tech-muted">
               {{ userInfo.intro }}
             </p>
           </div>
         </div>
-      </div>
+      </CyberCard>
 
       <!-- daisyUI 标签页 -->
       <div role="tablist" class="tabs tabs-border mb-4">
@@ -132,41 +132,37 @@ onMounted(async () => {
 
         <!-- 我的文章 -->
         <div v-show="activeTab === 'article'">
-          <div class="cyber-glass-card p-5">
-            <div class="card-body p-5">
-              <div class="flex items-center justify-between gap-3 mb-2">
-                <h3 class="card-title text-base">
-                  我的文章
-                </h3>
-                <NuxtLink to="/user/article/edit" class="btn btn-primary btn-sm"> 写文章 </NuxtLink>
-              </div>
-              <UserArticleList />
+          <CyberCard class="!p-5">
+            <div class="mb-2 flex items-center justify-between gap-3">
+              <h3 class="text-base font-semibold text-tech">
+                我的文章
+              </h3>
+              <CyberButton to="/user/article/edit" variant="primary" class="!py-2 !text-sm">
+                写文章
+              </CyberButton>
             </div>
-          </div>
+            <UserArticleList />
+          </CyberCard>
         </div>
 
         <!-- 收藏 -->
         <div v-show="activeTab === 'collect'">
-          <div class="cyber-glass-card p-5">
-            <div class="card-body p-5">
-              <h3 class="card-title text-base">
-                我的收藏
-              </h3>
-              <UserCollectList />
-            </div>
-          </div>
+          <CyberCard class="!p-5">
+            <h3 class="mb-3 text-base font-semibold text-tech">
+              我的收藏
+            </h3>
+            <UserCollectList />
+          </CyberCard>
         </div>
 
         <!-- 评论/回复 -->
         <div v-show="activeTab === 'comment'">
-          <div class="cyber-glass-card p-5">
-            <div class="card-body p-5">
-              <h3 class="card-title text-base">
-                我的评论/回复
-              </h3>
-              <UserCommentReplyList />
-            </div>
-          </div>
+          <CyberCard class="!p-5">
+            <h3 class="mb-3 text-base font-semibold text-tech">
+              我的评论/回复
+            </h3>
+            <UserCommentReplyList />
+          </CyberCard>
         </div>
       </client-only>
     </div>

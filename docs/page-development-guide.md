@@ -55,7 +55,7 @@ useHead({
   titleTemplate: title => `${title} - ${SiteTitle}`,
 });
 
-// 可选：definePageMeta({ layout: 'custom' });
+// 可选：特殊场景才 definePageMeta({ layout: '...' });
 </script>
 
 <template>
@@ -89,12 +89,10 @@ useHead({
 
 ## 3. Layout 选择
 
-| 场景 | Layout | 说明 |
-|------|--------|------|
-| 普通内容页 | `default`（默认） | 带导航、页脚、`CyberBackground` |
-| 登录/注册等 | `custom` | 同样带导航页脚，结构略简 |
-| 工具箱子页 | 继承 `tool.vue` 的 `custom` | 含侧栏共享 UI |
-| 相册子页 | 继承 `photos.vue` 的 `custom` | 含共享壳层 |
+| 场景 | 说明 |
+|------|------|
+| 全部内容页 | `default`（默认，无需写 definePageMeta） |
+| 工具箱子页 | 继承 `tool.vue` 的 `CyberPageContainer` 壳层 |
 
 Layout 根节点已设置基础样式：
 
@@ -102,19 +100,7 @@ Layout 根节点已设置基础样式：
 <div class="app-layout tech-shell min-h-screen bg-tech-shell text-tech">
 ```
 
-### Layout 禁止事项
-
-**禁止**：父级 `layout: 'custom'` 的子页面写 `layout: 'default'`。  
-Layout 冲突 + 路由过渡 `out-in` 会导致新页面卡在 `opacity: 0` 整页空白。
-
-```vue
-<!-- ❌ 错误 -->
-<!-- pages/user.vue --> definePageMeta({ layout: 'custom' })
-<!-- pages/user/profile.vue --> definePageMeta({ layout: 'default' })
-
-<!-- ✅ 正确：子页面继承父级 layout，或不建空壳父级 -->
-<!-- pages/user/profile.vue --> 不写 layout，或同样 custom
-```
+页面内容区统一使用 `<CyberPageContainer>` + `<CyberCard>`，登录/注册/404 等同理。
 
 详见：`.cursor/rules/home-10-pages-layout-routing.mdc`。
 
@@ -392,7 +378,7 @@ Layout 根节点已带 `bg-tech-shell text-tech`，普通内容页**无需再包
 
 - [ ] 文件放在 `pages/` 正确路径，路由符合预期
 - [ ] 已设置 `useHead({ title })`
-- [ ] Layout 选择正确；父 `custom` 时子页未写 `default`
+- [ ] 内容页是否已用 `CyberPageContainer`？
 - [ ] 使用 `text-tech-*` / `Cyber*` 而非硬编码颜色
 - [ ] 在 `cyber` 与 `cyber-light` 下目测正常
 - [ ] 移动端断点（`md:`、`lg:`）已检查

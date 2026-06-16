@@ -8,34 +8,25 @@ alwaysApply: false
 
 全局路由过渡：`nuxt.config` → `pageTransition: { name: 'scale', mode: 'out-in' }`。
 
-## 禁止：父级 custom + 子级 default
+## Layout
 
-父 `layout: 'custom'` 下子页面不可写 `layout: 'default'`。layout 冲突 + `out-in` 过渡会导致新页面卡在 `opacity: 0` 整页空白。
+全站仅保留 `layouts/default.vue`（Nav + Footer + `CyberBackground`）。新页面**无需**写 `definePageMeta({ layout })`，除非将来新增其他 Layout。
 
-```vue
-<!-- ❌ BAD -->
-<!-- pages/user.vue --> definePageMeta({ layout: 'custom' })
-<!-- pages/user/profile.vue --> definePageMeta({ layout: 'default' })
+页面内容区统一 `<CyberPageContainer>` + `<CyberCard>`，见 `home-14-page-development.mdc`。
 
-<!-- ✅ GOOD：子页面直接 default，无需空壳父级 -->
-<!-- pages/user/profile.vue --> definePageMeta({ layout: 'default' })
-```
+## 嵌套路由父级壳
 
-同模块 layout 保持一致：父 custom 则子继承 custom，不覆盖为 default。
+`tool.vue` 等含共享 UI 的父级页面，用 `CyberPageContainer` + `<NuxtPage />` 包裹子路由，**保留**。
 
-## 保留：带 UI 的 custom 父级壳
-
-`tool.vue`、`photos.vue` 含侧栏/顶栏等共享 UI，子页嵌套其中，**保留**。
-
-- `tool.vue` → `layout: 'custom'`，子工具页继承
-- `photos.vue` → `layout: 'custom'`，子页不覆盖 layout
+- `tool.vue` → 工具箱标题 + `ToolSubNav` + 子页 `<NuxtPage />`
+- 子工具页只写业务内容，不再重复包外层容器
 
 ## 保留：default 包装层
 
-`index.vue`、`about.vue`、`msgboard.vue`、`projects.vue`、`links.vue`、`archives.vue`、`features.vue` 等仅用 `<div><NuxtPage /></div>` 包根元素、不设 custom layout，供过渡动画使用，**不要删除**。
+`index.vue`、`about.vue`、`msgboard.vue` 等仅用 `<div><NuxtPage /></div>` 包根元素，供过渡动画使用，**不要删除**。
 
 ## 新增页面检查
 
 - 父级是否只是空 `<NuxtPage />` 透传？是则不要建父级
-- 父级 `custom` 时子级是否写了 `default`？禁止
-- 跳出嵌套路由后整页空白？优先查 layout 冲突
+- 跳出嵌套路由后整页空白？优先查 layout / 过渡冲突
+- 内容页是否已用 `CyberPageContainer`？

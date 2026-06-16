@@ -9,7 +9,7 @@ alwaysApply: false
 ## Script
 
 - 统一 `<script setup lang="ts">` + Composition API
-- 页面必备：`definePageMeta({ layout: '...' })`、`useHead({ title: '...' })`
+- 页面必备：`useHead({ title: '...' })`；一般无需 `definePageMeta({ layout })`
 - SSR 数据用 `useAsyncData` / `await useAsyncData(...)`，key 保持唯一语义
 - 复杂模板逻辑下沉到 `computed` 或具名函数
 
@@ -24,7 +24,6 @@ alwaysApply: false
 /**
  * 模块说明（保留文件头注释）
  */
-definePageMeta({ layout: 'default' });
 useHead({ title: '页面标题' });
 
 const route = useRoute();

@@ -1,27 +1,16 @@
 <template>
   <div class="space-y-4">
-    <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div
-        class="mt-4 card w-full sm:w-2/5 border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
-      >
-        <div class="card-body">
-          <h2 class="card-title text-tech">
-            私钥(Private Key)
-          </h2>
-          <textarea
-            v-model="privateKey"
-            placeholder="Private Key"
-            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
-          />
-        </div>
-      </div>
+    <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
+      <CyberToolCard title="私钥 (Private Key)" width-class="w-full sm:flex-1">
+        <textarea
+          v-model="privateKey"
+          placeholder="Private Key"
+          class="textarea textarea-bordered login-input min-h-44 w-full"
+        />
+      </CyberToolCard>
 
-      <div class="join join-vertical w-36 m-2">
-        <select
-          v-model="keySize"
-          placeholder="公钥长度"
-          class="select select-accent select-bordered w-full max-w-xs join-item"
-        >
+      <div class="flex w-full flex-col gap-2 sm:w-36 sm:shrink-0">
+        <select v-model="keySize" class="select select-bordered login-input w-full">
           <option :value="130">
             130位
           </option>
@@ -29,48 +18,31 @@
             66位
           </option>
         </select>
-        <button class="btn btn-outline btn-accent join-item" @click="createKey">
+        <CyberButton variant="primary" class="w-full" @click="createKey">
           <xia-icon icon="blog-quanxian" /> 生成秘钥
-        </button>
+        </CyberButton>
       </div>
 
-      <div
-        class="mt-4 card w-full sm:w-2/5 border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
-      >
-        <div class="card-body">
-          <h2 class="card-title text-tech">
-            公钥(Public Key)
-          </h2>
-          <textarea
-            v-model="publicKey"
-            placeholder="Public Key"
-            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
-          />
-        </div>
-      </div>
+      <CyberToolCard title="公钥 (Public Key)" width-class="w-full sm:flex-1">
+        <textarea
+          v-model="publicKey"
+          placeholder="Public Key"
+          class="textarea textarea-bordered login-input min-h-44 w-full"
+        />
+      </CyberToolCard>
     </div>
 
-    <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div
-        class="mt-4 card w-full sm:w-2/5 border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
-      >
-        <div class="card-body">
-          <h2 class="card-title text-tech">
-            原文
-          </h2>
-          <textarea
-            v-model="plaintext"
-            placeholder="原文"
-            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
-          />
-        </div>
-      </div>
-      <div class="join join-vertical w-36 m-2">
-        <select
-          v-model="cipherMode"
-          placeholder="密文数据顺序"
-          class="select select-info select-bordered w-full max-w-xs join-item"
-        >
+    <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
+      <CyberToolCard title="原文" width-class="w-full sm:flex-1">
+        <textarea
+          v-model="plaintext"
+          placeholder="原文"
+          class="textarea textarea-bordered login-input min-h-44 w-full"
+        />
+      </CyberToolCard>
+
+      <div class="flex w-full flex-col gap-2 sm:w-36 sm:shrink-0">
+        <select v-model="cipherMode" class="select select-bordered login-input w-full">
           <option :value="1">
             C1C3C2
           </option>
@@ -78,37 +50,26 @@
             C1C2C3
           </option>
         </select>
-        <button class="btn btn-outline btn-info join-item" @click="encrypted">
+        <CyberButton variant="secondary" class="w-full" @click="encrypted">
           <xia-icon icon="blog-suoding" /> 加密原文
-        </button>
-        <button class="btn btn-outline btn-info join-item" @click="decrypt">
+        </CyberButton>
+        <CyberButton variant="secondary" class="w-full" @click="decrypt">
           <xia-icon icon="blog-jiesuo" /> 解密密文
-        </button>
+        </CyberButton>
       </div>
-      <div
-        class="mt-4 card w-full sm:w-2/5 border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
-      >
-        <div class="card-body">
-          <h2 class="card-title text-tech">
-            密文
-          </h2>
-          <textarea
-            v-model="ciphertext"
-            placeholder="密文"
-            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
-          />
-        </div>
-      </div>
+
+      <CyberToolCard title="密文" width-class="w-full sm:flex-1">
+        <textarea
+          v-model="ciphertext"
+          placeholder="密文"
+          class="textarea textarea-bordered login-input min-h-44 w-full"
+        />
+      </CyberToolCard>
     </div>
 
-    <div
-      class="mt-4 card w-full border border-tech bg-[var(--tech-input-bg)] shadow-xl rounded-2xl text-tech"
-    >
-      <div class="card-body">
-        <h2 class="card-title">
-          国密SM2加密解密介绍
-        </h2>
-        <p> 本工具提供在线国密SM2公钥私钥生成，国密SM2加密解密功能。 </p>
+    <CyberToolCard title="国密 SM2 加密解密介绍">
+      <div class="space-y-3 text-sm leading-relaxed text-tech-muted">
+        <p>本工具提供在线国密SM2公钥私钥生成，国密SM2加密解密功能。</p>
         <p>
           SM2算法和RSA算法都是公钥密码算法，SM2算法是一种更先进安全的算法，在我们国家商用密码体系中被用来替换RSA算法。
         </p>
@@ -117,13 +78,13 @@
         </p>
         <p>
           <a
-            class="link link-success"
+            class="link link-primary"
             href="https://github.com/JuneAndGreen/sm-crypto"
             target="_blank"
-          >开源库:sm-crypto</a>
+          >开源库: sm-crypto</a>
         </p>
       </div>
-    </div>
+    </CyberToolCard>
   </div>
 </template>
 
@@ -132,7 +93,7 @@ import { messageDanger } from '~~/utils/toast';
 import { loadSm2Script } from '~/utils/script-loader';
 
 definePageMeta({
-  keepalive: true, // nuxt 默认缓存所有页面
+  keepalive: true,
 });
 
 function getSm2Api() {
@@ -150,12 +111,11 @@ const createKey = () => {
     return;
   }
   const keypair = sm2Api.generateKeyPairHex();
-  publicKey.value = keypair.publicKey; // 公钥
-  privateKey.value = keypair.privateKey; // 私钥
+  publicKey.value = keypair.publicKey;
+  privateKey.value = keypair.privateKey;
   if (keySize.value === 66) {
-    // 默认生成公钥 130 位太长，可以压缩公钥到 66 位
-    const compressedPublicKey = sm2Api.compressPublicKeyHex(publicKey.value); // compressedPublicKey 和 publicKey 等价
-    sm2Api.comparePublicKeyHex(publicKey.value, compressedPublicKey); // 判断公钥是否等价
+    const compressedPublicKey = sm2Api.compressPublicKeyHex(publicKey.value);
+    sm2Api.comparePublicKeyHex(publicKey.value, compressedPublicKey);
     publicKey.value = compressedPublicKey;
   }
 };
@@ -190,7 +150,6 @@ const decrypt = () => {
   }
 };
 
-// 须在 setup 中注册，onMounted 内调用 useNuxtApp 会抛错
 const transitionDone = waitForPageTransition();
 
 onMounted(async () => {

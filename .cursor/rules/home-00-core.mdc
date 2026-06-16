@@ -16,7 +16,7 @@ Nuxt 4 · Vue 3 Composition API · TypeScript · Pinia · Nuxt UI 4 · Tailwind 
 | 目录 | 用途 |
 |------|------|
 | `pages/` | 路由页面；页面私有组件放 `pages/<模块>/components/` |
-| `layouts/` | `default` / `custom` / `main-content` |
+| `layouts/` | `default` |
 | `components/` | 按域划分：`xia/`（通用 UI）、`user/`、`rpg/`、`base/` |
 | `composables/` | `useXxx` 可复用逻辑；跨组件共享态优先 `useState` |
 | `api/` | 按业务拆分；统一走 `request.ts` |

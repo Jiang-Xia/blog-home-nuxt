@@ -31,9 +31,6 @@ const persistLoginTokens = (accessToken: string, refreshToken: string) => {
   setToken(RefreshTokenKey, refreshToken, '', 7);
 };
 
-definePageMeta({
-  layout: 'custom', // 不使用default布局
-});
 useHead({
   title: '登录',
   titleTemplate: title => `${title} - 江夏的个人博客-记录生活记录你~`,
@@ -231,18 +228,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex min-h-[60vh] items-center justify-center px-4 py-12">
-    <div v-if="oauthTicketLoading" class="cyber-glass-card w-full max-w-sm p-8 text-center">
+  <CyberPageContainer
+    label="LOGIN"
+    title="欢迎登录"
+    subtitle="登录后即可发表文章与评论"
+    max-width="max-w-sm"
+  >
+    <CyberCard v-if="oauthTicketLoading" class="py-8 text-center">
       <span class="loading loading-spinner loading-lg text-primary" />
       <p class="mt-4 text-sm text-tech-muted">
         正在完成 GitHub 登录...
       </p>
-    </div>
-    <div v-else class="cyber-glass-card w-full max-w-sm p-6 md:p-8">
-      <h1 class="mb-6 text-center text-xl font-bold text-tech">
-        欢迎登录
-      </h1>
-
+    </CyberCard>
+    <CyberCard v-else class="!p-6 md:!p-8">
       <form autocomplete="off" class="space-y-4" @submit.prevent="okHandle">
         <!-- 阻止浏览器自动填充 -->
         <input
@@ -400,6 +398,6 @@ onMounted(() => {
           登录
         </CyberButton>
       </form>
-    </div>
-  </div>
+    </CyberCard>
+  </CyberPageContainer>
 </template>

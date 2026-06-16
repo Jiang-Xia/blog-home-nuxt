@@ -41,7 +41,7 @@ const placeholder = computed(() => {
       />
       <div class="tool-bar mt-1">
         <button
-          class="btn btn-neutral btn-sm px-4 tracking-widest"
+          class="btn btn-sm cyber-btn-secondary px-4 tracking-widest"
           :disabled="!inputContent"
           @click="addReplytHandle"
         >

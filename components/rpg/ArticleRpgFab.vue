@@ -152,7 +152,7 @@ watch(
           </button>
         </div>
         <div v-if="showBackTop" class="tooltip tooltip-left" data-tip="返回顶部">
-          <button class="btn btn-circle btn-neutral shadow-md" @click="goTop">
+          <button class="btn btn-circle cyber-btn-secondary shadow-md" @click="goTop">
             <xia-icon icon="blog-rocket4" width="22px" height="22px" />
           </button>
         </div>

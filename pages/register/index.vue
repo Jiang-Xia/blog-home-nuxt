@@ -25,9 +25,6 @@ if (import.meta.client) {
     rsaEncrypt = rsaEncryptUtil;
   });
 }
-definePageMeta({
-  layout: 'custom', // 不使用default布局
-});
 useHead({
   title: '注册',
   titleTemplate: title => `${title} - 江夏的个人博客-记录生活记录你~`,
@@ -252,12 +249,14 @@ if (import.meta.client) {
 </script>
 
 <template>
-  <div class="flex min-h-[60vh] items-center justify-center px-4 py-12">
-    <div class="cyber-glass-card w-full max-w-sm p-6 md:p-8">
-      <div class="flex items-center justify-between mb-4">
-        <h1 class="text-xl font-bold text-tech">
-          欢迎注册
-        </h1>
+  <CyberPageContainer
+    label="REGISTER"
+    title="欢迎注册"
+    subtitle="创建账号，加入本站"
+    max-width="max-w-sm"
+  >
+    <CyberCard class="!p-6 md:!p-8">
+      <div class="mb-4 flex items-center justify-end gap-2">
         <div
           class="avatar btn btn-ghost btn-circle btn-sm relative"
           title="点击切换随机头像"
@@ -267,13 +266,13 @@ if (import.meta.client) {
             <img :src="form.avatar" alt="头像" @error="onAvatarError">
             <span
               v-if="avatarUploading"
-              class="absolute inset-0 flex items-center justify-center bg-base-100/70 rounded-full"
+              class="absolute inset-0 flex items-center justify-center rounded-full bg-base-100/70"
             >
               <span class="loading loading-spinner loading-xs" />
             </span>
           </div>
         </div>
-        <label class="btn btn-ghost btn-xs min-h-0 h-7">
+        <label class="btn btn-ghost btn-xs h-7 min-h-0">
           上传头像
           <input
             type="file"
@@ -454,8 +453,8 @@ if (import.meta.client) {
       <CyberButton type="button" variant="primary" class="mt-4 w-full" @click="okHandle">
         注册
       </CyberButton>
-    </div>
-  </div>
+    </CyberCard>
+  </CyberPageContainer>
 </template>
 
 <style lang="less" scoped>

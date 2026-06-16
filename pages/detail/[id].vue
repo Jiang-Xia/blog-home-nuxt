@@ -180,7 +180,7 @@ watch(
       @like="updateLikesHandle(ArticleInfo)"
     />
     <div ref="mainViewArea" class="main-view-area mx-auto w-full max-w-5xl px-4 py-8 xl:w-4/5">
-      <section class="main-content max-w-full rounded-2xl p-3 cyber-glass-card">
+      <section class="main-content cyber-glass-card max-w-full rounded-2xl p-3 md:p-5">
         <section class="module-wrap__detail article-info">
           <div class="flex items-center">
             <div class="flex items-center justify-between">
@@ -200,7 +200,7 @@ watch(
                     >
                   </div>
                 </div>
-                <span class="text-color font-bold ml-2 link link-hover link-primary">{{
+                <span class="font-bold ml-2 text-tech link link-hover link-primary">{{
                   ArticleInfo.userInfo.nickname
                 }}</span>
                 <span
@@ -216,11 +216,11 @@ watch(
                     >
                   </div>
                 </div>
-                <span class="text-color font-bold ml-2">{{ ArticleInfo.userInfo.nickname }}</span>
+                <span class="ml-2 font-bold text-tech">{{ ArticleInfo.userInfo.nickname }}</span>
               </div>
             </div>
             <div class="dropdown dropdown-bottom ml-6">
-              <div tabindex="0" role="button" class="btn m-1 btn-neutral">
+              <div tabindex="0" role="button" class="btn m-1 cyber-btn-secondary">
                 主 题
               </div>
               <ul
@@ -253,7 +253,7 @@ watch(
 
       <aside
         ref="aside"
-        class="w-80 absolute right-0 top-0 hidden lg:block rounded-lg h-full overflow-auto"
+        class="aside-bar hidden lg:block absolute right-0 top-0 h-full w-80 overflow-auto rounded-xl border border-tech cyber-glass-card p-3"
         :class="{ 'aside-bar__fixed': fixedAsideBar }"
       >
         <div class="sticky-box">

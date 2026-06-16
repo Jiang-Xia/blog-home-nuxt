@@ -1,127 +1,296 @@
 <script setup lang="ts">
-import { SiteTitle } from '@/utils/constant';
+import { SiteTitle, TOOL_LINKS } from '@/utils/constant';
 
 useHead({
-  title: '特色功能',
+  title: '特性',
   titleTemplate: title => `${title} - ${SiteTitle}`,
 });
 
-const features = [
+interface FeatureModule {
+  icon: string;
+  title: string;
+  desc: string;
+  tags: string[];
+  to?: string;
+  color: string;
+  span?: string;
+  highlight?: boolean;
+}
+
+const coreModules: FeatureModule[] = [
   {
-    icon: '⚡',
-    title: 'AI 文章摘要',
-    desc: '使用先进 AI 技术，自动为长文章生成精准摘要，支持多种风格和长度选择。',
-    to: '/tool/ai-summary',
+    icon: '📝',
+    title: '文章系统',
+    desc: 'Markdown 编辑与预览、分类标签、全文检索、按时间归档，支持用户前台创作与管理。',
+    tags: ['Markdown', '归档', '标签'],
+    to: '/archives',
     color: 'from-blue-500 to-cyan-500',
-    span: 'md:col-span-7',
-    large: true,
-    highlight: '智能 AI',
+    span: 'md:col-span-6',
   },
   {
-    icon: '🔄',
-    title: '一键登录体验',
-    desc: '注册登录后即可发表文章、评论互动，个人中心一站式管理。',
-    to: '/login',
-    color: 'from-purple-500 to-violet-500',
-    span: 'md:col-span-5',
-    large: false,
+    icon: '💬',
+    title: '评论与互动',
+    desc: '文章评论与回复、收藏点赞（需登录），互动数据驱动 RPG 经验与文章成长。',
+    tags: ['评论', '收藏', '点赞'],
+    to: '/',
+    color: 'from-violet-500 to-purple-500',
+    span: 'md:col-span-6',
   },
   {
-    icon: '💻',
-    title: '全平台工具箱',
-    desc: '加密、AI、多媒体等 15+ 实用工具，Web 端开箱即用。',
-    to: '/tool',
-    color: 'from-orange-500 to-red-500',
-    span: 'md:col-span-5',
-    large: false,
+    icon: '👤',
+    title: '用户中心',
+    desc: '个人资料编辑、前台文章创作、公开主页展示 RPG 状态与互动记录。',
+    tags: ['注册登录', '个人主页', '发文'],
+    to: '/user/profile',
+    color: 'from-emerald-500 to-teal-500',
+    span: 'md:col-span-4',
   },
   {
-    icon: '♾️',
-    title: '无限创意空间',
-    desc: '3D 粒子背景、技术雷达图、阅读进度环等创新交互，为博客带来科技感体验。支持鼠标交互，沉浸式视觉。',
-    to: '/features',
-    color: 'from-cyan-500 to-blue-500',
-    span: 'md:col-span-7',
-    large: true,
-    highlight: '3D 粒子',
+    icon: '🔗',
+    title: '友链与留言',
+    desc: '友情链接申请与展示、树形留言板，支持回复与 RPG 经验联动。',
+    tags: ['友链', '留言板'],
+    to: '/msgboard',
+    color: 'from-pink-500 to-rose-500',
+    span: 'md:col-span-4',
+  },
+  {
+    icon: '📊',
+    title: '项目展示',
+    desc: '嵌入 Blog Admin、Zone 等多端演示，扫码体验 App / H5 / 小程序。',
+    tags: ['Demo', '多端'],
+    to: '/projects',
+    color: 'from-slate-500 to-zinc-500',
+    span: 'md:col-span-4',
   },
 ];
 
-const steps = [
-  { num: '1', title: '浏览文章', desc: '在首页或归档页发现感兴趣的技术内容' },
-  { num: '2', title: '注册登录', desc: '创建账号，解锁评论、发文等互动功能' },
-  { num: '3', title: '探索工具', desc: '使用 AI 摘要、加密工具等提升效率' },
+const rpgModule: FeatureModule = {
+  icon: '⚔️',
+  title: 'RPG 冒险体系',
+  desc: '签到升级、成就任务、背包装扮、抽奖 Buff、钻石经济、公会赛季与排行榜——博客即冒险世界。',
+  tags: ['签到', '任务', '抽奖', '钻石', '公会', '排行榜'],
+  to: '/rpg',
+  color: 'from-amber-500 to-orange-500',
+  span: 'md:col-span-12',
+  highlight: true,
+};
+
+const experienceModules: FeatureModule[] = [
+  {
+    icon: '🤖',
+    title: 'AI 文章摘要',
+    desc: '多风格、多长度 AI 摘要生成，支持历史记录与 Markdown 导出。',
+    tags: ['AI', 'DeepSeek'],
+    to: '/tool/ai-summary',
+    color: 'from-cyan-500 to-blue-500',
+    span: 'md:col-span-6',
+  },
+  {
+    icon: '✨',
+    title: '3D 粒子背景',
+    desc: '首页沉浸式粒子动画，支持鼠标交互与主题色定制。',
+    tags: ['Canvas', '交互'],
+    to: '/',
+    color: 'from-indigo-500 to-violet-500',
+    span: 'md:col-span-6',
+  },
+  {
+    icon: '📖',
+    title: '阅读进度环',
+    desc: '文章页可视化阅读进度、目录跳转与剩余时间估算。',
+    tags: ['阅读体验'],
+    to: '/archives',
+    color: 'from-green-500 to-emerald-500',
+    span: 'md:col-span-6',
+  },
+  {
+    icon: '📡',
+    title: '实时推送',
+    desc: 'Socket.IO /rpg 命名空间，升级、成就、禁言等事件即时通知。',
+    tags: ['WebSocket'],
+    to: '/rpg',
+    color: 'from-red-500 to-orange-500',
+    span: 'md:col-span-6',
+  },
 ];
+
+const toolCount = TOOL_LINKS.length;
 </script>
 
 <template>
   <CyberPageContainer
     label="FEATURES"
-    title="为技术分享而生"
-    subtitle="把繁琐的操作交给工具，你只管专注阅读与创作"
+    title="博客系统特性"
+    subtitle="内容创作、RPG 游戏化、实用工具与交互体验，一站俱全"
   >
-    <div class="mb-12 grid grid-cols-1 gap-4 md:grid-cols-12">
+    <!-- RPG 核心亮点 -->
+    <CyberCard hover class="group relative mb-6 overflow-hidden !p-6 md:!p-8">
+      <div
+        class="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br opacity-20 blur-2xl"
+        :class="rpgModule.color"
+      />
+      <div class="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div class="flex-1">
+          <div class="mb-3 flex items-center gap-3">
+            <div
+              :class="[
+                'flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-2xl shadow-lg',
+                rpgModule.color,
+              ]"
+            >
+              {{ rpgModule.icon }}
+            </div>
+            <div>
+              <span class="cyber-feature-tag mb-1">核心玩法</span>
+              <h3 class="text-2xl font-bold text-tech md:text-3xl">
+                <span class="cyber-gradient-text">{{ rpgModule.title }}</span>
+              </h3>
+            </div>
+          </div>
+          <p class="mb-4 max-w-2xl text-sm leading-relaxed text-tech-muted md:text-base">
+            {{ rpgModule.desc }}
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <span v-for="tag in rpgModule.tags" :key="tag" class="cyber-feature-tag">{{
+              tag
+            }}</span>
+          </div>
+        </div>
+        <div class="flex shrink-0 flex-col gap-2 sm:flex-row md:flex-col">
+          <NuxtLink to="/rpg" class="no-underline">
+            <CyberButton variant="primary">进入冒险中心</CyberButton>
+          </NuxtLink>
+          <NuxtLink to="/features/rpg-guide" class="no-underline">
+            <CyberButton variant="secondary" class="w-full"> 查看完整攻略 </CyberButton>
+          </NuxtLink>
+        </div>
+      </div>
+    </CyberCard>
+
+    <!-- 博客核心 -->
+    <CyberSectionHeader
+      class="mb-4"
+      align="left"
+      label="CORE"
+      title="博客核心"
+      subtitle="内容创作与社区互动的基础能力"
+    />
+    <div class="mb-10 grid grid-cols-1 gap-4 md:grid-cols-12">
       <NuxtLink
-        v-for="item in features"
+        v-for="item in coreModules"
         :key="item.title"
-        :to="item.to"
+        :to="item.to || '/'"
         :class="['group no-underline', item.span]"
       >
-        <CyberCard hover :class="['flex flex-col', item.large ? '!p-6 md:!p-8' : '!p-5']">
+        <CyberCard hover class="flex h-full flex-col !p-5">
           <div
             :class="[
-              'mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-lg',
+              'mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-lg',
               item.color,
             ]"
           >
             {{ item.icon }}
           </div>
-          <h3 v-if="item.highlight" class="mb-3 text-2xl font-bold text-tech md:text-3xl">
-            <span class="cyber-gradient-text">{{ item.highlight }}</span>
-            <span v-if="item.title.includes('AI')"> 摘要</span>
-            <span v-else-if="item.title.includes('创意')"> 创意</span>
-          </h3>
-          <h3 v-else class="mb-3 text-xl font-bold text-tech">
+          <h3
+            class="mb-2 text-lg font-semibold text-tech group-hover:text-primary transition-colors"
+          >
             {{ item.title }}
           </h3>
-          <p
-            class="text-sm leading-relaxed text-tech-muted group-hover:text-tech transition-colors"
-          >
+          <p class="mb-3 flex-1 text-sm leading-relaxed text-tech-muted">
             {{ item.desc }}
           </p>
-          <div
-            class="mt-4 flex items-center gap-1 text-sm text-primary opacity-0 transition-opacity group-hover:opacity-100"
-          >
-            立即体验
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
+          <div class="flex flex-wrap gap-1.5">
+            <span v-for="tag in item.tags" :key="tag" class="cyber-feature-tag">{{ tag }}</span>
           </div>
         </CyberCard>
       </NuxtLink>
     </div>
 
+    <!-- 交互体验 -->
     <CyberSectionHeader
-      class="mb-6"
-      label="GET STARTED"
-      title="三步开始使用"
-      subtitle="注册登录后即可畅享，遇到问题可在留言板反馈"
+      class="mb-4"
+      align="left"
+      label="EXPERIENCE"
+      title="交互体验"
+      subtitle="AI、视觉特效与实时通信增强使用感受"
     />
+    <div class="mb-10 grid grid-cols-1 gap-4 md:grid-cols-12">
+      <NuxtLink
+        v-for="item in experienceModules"
+        :key="item.title"
+        :to="item.to || '/'"
+        :class="['group no-underline', item.span]"
+      >
+        <CyberCard hover class="flex h-full flex-col !p-5">
+          <div
+            :class="[
+              'mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-lg',
+              item.color,
+            ]"
+          >
+            {{ item.icon }}
+          </div>
+          <h3 class="mb-2 font-semibold text-tech group-hover:text-primary transition-colors">
+            {{ item.title }}
+          </h3>
+          <p class="mb-3 flex-1 text-sm text-tech-muted">{{ item.desc }}</p>
+          <div class="flex flex-wrap gap-1.5">
+            <span v-for="tag in item.tags" :key="tag" class="cyber-feature-tag">{{ tag }}</span>
+          </div>
+        </CyberCard>
+      </NuxtLink>
+    </div>
 
+    <!-- 工具箱 -->
+    <CyberSectionHeader
+      class="mb-4"
+      align="left"
+      label="TOOLBOX"
+      :title="`实用工具箱 · ${toolCount} 款工具`"
+      subtitle="加密、AI、多媒体、开发调试，Web 端开箱即用"
+    />
+    <CyberCard class="mb-10 !p-4 md:!p-6">
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <NuxtLink
+          v-for="tool in TOOL_LINKS"
+          :key="tool.path"
+          :to="tool.path"
+          class="group flex items-center gap-2 rounded-xl border border-tech bg-tech-header px-3 py-2.5 text-sm text-tech-muted no-underline transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+        >
+          <xia-icon :icon="tool.icon" class="shrink-0 opacity-70 group-hover:opacity-100" />
+          <span class="truncate">{{ tool.title }}</span>
+        </NuxtLink>
+      </div>
+      <div class="mt-4 text-center">
+        <NuxtLink to="/tool" class="no-underline">
+          <CyberButton variant="secondary">进入工具箱</CyberButton>
+        </NuxtLink>
+      </div>
+    </CyberCard>
+
+    <!-- 快速开始 -->
+    <CyberSectionHeader
+      class="mb-4"
+      align="left"
+      label="GET STARTED"
+      title="三步开始"
+      subtitle="注册登录后即可畅享全部特性"
+    />
     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <CyberCard v-for="step in steps" :key="step.num" class="!p-6 text-center">
+      <CyberCard
+        v-for="(step, i) in [
+          { title: '浏览与阅读', desc: '首页发现文章，归档按时间浏览，详情页收藏点赞。' },
+          { title: '注册参与 RPG', desc: '登录后进入冒险中心签到、做任务，解锁装扮与成就。' },
+          { title: '创作与工具', desc: '个人中心发文，工具箱使用 AI 摘要、加密等效率工具。' },
+        ]"
+        :key="step.title"
+        class="!p-6 text-center"
+      >
         <div
           class="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-lg font-bold text-primary"
         >
-          {{ step.num }}
+          {{ i + 1 }}
         </div>
         <h4 class="mb-2 font-semibold text-tech">
           {{ step.title }}

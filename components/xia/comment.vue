@@ -175,13 +175,14 @@ const replyedHandle = (content: string) => {
       <h4 class="font-bold text-sm">
         全部评论({{ total }})
       </h4>
-      <button
-        class="btn btn-neutral btn-sm px-4 tracking-widest"
+      <CyberButton
+        variant="primary"
+        class="!px-4 !py-2 !text-sm tracking-widest"
         :disabled="!inputContent || isBanned"
         @click="addCommentHandle"
       >
         确 认
-      </button>
+      </CyberButton>
     </div>
     <section v-for="commentItem in comments" :key="commentItem.id" class="flex mt-4">
       <!-- 头像 -->
