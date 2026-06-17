@@ -84,6 +84,11 @@ const loadArticle = async () => {
   loading.value = true;
   try {
     const res = await getArticleInfo({ id: props.articleId });
+    if (!res?.info) {
+      messageDanger('文章不存在或已下线');
+      router.push('/user/profile?tab=article');
+      return;
+    }
     const info = res.info;
     formState.title = info.title;
     formState.description = info.description;

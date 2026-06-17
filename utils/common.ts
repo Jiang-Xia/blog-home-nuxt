@@ -2,7 +2,9 @@ import { ref } from 'vue';
 import type { LocationQueryValue } from 'vue-router';
 import dayjs from 'dayjs';
 import { useStorage } from '@vueuse/core';
-import api from '@/api/index';
+import request from '@/api/request';
+import { getAllCategory } from '@/api/category';
+import { getAllTag } from '@/api/tag';
 import { messageError } from '@/utils/toast';
 import { resolveStaticUrl } from '@/utils/static-url';
 
@@ -16,7 +18,7 @@ export const xBLogStore = useStorage('x-blog-store', { likes: [] });
 
 const getOptions = async (type: string) => {
   if (type === '分类') {
-    let { data: res } = await useAsyncData('index_GetCategory', () => api.getAllCategory());
+    let { data: res } = await useAsyncData('index_GetCategory', () => getAllCategory());
     if (!res.value) {
       res = ref([]); // 仅为了解决开发环境报错
     }
@@ -25,7 +27,7 @@ const getOptions = async (type: string) => {
     // console.log(res)
   }
   else {
-    let { data: res } = await useAsyncData('index_GetTag', () => api.getAllTag());
+    let { data: res } = await useAsyncData('index_GetTag', () => getAllTag());
     // console.log({ res: res.value, })
     if (!res.value) {
       res = ref([]); // 仅为了解决开发环境报错
@@ -65,10 +67,10 @@ const getRandomClor = () => {
 export { categoryOptions, tagsOptions, getOptions, colors, getRandomClor };
 
 export const updateViews = async (id: LocationQueryValue | LocationQueryValue[]) => {
-  await api.updateViews({ id });
+  await request.post('/article/views', { id });
 };
 export const updateLikes = async (data: any) => {
-  return await api.updateLikes(data);
+  return await request.post('/like', data);
 };
 
 // const store = useStore()

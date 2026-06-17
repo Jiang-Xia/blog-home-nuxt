@@ -1,11 +1,20 @@
 <script setup lang="ts">
-/** 他人公开主页 */
-import { originUrl, apiPrefix } from '~/config';
+/** 他人公开主页（SSR 渲染，便于搜索引擎收录） */
+import { resolveStaticUrl } from '@/utils/static-url';
+import { SiteTitle } from '@/utils/constant';
 
 const route = useRoute();
 const uid = computed(() => route.params.uid as string);
-const { profile, articles, collects, likes, loading } = usePublicProfile(uid);
+const { profile, articles, collects, likes, loading } = await usePublicProfile(uid);
 const userInfo = useUserInfo();
+
+if (!profile.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: '用户不存在',
+    fatal: true,
+  });
+}
 
 type ProfileTab = 'articles' | 'collects' | 'likes';
 const activeTab = ref<ProfileTab>('articles');
@@ -21,16 +30,6 @@ const currentList = computed(() => {
   if (activeTab.value === 'likes') return likes.value;
   return articles.value;
 });
-
-const resolveStaticUrl = (path = '') => {
-  if (!path) return '';
-  if (path.startsWith('http') || path.includes('base64')) return path;
-  if (path.startsWith('/static')) {
-    const isProd = import.meta.env.MODE === 'production';
-    return isProd ? `${originUrl}${apiPrefix}${path}` : `${originUrl}${path}`;
-  }
-  return path;
-};
 
 const avatarSrc = computed(() => {
   const av = profile.value?.avatar;
@@ -50,11 +49,37 @@ const publicAvatarFrame = computed(() => {
   };
 });
 
+const pageDescription = computed(() => {
+  const intro = profile.value?.intro?.trim();
+  if (intro) {
+    return intro;
+  }
+  return `${profile.value?.nickname} 的公开主页，包含已发布文章、收藏与点赞`;
+});
+
 definePageMeta({ layout: 'default' });
 useHead({
-  title: computed(() =>
-    profile.value?.nickname ? `${profile.value.nickname} 的主页` : '用户主页',
-  ),
+  title: computed(() => `${profile.value?.nickname} 的主页`),
+  titleTemplate: title => `${title} - ${SiteTitle}`,
+  meta: [
+    { name: 'description', content: pageDescription },
+    {
+      property: 'og:title',
+      content: computed(() => `${profile.value?.nickname} 的主页 - ${SiteTitle}`),
+    },
+    { property: 'og:description', content: pageDescription },
+    { property: 'og:type', content: 'profile' },
+  ],
+});
+
+watch([profile, loading], ([currentProfile, isLoading]) => {
+  if (!isLoading && uid.value && !currentProfile) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: '用户不存在',
+      fatal: true,
+    });
+  }
 });
 </script>
 
@@ -174,9 +199,6 @@ useHead({
           </NuxtLink>
         </div>
       </div>
-    </div>
-    <div v-else class="py-12 text-center text-tech-muted">
-      用户不存在
     </div>
   </CyberPageContainer>
 </template>

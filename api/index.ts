@@ -1,4 +1,3 @@
-import * as article from './article';
 import * as tag from './tag';
 import * as category from './category';
 import * as tool from './tool';
@@ -78,7 +77,6 @@ export const emailRegister = (params: {
 };
 
 const api = {
-  ...article,
   ...tag,
   ...category,
   ...tool,

@@ -1,16 +1,24 @@
 import request from '~~/api/request';
 import { filterApprovedComments } from '@/utils/comment';
+import { isNotFoundError } from '@/utils/api-error';
 import { uploadArticleImage as uploadArticleContentImage, parseUploadedUrl } from '@/api/resources';
 
 export const getArticleList = (data: any) => {
   return request.post('/article/list', data);
 };
-export const getArticleInfo = (params: any) => {
-  // console.log(params.id)
+export const getArticleInfo = async (params: { id?: string | number }) => {
   if (!params.id) {
-    return Promise.reject(Error('id不能为空'));
+    return null;
   }
-  return request.get('/article/info', params);
+  try {
+    return await request.get('/article/info', params, { silent: true });
+  }
+  catch (err) {
+    if (isNotFoundError(err)) {
+      return null;
+    }
+    throw err;
+  }
 };
 
 export const createArticle = (data: any) => {

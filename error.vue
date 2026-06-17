@@ -12,9 +12,12 @@ const is404 = computed(() => props.error?.statusCode === 404);
 const errorTitle = computed(() =>
   is404.value ? '404' : String(props.error?.statusCode ?? 'Error'),
 );
-const errorSubtitle = computed(() =>
-  is404.value ? '页面不存在' : (props.error?.statusMessage as string) || '发生错误',
-);
+const errorSubtitle = computed(() => {
+  if (is404.value) {
+    return (props.error?.statusMessage as string) || '页面不存在';
+  }
+  return (props.error?.statusMessage as string) || '发生错误';
+});
 const handleError = () => clearError({ redirect: '/' });
 </script>
 

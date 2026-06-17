@@ -5,6 +5,7 @@ import { MdPreview } from 'md-editor-v3';
 import { useScroll } from '@vueuse/core';
 import { getArticleInfo, getComment } from '@/api/article';
 import { updateViews, xBLogStore, updateLikesHandle } from '@/utils/common';
+import { resolveStaticUrl } from '@/utils/static-url';
 import type { tocInter } from '@/utils';
 import Qie from '@/assets/images/animal/qie.svg';
 import { SiteTitle } from '@/utils/constant';
@@ -50,7 +51,11 @@ const {
 );
 
 if (error.value || !articleData.value?.info) {
-  throw createError({ statusCode: 404, statusMessage: '文章不存在或已下线' });
+  throw createError({
+    statusCode: 404,
+    statusMessage: '文章不存在或已下线',
+    fatal: true,
+  });
 }
 
 const setArticleData = () => {
@@ -64,12 +69,11 @@ const setArticleData = () => {
 };
 setArticleData();
 
-// onBeforeMount(async () => {
-//   console.log('onBeforeMount')
-//   await refresh()
-//   setArticleData()
-// })
-updateViews(articleId.value);
+const recordArticleView = (id: string) => {
+  if (import.meta.client) {
+    updateViews(id);
+  }
+};
 
 const getTagLabel = (arr: any): string => {
   const text = arr.map((v: any) => v.label).join();
@@ -109,10 +113,10 @@ const likes = ref([]);
 onMounted(() => {
   scrollElement.value = document.documentElement;
   mdKey.value = new Date().getTime();
+  recordArticleView(articleId.value);
   // 点赞的
   likes.value = xBLogStore.value.likes;
   ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never);
-  // getCommentHandle();
 });
 
 /* 评论回复功能 */
@@ -156,9 +160,24 @@ const onTipped = async () => {
   setArticleData();
 };
 
+const pageTitle = computed(() => ArticleInfo.title || '文章详情');
+const pageDescription = computed(() => {
+  const desc = ArticleInfo.description?.trim();
+  if (desc) return desc;
+  return ArticleInfo.title ? `${ArticleInfo.title} - ${SiteTitle}` : SiteTitle;
+});
+const coverUrl = computed(() => resolveStaticUrl(ArticleInfo.cover));
+
 useHead({
-  title: ArticleInfo.title + ' - 文章详情',
+  title: pageTitle,
   titleTemplate: title => `${title} - ${SiteTitle}`,
+  meta: [
+    { name: 'description', content: pageDescription },
+    { property: 'og:title', content: computed(() => `${pageTitle.value} - ${SiteTitle}`) },
+    { property: 'og:description', content: pageDescription },
+    { property: 'og:image', content: coverUrl },
+    { property: 'og:type', content: 'article' },
+  ],
 });
 
 watch(
@@ -169,10 +188,14 @@ watch(
     }
     await refresh();
     if (!articleData.value?.info) {
-      throw createError({ statusCode: 404, statusMessage: '文章不存在或已下线' });
+      throw createError({
+        statusCode: 404,
+        statusMessage: '文章不存在或已下线',
+        fatal: true,
+      });
     }
     setArticleData();
-    updateViews(nextId);
+    recordArticleView(nextId);
 
     mdKey.value = new Date().getTime();
     likes.value = xBLogStore.value.likes;

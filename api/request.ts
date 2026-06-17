@@ -60,6 +60,15 @@ interface PendingTask {
   fn: Function; // 回调函数
 }
 
+/**
+ * 可选请求行为（通过 get 第三参或 $http options 传入）
+ * @example request.get('/article/info', { id }, { silent: true })
+ */
+interface RequestHttpOptions {
+  /** 为 true 时不弹出全局错误 toast，由调用方自行处理（如文章详情页预期 404） */
+  silent?: boolean;
+}
+
 // 无感刷新token相关变量
 let refreshing = false; // 是否正在刷新token
 let queue: PendingTask[] = []; // 待处理请求队列
@@ -223,11 +232,11 @@ const apiFetch = $fetch.create({ baseURL: baseUrl });
  * 核心HTTP请求函数
  * 处理请求发送、响应处理、错误处理、token刷新等逻辑
  * @param url 请求URL
- * @param options 请求配置选项
+ * @param options 请求配置选项，支持 {@link RequestHttpOptions.silent}
  * @returns Promise<ApiResponse>
  */
-const $http = async (url: string, options: any): Promise<ApiResponse> => {
-  const { method = 'GET', params = {}, headers } = options;
+const $http = async (url: string, options: any & RequestHttpOptions): Promise<ApiResponse> => {
+  const { method = 'GET', params = {}, headers, silent = false } = options;
 
   // 如果开启加密且不是外部URL，则在URL前添加'/encrypt'前缀
   const openEncrypt = isEncryptEnabled();
@@ -254,6 +263,24 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
   };
 
   return await new Promise((resolve, reject) => {
+    // ofetch 在 4xx 时除 onResponseError 外仍会 reject 其返回 Promise；
+    // 用 settled + safeResolve/safeReject 避免重复结算，并用 .catch 消除 SSR unhandledRejection
+    let settled = false;
+    const safeResolve = (value: ApiResponse) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve(value);
+    };
+    const safeReject = (reason: unknown) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      reject(reason);
+    };
+
     // 生成请求唯一标识，用于防重复请求
     const requestId = `${url}_${JSON.stringify(options)}`;
     log(`请求开始 req --------------> ${url}`);
@@ -264,7 +291,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
       // 检查是否正在请求中，防止重复请求
       if (!isWhitelisted && requestMap.has(requestId)) {
         log(`防抖，禁止重复请求！--------------> ${url}`, 'warn');
-        reject(new Error('防抖，禁止重复请求！'));
+        safeReject(new Error('防抖，禁止重复请求！'));
         return;
       }
       else if (!isWhitelisted) {
@@ -311,8 +338,11 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
           errorMessage = '请求发送失败，请检查网络连接';
         }
 
-        messageDanger(errorMessage);
-        reject(ctx.error);
+        if (!silent) {
+          // silent 时由调用方展示页面级错误（如 Cyber 404），不在 SSR 弹 toast
+          messageDanger(errorMessage);
+        }
+        safeReject(ctx.error);
       },
 
       /**
@@ -327,7 +357,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
 
         // 处理所有成功的状态码
         if (status >= 200 && status < 300) {
-          resolve(body);
+          safeResolve(body);
         }
         // else {
         //   // 对于非2xx状态码，也应该走错误处理
@@ -357,7 +387,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
             // 作用是把当前状态为pending的promise放进全局数组中
             // 刷新完token之后再把对应的promise状态改为fulfilled，
             // 这样之前报401响应的请求没有变更状态，刷新token再变为fulfilled响应后执行等待的相关操作
-            fn: resolve,
+            fn: safeResolve,
           });
           // return为关键，不执行下面代码，不然下面resolve变更promise状态，
           // 造成每个promise都会执行foreach请求多个
@@ -382,7 +412,7 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
               queue = [];
 
               // 重新执行当前请求
-              resolve(apiFetch(url, getDTconfig()));
+              safeResolve((await apiFetch(url, getDTconfig())) as ApiResponse);
             }
             else {
               // token刷新失败，清除本地token
@@ -390,15 +420,19 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
               token.value = '';
               removeToken(TokenKey);
               const err = new Error(body?.message || '登录已过期，请重新登录');
-              messageDanger(err.message);
-              reject(err);
+              if (!silent) {
+                messageDanger(err.message);
+              }
+              safeReject(err);
             }
           }
           else {
-            // 全局错误提示处理
-            const errorMessage = getErrorMessage(status, body.message, url);
-            messageDanger(errorMessage);
-            reject(body);
+            // 全局错误提示处理；reject 时附带 statusCode 供上层区分 404 等场景
+            const errorMessage = getErrorMessage(status, body?.message, url);
+            if (!silent) {
+              messageDanger(errorMessage);
+            }
+            safeReject(body ?? { statusCode: status, message: errorMessage });
           }
         }
         catch (error) {
@@ -411,11 +445,14 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
           else {
             errorMessage = '网络请求异常，请稍后重试';
           }
-          messageDanger(errorMessage);
-          reject(error);
+          if (!silent) {
+            messageDanger(errorMessage);
+          }
+          safeReject(error);
         }
       },
-    });
+      // 兜底捕获 ofetch 抛出的 FetchError（如 HTTP 404），与 onResponseError 中的 safeReject 互斥
+    }).catch(safeReject);
   });
 };
 
@@ -423,10 +460,11 @@ const $http = async (url: string, options: any): Promise<ApiResponse> => {
  * GET请求方法
  * @param url 请求URL
  * @param params 查询参数
+ * @param reqOptions 可选行为，如 `{ silent: true }` 静默失败不弹 toast
  * @returns Promise<any>
  */
-const get = async (url: string, params = {}): Promise<any> => {
-  return await $http(url, { method: 'GET', params }).then(res => res.data);
+const get = async (url: string, params = {}, reqOptions: RequestHttpOptions = {}): Promise<any> => {
+  return await $http(url, { method: 'GET', params, ...reqOptions }).then(res => res.data);
 };
 
 /**

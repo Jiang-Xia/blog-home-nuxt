@@ -1,8 +1,17 @@
 import request from '~~/api/request';
+import { isNotFoundError } from '@/utils/api-error';
 
 /** 公开用户主页 */
-export const getPublicProfile = (uid: number | string) => {
-  return request.get(`/user/public/${uid}`);
+export const getPublicProfile = async (uid: number | string) => {
+  try {
+    return await request.get(`/user/public/${uid}`, {}, { silent: true });
+  }
+  catch (err) {
+    if (isNotFoundError(err)) {
+      return null;
+    }
+    throw err;
+  }
 };
 
 /** 公开用户文章 */
