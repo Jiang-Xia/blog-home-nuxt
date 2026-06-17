@@ -101,6 +101,7 @@ export const unequipLoadout = (slot: string) => request.post('/rpg/loadout/unequ
 
 /** 宠物 */
 export const getMyPets = () => request.get('/rpg/pets');
+/** 宠物图鉴（可兑换宠物模板列表，公开接口） */
 export const getPetCatalog = () => request.get('/rpg/pets/catalog');
 export const summonPet = (itemCode: string) => request.post('/rpg/pets/summon', { itemCode });
 export const exchangePet = (petCode: string) => request.post('/rpg/pets/exchange', { petCode });

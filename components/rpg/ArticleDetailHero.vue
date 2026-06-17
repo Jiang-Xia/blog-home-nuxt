@@ -6,7 +6,18 @@ import { formactDate } from '@/utils/common';
 const props = defineProps<{
   article: Record<string, any>;
   tagLabel: string;
+  tags?: Array<{ label: string; color?: string }>;
+  authorUid?: number;
+  articleId?: number | string;
 }>();
+
+const tagToRgb = (color: string, alpha = 0.24) => {
+  if (!color?.startsWith('#') || color.length < 7) return 'transparent';
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
 
 const emit = defineEmits<{ like: [] }>();
 
@@ -93,11 +104,26 @@ const hasRpgHighlights = computed(
           </span>
           <span class="hero-chip-text">{{ article.category.label }}</span>
         </span>
-        <span v-if="tagLabel" class="hero-chip">
+        <span v-if="tagLabel && !tags?.length" class="hero-chip">
           <span class="hero-chip-icon" aria-hidden="true">
             <xia-icon icon="blog-tag" width="14px" height="14px" />
           </span>
           <span class="hero-chip-text">{{ tagLabel }}</span>
+        </span>
+        <span
+          v-for="tag in tags"
+          :key="tag.label"
+          class="hero-chip hero-chip--tag"
+          :style="{
+            borderColor: tag.color,
+            color: tag.color,
+            backgroundColor: tagToRgb(tag.color || '', 0.18),
+          }"
+        >
+          <span class="hero-chip-icon" aria-hidden="true">
+            <xia-icon icon="blog-tag" width="14px" height="14px" />
+          </span>
+          <span class="hero-chip-text">{{ tag.label }}</span>
         </span>
         <span v-if="article.uTime" class="hero-chip">
           <span class="hero-chip-icon" aria-hidden="true">
@@ -119,6 +145,12 @@ const hasRpgHighlights = computed(
           <span aria-hidden="true">→</span>
         </NuxtLink>
       </div>
+
+      <RpgArticleHeroSocialBar
+        v-if="authorUid"
+        :author-uid="authorUid"
+        :article-id="articleId ?? article.id"
+      />
     </div>
   </section>
 </template>

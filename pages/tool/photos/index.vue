@@ -315,7 +315,7 @@ onBeforeUnmount(() => {
   <div class="photos-tool space-y-5">
     <div class="text-center">
       <h2 class="text-xl text-tech">
-        摄影
+        光影边框
       </h2>
       <p class="mt-1 text-sm text-tech-subtle">
         图片浏览与边框滤镜处理 · 自动读取 EXIF 并生成品牌相框

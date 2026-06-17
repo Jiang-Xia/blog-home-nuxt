@@ -29,7 +29,7 @@ export const TOOL_LINKS: ToolLink[] = [
   { path: '/tool/codes', title: '条形/二维码', icon: 'blog-erweima' },
   { path: '/tool/pdf', title: 'PDF', icon: 'blog-pdf1' },
   { path: '/tool/watermark', title: '水印', icon: 'blog-yinzhang' },
-  { path: '/tool/photos', title: '摄影', icon: 'blog-xiangji' },
+  { path: '/tool/photos', title: '光影边框', icon: 'blog-xiangji' },
   { path: '/tool/audio-visualized', title: '音频可视化', icon: 'blog-yinpin1' },
   { path: '/tool/upload-slice', title: '切片上传', icon: 'blog-upload' },
   { path: '/tool/other', title: '其他工具', icon: 'blog-qita' },

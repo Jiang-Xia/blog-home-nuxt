@@ -8,11 +8,10 @@
 -->
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import Yaya from '../assets/images/animal/yaya.svg';
 import { getArticleList } from '@/api/article';
 import { debounce } from '~~/utils';
-import api from '@/api';
 import { TokenKey, RefreshTokenKey, getToken, removeToken } from '@/utils/cookie';
 import { isDarkTheme, useThemeActions } from '@/composables/use-home';
 import { NAV_LINKS } from '@/utils/constant';
@@ -101,23 +100,31 @@ const onSearchHandle = debounce(() => {
   }
 }, 300);
 
+const clearUserInfoFn = useClearUserInfo();
 const clear = () => {
   token.value = '';
   removeToken(TokenKey);
   removeToken(RefreshTokenKey);
-  useClearUserInfo();
+  clearUserInfoFn();
 };
 if (import.meta.client) {
   token.value = getToken(TokenKey);
   if (token.value) {
-    api.getUserInfo().then((res: any) => {
-      userInfo.value = res;
-    });
+    refreshUserInfo();
   }
   else {
     clear();
   }
 }
+watch(token, (newToken) => {
+  if (!import.meta.client) return;
+  if (newToken) {
+    refreshUserInfo();
+  }
+  else {
+    clearUserInfoFn();
+  }
+});
 const checked = ref(false);
 const showSearch = ref(false);
 

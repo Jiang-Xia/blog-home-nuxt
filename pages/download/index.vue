@@ -22,10 +22,10 @@ const entries = [
     color: 'from-purple-500 to-pink-500',
   },
   {
-    icon: '✨',
-    title: '特色功能',
-    desc: 'AI 摘要 · 3D 粒子',
-    to: '/features',
+    icon: '🖼️',
+    title: '光影边框',
+    desc: '品牌相框 · EXIF 水印',
+    to: '/tool/photos',
     color: 'from-orange-500 to-red-500',
   },
   {

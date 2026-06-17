@@ -334,37 +334,52 @@ const onLeaveGuild = async () => {
 
       <RpgSeasonBanner :activity="activity" :weather-buff="weatherBuff" />
 
-      <div v-if="isLoggedIn" role="tablist" class="tabs tabs-border mb-4 flex-wrap">
-        <a
+      <div v-if="isLoggedIn" class="rpg-page-tabs mb-4" role="tablist">
+        <button
+          type="button"
           role="tab"
-          class="tab"
-          :class="{ 'tab-active': activeTab === 'status' }"
+          class="rpg-page-tab"
+          :class="{ active: activeTab === 'status' }"
           @click="switchTab('status')"
-        >冒险状态</a>
-        <a
+        >
+          冒险状态
+        </button>
+        <button
+          type="button"
           role="tab"
-          class="tab"
-          :class="{ 'tab-active': activeTab === 'inventory' }"
+          class="rpg-page-tab"
+          :class="{ active: activeTab === 'inventory' }"
           @click="switchTab('inventory')"
-        >背包</a>
-        <a
+        >
+          背包
+        </button>
+        <button
+          type="button"
           role="tab"
-          class="tab"
-          :class="{ 'tab-active': activeTab === 'pet' }"
+          class="rpg-page-tab"
+          :class="{ active: activeTab === 'pet' }"
           @click="switchTab('pet')"
-        >宠物</a>
-        <a
+        >
+          宠物
+        </button>
+        <button
+          type="button"
           role="tab"
-          class="tab"
-          :class="{ 'tab-active': activeTab === 'guild' }"
+          class="rpg-page-tab"
+          :class="{ active: activeTab === 'guild' }"
           @click="switchTab('guild')"
-        >公会</a>
-        <a
+        >
+          公会
+        </button>
+        <button
+          type="button"
           role="tab"
-          class="tab"
-          :class="{ 'tab-active': activeTab === 'leaderboard' }"
+          class="rpg-page-tab"
+          :class="{ active: activeTab === 'leaderboard' }"
           @click="switchTab('leaderboard')"
-        >排行</a>
+        >
+          排行
+        </button>
       </div>
 
       <client-only>
@@ -497,3 +512,42 @@ const onLeaveGuild = async () => {
     </div>
   </CyberPageContainer>
 </template>
+
+<style scoped>
+  .rpg-page-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--rpg-border, oklch(var(--b3)));
+    background: var(--rpg-surface, oklch(var(--b1)));
+  }
+
+  .rpg-page-tab {
+    flex: 1;
+    min-width: 72px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.65));
+    cursor: pointer;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  .rpg-page-tab:hover {
+    background: var(--rpg-bg-alt, oklch(var(--b2)));
+  }
+
+  .rpg-page-tab.active {
+    background: var(--rpg-violet-bg, oklch(var(--p) / 0.12));
+    color: var(--rpg-violet, oklch(var(--p)));
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px var(--rpg-violet, oklch(var(--p) / 0.35));
+  }
+</style>

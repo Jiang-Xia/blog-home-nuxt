@@ -34,6 +34,29 @@ const filteredItems = computed(() => {
   if (activeType.value === 'all') return props.items;
   return props.items.filter(i => i.config?.itemType === activeType.value);
 });
+
+const isEquipped = (item: InventoryItem) => {
+  const type = item.config?.itemType;
+  if (type === 'title') return props.loadout?.titleCode === item.itemCode;
+  if (type === 'avatar_frame') return props.loadout?.avatarFrameCode === item.itemCode;
+  return false;
+};
+
+const isEquippable = (item: InventoryItem) =>
+  item.config?.itemType === 'title' || item.config?.itemType === 'avatar_frame';
+
+const getEquipSlot = (item: InventoryItem) => {
+  return item.config?.itemType === 'title' ? 'title' : 'avatar_frame';
+};
+
+const toggleEquip = (item: InventoryItem) => {
+  if (isEquipped(item)) {
+    emit('unequip', getEquipSlot(item));
+  }
+  else {
+    emit('equip', getEquipSlot(item), item.itemCode);
+  }
+};
 </script>
 
 <template>
@@ -48,79 +71,239 @@ const filteredItems = computed(() => {
       背包为空
     </div>
     <template v-else>
-      <div v-if="typeTabs.length > 2" class="flex flex-wrap gap-1 mb-3">
+      <div v-if="typeTabs.length > 2" class="type-tabs">
         <button
           v-for="tab in typeTabs"
           :key="tab.key"
-          class="btn btn-xs"
-          :class="activeType === tab.key ? 'btn-primary' : 'btn-ghost'"
+          class="type-tab"
+          :class="{ 'type-tab--active': activeType === tab.key }"
           @click="activeType = tab.key"
         >
           {{ tab.label }}
         </button>
       </div>
-      <div class="grid gap-2">
+      <div class="inventory-grid">
         <div
           v-for="item in filteredItems"
           :key="item.id || item.itemCode"
-          class="flex items-center justify-between p-2 rounded-lg border border-base-300 bg-base-100"
+          class="inventory-card"
+          :class="{
+            'inventory-card--equipped': isEquipped(item),
+            'inventory-card--equippable': isEquippable(item),
+          }"
         >
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="font-medium">{{ item.config?.name || item.itemCode }}</span>
-              <span class="text-xs text-base-content/50">x{{ item.quantity }}</span>
+          <div class="inventory-card-body">
+            <div class="inventory-card-head">
+              <span class="inventory-name">{{ item.config?.name || item.itemCode }}</span>
+              <span class="inventory-qty">×{{ item.quantity }}</span>
             </div>
-            <div class="flex items-center gap-1 mt-1 flex-wrap">
-              <span v-if="item.config?.itemType" class="badge badge-xs badge-ghost gap-0.5">
+            <div class="inventory-meta">
+              <span v-if="item.config?.itemType" class="meta-tag">
                 {{ item.config.itemTypeIcon }}
                 {{ item.config.itemTypeLabel || item.config.itemType }}
               </span>
-              <span
-                v-if="item.config?.rarity"
-                class="badge badge-xs gap-0.5"
-                :style="{
-                  backgroundColor: (item.config.rarityColor || '#94a3b8') + '20',
-                  color: item.config.rarityColor || '#64748b',
-                  borderColor: item.config.rarityColor || '#94a3b8',
-                }"
-              >
-                {{ item.config.rarityIcon }}
-                {{ item.config.rarityLabel || item.config.rarity }}
-              </span>
-              <span v-if="item.sourceLabel || item.source" class="text-[10px] text-base-content/40">
-                {{ item.sourceLabel || item.source }}
-              </span>
+              <RpgRarityBadge
+                :rarity="item.config?.rarity"
+                :rarity-label="item.config?.rarityLabel"
+                :rarity-color="item.config?.rarityColor"
+                :rarity-icon="item.config?.rarityIcon"
+              />
             </div>
+            <span v-if="item.sourceLabel || item.source" class="inventory-source">
+              {{ item.sourceLabel || item.source }}
+            </span>
           </div>
-          <div
-            v-if="item.config?.itemType === 'title' || item.config?.itemType === 'avatar_frame'"
-            class="flex gap-1"
+          <button
+            v-if="isEquippable(item)"
+            type="button"
+            class="equip-strip"
+            :class="{ 'equip-strip--active': isEquipped(item) }"
+            @click="toggleEquip(item)"
           >
-            <button
-              class="btn btn-xs btn-primary"
-              @click="
-                emit(
-                  'equip',
-                  item.config!.itemType === 'title' ? 'title' : 'avatar_frame',
-                  item.itemCode,
-                )
-              "
-            >
-              穿戴
-            </button>
-            <button
-              v-if="
-                loadout?.[item.config!.itemType === 'title' ? 'titleCode' : 'avatarFrameCode']
-                  === item.itemCode
-              "
-              class="btn btn-xs btn-ghost"
-              @click="emit('unequip', item.config!.itemType === 'title' ? 'title' : 'avatar_frame')"
-            >
-              卸下
-            </button>
-          </div>
+            <span v-if="isEquipped(item)" class="equip-strip-label">
+              <span class="equip-strip-dot" />
+              穿戴中
+            </span>
+            <span v-else class="equip-strip-label">穿戴</span>
+            <span v-if="isEquipped(item)" class="equip-strip-hint">卸下</span>
+          </button>
         </div>
       </div>
     </template>
   </div>
 </template>
+
+<style scoped>
+  .type-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+
+  .type-tab {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--rpg-border-subtle, oklch(var(--b3)));
+    background: transparent;
+    color: var(--rpg-text-label, oklch(var(--bc) / 0.55));
+    cursor: pointer;
+    transition:
+      background 0.15s,
+      border-color 0.15s,
+      color 0.15s;
+  }
+
+  .type-tab:hover {
+    border-color: oklch(var(--p) / 0.35);
+    color: oklch(var(--p));
+  }
+
+  .type-tab--active {
+    background: oklch(var(--p) / 0.12);
+    border-color: oklch(var(--p) / 0.4);
+    color: oklch(var(--p));
+  }
+
+  .inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
+    gap: 10px;
+  }
+
+  .inventory-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    border: 1px solid var(--rpg-border-subtle, oklch(var(--b3)));
+    background: var(--rpg-surface, oklch(var(--b1)));
+    min-height: 108px;
+    overflow: hidden;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+
+  .inventory-card--equipped {
+    border-color: oklch(var(--p) / 0.45);
+    box-shadow: inset 0 0 0 1px oklch(var(--p) / 0.12);
+  }
+
+  .inventory-card-body {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 10px 8px;
+  }
+
+  .inventory-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .inventory-name {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--rpg-text, oklch(var(--bc)));
+  }
+
+  .inventory-qty {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 600;
+    color: oklch(var(--bc) / 0.45);
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: oklch(var(--b3) / 0.6);
+  }
+
+  .inventory-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+
+  .meta-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    font-weight: 500;
+    color: oklch(var(--bc) / 0.55);
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: oklch(var(--b3) / 0.45);
+  }
+
+  .inventory-source {
+    display: block;
+    margin-top: 6px;
+    font-size: 10px;
+    color: oklch(var(--bc) / 0.38);
+  }
+
+  .equip-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 7px 10px;
+    border: none;
+    border-top: 1px solid var(--rpg-border-subtle, oklch(var(--b3)));
+    background: oklch(var(--b2) / 0.35);
+    font-size: 11px;
+    font-weight: 600;
+    color: oklch(var(--bc) / 0.55);
+    cursor: pointer;
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
+
+  .inventory-card--equippable:not(.inventory-card--equipped) .equip-strip:hover {
+    background: oklch(var(--p) / 0.1);
+    color: oklch(var(--p));
+  }
+
+  .equip-strip--active {
+    background: oklch(var(--p) / 0.08);
+    color: oklch(var(--p));
+  }
+
+  .equip-strip--active:hover {
+    background: oklch(var(--p) / 0.14);
+  }
+
+  .equip-strip-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .equip-strip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: oklch(var(--p));
+    box-shadow: 0 0 6px oklch(var(--p) / 0.6);
+  }
+
+  .equip-strip-hint {
+    font-size: 10px;
+    font-weight: 500;
+    color: oklch(var(--bc) / 0.45);
+    padding-left: 6px;
+    border-left: 1px solid oklch(var(--bc) / 0.12);
+  }
+
+  .equip-strip--active:hover .equip-strip-hint {
+    color: oklch(var(--p) / 0.75);
+  }
+</style>

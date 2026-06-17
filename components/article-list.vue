@@ -162,6 +162,12 @@ const toRgb = (color: string, alpha = 0.24) => {
   return color;
 };
 
+const tagFilterStyle = (item: any) => ({
+  borderColor: item.color,
+  color: item.checked ? 'var(--color-primary-content)' : item.color,
+  backgroundColor: item.checked ? item.color : toRgb(item.color),
+});
+
 // 客户端执行
 // 本地点赞记录
 const localLikes = computed<number[]>(() => xBLogStore.value.likes);
@@ -178,7 +184,9 @@ const categoryMouseleave = (e: any) => {
 const weatherData = ref<any>({});
 const userInfo = useUserInfo();
 const weatherUrl
-  = 'https://api.vvhan.com/api/ipCard?tip=Hello ' + (userInfo.value.nickname || '亲爱的路人！');
+  = 'https://jiang-xia.top/x-api/blog-server/static/uploads/2026-06/7647b28bf00d49c5915d27aa1cafa9ef.webp';
+
+// 'https://api.vvhan.com/api/ipCard?tip=Hello ' + (userInfo.value.nickname || '亲爱的路人！');
 
 onMounted(
   /* async */ () => {
@@ -281,19 +289,17 @@ watch(articleList, syncAuthorLevels);
               popover
               style="position-anchor: --anchor-2"
             >
-              <div
-                v-for="item of tagsOptions"
-                :key="item.id"
-                class="custom-tag"
-                :class="item.checked ? 'active' : ''"
-                size="small"
-                :style="{
-                  backgroundColor: item.checked ? item.color : toRgb(item.color),
-                  color: item.checked ? 'var(--color-primary-content)' : item.color,
-                }"
-                @click="clickTagHandle(item, '标签')"
-              >
-                <span>{{ item['label'] }} ({{ item['articleCount'] }})</span>
+              <div class="flex flex-wrap gap-2 p-3">
+                <button
+                  v-for="item of tagsOptions"
+                  :key="item.id"
+                  type="button"
+                  class="badge badge-outline badge-sm cursor-pointer transition-colors"
+                  :style="tagFilterStyle(item)"
+                  @click="clickTagHandle(item, '标签')"
+                >
+                  {{ item.label }} ({{ item.articleCount }})
+                </button>
               </div>
               <div class="mt-4 text-center">
                 <button class="btn-block btn btn-soft btn-error btn-xs" @click="restTags">

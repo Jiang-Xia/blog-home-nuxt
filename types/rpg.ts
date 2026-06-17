@@ -7,8 +7,16 @@
  * - 详见 blog-home-nuxt/.cursor/rules/home-15-rpg-item-display.mdc
  */
 
+/** 稀有度展示字段（后端 item-display 下发） */
+export interface RarityDisplayFields {
+  rarity?: string;
+  rarityLabel?: string;
+  rarityColor?: string;
+  rarityIcon?: string;
+}
+
 /** 装扮物品摘要（由后端 rpg_item_config 查询返回） */
-export interface CosmeticItemSummary {
+export interface CosmeticItemSummary extends RarityDisplayFields {
   code: string;
   name: string;
   rarity: string;

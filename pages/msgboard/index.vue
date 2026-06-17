@@ -3,6 +3,7 @@ import { reactive, ref, computed } from 'vue';
 import { messageDanger, messageSuccess, messageWarning } from '@/utils/toast';
 import { useRpg } from '~~/composables/use-rpg';
 import { beforeTimeNow } from '@/utils';
+import { getRandomNickname } from '@/utils/common';
 import request from '~~/api/request';
 import { SiteTitle } from '@/utils/constant';
 
@@ -32,8 +33,10 @@ msgboardList.value = buildTree(msgboardList.value);
 const userInfo = useUserInfo();
 const { isBanned } = useRpg();
 const showToast = ref(false);
+const guestNickname = () => getRandomNickname();
+const resolveFormName = () => (userInfo.value?.uid ? userInfo.value.nickname : guestNickname());
 const msgForm: MsgInterFace = reactive({
-  name: userInfo.value.nickname,
+  name: resolveFormName(),
   eamil: '',
   address: '',
   comment: '',
@@ -70,7 +73,14 @@ const confirmHandle = async () => {
       return;
     }
     await request.post('/msgboard', msgForm);
-    keys.forEach(k => (msgForm[k as keyof MsgInterFace] = ''));
+    keys.forEach((k) => {
+      if (k === 'name') {
+        msgForm.name = resolveFormName();
+      }
+      else {
+        msgForm[k as keyof MsgInterFace] = '';
+      }
+    });
     getAllMsgboard();
   }
   catch (error) {
@@ -83,14 +93,14 @@ const clickReplyHandle = (item: any) => {
   replayModal.value?.showModal();
   currentItem.value = item;
   replyForm.value = {
-    name: userInfo.value.nickname,
+    name: resolveFormName(),
     comment: '',
   };
 };
 const currentItem = ref<any>();
 const dialog = ref(false);
 const replyForm: any = ref({
-  name: userInfo.value.nickname,
+  name: resolveFormName(),
   comment: '',
 });
 const okHandle = async () => {

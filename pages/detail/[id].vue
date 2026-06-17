@@ -189,6 +189,9 @@ watch(
     <RpgArticleDetailHero
       :article="ArticleInfo"
       :tag-label="tagLabel"
+      :tags="ArticleInfo.tags"
+      :author-uid="Number(ArticleInfo.uid)"
+      :article-id="ArticleInfo.id"
       @like="updateLikesHandle(ArticleInfo)"
     />
     <div ref="mainViewArea" class="main-view-area mx-auto w-full max-w-5xl px-4 py-8 xl:w-4/5">

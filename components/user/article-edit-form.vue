@@ -29,6 +29,14 @@ const tagsOptions = ref<any[]>([]);
 const coverError = ref(false);
 const coverUploading = ref(false);
 
+const tagToRgb = (color: string, alpha = 0.24) => {
+  if (!color?.startsWith('#') || color.length < 7) return 'transparent';
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 const isEdit = computed(() => !!props.articleId);
 
 interface FormState {
@@ -376,9 +384,15 @@ onMounted(async () => {
               :key="item.id"
               type="button"
               class="badge badge-outline badge-sm cursor-pointer transition-colors"
-              :class="
-                formState.tags.includes(item.id) ? 'badge-primary' : 'hover:border-primary/40'
-              "
+              :style="{
+                borderColor: item.color,
+                color: formState.tags.includes(item.id)
+                  ? 'var(--color-primary-content)'
+                  : item.color,
+                backgroundColor: formState.tags.includes(item.id)
+                  ? item.color
+                  : tagToRgb(item.color),
+              }"
               @click="toggleTag(item.id)"
             >
               {{ item.label }}

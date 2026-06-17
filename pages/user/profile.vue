@@ -4,7 +4,7 @@
    */
 import { ref, watch, onMounted } from 'vue';
 import { getToken, TokenKey } from '@/utils/cookie';
-import { getUserInfo } from '~~/api/index';
+import { refreshUserInfo } from '@/composables/use-common';
 import { messageWarning } from '@/utils/toast';
 
 const { frame: avatarFrame, fetchStatus } = useEquippedAvatarFrame();
@@ -52,13 +52,11 @@ onMounted(async () => {
     });
     return;
   }
-  if (!userInfo.value?.uid) {
-    try {
-      userInfo.value = await getUserInfo();
-    }
-    catch {
-      // 错误由全局拦截器处理
-    }
+  try {
+    await refreshUserInfo();
+  }
+  catch {
+    // 错误由全局拦截器处理
   }
   fetchStatus().catch(() => {});
 });

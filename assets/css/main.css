@@ -596,6 +596,15 @@ html.tech-shell[data-theme='cyber-light'] {
   color: var(--tech-fg);
   border: 1px solid var(--tech-input-border);
 
+  &:is(.select, select) {
+    background-color: var(--tech-input-bg);
+  }
+
+  &:is(.select, select) option {
+    background-color: var(--tech-dropdown-bg);
+    color: var(--tech-fg);
+  }
+
   &:focus-within {
     border-color: var(--tech-section-label);
     outline: none;

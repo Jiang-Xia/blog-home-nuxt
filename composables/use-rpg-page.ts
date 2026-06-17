@@ -228,40 +228,48 @@ export function useRpgPage() {
    * 副作用：请求 pets/inventory/catalog/loadout，标记 loadedTabs.pet。
    */
   const loadPetTab = async () => {
-    if (loadedTabs.value.has('pet')) return;
+    const isFirstLoad = !loadedTabs.value.has('pet');
+    if (isFirstLoad) petLoading.value = true;
 
-    petLoading.value = true;
     try {
-      const [p, inv, cat, lo] = await Promise.all([
-        getMyPets(),
-        getRpgInventory('consumable'),
-        getPetCatalog(),
-        getRpgLoadout().catch(() => null),
-      ]);
-      pets.value = p || [];
-      // 从 consumable 背包筛出 grantType=pet 的孵化道具
-      petEggs.value = (inv.items || []).filter(
-        (i: any) => i.config?.effectJson?.grantType === 'pet',
-      );
+      // 图鉴为公开接口，单独拉取，避免被需登录接口失败拖累
+      const cat = await getPetCatalog();
       petCatalog.value = cat || [];
-      equippedPetId.value = lo?.petId ?? null;
-      loadedTabs.value.add('pet');
+
+      if (isFirstLoad) {
+        const [p, inv, lo] = await Promise.all([
+          getMyPets().catch(() => []),
+          getRpgInventory('consumable').catch(() => ({ items: [] })),
+          getRpgLoadout().catch(() => null),
+        ]);
+        pets.value = p || [];
+        petEggs.value = (inv?.items || []).filter(
+          (i: any) => i.config?.effectJson?.grantType === 'pet',
+        );
+        equippedPetId.value = lo?.petId ?? null;
+        loadedTabs.value.add('pet');
+      }
+    }
+    catch (e) {
+      console.error('[useRpgPage] loadPetTab failed:', e);
     }
     finally {
-      petLoading.value = false;
+      if (isFirstLoad) petLoading.value = false;
     }
   };
 
   /** 宠物 mutation（孵化/兑换/改名）后全量刷新宠物 Tab 数据 */
   const reloadPetTab = async () => {
     const [p, inv, cat, lo] = await Promise.all([
-      getMyPets(),
-      getRpgInventory('consumable'),
-      getPetCatalog(),
+      getMyPets().catch(() => []),
+      getRpgInventory('consumable').catch(() => ({ items: [] })),
+      getPetCatalog().catch(() => []),
       getRpgLoadout().catch(() => null),
     ]);
     pets.value = p || [];
-    petEggs.value = (inv.items || []).filter((i: any) => i.config?.effectJson?.grantType === 'pet');
+    petEggs.value = (inv?.items || []).filter(
+      (i: any) => i.config?.effectJson?.grantType === 'pet',
+    );
     petCatalog.value = cat || [];
     equippedPetId.value = lo?.petId ?? null;
   };

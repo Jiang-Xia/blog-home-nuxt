@@ -151,13 +151,13 @@ const toggleHistory = () => {
           :style="{ '--rarity-glow': getRarityGlow(currentResult.item.rarity) }"
           @click.stop
         >
-          <div
+          <RpgRarityBadge
             class="rarity-badge"
-            :style="{ backgroundColor: currentResult.item.rarityColor || '#ccc' }"
-          >
-            {{ currentResult.item.rarityIcon }}
-            {{ currentResult.item.rarityLabel || currentResult.item.rarity }}
-          </div>
+            :rarity="currentResult.item.rarity"
+            :rarity-label="currentResult.item.rarityLabel"
+            :rarity-color="currentResult.item.rarityColor"
+            :rarity-icon="currentResult.item.rarityIcon"
+          />
           <div class="result-name">
             {{ currentResult.item.name }}
           </div>
@@ -189,7 +189,13 @@ const toggleHistory = () => {
           class="pool-item"
           :style="{ borderColor: item.rarityColor || '#ccc' }"
         >
-          <span class="pool-rarity">{{ item.rarityIcon }}</span>
+          <RpgRarityBadge
+            class="pool-rarity-badge"
+            :rarity="item.rarity"
+            :rarity-label="item.rarityLabel"
+            :rarity-color="item.rarityColor"
+            :rarity-icon="item.rarityIcon"
+          />
           <span class="pool-name">{{ item.name }}</span>
         </div>
       </div>
@@ -204,9 +210,13 @@ const toggleHistory = () => {
           暂无记录
         </div>
         <div v-for="record in lotteryHistory" :key="record.id" class="history-item">
-          <span class="history-rarity" :style="{ color: record.rarityColor || record.poolRarity }">
-            {{ record.rarityIcon }}
-          </span>
+          <RpgRarityBadge
+            class="history-rarity-badge"
+            :rarity="record.poolRarity"
+            :rarity-label="record.rarityLabel"
+            :rarity-color="record.rarityColor"
+            :rarity-icon="record.rarityIcon"
+          />
           <span class="history-name">{{ record.poolName }}</span>
           <span class="history-time">{{ formactDate(record.createTime) }}</span>
         </div>
@@ -435,7 +445,8 @@ const toggleHistory = () => {
 
   .pool-item {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 4px;
     padding: 5px 8px;
     border-radius: 6px;
@@ -444,9 +455,10 @@ const toggleHistory = () => {
     font-size: 11px;
   }
 
-  .pool-rarity {
-    font-size: 12px;
+  .pool-rarity-badge {
+    flex-shrink: 0;
   }
+
   .pool-name {
     color: var(--rpg-text-body);
     font-weight: 500;
@@ -492,9 +504,10 @@ const toggleHistory = () => {
     border: 1px solid var(--rpg-border-subtle);
   }
 
-  .history-rarity {
-    font-size: 12px;
+  .history-rarity-badge {
+    flex-shrink: 0;
   }
+
   .history-name {
     font-size: 12px;
     color: var(--rpg-text-body);
