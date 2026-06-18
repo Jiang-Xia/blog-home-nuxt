@@ -6,6 +6,7 @@
 import { ref, watch, computed } from 'vue';
 import { messageError, messageSuccess } from '~~/utils/toast';
 import { useRpgPage } from '~~/composables/use-rpg-page';
+import { useRpgSocket } from '~~/composables/use-rpg-socket';
 
 const route = useRoute();
 const router = useRouter();
@@ -73,6 +74,9 @@ const {
   handleSocketRefresh,
 } = useRpgPage();
 
+const { onDataRefresh } = useRpgSocket();
+onDataRefresh(handleSocketRefresh);
+
 definePageMeta({
   layout: 'default',
 });
@@ -119,6 +123,9 @@ const onSignIn = async () => {
   try {
     const result = await handleSignIn();
     profileCardRef.value?.setSignInResult(result);
+    if (result?.message) {
+      messageSuccess(result.message);
+    }
     return result;
   }
   catch (e: any) {
@@ -127,11 +134,10 @@ const onSignIn = async () => {
   }
 };
 
-/** 领取任务奖励：toast 反馈，数据 refresh 在 useRpgPage 内完成 */
+/** 领取任务奖励：Toast 由 WebSocket questReward 统一反馈 */
 const onClaimQuest = async (questCode: string) => {
   try {
     await handleClaimQuest(questCode);
-    messageSuccess('领取成功');
   }
   catch (e: any) {
     messageError(e?.message || '领取失败');
@@ -411,7 +417,6 @@ const onLeaveGuild = async () => {
                   @unequip="onUnequipLoadout"
                   @claim-quest="onClaimQuest"
                   @load-hit-records="loadHitRecords"
-                  @refresh="handleSocketRefresh"
                   @toggle-buff="onToggleBuff"
                 />
                 <div v-else class="text-center text-tech-muted py-8">

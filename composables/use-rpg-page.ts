@@ -467,13 +467,22 @@ export function useRpgPage() {
 
   /**
    * WebSocket 推送后按 scope 增量刷新，避免全量 reloadStatusTab。
-   * scope 由 RpgProfileCard 根据事件类型上报。
+   * scope 由 use-rpg-socket-handlers 的 notifyDataRefresh 上报。
    */
-  const handleSocketRefresh = async (scope: 'status' | 'achievements' | 'quests' | 'buffs') => {
+  const handleSocketRefresh = async (
+    scope: import('~~/composables/use-rpg-socket').RpgRefreshScope,
+  ) => {
     if (scope === 'status') await reloadStatusCore();
     else if (scope === 'achievements') await reloadAchievements();
     else if (scope === 'quests') await reloadQuests();
     else if (scope === 'buffs') await reloadBuffs();
+    else if (scope === 'inventory') await reloadInventory();
+    else if (scope === 'pets') await reloadPetTab();
+    else if (scope === 'guild') await reloadGuildTab();
+    // 用户未打开排行榜 Tab 时不请求，避免无效 API
+    else if (scope === 'leaderboard' && loadedTabs.value.has('leaderboard')) {
+      await loadTab('leaderboard');
+    }
   };
 
   return {

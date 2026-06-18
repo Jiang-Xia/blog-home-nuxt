@@ -4,7 +4,6 @@
    */
 import type {
   BanStatus,
-  LevelUpResult,
   RpgStatus,
   SensitiveHitRecord,
   SignInfo,
@@ -15,8 +14,6 @@ import type {
 } from '~~/types/rpg';
 import { getRpgLifeColor } from '~~/composables/use-rpg-theme';
 import { formactDate } from '@/utils/common';
-import { messageInfo } from '@/utils/toast';
-import { useRpgSocket } from '~~/composables/use-rpg-socket';
 import RpgQuestPanel from './QuestPanel.vue';
 import RpgAchievementPanel from './AchievementPanel.vue';
 import RpgBuffList from './BuffList.vue';
@@ -43,7 +40,6 @@ const emit = defineEmits<{
   unequip: [slot: 'title' | 'avatar_frame'];
   claimQuest: [questCode: string];
   loadHitRecords: [];
-  refresh: [scope: 'status' | 'achievements' | 'quests' | 'buffs'];
   toggleBuff: [buff: UserBuff & { triggerMode?: string; isActive?: boolean }];
 }>();
 
@@ -89,45 +85,12 @@ const claimableQuests = computed(() => allQuests.value.filter(q => q.completed &
 
 const activeBuffCount = computed(() => props.buffs.length);
 
-const { on } = useRpgSocket();
+const lastSignInResult = ref<SignInResult | null>(null);
 
-const showLevelUp = ref(false);
-const levelUpData = ref<LevelUpResult | null>(null);
-
-/** WebSocket：生命值/禁言/成就/任务/Buff → 通知父组件增量刷新（弹窗由 RpgGlobalInit 统一处理） */
-on('lifeChange', () => {
-  emit('refresh', 'status');
-});
-
-on('banStatus', () => {
-  emit('refresh', 'status');
-});
-
-on('achievementComplete', () => {
-  emit('refresh', 'achievements');
-  emit('refresh', 'status');
-});
-
-on('questReward', () => {
-  emit('refresh', 'quests');
-  emit('refresh', 'status');
-});
-
-on('buffGranted', (data: { name: string }) => {
-  messageInfo(`✨ 获得增益：${data.name}`);
-  emit('refresh', 'buffs');
-});
-
-const lastSignInResult = ref<any>(null);
-
-/** 暴露给父组件：签到成功后回填结果并触发升级动画 */
+/** 暴露给父组件：签到成功后回填结果（升级弹窗由 RpgGlobalInit 统一处理） */
 defineExpose({
   setSignInResult: (result: SignInResult | null) => {
     lastSignInResult.value = result;
-    if (result?.levelUp) {
-      levelUpData.value = result.levelUp;
-      showLevelUp.value = true;
-    }
   },
 });
 
@@ -346,13 +309,6 @@ const toggleHitRecords = () => {
         </div>
       </div>
     </div>
-
-    <!-- 升级动画 -->
-    <RpgLevelUpAnimation
-      :visible="showLevelUp"
-      :level-up-data="levelUpData"
-      @close="showLevelUp = false"
-    />
   </div>
 </template>
 

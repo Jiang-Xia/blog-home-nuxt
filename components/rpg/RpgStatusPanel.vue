@@ -31,21 +31,24 @@ const {
 
 const { on } = useRpgSocket();
 
-// 升级弹窗
+// 升级弹窗（冒险页局部；全站弹窗由 RpgGlobalInit + useRpgSocketHandlers 负责）
 const showLevelUp = ref(false);
 const levelUpData = ref<LevelUpResult | null>(null);
 
+/** 冒险页内升级动画；与全站 LevelUpAnimation 并存 */
 on('levelUp', (data: LevelUpResult) => {
   levelUpData.value = data;
   showLevelUp.value = true;
 });
 
+/** 仅同步 HP，Toast 由 useRpgSocketHandlers 统一处理 */
 on('lifeChange', (data: { lifeDeducted: number; currentLife: number }) => {
   if (rpgStatus.value) {
     rpgStatus.value.lifeValue = data.currentLife;
   }
 });
 
+/** 仅同步禁言状态，Toast 由 useRpgSocketHandlers 统一处理 */
 on('banStatus', (data: any) => {
   if (banStatus.value) {
     banStatus.value.banned = data.banned;

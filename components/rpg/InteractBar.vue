@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
    * 互动场景 RPG 提示条 - 用于评论区/留言板输入框附近
+   * WebSocket 状态同步由 RpgGlobalInit 统一处理（useRpg 共享状态）
    */
 import { useRpg } from '~~/composables/use-rpg';
-import { useRpgSocket } from '~~/composables/use-rpg-socket';
 
 const userInfo = useUserInfo();
 const {
@@ -14,27 +14,8 @@ const {
   questProgressText,
   claimableQuests,
   initRpgInteract,
-  fetchBanStatus,
   fetchQuests,
 } = useRpg();
-
-const { on } = useRpgSocket();
-
-on('lifeChange', (data: { currentLife: number }) => {
-  if (rpgStatus.value) {
-    rpgStatus.value.lifeValue = data.currentLife;
-  }
-});
-
-on('banStatus', (data: { banned: boolean; banEndTime: string | null }) => {
-  if (banStatus.value) {
-    banStatus.value.banned = data.banned;
-    banStatus.value.banEndTime = data.banEndTime;
-  }
-  else {
-    fetchBanStatus();
-  }
-});
 
 onMounted(async () => {
   if (!userInfo.value?.uid) return;
