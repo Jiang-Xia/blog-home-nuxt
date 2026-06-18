@@ -1,7 +1,7 @@
-<template>
-  <div>
-    <NuxtPage />
-  </div>
-</template>
+<script setup lang="ts">
+await navigateTo('/archives', { replace: true });
+</script>
 
-<script setup lang="ts"></script>
+<template>
+  <div />
+</template>

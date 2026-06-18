@@ -1,57 +1,41 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
-    <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div class="mt-4 card w-full bg-base-100 shadow-xl border border-base-300">
-        <div class="card-body">
-          <h2 class="card-title">
-            秘钥设置
-          </h2>
-          <div class="flex justify-center :flex-nowrap w-full">
-            <select
-              v-model="encryption"
-              placeholder="加密方式"
-              class="select select-bordered max-w-44 mr-2"
-            >
-              <option v-for="item in encryptionList" :value="item.value">
-                {{ item.label }}
-              </option>
-            </select>
-            <input
-              v-model="secretKey"
-              class="input input-bordered flex-1 mr-2"
-              placeholder="秘钥"
-            >
-            <input
-              v-model="offset"
-              class="input input-bordered max-w-44 mr-2"
-              placeholder="偏移量"
-            >
-            <button class="btn btn-soft btn-success max-w-44" @click="createKey">
-              <xia-icon icon="blog-quanxian" /> 生成秘钥
-            </button>
-          </div>
-        </div>
+  <div class="space-y-4">
+    <CyberToolCard title="秘钥设置" class="w-full">
+      <div class="flex w-full flex-wrap items-center gap-2">
+        <select v-model="encryption" class="select select-bordered login-input max-w-44">
+          <option v-for="item in encryptionList" :key="item.value" :value="item.value">
+            {{ item.label }}
+          </option>
+        </select>
+        <input
+          v-model="secretKey"
+          class="input input-bordered login-input min-w-0 flex-1"
+          placeholder="秘钥"
+        >
+        <input
+          v-model="offset"
+          class="input input-bordered login-input max-w-44"
+          placeholder="偏移量"
+        >
+        <CyberButton variant="primary" class="shrink-0" @click="createKey">
+          <xia-icon icon="blog-quanxian" /> 生成秘钥
+        </CyberButton>
       </div>
-    </div>
+    </CyberToolCard>
 
-    <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
-        <div class="card-body">
-          <h2 class="card-title">
-            原文
-          </h2>
-          <textarea
-            v-model="plaintext"
-            placeholder="原文"
-            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
-          />
-        </div>
-      </div>
-      <div class="w-36 m-2 flex flex-col">
+    <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
+      <CyberToolCard title="原文" width-class="w-full sm:flex-1">
+        <textarea
+          v-model="plaintext"
+          placeholder="原文"
+          class="textarea textarea-bordered login-input min-h-44 w-full"
+        />
+      </CyberToolCard>
+
+      <div class="flex w-full flex-col gap-2 sm:w-36 sm:shrink-0">
         <select
           v-model="outputType"
-          placeholder="密文输出类型"
-          class="select w-36 mb-2"
+          class="select select-bordered login-input w-full"
           @change="ciphertext = ''"
         >
           <option value="Hex">
@@ -61,38 +45,31 @@
             Base64
           </option>
         </select>
-        <button class="btn btn-soft btn-success w-36 mb-2" @click="encrypted">
+        <CyberButton variant="secondary" class="w-full" @click="encrypted">
           <xia-icon icon="blog-suoding" /> 加密原文
-        </button>
-        <button class="btn btn-soft btn-success w-36 mb-2" @click="decrypt">
+        </CyberButton>
+        <CyberButton variant="secondary" class="w-full" @click="decrypt">
           <xia-icon icon="blog-jiesuo" /> 解密密文
-        </button>
+        </CyberButton>
       </div>
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
-        <div class="card-body">
-          <h2 class="card-title">
-            密文
-          </h2>
-          <textarea
-            v-model="ciphertext"
-            placeholder="密文"
-            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
-          />
-        </div>
-      </div>
+
+      <CyberToolCard title="密文" width-class="w-full sm:flex-1">
+        <textarea
+          v-model="ciphertext"
+          placeholder="密文"
+          class="textarea textarea-bordered login-input min-h-44 w-full"
+        />
+      </CyberToolCard>
     </div>
 
-    <div class="mt-4 card w-full bg-base-100 shadow-xl border border-base-300">
-      <div class="card-body">
-        <h2 class="card-title">
-          对称加密算法介绍
-        </h2>
+    <CyberToolCard title="对称加密算法介绍">
+      <div class="space-y-3 text-sm leading-relaxed text-tech-muted">
         <p>
           对称加密算法转换工具，包含有AES加密、DES加密、RC4加密、Rabbit加密、TripleDes加密等相关对称加密算法互相转换的工具。
           除了上述的对称加密算法外，还有3DES、Blowfish、IDEA、RC5、RC6等对称加密算法
         </p>
-        <p> 对称加密的优势：对称加密的速度比公钥加密快很多，在很多场合都需要对称加密 </p>
-        <h3 class="card-title">
+        <p>对称加密的优势：对称加密的速度比公钥加密快很多，在很多场合都需要对称加密</p>
+        <h3 class="text-base font-semibold text-tech">
           对称加密与非对称加密的区别
         </h3>
         <p>
@@ -100,7 +77,7 @@
           key）和私有密钥（private key）。
         </p>
       </div>
-    </div>
+    </CyberToolCard>
   </div>
 </template>
 
@@ -109,29 +86,14 @@ import CryptoJS from 'crypto-js';
 import { messageDanger } from '~~/utils/toast';
 
 definePageMeta({
-  keepalive: true, // nuxt 默认缓存所有页面
+  keepalive: true,
 });
 const encryptionList = [
-  {
-    value: 'AES',
-    label: 'AES',
-  },
-  {
-    value: 'DES',
-    label: 'DES',
-  },
-  {
-    value: 'RC4',
-    label: 'RC4',
-  },
-  {
-    value: 'Rabbit',
-    label: 'Rabbit',
-  },
-  {
-    value: 'TripleDES',
-    label: 'TripleDES',
-  },
+  { value: 'AES', label: 'AES' },
+  { value: 'DES', label: 'DES' },
+  { value: 'RC4', label: 'RC4' },
+  { value: 'Rabbit', label: 'Rabbit' },
+  { value: 'TripleDES', label: 'TripleDES' },
 ];
 const encryption = ref('AES');
 const secretKey = ref('');
@@ -149,11 +111,8 @@ const encrypted = () => {
     messageDanger('请先输入密钥');
     return;
   }
-  // 未加密的参数 - 从 UTF-8编码 解析出原始字符串
   const wordUTF8 = CryptoJS.enc.Utf8.parse(plaintext.value);
-  // 密钥 - 从 UTF-8编码 解析出原始字符串
   const keyUTF8 = CryptoJS.enc.Utf8.parse(secretKey.value);
-  // 偏移量 从 UTF-8编码 解析出原始字符串
   const offsetUTF8 = CryptoJS.enc.Utf8.parse(offset.value);
   const type = encryption.value;
   // @ts-expect-error: 不需要进行ts检测
@@ -162,7 +121,6 @@ const encrypted = () => {
     mode: CryptoJS.mode.CBC,
     padding: CryptoJS.pad.Pkcs7,
   });
-    // 转成16进制 变成大写不影响解密
   if (outputType.value === 'Hex') {
     ciphertext.value = encrypted.toString(CryptoJS.format.Hex).toUpperCase();
   }
@@ -179,13 +137,10 @@ const decrypt = () => {
     messageDanger('请先输入密钥');
     return;
   }
-  // 密钥 - 从 UTF-8编码 解析出原始字符串
   const keyUTF8 = CryptoJS.enc.Utf8.parse(secretKey.value);
-  // 偏移量 从 UTF-8编码 解析出原始字符串
   const offsetUTF8 = CryptoJS.enc.Utf8.parse(offset.value);
   let encryptedWord;
   if (outputType.value === 'Hex') {
-    // 解析十六进制字符串
     encryptedWord = CryptoJS.format.Hex.parse(ciphertext.value);
   }
   else {
@@ -206,13 +161,10 @@ const decrypt = () => {
 
 const createKey = () => {
   const key = CryptoJS.lib.WordArray.random(16);
-  // 将秘钥转换为十六进制字符串
-  const keyHex = key.toString(CryptoJS.enc.Hex);
-  secretKey.value = keyHex;
+  secretKey.value = key.toString(CryptoJS.enc.Hex);
 };
 
 onMounted(() => {
   createKey();
-  // console.log(crypto.rsaEncrypt)
 });
 </script>

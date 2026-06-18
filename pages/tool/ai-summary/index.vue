@@ -1,160 +1,144 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
-    <div class="card bg-base-100 shadow-xl mx-auto rounded-xl mb-4">
-      <div class="card-body">
-        <h2 class="card-title">
-          <xia-icon icon="blog-ai" />
-          AI 文章摘要生成器
-        </h2>
-        <p class="text-sm text-gray-600">
-          将长文章转换为简洁摘要，支持多种摘要风格
-        </p>
-
-        <div class="pl-8 pt-4">
-          <div class="flex items-center mb-4">
-            <span class="w-20 text-sm font-medium">摘要风格</span>
-            <select v-model="summaryStyle" class="select select-bordered select-sm max-w-xs">
-              <option value="concise">
-                简洁型
-              </option>
-              <option value="detailed">
-                详细型
-              </option>
-              <option value="technical">
-                技术型
-              </option>
-              <option value="casual">
-                轻松型
-              </option>
-            </select>
-          </div>
-
-          <div class="flex items-center mb-4">
-            <span class="w-20 text-sm font-medium">摘要长度</span>
-            <select v-model="summaryLength" class="select select-bordered select-sm max-w-xs">
-              <option value="short">
-                短摘要 (50字)
-              </option>
-              <option value="medium">
-                中摘要 (100字)
-              </option>
-              <option value="long">
-                长摘要 (200字)
-              </option>
-            </select>
-          </div>
+  <div class="space-y-4">
+    <CyberToolCard title="AI 文章摘要生成器" desc="将长文章转换为简洁摘要，支持多种摘要风格">
+      <template #icon>
+        <xia-icon icon="blog-ai" />
+      </template>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="w-20 shrink-0 text-sm text-tech-muted">摘要风格</span>
+          <select v-model="summaryStyle" class="select select-bordered login-input max-w-xs">
+            <option value="concise">
+              简洁型
+            </option>
+            <option value="detailed">
+              详细型
+            </option>
+            <option value="technical">
+              技术型
+            </option>
+            <option value="casual">
+              轻松型
+            </option>
+          </select>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="w-20 shrink-0 text-sm text-tech-muted">摘要长度</span>
+          <select v-model="summaryLength" class="select select-bordered login-input max-w-xs">
+            <option value="short">
+              短摘要 (50字)
+            </option>
+            <option value="medium">
+              中摘要 (100字)
+            </option>
+            <option value="long">
+              长摘要 (200字)
+            </option>
+          </select>
         </div>
       </div>
-    </div>
+    </CyberToolCard>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- 输入区域 -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h3 class="card-title text-lg">
-            原文内容
-          </h3>
-          <textarea
-            v-model="originalText"
-            placeholder="粘贴您的文章内容..."
-            class="textarea textarea-bordered w-full h-80 text-sm"
-            :disabled="loading"
-          />
-          <div class="card-actions justify-between">
-            <div class="text-xs text-gray-500">
-              字数: {{ originalText.length }} / 推荐: 500-3000字
-            </div>
-            <button
-              class="btn btn-primary btn-sm"
-              :disabled="loading || !originalText.trim()"
-              @click="generateSummary"
-            >
-              <span v-if="loading" class="loading loading-spinner loading-sm" />
-              {{ loading ? '生成中...' : '生成摘要' }}
-            </button>
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <CyberToolCard title="原文内容">
+        <textarea
+          v-model="originalText"
+          placeholder="粘贴您的文章内容..."
+          class="textarea textarea-bordered login-input h-80 w-full text-sm"
+          :disabled="loading"
+        />
+        <div class="mt-4 flex items-center justify-between gap-2">
+          <div class="text-xs text-tech-subtle">
+            字数: {{ originalText.length }} / 推荐: 500-3000字
           </div>
+          <CyberButton
+            variant="primary"
+            class="!py-2 !text-sm"
+            :disabled="loading || !originalText.trim()"
+            @click="generateSummary"
+          >
+            <span v-if="loading" class="loading loading-spinner loading-sm" />
+            {{ loading ? '生成中...' : '生成摘要' }}
+          </CyberButton>
         </div>
-      </div>
+      </CyberToolCard>
 
-      <!-- 输出区域 -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h3 class="card-title text-lg">
-            AI 摘要
-          </h3>
-          <div
-            v-if="!summary && !loading"
-            class="flex items-center justify-center h-80 text-gray-400"
-          >
-            <div class="text-center">
-              <xia-icon icon="blog-ai" width="48px" height="48px" class="opacity-50" />
-              <p class="mt-2">
-                输入文章内容并点击生成摘要
-              </p>
-            </div>
-          </div>
-
-          <div
-            v-else-if="loading && summary.length < 6"
-            class="flex items-center justify-center h-80"
-          >
-            <div class="text-center">
-              <span class="loading loading-dots loading-lg" />
-              <p class="mt-2 text-gray-600">
-                AI 正在分析文章内容...
-              </p>
-            </div>
-          </div>
-
-          <div v-else class="space-y-4">
-            <div class="bg-gray-50 rounded-lg p-4 min-h-[200px]">
-              <p class="text-sm leading-relaxed">
-                {{ summary }}
-              </p>
-            </div>
-
-            <div class="flex gap-2">
-              <button class="btn btn-outline btn-sm" @click="copyToClipboard(summary)">
-                <xia-icon icon="blog-copy" />
-                复制
-              </button>
-              <button class="btn btn-outline btn-sm" @click="exportAsMarkdown">
-                <xia-icon icon="blog-daochu" />
-                导出
-              </button>
-              <button class="btn btn-outline btn-sm" :disabled="loading" @click="regenerateSummary">
-                <xia-icon icon="blog-refresh" />
-                重新生成
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 历史记录 -->
-    <div v-if="summaryHistory.length > 0" class="card bg-base-100 shadow-xl mt-6">
-      <div class="card-body">
-        <h3 class="card-title text-lg">
-          历史记录
-        </h3>
-        <div class="space-y-3 max-h-60 overflow-y-auto">
-          <div
-            v-for="(item, index) in summaryHistory"
-            :key="index"
-            class="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
-            @click="loadFromHistory(item)"
-          >
-            <div class="text-xs text-gray-500 mb-1">
-              {{ formatDate(item.timestamp) }} - {{ item.style }} - {{ item.length }}
-            </div>
-            <p class="text-sm line-clamp-2">
-              {{ item.summary }}
+      <CyberToolCard title="AI 摘要">
+        <div
+          v-if="!summary && !loading"
+          class="flex h-80 items-center justify-center text-tech-faint"
+        >
+          <div class="text-center">
+            <xia-icon icon="blog-ai" width="48px" height="48px" class="opacity-50" />
+            <p class="mt-2">
+              输入文章内容并点击生成摘要
             </p>
           </div>
         </div>
-      </div>
+
+        <div
+          v-else-if="loading && summary.length < 6"
+          class="flex h-80 items-center justify-center"
+        >
+          <div class="text-center">
+            <span class="loading loading-dots loading-lg" />
+            <p class="mt-2 text-tech-muted">
+              AI 正在分析文章内容...
+            </p>
+          </div>
+        </div>
+
+        <div v-else class="space-y-4">
+          <div class="min-h-[200px] rounded-lg border border-tech bg-tech-header p-4">
+            <p class="text-sm leading-relaxed text-tech">
+              {{ summary }}
+            </p>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <CyberButton
+              variant="secondary"
+              class="!py-2 !text-sm"
+              @click="copyToClipboard(summary)"
+            >
+              <xia-icon icon="blog-copy" />
+              复制
+            </CyberButton>
+            <CyberButton variant="secondary" class="!py-2 !text-sm" @click="exportAsMarkdown">
+              <xia-icon icon="blog-daochu" />
+              导出
+            </CyberButton>
+            <CyberButton
+              variant="secondary"
+              class="!py-2 !text-sm"
+              :disabled="loading"
+              @click="regenerateSummary"
+            >
+              <xia-icon icon="blog-refresh" />
+              重新生成
+            </CyberButton>
+          </div>
+        </div>
+      </CyberToolCard>
     </div>
+
+    <CyberToolCard v-if="summaryHistory.length > 0" title="历史记录">
+      <div class="max-h-60 space-y-3 overflow-y-auto">
+        <div
+          v-for="(item, index) in summaryHistory"
+          :key="index"
+          class="cursor-pointer rounded-lg border border-tech p-3 transition-colors hover:bg-tech-header"
+          @click="loadFromHistory(item)"
+        >
+          <div class="mb-1 text-xs text-tech-subtle">
+            {{ formatDate(item.timestamp) }} - {{ item.style }} - {{ item.length }}
+          </div>
+          <p class="line-clamp-2 text-sm text-tech-muted">
+            {{ item.summary }}
+          </p>
+        </div>
+      </div>
+    </CyberToolCard>
   </div>
 </template>
 
@@ -172,17 +156,14 @@ definePageMeta({
 const originalText = ref('');
 const summary = ref('');
 const loading = ref(false);
-// 定义类型
 type SummaryStyle = 'concise' | 'detailed' | 'technical' | 'casual';
 type SummaryLength = 'short' | 'medium' | 'long';
 
 const summaryStyle = ref<SummaryStyle>('concise');
 const summaryLength = ref<SummaryLength>('medium');
 
-// 历史记录
 const summaryHistory = ref<any[]>([]);
 
-// 摘要风格映射
 const stylePrompts: Record<SummaryStyle, string> = {
   concise: '简洁明了，突出核心要点',
   detailed: '详细完整，包含主要论点和支撑信息',
@@ -190,7 +171,6 @@ const stylePrompts: Record<SummaryStyle, string> = {
   casual: '轻松易懂，使用日常语言表达',
 };
 
-// 长度映射
 const lengthPrompts: Record<SummaryLength, string> = {
   short: '50字以内',
   medium: '100字左右',
@@ -241,7 +221,6 @@ ${originalText.value}
       if (event.data === '[DONE]') {
         loading.value = false;
 
-        // 保存到历史记录
         summaryHistory.value.unshift({
           summary: summary.value,
           style: summaryStyle.value,
@@ -250,7 +229,6 @@ ${originalText.value}
           originalLength: originalText.value.length,
         });
 
-        // 限制历史记录数量
         if (summaryHistory.value.length > 10) {
           summaryHistory.value = summaryHistory.value.slice(0, 10);
         }
@@ -338,7 +316,6 @@ onMounted(() => {
   if (route.query.params) {
     const decrypt = aesDecrypt(route.query.params);
     const params = JSON.parse(decrypt);
-    // console.log('params ---------->', params);
     originalText.value = params.content;
   }
 });

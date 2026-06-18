@@ -1,77 +1,49 @@
 <script setup lang="ts">
 import config from './config';
 
-definePageMeta({
-  layout: 'custom', // 不使用default布局
-});
 const props = defineProps({
   error: {
     type: Object,
     default: () => ({}),
   },
 });
-if (props.error.statusCode) {
-  // await navigateTo('/404')
-}
+
+const is404 = computed(() => props.error?.statusCode === 404);
+const errorTitle = computed(() =>
+  is404.value ? '404' : String(props.error?.statusCode ?? 'Error'),
+);
+const errorSubtitle = computed(() => {
+  if (is404.value) {
+    return (props.error?.statusMessage as string) || '页面不存在';
+  }
+  return (props.error?.statusMessage as string) || '发生错误';
+});
 const handleError = () => clearError({ redirect: '/' });
-// console.log(props.error)
 </script>
 
 <template>
-  <div class="common-page">
-    <div class="img-wrap" :style="{ 'background-image': `url(${config.gifError})` }" />
-    <div class="b-text text-center">
-      <div class="gradient-text flex justify-center">
-        <span class="mr-2">{{ error.statusCode }}</span>
-        <span class="mr-2">{{ error.statusMessage }}</span>
-        <span class="mr-2">{{ error.url }}</span>
-      </div>
+  <CyberPageContainer label="ERROR" :title="errorTitle" :subtitle="errorSubtitle">
+    <CyberCard class="flex flex-col items-center py-12 text-center">
+      <img v-if="is404" :src="config.gif404" alt="404" class="mb-8 max-h-48 opacity-80">
       <div
-        class="gradient-text text-xl px-8 sm:px-0 sm:text-4xl md:mb-6 font-light h-11 leading-none"
-      >
-        {{ error.message }}
-      </div>
-      <div class="text-left text-sm mb-3 w-3/4 whitespace-pre-wrap">
-        {{ error.stack }}
-      </div>
-      <div class="w-full flex items-center justify-center">
-        <xia-button @click="handleError">
-          Try Again
-        </xia-button>
-      </div>
-    </div>
-  </div>
+        v-else
+        class="mb-8 h-40 w-64 bg-contain bg-center bg-no-repeat opacity-80"
+        :style="{ backgroundImage: `url(${config.gifError})` }"
+      />
+      <p class="cyber-gradient-text mb-2 text-xl md:text-4xl">
+        <template v-if="is404">
+          Page not found
+        </template>
+        <template v-else>
+          {{ error.statusCode }} — {{ error.statusMessage }}
+        </template>
+      </p>
+      <p class="mb-8 text-sm text-tech-subtle">
+        {{ is404 ? error.url || error.message : error.message }}
+      </p>
+      <CyberButton class="mt-6" @click="handleError">
+        返回首页
+      </CyberButton>
+    </CyberCard>
+  </CyberPageContainer>
 </template>
-
-<style lang="less" scoped>
-  .common-page {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    // justify-content: center;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-    &::after {
-      pointer-events: none;
-      content: '';
-      position: absolute;
-      bottom: -30vh;
-      left: 0;
-      height: 40vh;
-      width: 100%;
-      background: linear-gradient(45deg, #00dc82 0%, #36e4da 50%, #0047e1 100%);
-      filter: blur(20vh);
-    }
-    .img-wrap {
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      width: 50%;
-      height: 40vh;
-    }
-    .b-text {
-    }
-  }
-</style>

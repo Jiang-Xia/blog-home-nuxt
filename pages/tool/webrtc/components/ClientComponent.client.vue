@@ -110,18 +110,20 @@ const saveDisplayMedia = () => {
 
 <template>
   <div class="p-4">
-    <div class="mockup-window border bg-base-100 mx-auto md:w-3/4">
+    <div
+      class="mockup-window border border-tech bg-[var(--tech-input-bg)] mx-auto md:w-3/4 text-tech"
+    >
       <div class="flex flex-col items-center p-4 bg-base-200 h-full">
         <div class="join mb-2">
           <button
-            class="btn btn-sm btn-neutral join-item"
+            class="btn btn-sm cyber-btn-secondary join-item"
             @click="enabledUserMedia = !enabledUserMedia"
           >
             {{ enabledUserMedia ? '停止' : '开始' }}
           </button>
           <button
             v-if="mediaRecorderUserMedia"
-            class="btn btn-sm btn-neutral join-item"
+            class="btn btn-sm cyber-btn-secondary join-item"
             @click="saveUserMedia"
           >
             保存
@@ -142,27 +144,27 @@ const saveDisplayMedia = () => {
           </select>
         </div>
         <video
-          ref="videoUserMedia"
-          class="h-96 rounded-xl"
-          muted
+          ref="videoUserMedia" class="h-96 rounded-xl" muted
           autoplay
           controls
         />
       </div>
     </div>
 
-    <div class="mockup-window border bg-base-100 mx-auto mt-4 md:w-3/4">
+    <div
+      class="mockup-window border border-tech bg-[var(--tech-input-bg)] mx-auto mt-4 md:w-3/4 text-tech"
+    >
       <div class="flex flex-col items-center p-4 bg-base-200 h-full">
         <div class="join mb-2">
           <button
-            class="btn btn-sm btn-neutral join-item"
+            class="btn btn-sm cyber-btn-secondary join-item"
             @click="enabledDisplayMedia = !enabledDisplayMedia"
           >
             {{ enabledDisplayMedia ? '停止' : '开始' }}
           </button>
           <button
             v-if="mediaRecorderDisplayMedia"
-            class="btn btn-sm btn-neutral join-item"
+            class="btn btn-sm cyber-btn-secondary join-item"
             @click="saveDisplayMedia"
           >
             保存
@@ -172,9 +174,7 @@ const saveDisplayMedia = () => {
           </button>
         </div>
         <video
-          ref="videoDisplayMedia"
-          class="h-96 rounded-xl"
-          muted
+          ref="videoDisplayMedia" class="h-96 rounded-xl" muted
           autoplay
           controls
         />

@@ -8,62 +8,19 @@
 -->
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import Yaya from '../assets/images/animal/yaya.svg';
 import { getArticleList } from '@/api/article';
-import { throttle } from '~~/utils';
-import api from '@/api';
-import { adminUrl } from '@/config';
+import { debounce } from '~~/utils';
 import { TokenKey, RefreshTokenKey, getToken, removeToken } from '@/utils/cookie';
-import { useThemeActions } from '@/composables/use-home';
-
-const navList = ref([
-  {
-    path: '/',
-    title: '首页',
-    icon: 'blog-shouye',
-  },
-  {
-    path: '/archives',
-    title: '归档',
-    icon: 'blog-guidang2',
-  },
-  {
-    path: '/links',
-    title: '友链',
-    icon: 'blog-youlian',
-  },
-  {
-    path: '/msgboard',
-    title: '留言板',
-    icon: 'blog-liuyanban3',
-  },
-  {
-    path: '/about',
-    title: '关于',
-    icon: 'blog-about2',
-  },
-  {
-    path: '/projects',
-    title: '项目',
-    icon: 'blog-xiangmu3',
-  },
-  {
-    path: '/tool/sm',
-    title: '工具箱',
-    icon: 'blog-tool',
-  },
-  {
-    path: '/features',
-    title: '特色',
-    icon: 'blog-gongneng',
-  },
-]);
+import { isDarkTheme, useThemeActions } from '@/composables/use-home';
+import { NAV_LINKS } from '@/utils/constant';
 
 const token = useToken();
 const userInfo = useUserInfo();
 // 主题相关逻辑重构
 const { theme, clickIcon, initTheme, disposeTheme } = useThemeActions();
+const themeToggleIcon = computed(() => (isDarkTheme(theme.value) ? 'blog-light' : 'blog-dark'));
 
 onMounted(() => {
   document.addEventListener('click', onDocumentClick);
@@ -77,229 +34,245 @@ onUnmounted(() => {
 
 const onDocumentClick = () => {
   checked.value = false;
+  closeSearch();
 };
-  /* 切换主题 结束 */
+
+function closeSearch() {
+  showSearch.value = false;
+  searchText.value = '';
+  articleList.value = [];
+  queryPrams.title = '';
+  queryPrams.description = '';
+  queryPrams.content = '';
+}
+
+function toggleSearch() {
+  if (showSearch.value) {
+    closeSearch();
+  }
+  else {
+    showSearch.value = true;
+  }
+}
+/* 切换主题 结束 */
 
 /* 搜索文章 */
 
 // 搜索文章
-const queryPrams = reactive<queryState>({
+const queryPrams = reactive({
   page: 1,
   pageSize: 20,
   title: '',
   description: '',
   content: '',
+  client: true,
+  sort: 'DESC',
 });
 const searchText = ref('');
 const articleList: any = ref([]);
 const getArticleListHandle = async () => {
-  const res = await getArticleList(queryPrams);
-  articleList.value = res.list.map((v: any) => {
-    return {
+  try {
+    const res = await getArticleList(queryPrams);
+    articleList.value = (res?.list ?? []).map((v: any) => ({
       value: v.title,
       label: v.title,
       id: v.id,
-    };
-  });
+    }));
+  }
+  catch {
+    articleList.value = [];
+  }
 };
 
-const onSearchHandle = throttle(() => {
-  if (searchText.value) {
+const onSearchHandle = debounce(() => {
+  if (searchText.value.trim()) {
     queryPrams.page = 1;
-    queryPrams.title = searchText.value;
-    queryPrams.description = searchText.value;
-    queryPrams.content = searchText.value;
+    queryPrams.title = searchText.value.trim();
+    queryPrams.description = searchText.value.trim();
+    queryPrams.content = searchText.value.trim();
     getArticleListHandle();
   }
   else {
+    queryPrams.title = '';
+    queryPrams.description = '';
+    queryPrams.content = '';
     articleList.value = [];
   }
-}, 500);
+}, 300);
 
+const clearUserInfoFn = useClearUserInfo();
 const clear = () => {
   token.value = '';
   removeToken(TokenKey);
   removeToken(RefreshTokenKey);
-  useClearUserInfo();
+  clearUserInfoFn();
 };
 if (import.meta.client) {
   token.value = getToken(TokenKey);
   if (token.value) {
-    api.getUserInfo().then((res: any) => {
-      userInfo.value = res;
-    });
+    refreshUserInfo();
   }
   else {
     clear();
   }
 }
-const goUrl = adminUrl;
-// 菜单控制
+watch(token, (newToken) => {
+  if (!import.meta.client) return;
+  if (newToken) {
+    refreshUserInfo();
+  }
+  else {
+    clearUserInfoFn();
+  }
+});
 const checked = ref(false);
+const showSearch = ref(false);
+
+const route = useRoute();
+function isNavActive(path: string) {
+  if (path === '/') return route.path === '/';
+  return route.path === path || route.path.startsWith(path + '/');
+}
 </script>
 
 <template>
-  <div class="navbar bg-transparent">
-    <div class="navbar-start w-auto">
-      <div class="dropdown">
-        <label class="swap swap-rotate" @click.stop="">
-          <input v-model="checked" type="checkbox" @click="checked = !checked">
+  <CyberNavBar>
+    <template #actions>
+      <!-- Mobile menu -->
+      <div class="dropdown lg:hidden" :class="{ 'dropdown-open': checked }">
+        <label
+          class="btn btn-ghost btn-sm btn-circle text-tech-muted hover:text-tech"
+          @click.stop="checked = !checked"
+        >
           <svg
-            class="swap-off fill-current"
             xmlns="http://www.w3.org/2000/svg"
-            width="32"
-            height="32"
+            width="20"
+            height="20"
             viewBox="0 0 512 512"
+            fill="currentColor"
           >
             <path d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z" />
-          </svg>
-          <svg
-            class="swap-on fill-current"
-            xmlns="http://www.w3.org/2000/svg"
-            width="32"
-            height="32"
-            viewBox="0 0 512 512"
-          >
-            <polygon
-              points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49"
-            />
           </svg>
         </label>
         <ul
           tabindex="0"
-          :style="{
-            visibility: checked ? 'visible' : undefined,
-            opacity: Number(checked),
-          }"
-          class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-zinc-500"
+          class="menu menu-sm dropdown-content z-50 mt-2 w-40 rounded-xl border shadow-xl backdrop-blur-md"
         >
-          <li v-for="(item, index) in navList" :key="item.path + index">
-            <NuxtLink class="menu-link py-2 px-4 flex" :to="item.path" :title="item.title">
-              <xia-icon :icon="item.icon" />
-              <span>{{ item.title }}</span>
+          <li
+            v-for="(item, index) in NAV_LINKS"
+            :key="item.path + index"
+            class="rounded-lg"
+            :class="{ 'bg-[var(--tech-nav-active-bg)]': isNavActive(item.path) }"
+          >
+            <NuxtLink
+              class="!px-2 !py-1 text-tech-muted hover:text-tech"
+              :class="[
+                { 'text-tech': isNavActive(item.path) },
+                item.highlight && 'font-semibold text-[var(--rpg-amber-light)]',
+              ]"
+              :to="item.path"
+            >
+              <span v-if="item.icon">{{ item.icon }} </span>{{ item.title }}
             </NuxtLink>
           </li>
         </ul>
       </div>
-      <a class="hidden sm:inline-flex btn btn-ghost normal-case text-3xl gradient-text" href="/">Xia</a>
-    </div>
-    <div class="navbar-center hidden md:flex">
-      <ul class="menu menu-horizontal p-0">
-        <li v-for="(item, index) in navList" :key="item.path + index" class="mr-2">
-          <NuxtLink
-            :to="item.path"
-            class="router-link-item leading-6 flex items-center px-4 py-3 rounded-lg"
-            :title="item.title"
-          >
-            <xia-icon class="hidden md:flex" :icon="item.icon" />
-            <span class="hidden xl:flex">{{ item.title }}</span>
-          </NuxtLink>
-        </li>
-      </ul>
-    </div>
 
-    <!-- 右边搜索 -->
-    <div class="navbar-end flex-1 flex items-center">
-      <div class="dropdown relative">
-        <label tabindex="0">
-          <input
-            v-model="searchText"
-            type="text"
-            placeholder="搜索"
-            class="input w-full input-bordered input-ghost input-md"
-            autocomplete="off"
-            @input="onSearchHandle"
-            @keyup.enter="onSearchHandle"
-          >
-        </label>
-        <ul
-          v-if="articleList.length"
-          tabindex="0"
-          class="mt-3 p-2 shadow menu menu-md dropdown-content bg-base-100 rounded-box w-52 max-h-72 text-gray-500 text-xs overflow-auto"
+      <!-- Search toggle -->
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm btn-circle text-tech-muted hover:text-tech"
+        aria-label="搜索"
+        @click.stop="toggleSearch"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
         >
-          <li v-for="item in articleList" class="flex items-center">
-            <NuxtLink class="py-2 px-4" :to="'/detail/' + item.id">{{ item.value }}</NuxtLink>
-          </li>
-        </ul>
-      </div>
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+      </button>
 
-      <xia-icon class="cursor-pointer px-3" :icon="'blog-' + theme" @click="clickIcon" />
+      <xia-icon
+        class="cursor-pointer px-1 text-tech-muted hover:text-tech"
+        :icon="themeToggleIcon"
+        @click="clickIcon"
+      />
       <XiaTheme />
+
       <ClientOnly>
-        <NuxtLink
-          v-if="!token"
-          class="btn btn-ghost inline-flex tracking-wide"
-          to="/login"
-          title="登录"
-        >
+        <RpgNavHud v-if="token" class="mr-1" />
+        <CyberButton v-if="!token" variant="primary" to="/login" class="!px-4 !py-2 text-sm">
           登录
-        </NuxtLink>
+        </CyberButton>
         <div v-else class="dropdown dropdown-end">
           <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-            <div class="w-10 rounded-full text-center leading-loose">
+            <div class="w-9 rounded-full">
               <img :src="userInfo.avatar || Yaya" :alt="userInfo.nickname">
             </div>
           </label>
           <ul
             tabindex="0"
-            class="menu menu-md dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 text-gray-500 text-xs"
+            class="menu menu-sm dropdown-content z-50 mt-2 w-36 rounded-xl border p-2 text-xs shadow-xl backdrop-blur-md"
           >
             <li>
-              <a :href="goUrl" target="_blank" class="leading-5 flex items-center py-2 px-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-                写文章
-              </a>
+              <NuxtLink to="/user/article/edit" class="text-tech-muted hover:text-tech">写文章</NuxtLink>
+            </li>
+            <li>
+              <NuxtLink to="/user/profile" class="text-tech-muted hover:text-tech">个人中心</NuxtLink>
+            </li>
+            <li>
+              <NuxtLink
+                to="/rpg"
+                class="font-semibold text-[var(--rpg-amber-light)] hover:text-[var(--rpg-amber-light)]"
+              >
+                ⚔️ RPG 冒险
+              </NuxtLink>
             </li>
             <li @click="clear">
-              <a class="leading-5 flex items-center py-2 px-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-                退出
-              </a>
+              <a class="text-tech-muted hover:text-tech">退出</a>
             </li>
           </ul>
         </div>
       </ClientOnly>
+    </template>
+  </CyberNavBar>
+
+  <!-- Search overlay -->
+  <div
+    v-if="showSearch"
+    class="fixed inset-x-0 top-16 z-[10020] border-b border-tech bg-tech-header px-4 py-3 backdrop-blur-md"
+    @click.stop
+  >
+    <div class="relative mx-auto max-w-xl">
+      <input
+        v-model="searchText"
+        type="text"
+        placeholder="搜索文章..."
+        class="input input-bordered w-full bg-[var(--tech-dropdown-bg)]"
+        autocomplete="off"
+        @input="onSearchHandle"
+        @keyup.enter="onSearchHandle"
+        @keyup.esc="closeSearch"
+      >
+      <ul
+        v-if="articleList.length"
+        class="menu absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-auto rounded-xl border border-tech bg-[var(--tech-dropdown-bg)] p-2 shadow-xl backdrop-blur-xl"
+      >
+        <li v-for="item in articleList" :key="item.id">
+          <NuxtLink
+            class="text-sm text-tech-muted hover:text-tech"
+            :to="'/detail/' + item.id"
+            @click="closeSearch"
+          >{{ item.value }}</NuxtLink>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
-
-<style lang="less" scoped>
-  .navbar {
-    // color: var(--color-base-100);
-    color: var(--color-neutral-content);
-    .router-link-active {
-      border-radius: var(--rounded-btn, 0.5rem);
-      background: hsl(0 0% 100% / var(--tw-bg-opacity));
-      --tw-bg-opacity: 0.1;
-      .menu-link {
-        // color: var(--color-base-100);
-      }
-    }
-  }
-</style>

@@ -25,7 +25,7 @@ defineProps({
 
 <template>
   <div
-    class="card-wrap border border-base-300 shadow-lg bg-base-100 rounded-lg"
+    class="card-wrap cyber-glass-card !rounded-2xl"
     :class="{ 'flex justify-between relative': vertical }"
     :style="{
       'min-height': minHeight,
@@ -62,7 +62,7 @@ defineProps({
       line-height: 32px;
       font-size: 15px;
       font-weight: 600;
-      // color: var(--text-color);
+      color: var(--tech-fg);
       padding: 0 20px;
     }
     .card-content {
@@ -77,7 +77,7 @@ defineProps({
     & > h4 {
       width: 40px;
       line-height: 1.6;
-      color: #999;
+      color: var(--tech-fg-subtle);
       padding-right: 0;
     }
     .card-content {

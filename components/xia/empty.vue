@@ -19,13 +19,13 @@ defineProps({
     <slot>
       <svg
         t="1659022202918"
-        class="fill-gray-300 dark:fill-gray-500 m-auto"
+        class="m-auto text-tech-faint"
         viewBox="0 0 1024 1024"
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
         p-id="1864"
         xmlns:xlink="http://www.w3.org/1999/xlink"
-        :fill="color"
+        :fill="color || 'currentColor'"
         height="100%"
         width="100%"
       >
@@ -35,9 +35,7 @@ defineProps({
           p-id="1865"
         />
       </svg>
-      <span class="text-sm text-gray-500 dark:text-gray-700 mt-2 inline-block">{{
-        description
-      }}</span>
+      <span class="text-sm text-tech-subtle mt-2 inline-block">{{ description }}</span>
     </slot>
   </div>
 </template>

@@ -1,0 +1,97 @@
+<script setup lang="ts">
+import { SiteTitle } from '@/utils/constant';
+
+useHead({
+  title: '快速入口',
+  titleTemplate: title => `${title} - ${SiteTitle}`,
+});
+
+const entries = [
+  {
+    icon: '📚',
+    title: '文章归档',
+    desc: '按时间浏览 · 全部文章',
+    to: '/archives',
+    color: 'from-blue-500 to-cyan-500',
+  },
+  {
+    icon: '🛠️',
+    title: '工具箱',
+    desc: '加密 · AI · 多媒体',
+    to: '/tool',
+    color: 'from-purple-500 to-pink-500',
+  },
+  {
+    icon: '🖼️',
+    title: '光影边框',
+    desc: '品牌相框 · EXIF 水印',
+    to: '/tool/photos',
+    color: 'from-orange-500 to-red-500',
+  },
+  {
+    icon: '⚔️',
+    title: 'RPG 冒险',
+    desc: '签到升级 · 任务 · 抽奖 · 查看攻略',
+    to: '/rpg',
+    color: 'from-amber-500 to-orange-500',
+  },
+];
+</script>
+
+<template>
+  <CyberPageContainer label="EXPLORE" title="快速入口" subtitle="选择你感兴趣的方向，一键直达">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <NuxtLink v-for="item in entries" :key="item.to" :to="item.to" class="group no-underline">
+        <CyberCard hover class="flex flex-col items-center text-center !p-6">
+          <div
+            :class="[
+              'mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-xl shadow-lg',
+              item.color,
+            ]"
+          >
+            {{ item.icon }}
+          </div>
+          <h3
+            class="mb-2 text-lg font-semibold text-tech group-hover:text-primary transition-colors"
+          >
+            {{ item.title }}
+          </h3>
+          <p class="mb-4 text-sm text-tech-subtle">
+            {{ item.desc }}
+          </p>
+          <span
+            class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-tech bg-tech-header py-2.5 text-sm text-tech-muted transition-all group-hover:border-primary/30 group-hover:bg-primary/10 group-hover:text-primary"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+            进入
+          </span>
+        </CyberCard>
+      </NuxtLink>
+    </div>
+
+    <div class="mt-6 space-y-3">
+      <CyberAlert variant="warning">
+        <p>
+          <strong>新用户提示：</strong>
+          注册登录后可以发表文章、评论互动，在个人中心管理你的内容。
+        </p>
+      </CyberAlert>
+      <CyberAlert variant="info">
+        <p>
+          <strong>冒险玩法：</strong>
+          登录后进入「冒险」页签到、做任务、抽奖开宝箱，阅读评论也能推进任务进度，解锁称号与头像框。
+        </p>
+      </CyberAlert>
+    </div>
+  </CyberPageContainer>
+</template>

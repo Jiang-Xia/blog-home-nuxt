@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
+  <div class="page-container space-y-4">
     <ClientOnly>
       <uniapp />
     </ClientOnly>

@@ -1,511 +1,304 @@
-<template>
-  <NuxtLayout name="main-content">
-    <div class="features-showcase min-h-screen">
-      <!-- 3D粒子背景 -->
-      <div v-if="showParticles" class="fixed inset-0 w-full h-full particles-background">
-        <InParticles3D
-          :particle-count="80"
-          :colors="['#4ea397', '#22c3aa', '#7bd9a5', '#d0648a', '#f58db2']"
-          :interactive="true"
-        />
-      </div>
-
-      <div class="container mx-auto px-4 py-8">
-        <!-- 页面标题 -->
-        <div class="text-center mb-12">
-          <h1
-            class="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
-          >
-            ✨ 博客特色功能展示
-          </h1>
-          <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            探索我们为博客系统精心打造的创新功能，提升您的阅读和创作体验
-          </p>
-        </div>
-
-        <!-- 功能卡片网格 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          <!-- AI文章摘要 -->
-          <div class="feature-card group">
-            <div
-              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
-            >
-              <figure class="px-6 pt-6">
-                <div
-                  class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center"
-                >
-                  <svg
-                    class="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-                </div>
-              </figure>
-              <div class="card-body">
-                <h2 class="card-title text-xl">
-                  AI 文章摘要
-                </h2>
-                <p class="text-gray-600">
-                  使用先进的AI技术，自动为长文章生成精准摘要，支持多种风格和长度选择。
-                </p>
-                <div class="card-actions justify-end mt-4">
-                  <NuxtLink to="/tool/ai-summary" class="btn btn-primary btn-sm">
-                    立即体验
-                  </NuxtLink>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3D粒子背景 -->
-          <div class="feature-card group">
-            <div
-              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
-            >
-              <figure class="px-6 pt-6">
-                <div
-                  class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center"
-                >
-                  <svg
-                    class="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
-                    />
-                  </svg>
-                </div>
-              </figure>
-              <div class="card-body">
-                <h2 class="card-title text-xl">
-                  3D 粒子背景
-                </h2>
-                <p class="text-gray-600">
-                  沉浸式3D粒子动画背景，支持鼠标交互，为您的博客带来科技感体验。
-                </p>
-                <div class="card-actions justify-end mt-4">
-                  <button class="btn btn-primary btn-sm" @click="toggleParticles">
-                    {{ showParticles ? '隐藏' : '显示' }}粒子
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 技术栈雷达图 -->
-          <div class="feature-card group">
-            <div
-              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
-            >
-              <figure class="px-6 pt-6">
-                <div
-                  class="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-2xl flex items-center justify-center"
-                >
-                  <svg
-                    class="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                </div>
-              </figure>
-              <div class="card-body">
-                <h2 class="card-title text-xl">
-                  技术栈雷达图
-                </h2>
-                <p class="text-gray-600">
-                  可视化展示个人技能水平，支持自定义技能和动态动画效果。
-                </p>
-                <div class="card-actions justify-end mt-4">
-                  <button class="btn btn-primary btn-sm" @click="showTechRadar = true">
-                    查看示例
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 阅读进度环 -->
-          <div class="feature-card group">
-            <div
-              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
-            >
-              <figure class="px-6 pt-6">
-                <div
-                  class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center"
-                >
-                  <svg
-                    class="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                    />
-                  </svg>
-                </div>
-              </figure>
-              <div class="card-body">
-                <h2 class="card-title text-xl">
-                  阅读进度环
-                </h2>
-                <p class="text-gray-600">
-                  可视化阅读进度，智能目录导航，让长文阅读更轻松愉悦。
-                </p>
-                <div class="card-actions justify-end mt-4">
-                  <button
-                    class="btn btn-primary btn-sm"
-                    @click="showProgressRing = !showProgressRing"
-                  >
-                    {{ showProgressRing ? '隐藏' : '显示' }}进度环
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 更多功能 -->
-          <div class="feature-card group">
-            <div
-              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
-            >
-              <figure class="px-6 pt-6">
-                <div
-                  class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center"
-                >
-                  <svg
-                    class="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
-                    />
-                  </svg>
-                </div>
-              </figure>
-              <div class="card-body">
-                <h2 class="card-title text-xl">
-                  智能工具集
-                </h2>
-                <p class="text-gray-600">
-                  集成更多实用工具：代码运行器、Markdown增强、数据可视化等。
-                </p>
-                <div class="card-actions justify-end mt-4">
-                  <NuxtLink to="/tool" class="btn btn-primary btn-sm"> 探索工具 </NuxtLink>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 社交功能 -->
-          <div class="feature-card group">
-            <div
-              class="card bg-base-100 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
-            >
-              <figure class="px-6 pt-6">
-                <div
-                  class="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center"
-                >
-                  <svg
-                    class="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                </div>
-              </figure>
-              <div class="card-body">
-                <h2 class="card-title text-xl">
-                  社交网络
-                </h2>
-                <p class="text-gray-600">
-                  访客足迹地图、分享追踪、开发者网络等社交化功能。
-                </p>
-                <div class="card-actions justify-end mt-4">
-                  <button class="btn btn-outline btn-sm" disabled>
-                    即将推出
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 技术特色介绍 -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          <div class="card bg-base-100 backdrop-blur-sm shadow-xl">
-            <div class="card-body">
-              <h2 class="card-title text-2xl mb-4">
-                🚀 技术亮点
-              </h2>
-              <div class="space-y-3">
-                <div class="flex items-start gap-3">
-                  <div class="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                  <div>
-                    <span class="font-semibold">AI 智能化：</span>
-                    <span class="text-gray-600">集成先进AI模型，提供智能摘要、情感分析等功能</span>
-                  </div>
-                </div>
-                <div class="flex items-start gap-3">
-                  <div class="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                  <div>
-                    <span class="font-semibold">3D 可视化：</span>
-                    <span class="text-gray-600">Canvas 3D 渲染，带来沉浸式视觉体验</span>
-                  </div>
-                </div>
-                <div class="flex items-start gap-3">
-                  <div class="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0" />
-                  <div>
-                    <span class="font-semibold">交互创新：</span>
-                    <span class="text-gray-600">鼠标交互、手势控制、语音识别等多模态交互</span>
-                  </div>
-                </div>
-                <div class="flex items-start gap-3">
-                  <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
-                  <div>
-                    <span class="font-semibold">性能优化：</span>
-                    <span class="text-gray-600">WebWorker、虚拟滚动、懒加载等性能优化技术</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card bg-base-100 backdrop-blur-sm shadow-xl">
-            <div class="card-body">
-              <h2 class="card-title text-2xl mb-4">
-                💡 创新功能
-              </h2>
-              <div class="space-y-3">
-                <div class="flex items-start gap-3">
-                  <div class="w-2 h-2 bg-cyan-500 rounded-full mt-2 flex-shrink-0" />
-                  <div>
-                    <span class="font-semibold">智能推荐：</span>
-                    <span class="text-gray-600">基于阅读历史和兴趣的个性化内容推荐</span>
-                  </div>
-                </div>
-                <div class="flex items-start gap-3">
-                  <div class="w-2 h-2 bg-pink-500 rounded-full mt-2 flex-shrink-0" />
-                  <div>
-                    <span class="font-semibold">协作编辑：</span>
-                    <span class="text-gray-600">实时协作、版本控制、评论批注</span>
-                  </div>
-                </div>
-                <div class="flex items-start gap-3">
-                  <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0" />
-                  <div>
-                    <span class="font-semibold">数据洞察：</span>
-                    <span class="text-gray-600">访问分析、用户行为、内容热度可视化</span>
-                  </div>
-                </div>
-                <div class="flex items-start gap-3">
-                  <div class="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
-                  <div>
-                    <span class="font-semibold">跨平台：</span>
-                    <span class="text-gray-600">PWA、移动端适配、离线阅读支持</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 功能路线图 -->
-        <div class="card bg-base-100 backdrop-blur-sm shadow-xl">
-          <div class="card-body">
-            <h2 class="card-title text-2xl mb-6">
-              🗺️ 功能路线图
-            </h2>
-            <div class="timeline">
-              <div class="timeline-item">
-                <div class="timeline-marker bg-green-500" />
-                <div class="timeline-content">
-                  <h3 class="font-semibold text-green-600">
-                    已完成
-                  </h3>
-                  <p class="text-sm text-gray-600">
-                    AI文章摘要、3D粒子背景、技术栈雷达图、阅读进度环
-                  </p>
-                </div>
-              </div>
-              <div class="timeline-item">
-                <div class="timeline-marker bg-blue-500" />
-                <div class="timeline-content">
-                  <h3 class="font-semibold text-blue-600">
-                    开发中
-                  </h3>
-                  <p class="text-sm text-gray-600">
-                    智能标签推荐、语音播报、代码运行器、协作编辑
-                  </p>
-                </div>
-              </div>
-              <div class="timeline-item">
-                <div class="timeline-marker bg-gray-400" />
-                <div class="timeline-content">
-                  <h3 class="font-semibold text-gray-600">
-                    计划中
-                  </h3>
-                  <p class="text-sm text-gray-600">
-                    社交网络、数据大屏、移动端优化、国际化支持
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 技术栈雷达图模态框 -->
-      <div
-        v-if="showTechRadar"
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-        @click="showTechRadar = false"
-      >
-        <div class="bg-white rounded-xl p-6 max-w-4xl max-h-[90vh] overflow-y-auto" @click.stop>
-          <TechRadar />
-          <div class="mt-4 text-center">
-            <button class="btn btn-primary" @click="showTechRadar = false">
-              关闭
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 阅读进度环 -->
-      <ReadingProgressRing v-if="showProgressRing" :auto-hide="false" style="top: 70px" />
-    </div>
-  </NuxtLayout>
-</template>
-
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { SiteTitle, TOOL_LINKS } from '@/utils/constant';
 
-definePageMeta({
-  title: '特色功能展示',
-  description: '探索博客系统的创新功能和技术亮点',
+useHead({
+  title: '特性',
+  titleTemplate: title => `${title} - ${SiteTitle}`,
 });
 
-const showParticles = ref(true);
-const showTechRadar = ref(false);
-const showProgressRing = ref(true);
+interface FeatureModule {
+  icon: string;
+  title: string;
+  desc: string;
+  tags: string[];
+  to?: string;
+  color: string;
+  span?: string;
+  highlight?: boolean;
+}
 
-const toggleParticles = () => {
-  showParticles.value = !showParticles.value;
-  console.log('粒子效果状态:', showParticles.value);
+const coreModules: FeatureModule[] = [
+  {
+    icon: '📝',
+    title: '文章系统',
+    desc: 'Markdown 编辑与预览、分类标签、全文检索、按时间归档，支持用户前台创作与管理。',
+    tags: ['Markdown', '归档', '标签'],
+    to: '/archives',
+    color: 'from-blue-500 to-cyan-500',
+    span: 'md:col-span-6',
+  },
+  {
+    icon: '💬',
+    title: '评论与互动',
+    desc: '文章评论与回复、收藏点赞（需登录），互动数据驱动 RPG 经验与文章成长。',
+    tags: ['评论', '收藏', '点赞'],
+    to: '/',
+    color: 'from-violet-500 to-purple-500',
+    span: 'md:col-span-6',
+  },
+  {
+    icon: '👤',
+    title: '用户中心',
+    desc: '个人资料编辑、前台文章创作、公开主页展示 RPG 状态与互动记录。',
+    tags: ['注册登录', '个人主页', '发文'],
+    to: '/user/profile',
+    color: 'from-emerald-500 to-teal-500',
+    span: 'md:col-span-4',
+  },
+  {
+    icon: '🔗',
+    title: '友链与留言',
+    desc: '友情链接申请与展示、树形留言板，支持回复与 RPG 经验联动。',
+    tags: ['友链', '留言板'],
+    to: '/msgboard',
+    color: 'from-pink-500 to-rose-500',
+    span: 'md:col-span-4',
+  },
+  {
+    icon: '📊',
+    title: '项目展示',
+    desc: '嵌入 Blog Admin、Zone 等多端演示，扫码体验 App / H5 / 小程序。',
+    tags: ['Demo', '多端'],
+    to: '/projects',
+    color: 'from-slate-500 to-zinc-500',
+    span: 'md:col-span-4',
+  },
+];
+
+const rpgModule: FeatureModule = {
+  icon: '⚔️',
+  title: 'RPG 冒险体系',
+  desc: '签到升级、成就任务、背包装扮、抽奖 Buff、钻石经济、公会赛季与排行榜——博客即冒险世界。',
+  tags: ['签到', '任务', '抽奖', '钻石', '公会', '排行榜'],
+  to: '/rpg',
+  color: 'from-amber-500 to-orange-500',
+  span: 'md:col-span-12',
+  highlight: true,
 };
 
-onMounted(() => {
-  // 确保粒子效果在页面加载后显示
-  nextTick(() => {
-    showParticles.value = true;
-    console.log('页面加载完成，启用粒子效果');
-  });
-});
-useHead({
-  title: '特色功能展示 - Blog Home',
-  meta: [
-    {
-      name: 'description',
-      content:
-          '探索我们为博客系统精心打造的创新功能，包括AI文章摘要、3D粒子背景、技术栈雷达图等特色功能。',
-    },
-  ],
-});
+const experienceModules: FeatureModule[] = [
+  {
+    icon: '🤖',
+    title: 'AI 文章摘要',
+    desc: '多风格、多长度 AI 摘要生成，支持历史记录与 Markdown 导出。',
+    tags: ['AI', 'DeepSeek'],
+    to: '/tool/ai-summary',
+    color: 'from-cyan-500 to-blue-500',
+    span: 'md:col-span-6',
+  },
+  {
+    icon: '🎨',
+    title: '多主题切换',
+    desc: '内置 30+ 种 DaisyUI 主题，导航栏一键切换，浅色 / 深色 / 赛博风随心选。',
+    tags: ['DaisyUI', '个性化'],
+    to: '/',
+    color: 'from-indigo-500 to-violet-500',
+    span: 'md:col-span-6',
+  },
+  {
+    icon: '📖',
+    title: '阅读进度环',
+    desc: '文章页可视化阅读进度、目录跳转与剩余时间估算。',
+    tags: ['阅读体验'],
+    to: '/archives',
+    color: 'from-green-500 to-emerald-500',
+    span: 'md:col-span-6',
+  },
+  {
+    icon: '📡',
+    title: '实时推送',
+    desc: 'Socket.IO /rpg 命名空间，升级、成就、禁言等事件即时通知。',
+    tags: ['WebSocket'],
+    to: '/rpg',
+    color: 'from-red-500 to-orange-500',
+    span: 'md:col-span-6',
+  },
+];
+
+const toolCount = TOOL_LINKS.length;
 </script>
 
-<style scoped>
-  .feature-card {
-    transition: transform 0.3s ease;
-  }
+<template>
+  <CyberPageContainer
+    label="FEATURES"
+    title="博客系统特性"
+    subtitle="内容创作、RPG 游戏化、实用工具与交互体验，一站俱全"
+  >
+    <!-- RPG 核心亮点 -->
+    <CyberCard hover class="group relative mb-6 overflow-hidden !p-6 md:!p-8">
+      <div
+        class="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br opacity-20 blur-2xl"
+        :class="rpgModule.color"
+      />
+      <div class="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div class="flex-1">
+          <div class="mb-3 flex items-center gap-3">
+            <div
+              :class="[
+                'flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-2xl shadow-lg',
+                rpgModule.color,
+              ]"
+            >
+              {{ rpgModule.icon }}
+            </div>
+            <div>
+              <span class="cyber-feature-tag mb-1">核心玩法</span>
+              <h3 class="text-2xl font-bold text-tech md:text-3xl">
+                <span class="cyber-gradient-text">{{ rpgModule.title }}</span>
+              </h3>
+            </div>
+          </div>
+          <p class="mb-4 max-w-2xl text-sm leading-relaxed text-tech-muted md:text-base">
+            {{ rpgModule.desc }}
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <span v-for="tag in rpgModule.tags" :key="tag" class="cyber-feature-tag">{{
+              tag
+            }}</span>
+          </div>
+        </div>
+        <div class="flex shrink-0 flex-col gap-2 sm:flex-row md:flex-col">
+          <NuxtLink to="/rpg" class="no-underline">
+            <CyberButton variant="primary">进入冒险中心</CyberButton>
+          </NuxtLink>
+          <NuxtLink to="/features/rpg-guide" class="no-underline">
+            <CyberButton variant="secondary" class="w-full"> 查看完整攻略 </CyberButton>
+          </NuxtLink>
+        </div>
+      </div>
+    </CyberCard>
 
-  .timeline {
-    position: relative;
-    padding-left: 2rem;
-  }
+    <!-- 博客核心 -->
+    <CyberSectionHeader
+      class="mb-4"
+      align="left"
+      label="CORE"
+      title="博客核心"
+      subtitle="内容创作与社区互动的基础能力"
+    />
+    <div class="mb-10 grid grid-cols-1 gap-4 md:grid-cols-12">
+      <NuxtLink
+        v-for="item in coreModules"
+        :key="item.title"
+        :to="item.to || '/'"
+        :class="['group no-underline', item.span]"
+      >
+        <CyberCard hover class="flex h-full flex-col !p-5">
+          <div
+            :class="[
+              'mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-lg',
+              item.color,
+            ]"
+          >
+            {{ item.icon }}
+          </div>
+          <h3
+            class="mb-2 text-lg font-semibold text-tech group-hover:text-primary transition-colors"
+          >
+            {{ item.title }}
+          </h3>
+          <p class="mb-3 flex-1 text-sm leading-relaxed text-tech-muted">
+            {{ item.desc }}
+          </p>
+          <div class="flex flex-wrap gap-1.5">
+            <span v-for="tag in item.tags" :key="tag" class="cyber-feature-tag">{{ tag }}</span>
+          </div>
+        </CyberCard>
+      </NuxtLink>
+    </div>
 
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 0.75rem;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #e5e7eb;
-  }
+    <!-- 交互体验 -->
+    <CyberSectionHeader
+      class="mb-4"
+      align="left"
+      label="EXPERIENCE"
+      title="交互体验"
+      subtitle="AI、视觉特效与实时通信增强使用感受"
+    />
+    <div class="mb-10 grid grid-cols-1 gap-4 md:grid-cols-12">
+      <NuxtLink
+        v-for="item in experienceModules"
+        :key="item.title"
+        :to="item.to || '/'"
+        :class="['group no-underline', item.span]"
+      >
+        <CyberCard hover class="flex h-full flex-col !p-5">
+          <div
+            :class="[
+              'mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-lg',
+              item.color,
+            ]"
+          >
+            {{ item.icon }}
+          </div>
+          <h3 class="mb-2 font-semibold text-tech group-hover:text-primary transition-colors">
+            {{ item.title }}
+          </h3>
+          <p class="mb-3 flex-1 text-sm text-tech-muted">{{ item.desc }}</p>
+          <div class="flex flex-wrap gap-1.5">
+            <span v-for="tag in item.tags" :key="tag" class="cyber-feature-tag">{{ tag }}</span>
+          </div>
+        </CyberCard>
+      </NuxtLink>
+    </div>
 
-  .timeline-item {
-    position: relative;
-    padding-bottom: 2rem;
-  }
+    <!-- 工具箱 -->
+    <CyberSectionHeader
+      class="mb-4"
+      align="left"
+      label="TOOLBOX"
+      :title="`实用工具箱 · ${toolCount} 款工具`"
+      subtitle="加密、AI、多媒体、开发调试，Web 端开箱即用"
+    />
+    <CyberCard class="mb-10 !p-4 md:!p-6">
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <NuxtLink
+          v-for="tool in TOOL_LINKS"
+          :key="tool.path"
+          :to="tool.path"
+          class="group flex items-center gap-2 rounded-xl border border-tech bg-tech-header px-3 py-2.5 text-sm text-tech-muted no-underline transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+        >
+          <xia-icon :icon="tool.icon" class="shrink-0 opacity-70 group-hover:opacity-100" />
+          <span class="truncate">{{ tool.title }}</span>
+        </NuxtLink>
+      </div>
+      <div class="mt-4 text-center">
+        <NuxtLink to="/tool" class="no-underline">
+          <CyberButton variant="secondary">进入工具箱</CyberButton>
+        </NuxtLink>
+      </div>
+    </CyberCard>
 
-  .timeline-marker {
-    position: absolute;
-    left: -2.25rem;
-    top: 0.5rem;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-    border: 3px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .timeline-content {
-    padding-left: 1rem;
-  }
-
-  /* 粒子背景样式 */
-  .particles-background {
-    pointer-events: none;
-  }
-
-  .particles-background .particle-3d-container {
-    width: 100vw;
-    height: 100vh;
-  }
-
-  .particles-background .particle-canvas {
-    pointer-events: auto;
-  }
-
-  /* 毛玻璃效果增强 */
-  .backdrop-blur-sm {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
-</style>
+    <!-- 快速开始 -->
+    <CyberSectionHeader
+      class="mb-4"
+      align="left"
+      label="GET STARTED"
+      title="三步开始"
+      subtitle="注册登录后即可畅享全部特性"
+    />
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <CyberCard
+        v-for="(step, i) in [
+          { title: '浏览与阅读', desc: '首页发现文章，归档按时间浏览，详情页收藏点赞。' },
+          { title: '注册参与 RPG', desc: '登录后进入冒险中心签到、做任务，解锁装扮与成就。' },
+          { title: '创作与工具', desc: '个人中心发文，工具箱使用 AI 摘要、加密等效率工具。' },
+        ]"
+        :key="step.title"
+        class="!p-6 text-center"
+      >
+        <div
+          class="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-lg font-bold text-primary"
+        >
+          {{ i + 1 }}
+        </div>
+        <h4 class="mb-2 font-semibold text-tech">
+          {{ step.title }}
+        </h4>
+        <p class="text-sm text-tech-subtle">
+          {{ step.desc }}
+        </p>
+      </CyberCard>
+    </div>
+  </CyberPageContainer>
+</template>

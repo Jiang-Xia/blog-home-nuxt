@@ -1,52 +1,39 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100 flex flex-wrap justify-around">
-    <div class="mt-4 card w-96 bg-base-100 shadow-xl border border-base-300">
-      <div class="card-body">
-        <h2 class="card-title">
-          条形码
-        </h2>
-        <div class="card-actions">
-          <div class="join w-full">
-            <input
-              v-model="barcodeVal"
-              class="input w-full input-bordered join-item"
-              placeholder="text"
-            >
-            <button class="btn join-item" @click="createBarcode(1)">
-              测试
-            </button>
-            <button class="btn join-item" @click="createBarcode()">
-              生成
-            </button>
-          </div>
-        </div>
+  <div class="flex flex-wrap justify-around gap-4">
+    <CyberToolCard title="条形码" width-class="w-full max-w-sm">
+      <div class="join w-full">
+        <input
+          v-model="barcodeVal"
+          class="input join-item w-full input-bordered login-input"
+          placeholder="text"
+        >
+        <button class="btn join-item" @click="createBarcode(1)">
+          测试
+        </button>
+        <button class="btn join-item btn-primary" @click="createBarcode()">
+          生成
+        </button>
       </div>
-      <figure class="h-44">
+      <figure class="mt-4 flex h-44 items-center justify-center rounded-xl bg-tech-header">
         <canvas id="barcode" />
       </figure>
-    </div>
-    <div class="mt-4 card w-96 bg-base-100 shadow-xl border border-base-300">
-      <div class="card-body">
-        <h2 class="card-title">
-          二维码
-        </h2>
-        <div class="card-actions">
-          <div class="join w-full">
-            <input
-              v-model="qrcodeVal"
-              class="input w-full input-bordered join-item"
-              placeholder="text"
-            >
-            <button class="btn join-item" @click="createQRCode">
-              生成
-            </button>
-          </div>
-        </div>
+    </CyberToolCard>
+
+    <CyberToolCard title="二维码" width-class="w-full max-w-sm">
+      <div class="join w-full">
+        <input
+          v-model="qrcodeVal"
+          class="input join-item w-full input-bordered login-input"
+          placeholder="text"
+        >
+        <button class="btn join-item btn-primary" @click="createQRCode">
+          生成
+        </button>
       </div>
-      <figure class="h-44">
+      <figure class="mt-4 flex h-44 items-center justify-center rounded-xl bg-tech-header">
         <div ref="vueQrcode" />
       </figure>
-    </div>
+    </CyberToolCard>
   </div>
 </template>
 
@@ -56,7 +43,7 @@ import { originUrl } from '~/config';
 import { loadBarcodeScripts } from '~/utils/script-loader';
 
 definePageMeta({
-  keepalive: true, // nuxt 默认缓存所有页面
+  keepalive: true,
 });
 onBeforeUnmount(() => {});
 const getCode = () => 'NO ' + Math.floor(Math.random() * 100000000000).toString();
@@ -68,7 +55,6 @@ const createBarcode = (random?: any) => {
   if (random) {
     barcodeVal.value = getCode();
   }
-  /* 路由默认为缓存的 需要在onActivated才能获取到dom */
   JsBarcode('#barcode', '1234', {
     text: barcodeVal.value,
     format: 'pharmacode',
@@ -79,14 +65,12 @@ const createBarcode = (random?: any) => {
   });
 };
 const createQRCode = () => {
-  qrcode.clear(); // clear the code.
+  qrcode.clear();
   qrcode.makeCode(qrcodeVal.value);
 };
 
 onMounted(async () => {
-  // 按需加载条码生成脚本
   await loadBarcodeScripts();
-
   createBarcode();
   qrcode = new QRCode(vueQrcode.value, {
     text: qrcodeVal.value,

@@ -1,11 +1,15 @@
 ---
-description: sitemap 静态抓取模块风格（按约定直取）
+description: sitemap 模块代码风格（按约定直取）
 globs: modules/**/*.ts
 alwaysApply: false
 ---
 
-# sitemap 代码约定
+# sitemap 模块约定
 
-- 文章列表/详情列表等接口按项目约定直接使用 `res.data.list`，再 `map` 出 `v.id` 生成 `/detail/${id}`，不要写 `pickList/pickArticleId` 之类兼容分支。
-- 取消深层可选链与数组/对象的多重判空（如 `payload?.data?.list`、`Array.isArray(...)?...:...`、`filter(Boolean)`），除非明确无法命中接口约定。
-- 保持代码轻量：避免大对象拼装、避免多余中间函数；优先用直观的 `map/concat`。
+参考 `modules/sitemap.ts`：
+
+- 文章 ID 直取 `res.data.list`，再 `map(v => v.id)` 生成 `/detail/${id}`
+- 不写 `pickList` / `pickArticleId` 等兼容分支
+- 避免深层可选链与多重判空（`payload?.data?.list`、`Array.isArray ? ... : []`），除非接口确实不稳定
+- 保持轻量：直观 `map/concat`，避免大对象拼装与多余中间函数
+- 仅在 `NODE_ENV !== 'development'` 时生成 XML

@@ -44,8 +44,8 @@ export default defineNuxtConfig({
     },
     pageTransition: {
       name: 'scale',
-      appear: true,
       mode: 'out-in',
+      appear: true,
     },
   },
   css: ['~/assets/css/main.css'],
@@ -60,6 +60,10 @@ export default defineNuxtConfig({
   build: {
     // 打包配置
     transpile: ['md-editor-v3'], // 预编译大型依赖
+  },
+  routeRules: {
+    '/tool': { redirect: '/tool/sm' },
+    '/photos': { redirect: '/tool/photos' },
   },
   devServer: {
     // 证书安装 https://zhuanlan.zhihu.com/p/678165318

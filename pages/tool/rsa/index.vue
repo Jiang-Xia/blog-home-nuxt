@@ -1,25 +1,16 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
-    <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
-        <div class="card-body">
-          <h2 class="card-title">
-            私钥(Private Key)
-          </h2>
-          <textarea
-            v-model="privateKey"
-            placeholder="Private Key"
-            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
-          />
-        </div>
-      </div>
+  <div class="space-y-4">
+    <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
+      <CyberToolCard title="私钥 (Private Key)" width-class="w-full sm:flex-1">
+        <textarea
+          v-model="privateKey"
+          placeholder="Private Key"
+          class="textarea textarea-bordered login-input min-h-44 w-full"
+        />
+      </CyberToolCard>
 
-      <div class="join join-vertical w-36 m-2">
-        <select
-          v-model="keySize"
-          placeholder="密文输出类型"
-          class="select select-accent select-bordered w-full max-w-xs join-item"
-        >
+      <div class="flex w-full flex-col gap-2 sm:w-36 sm:shrink-0">
+        <select v-model="keySize" class="select select-bordered login-input w-full">
           <option value="512">
             512 bit
           </option>
@@ -33,44 +24,31 @@
             4096 bit
           </option>
         </select>
-        <button class="btn btn-outline btn-accent join-item" @click="createKey">
+        <CyberButton variant="primary" class="w-full" @click="createKey">
           <xia-icon icon="blog-quanxian" /> 生成秘钥
-        </button>
+        </CyberButton>
       </div>
 
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
-        <div class="card-body">
-          <h2 class="card-title">
-            公钥(Public Key)
-          </h2>
-          <textarea
-            v-model="publicKey"
-            placeholder="Public Key"
-            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
-          />
-        </div>
-      </div>
+      <CyberToolCard title="公钥 (Public Key)" width-class="w-full sm:flex-1">
+        <textarea
+          v-model="publicKey"
+          placeholder="Public Key"
+          class="textarea textarea-bordered login-input min-h-44 w-full"
+        />
+      </CyberToolCard>
     </div>
 
-    <div class="flex justify-between items-center flex-col sm:flex-row">
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
-        <div class="card-body">
-          <h2 class="card-title">
-            原文
-          </h2>
-          <textarea
-            v-model="plaintext"
-            placeholder="原文"
-            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
-          />
-        </div>
-      </div>
-      <div class="join join-vertical w-36 m-2">
-        <select
-          v-model="outputType"
-          placeholder="密文输出类型"
-          class="select select-info select-bordered w-full max-w-xs join-item"
-        >
+    <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
+      <CyberToolCard title="原文" width-class="w-full sm:flex-1">
+        <textarea
+          v-model="plaintext"
+          placeholder="原文"
+          class="textarea textarea-bordered login-input min-h-44 w-full"
+        />
+      </CyberToolCard>
+
+      <div class="flex w-full flex-col gap-2 sm:w-36 sm:shrink-0">
+        <select v-model="outputType" class="select select-bordered login-input w-full">
           <option value="Hex">
             Hex
           </option>
@@ -78,32 +56,25 @@
             Base64
           </option>
         </select>
-        <button class="btn btn-outline btn-info join-item" @click="encrypted">
+        <CyberButton variant="secondary" class="w-full" @click="encrypted">
           <xia-icon icon="blog-suoding" /> 加密原文
-        </button>
-        <button class="btn btn-outline btn-info join-item" @click="decrypt">
+        </CyberButton>
+        <CyberButton variant="secondary" class="w-full" @click="decrypt">
           <xia-icon icon="blog-jiesuo" /> 解密密文
-        </button>
+        </CyberButton>
       </div>
-      <div class="mt-4 card w-full sm:w-2/5 bg-base-100 shadow-xl border border-base-300">
-        <div class="card-body">
-          <h2 class="card-title">
-            密文
-          </h2>
-          <textarea
-            v-model="ciphertext"
-            placeholder="密文"
-            class="min-h-44 textarea textarea-bordered textarea-xs w-full"
-          />
-        </div>
-      </div>
+
+      <CyberToolCard title="密文" width-class="w-full sm:flex-1">
+        <textarea
+          v-model="ciphertext"
+          placeholder="密文"
+          class="textarea textarea-bordered login-input min-h-44 w-full"
+        />
+      </CyberToolCard>
     </div>
 
-    <div class="mt-4 card w-full bg-base-100 shadow-xl border border-base-300">
-      <div class="card-body">
-        <h2 class="card-title">
-          RSA算法介绍
-        </h2>
+    <CyberToolCard title="RSA 算法介绍">
+      <div class="space-y-3 text-sm leading-relaxed text-tech-muted">
         <p>
           RSA是一种公钥密码算法，它的名字由三位开发者，即Ron Rivest、Adi Shamir和Leonard
           Adleman的姓氏的首字母组成的。
@@ -115,7 +86,7 @@
           非对称加密算法实现机密信息的交换过程为：甲方生成一对密钥并将其中一个作为公钥向其他方公开；得到该公钥的乙方使用该密钥对机密信息进行加密后发送给甲方；甲方再用自己的另一个专用密钥对加密后的信息进行解密。
         </p>
       </div>
-    </div>
+    </CyberToolCard>
   </div>
 </template>
 
@@ -125,7 +96,7 @@ import { messageDanger } from '~~/utils/toast';
 import { loadRsaScript } from '~/utils/script-loader';
 
 definePageMeta({
-  keepalive: true, // nuxt 默认缓存所有页面
+  keepalive: true,
 });
 const keySize = ref('1024');
 const outputType = ref('Hex');
@@ -157,11 +128,16 @@ const decrypt = () => {
   }
 };
 
-onMounted(async () => {
-  // 按需加载 RSA 加密脚本
-  await loadRsaScript();
+const transitionDone = waitForPageTransition();
 
-  createKey();
-  // console.log(crypto.rsaEncrypt)
+onMounted(async () => {
+  try {
+    await loadRsaScript();
+    await transitionDone;
+    createKey();
+  }
+  catch {
+    messageDanger('RSA 脚本加载失败');
+  }
 });
 </script>

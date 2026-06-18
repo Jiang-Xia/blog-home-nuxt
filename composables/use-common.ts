@@ -1,4 +1,5 @@
 import { useState } from '#app';
+import api from '@/api';
 
 export const defaultInfo: userInfoState = {
   nickname: '',
@@ -9,17 +10,36 @@ export const defaultInfo: userInfoState = {
   role: '',
 };
 
-let userInfo = reactive<userInfoState>({ ...defaultInfo });
+const userInfo = reactive<userInfoState>({ ...defaultInfo });
 const token = ref('');
 
-// useState 的第一参数为 key，第二参数为初始化的工厂函数
 export const useUserInfo = () => useState('userInfo', () => userInfo);
 export const useToken = () => useState('token', () => token);
 
-const clearUserInfo = () => {
-  userInfo = { ...defaultInfo };
+export const clearUserInfo = () => {
+  Object.assign(userInfo, defaultInfo);
 };
-export const useClearUserInfo = () => useState('userInfo', () => clearUserInfo);
+
+export const useClearUserInfo = () => clearUserInfo;
+
+/** 根据当前 token 拉取并写入用户信息；无 token 时清空 */
+export const refreshUserInfo = async () => {
+  const info = useUserInfo();
+  const tok = useToken();
+  if (!tok.value) {
+    clearUserInfo();
+    return null;
+  }
+  try {
+    const res = await api.getUserInfo();
+    Object.assign(info.value, res);
+    return res;
+  }
+  catch {
+    clearUserInfo();
+    return null;
+  }
+};
 
 export default function () {
   return useState('userCommon', () => {

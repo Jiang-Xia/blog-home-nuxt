@@ -4,12 +4,35 @@ globs: api/**/*.ts
 alwaysApply: false
 ---
 
-# Home API Request Contract
+# API 请求契约
 
-- 统一从 `api/request.ts` 暴露 `get/post/put/del`，业务层默认消费 `res.data`。
-- 响应解析以 `{ code, data, message }` 为准，禁止在业务页面自定义二次协议。
-- token 注入规则统一为 `Authorization: Bearer <token>`，刷新逻辑集中在请求层。
-- 401 处理必须走无感刷新或退出流程，不能静默吞错导致页面卡死。
-- 网络错误提示使用用户可理解文案，不直接暴露内部异常对象。
-- 防重复请求机制（requestMap）默认保留，除非有明确幂等策略再放开。
-- 开启加密时保持 `encryptMsg/decryptMsg` 对称，且只对约定接口生效。
+## 入口
+
+- 统一从 `api/request.ts` 暴露 `get` / `post` / `put` / `del` / `http`
+- 业务模块（`article.ts`、`rpg.ts` 等）只封装 URL 与参数，不重复处理 token
+- 聚合导出维护在 `api/index.ts`
+
+## 响应协议
+
+```typescript
+// 后端标准：{ code, data, message }
+// request 层已解包，业务层直接拿 data
+const data = await request.get('/article/info', { id });
+```
+
+- 禁止在页面/组件层自定义二次协议解析
+- 类型参考 `api/ApiResponse.ts`
+
+## Token 与 401
+
+- Header：`Authorization: Bearer <token>`
+- Cookie 读写集中在 `utils/cookie.ts`（`TokenKey` / `RefreshTokenKey`）
+- 401 走无感 refresh + 请求队列（`queue`），禁止静默吞错
+- WebSocket 鉴权同样用 Bearer，见 `use-rpg-socket.ts`
+
+## 其他机制
+
+- 防重复请求：`requestMap` 默认开启；`/rpg/` 在白名单
+- 加密：`VITE_NUXT_OPEN_ENCRYPT=true` 时对称 `aesEncrypt/aesDecrypt`，仅对约定路径
+- 错误提示用 `messageDanger`，文案走 `getErrorMessage`，不暴露原始异常
+- 可选工具：`awaitWrap(promise)` 返回 `[err, data]` 元组

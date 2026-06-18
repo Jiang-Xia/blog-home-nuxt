@@ -4,11 +4,41 @@ globs: **/*.vue
 alwaysApply: false
 ---
 
-# Vue TS Style Rules
+# Vue + TS 风格
 
-- 优先使用 `<script setup lang="ts">` 与 Composition API，减少 Options API 混用。
-- 组件 props、emit、关键状态尽量声明类型，避免传播 `any`。
-- 模板中复杂表达式应下沉到计算属性或方法，保持模板可读性。
-- 遵循项目格式化约定：2 空格、分号、单引号、100 列宽、严格 HTML 空白策略。
-- 组件命名与目录命名保持一致语义，避免缩写与业务含义不清的文件名。
-- SSR 页面中的副作用逻辑需显式控制时机，避免 hydration 不一致。
+## Script
+
+- 统一 `<script setup lang="ts">` + Composition API
+- 页面必备：`useHead({ title: '...' })`；一般无需 `definePageMeta({ layout })`
+- SSR 数据用 `useAsyncData` / `await useAsyncData(...)`，key 保持唯一语义
+- 复杂模板逻辑下沉到 `computed` 或具名函数
+
+## 格式化（ESLint + Prettier）
+
+2 空格 · 分号 · 单引号 · 100 列 · `htmlWhitespaceSensitivity: strict` · `vueIndentScriptAndStyle: true`
+
+## 页面模式示例
+
+```vue
+<script setup lang="ts">
+/**
+ * 模块说明（保留文件头注释）
+ */
+useHead({ title: '页面标题' });
+
+const route = useRoute();
+const userInfo = useUserInfo();
+// 业务逻辑 ...
+</script>
+```
+
+## SSR / Hydration
+
+- DOM 副作用放 `onMounted` 或 `import.meta.client` 分支
+- 主题切换等客户端逻辑参考 `useThemeActions`（含 `localStorage` 读写）
+- Tab 路由同步用 `watch(() => route.query.tab, ...)` + `router.replace`
+
+## 组件引用
+
+- 全局注册：`xia-*`（自定义）、`U*`（Nuxt UI）、`In*`（Inspira）
+- 局部引入：`import { getMyArticleList } from '@/api/article'`

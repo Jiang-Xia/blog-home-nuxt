@@ -7,14 +7,8 @@ import { SiteTitle } from '@/utils/constant';
 const { data: articleData } = await useAsyncData('about_GetInfo', () =>
   getArticleInfo({ id: 44 }),
 );
-const theme = useTheme();
+const mdEditorTheme = useMdEditorTheme();
 const content = articleData.value.info.content;
-const images = [
-  {
-    url: articleData.value.info.cover,
-    title: '关于',
-  },
-];
 const mdKey = ref(new Date().getTime());
 onMounted(() => {
   mdKey.value = new Date().getTime();
@@ -26,27 +20,19 @@ useHead({
 </script>
 
 <template>
-  <NuxtLayout
-    name="main-content"
-    :images="images"
-  >
-    <div class="about-container">
-      <h1 class="hidden">
-        关于我 - {{ SiteTitle }}
-      </h1>
+  <CyberPageContainer label="ABOUT" title="关于我" subtitle="个人简介与站点说明">
+    <h1 class="hidden">
+      关于我 - {{ SiteTitle }}
+    </h1>
+    <CyberCard class="!p-2 md:!p-4">
       <MdPreview
         :key="mdKey"
         v-model="content"
-        class="x-md-editor bg-transparent p-4 rounded-box shadow-xl"
+        class="x-md-editor bg-transparent rounded-box"
         preview-theme="mk-cute"
         preview-only
-        :theme="theme"
+        :theme="mdEditorTheme"
       />
-    </div>
-  </NuxtLayout>
+    </CyberCard>
+  </CyberPageContainer>
 </template>
-
-<style lang="less" scoped>
-  .about-container {
-  }
-</style>

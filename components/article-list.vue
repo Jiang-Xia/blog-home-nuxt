@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { getArticleList, getComment } from '@/api/article';
 import { beforeTimeNow } from '@/utils';
 import { getWeather } from '@/api/index';
@@ -12,6 +12,8 @@ import {
   xBLogStore,
 } from '@/utils/common';
 import { colorRgb } from '~~/utils/color';
+import { isDarkTheme, useTheme } from '@/composables/use-home';
+import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels';
 
 interface queryState {
   page: number;
@@ -160,6 +162,12 @@ const toRgb = (color: string, alpha = 0.24) => {
   return color;
 };
 
+const tagFilterStyle = (item: any) => ({
+  borderColor: item.color,
+  color: item.checked ? 'var(--color-primary-content)' : item.color,
+  backgroundColor: item.checked ? item.color : toRgb(item.color),
+});
+
 // 客户端执行
 // 本地点赞记录
 const localLikes = computed<number[]>(() => xBLogStore.value.likes);
@@ -176,7 +184,9 @@ const categoryMouseleave = (e: any) => {
 const weatherData = ref<any>({});
 const userInfo = useUserInfo();
 const weatherUrl
-  = 'https://api.vvhan.com/api/ipCard?tip=Hello ' + (userInfo.value.nickname || '亲爱的路人！');
+  = 'https://jiang-xia.top/x-api/blog-server/static/uploads/2026-06/7647b28bf00d49c5915d27aa1cafa9ef.webp';
+
+// 'https://api.vvhan.com/api/ipCard?tip=Hello ' + (userInfo.value.nickname || '亲爱的路人！');
 
 onMounted(
   /* async */ () => {
@@ -188,6 +198,7 @@ onMounted(
   },
 );
 const theme = useTheme();
+const isDark = computed(() => isDarkTheme(theme.value));
 
 // 最新评论
 const commentsList = ref<any>([]);
@@ -195,6 +206,15 @@ const { data: commentsData } = await useAsyncData('articleList_GetComment', () =
   getComment('', { pageSize: 16 }),
 );
 commentsList.value = commentsData.value.list;
+
+const { getAuthorLevel, fetchLevelsForUids } = useAuthorRpgLevels();
+
+const syncAuthorLevels = (list: any[]) => {
+  fetchLevelsForUids(list.map((item: any) => item.uid).filter(Boolean));
+};
+
+syncAuthorLevels(articleList.value);
+watch(articleList, syncAuthorLevels);
 </script>
 
 <template>
@@ -219,7 +239,7 @@ commentsList.value = commentsData.value.list;
             </button>
             <ul
               id="popover-1"
-              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box bg-base-100 shadow-sm"
+              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box border border-tech bg-[var(--tech-dropdown-bg)] shadow-sm text-tech"
               popover
               style="position-anchor: --anchor-1"
             >
@@ -265,23 +285,21 @@ commentsList.value = commentsData.value.list;
             </button>
             <ul
               id="popover-2"
-              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box bg-base-100 shadow-sm"
+              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box border border-tech bg-[var(--tech-dropdown-bg)] shadow-sm text-tech"
               popover
               style="position-anchor: --anchor-2"
             >
-              <div
-                v-for="item of tagsOptions"
-                :key="item.id"
-                class="custom-tag"
-                :class="item.checked ? 'active' : ''"
-                size="small"
-                :style="{
-                  backgroundColor: item.checked ? item.color : toRgb(item.color),
-                  color: item.checked ? '#fff' : item.color,
-                }"
-                @click="clickTagHandle(item, '标签')"
-              >
-                <span>{{ item['label'] }} ({{ item['articleCount'] }})</span>
+              <div class="flex flex-wrap gap-2 p-3">
+                <button
+                  v-for="item of tagsOptions"
+                  :key="item.id"
+                  type="button"
+                  class="badge badge-outline badge-sm cursor-pointer transition-colors"
+                  :style="tagFilterStyle(item)"
+                  @click="clickTagHandle(item, '标签')"
+                >
+                  {{ item.label }} ({{ item.articleCount }})
+                </button>
               </div>
               <div class="mt-4 text-center">
                 <button class="btn-block btn btn-soft btn-error btn-xs" @click="restTags">
@@ -293,34 +311,40 @@ commentsList.value = commentsData.value.list;
         </base-card>
       </div>
       <!-- 文章列表 -->
-      <div class="article-item-wrap flex justify-around flex-wrap w-full max-w-7xl">
+      <div class="article-item-wrap flex flex-wrap w-full max-w-7xl">
         <transition-group key="article-item-wrap" name="list">
           <div
             v-for="item in articleList"
             :key="item.id"
-            class="article-item card bg-base-100 mb-5 hover:drop-shadow-lg transition-all shadow-sm"
+            class="article-item cyber-glass-card cyber-glass-card--hover mb-5 overflow-hidden transition-all"
           >
-            <figure>
+            <figure class="article-item-cover m-0">
               <XiaCardBorderLight
-                v-if="theme === 'dark'"
+                v-if="isDark"
                 :pic="item.cover"
-                style="--border-size: 8px"
+                class="article-item-cover-border"
+                style="--border-size: 8px; --pic-inset: 8px"
               />
               <xia-image
                 v-else
                 :src="item.cover"
                 lazyload
-                class="h-52 w-full bg-gray-900"
+                class="article-item-cover-img w-full bg-base-300 [&_img]:object-cover"
                 :alt="item.category.label"
               />
-              <!-- <XiaCardBorderLight :pic="item.cover" /> -->
             </figure>
             <div class="card-body text-base-content/70">
-              <h2 class="card-title text-base-content">
+              <h2 class="card-title text-base-content flex-wrap gap-1">
                 {{ item.title }}
                 <div v-if="item.topping" class="badge badge-soft badge-secondary">
                   TOP
                 </div>
+                <RpgLevelBadge
+                  v-if="item.articleLevel && item.articleLevel > 1"
+                  :level="item.articleLevel"
+                  variant="article"
+                />
+                <RpgLevelBadge v-if="item.isMasterpiece" :level="0" variant="masterpiece" />
               </h2>
               <p class="text-sm text-overflow-hidden-3">
                 {{ item.description }}
@@ -363,17 +387,47 @@ commentsList.value = commentsData.value.list;
                   </span>
                 </div>
                 <div class="flex justify-between w-full items-center">
-                  <div class="flex items-center">
-                    <div class="avatar btn btn-ghost btn-circle btn-xs">
-                      <div class="rounded-full">
-                        <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
+                  <div class="flex items-center gap-2">
+                    <NuxtLink
+                      v-if="item.uid"
+                      :to="`/user/${item.uid}`"
+                      class="author-link group inline-flex items-center gap-1.5 rounded-full transition-all hover:opacity-90"
+                      title="查看作者主页"
+                      @click.stop
+                    >
+                      <div
+                        class="avatar btn btn-ghost btn-circle btn-xs ring-1 ring-transparent transition-all group-hover:ring-primary/50"
+                      >
+                        <div class="rounded-full">
+                          <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
+                        </div>
                       </div>
-                    </div>
-                    <span class="pr-3 pt-2">{{ item.userInfo.nickname }}</span>
-                    <span class="pt-2">{{ formactDate(item.createTime) }}</span>
+                      <span class="link link-hover">{{ item.userInfo.nickname }}</span>
+                      <RpgLevelBadge
+                        v-if="getAuthorLevel(item.uid)"
+                        :level="getAuthorLevel(item.uid)!"
+                        variant="author"
+                      />
+                    </NuxtLink>
+                    <template v-else>
+                      <div class="inline-flex items-center gap-1.5">
+                        <div class="avatar btn btn-ghost btn-circle btn-xs">
+                          <div class="rounded-full">
+                            <img :src="item.userInfo.avatar" :alt="item.userInfo.nickname">
+                          </div>
+                        </div>
+                        <span>{{ item.userInfo.nickname }}</span>
+                        <RpgLevelBadge
+                          v-if="getAuthorLevel(item.uid)"
+                          :level="getAuthorLevel(item.uid)!"
+                          variant="author"
+                        />
+                      </div>
+                    </template>
+                    <span>{{ formactDate(item.createTime) }}</span>
                   </div>
                   <span @click="$router.push(`detail/${item.id}`)">
-                    <button class="btn btn-neutral btn-xs xia-btn">Read</button>
+                    <button class="btn btn-xs cyber-btn-secondary xia-btn">Read</button>
                   </span>
                 </div>
               </div>
@@ -383,7 +437,7 @@ commentsList.value = commentsData.value.list;
 
         <div
           v-show="!articleList.length"
-          class="min-h-96 bg-base-100 w-full flex items-center rounded-lg shadow-lg"
+          class="min-h-96 border border-tech bg-[var(--tech-input-bg)] w-full flex items-center rounded-lg shadow-lg text-tech"
         >
           <xia-empty
             :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
@@ -412,7 +466,7 @@ commentsList.value = commentsData.value.list;
         <div class="join w-full mt-2">
           <button
             :title="queryPrams.sort === 'ASC' ? '升序' : '降序'"
-            class="join-item btn btn-neutral btn-square w-10 btn-sm text-xs"
+            class="join-item btn cyber-btn-secondary btn-square w-10 btn-sm text-xs"
             @click="changeSort"
           >
             <svg
@@ -445,7 +499,10 @@ commentsList.value = commentsData.value.list;
             class="join-item input input-bordered input-sm max-w-xs"
             @keyup.enter="onSearchHandle"
           >
-          <button class="join-item btn btn-neutral btn-square w-10 btn-sm" @click="onSearchHandle">
+          <button
+            class="join-item btn cyber-btn-secondary btn-square w-10 btn-sm"
+            @click="onSearchHandle"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
@@ -484,7 +541,7 @@ commentsList.value = commentsData.value.list;
       </base-card>
 
       <base-card icon="blog-liuyanban3" title="最新评论" class="mx-4 mb-4" :no-padding="false">
-        <ul class="list bg-base-100 rounded-box">
+        <ul class="list border border-tech bg-[var(--tech-input-bg)] rounded-box text-tech">
           <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">
             所有文章最新的评论~
           </li>
@@ -545,14 +602,14 @@ commentsList.value = commentsData.value.list;
       overflow-y: auto;
     }
     .category-item {
-      --current-color: #e5e6e6;
+      --current-color: var(--tech-border);
       padding: 5px 10px;
       transition: all 0.5s;
       border-radius: 2px 2px;
       .category__inner {
         cursor: pointer;
         position: relative;
-        border-bottom: 1px solid #e5e6e6;
+        border-bottom: 1px solid var(--tech-border);
         &:after {
           // background: none repeat scroll 0 0 transparent;
           position: absolute;
@@ -585,7 +642,7 @@ commentsList.value = commentsData.value.list;
       line-height: 14px;
       font-size: 12px;
       height: 14px;
-      color: #fff;
+      color: var(--color-primary-content);
       padding: 0 9px;
     }
     .category__text {
@@ -627,37 +684,54 @@ commentsList.value = commentsData.value.list;
       flex: 1;
     }
     .article-item-wrap {
+      gap: 1.25rem;
       transition: all 0.5s;
-    }
-    // 卡片样式
-    .article-item {
-      max-height: 408px;
-    }
-    .article-item-wrap {
-      @media (max-width: 1535px) {
-        //xl
-        .article-item {
-          width: calc(50% - 10px);
-          &:nth-of-type(2n) {
-            margin-right: 0;
+
+      .article-item {
+        max-height: 408px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+
+        .article-item-cover {
+          --cover-height: 160px;
+          flex-shrink: 0;
+          padding: 12px;
+          display: flex;
+
+          :deep(.card-container) {
+            width: 100%;
+            height: var(--cover-height);
+            min-height: var(--cover-height);
+          }
+        }
+
+        .card-body {
+          flex: 1;
+          min-height: 0;
+          overflow: hidden;
+          padding: 0 12px 12px;
+        }
+
+        .article-item-cover-img {
+          width: 100%;
+          height: var(--cover-height);
+          display: block;
+          border-radius: 8px;
+          overflow: hidden;
+
+          :deep(img) {
+            display: block;
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
           }
         }
       }
 
-      @media (max-width: 1024px) {
-        //lg
+      @media (min-width: 1080px) {
         .article-item {
-          width: 100%;
-          margin-right: 0;
-        }
-      }
-      @media (min-width: 1336px) {
-        //2xl
-        .article-item {
-          width: calc(33.3333% - 13.33px);
-          &:nth-of-type(3n) {
-            margin-right: 0;
-          }
+          width: calc(50% - 0.625rem);
         }
       }
     }
@@ -679,7 +753,7 @@ commentsList.value = commentsData.value.list;
 
     .xia-btn {
       text-transform: uppercase;
-      background: linear-gradient(to right, #d926a9 50%, #3d4451 50%);
+      background: linear-gradient(to right, var(--color-secondary) 50%, var(--color-neutral) 50%);
       background-size: 200% 100%;
       background-position: right bottom;
       transition: all 2s ease;

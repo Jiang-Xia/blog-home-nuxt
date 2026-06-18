@@ -1,7 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const userInfo = useUserInfo();
+
+await navigateTo(userInfo.value?.uid ? '/user/profile' : '/login', { replace: true });
+</script>
 
 <template>
-  <NuxtLink to="/home">Home Page</NuxtLink>
+  <div />
 </template>
-
-<style lang="less" scoped></style>

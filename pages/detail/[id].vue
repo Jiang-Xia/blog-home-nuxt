@@ -4,15 +4,13 @@ import { MdPreview } from 'md-editor-v3';
 
 import { useScroll } from '@vueuse/core';
 import { getArticleInfo, getComment } from '@/api/article';
-import { updateViews, xBLogStore, updateLikesHandle, formactDate } from '@/utils/common';
-import defaultImg from '@/assets/images/create.webp';
-import { isTrueCoverLink } from '@/utils';
+import { updateViews, xBLogStore, updateLikesHandle } from '@/utils/common';
+import { resolveStaticUrl } from '@/utils/static-url';
 import type { tocInter } from '@/utils';
 import Qie from '@/assets/images/animal/qie.svg';
 import { SiteTitle } from '@/utils/constant';
-import { aesEncrypt } from '~~/utils/crypto';
 
-const theme: any = useTheme();
+const mdEditorTheme = useMdEditorTheme();
 interface FormState {
   [propName: string]: any;
 }
@@ -43,10 +41,23 @@ const ArticleInfo = reactive({ ...defaultForm });
 const articleId = computed(() => route.params.id as string);
 // console.log({ '文章id:': params.id, })
 // 响应式声明
-const { data: articleData, refresh } = await useAsyncData(
+const {
+  data: articleData,
+  error,
+  refresh,
+} = await useAsyncData(
   () => `detail_GetInfo_${articleId.value}`,
   () => getArticleInfo({ id: articleId.value }),
 );
+
+if (error.value || !articleData.value?.info) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: '文章不存在或已下线',
+    fatal: true,
+  });
+}
+
 const setArticleData = () => {
   if (articleData) {
     Object.keys(defaultForm).forEach((v: string) => {
@@ -58,12 +69,11 @@ const setArticleData = () => {
 };
 setArticleData();
 
-// onBeforeMount(async () => {
-//   console.log('onBeforeMount')
-//   await refresh()
-//   setArticleData()
-// })
-updateViews(articleId.value);
+const recordArticleView = (id: string) => {
+  if (import.meta.client) {
+    updateViews(id);
+  }
+};
 
 const getTagLabel = (arr: any): string => {
   const text = arr.map((v: any) => v.label).join();
@@ -103,10 +113,10 @@ const likes = ref([]);
 onMounted(() => {
   scrollElement.value = document.documentElement;
   mdKey.value = new Date().getTime();
+  recordArticleView(articleId.value);
   // 点赞的
   likes.value = xBLogStore.value.likes;
   ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never);
-  // getCommentHandle();
 });
 
 /* 评论回复功能 */
@@ -145,16 +155,29 @@ if (import.meta.client) {
 }
 // 侧边栏吸顶
 
-const goAISummary = () => {
-  const params = {
-    content: ArticleInfo.content,
-  };
-  const encrypt = aesEncrypt(JSON.stringify(params));
-  navigateTo('/tool/ai-summary?params=' + encrypt);
+const onTipped = async () => {
+  await refresh();
+  setArticleData();
 };
+
+const pageTitle = computed(() => ArticleInfo.title || '文章详情');
+const pageDescription = computed(() => {
+  const desc = ArticleInfo.description?.trim();
+  if (desc) return desc;
+  return ArticleInfo.title ? `${ArticleInfo.title} - ${SiteTitle}` : SiteTitle;
+});
+const coverUrl = computed(() => resolveStaticUrl(ArticleInfo.cover));
+
 useHead({
-  title: ArticleInfo.title + ' - 文章详情',
+  title: pageTitle,
   titleTemplate: title => `${title} - ${SiteTitle}`,
+  meta: [
+    { name: 'description', content: pageDescription },
+    { property: 'og:title', content: computed(() => `${pageTitle.value} - ${SiteTitle}`) },
+    { property: 'og:description', content: pageDescription },
+    { property: 'og:image', content: coverUrl },
+    { property: 'og:type', content: 'article' },
+  ],
 });
 
 watch(
@@ -164,8 +187,15 @@ watch(
       return;
     }
     await refresh();
+    if (!articleData.value?.info) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: '文章不存在或已下线',
+        fatal: true,
+      });
+    }
     setArticleData();
-    updateViews(nextId);
+    recordArticleView(nextId);
 
     mdKey.value = new Date().getTime();
     likes.value = xBLogStore.value.likes;
@@ -178,64 +208,62 @@ watch(
 </script>
 
 <template>
-  <div class="article-detail bg-base-200">
-    <section class="banner-container">
-      <div class="banner-content">
-        <img
-          :alt="ArticleInfo.category.label"
-          :src="isTrueCoverLink(ArticleInfo.cover) || defaultImg"
-        >
-        <!-- <div>文章详情</div> -->
-        <div class="article-header text-gray-200">
-          <h1 class="title">
-            {{ ArticleInfo.title }}
-          </h1>
-          <p class="detail inline-flex items-center justify-center">
-            <xia-icon icon="blog-category" />
-            {{ ArticleInfo.category.label }}
-            <xia-icon class="ml-3" icon="blog-tag" />
-            {{ tagLabel }}
-          </p>
-          <p class="detail flex items-center justify-center">
-            <xia-icon icon="blog-time" />更新于{{ formactDate(ArticleInfo.uTime) }}
-          </p>
-          <p class="detail">
-            <!-- 阅读量 -->
-            <span class="mr-2 cursor-pointer inline-flex items-center">
-              <xia-icon icon="blog-view" />
-              {{ ArticleInfo['views'] }}
-            </span>
-            <!-- 点赞数 -->
-            <span
-              class="mr-2 cursor-pointer inline-flex items-center"
-              @click.stop="updateLikesHandle(ArticleInfo)"
-            >
-              <xia-icon :icon="ArticleInfo['checked'] ? 'blog-like-solid' : 'blog-like'" />
-              {{ ArticleInfo['likes'] }}
-            </span>
-          </p>
-        </div>
-      </div>
-    </section>
-    <div ref="mainViewArea" class="main-view-area w-full xl:w-4/5">
-      <section class="main-content rounded-lg max-w-full p-3">
+  <div class="article-detail">
+    <RpgArticleDetailHero
+      :article="ArticleInfo"
+      :tag-label="tagLabel"
+      :tags="ArticleInfo.tags"
+      :author-uid="Number(ArticleInfo.uid)"
+      :article-id="ArticleInfo.id"
+      @like="updateLikesHandle(ArticleInfo)"
+    />
+    <div ref="mainViewArea" class="main-view-area mx-auto w-full max-w-5xl px-4 py-8 xl:w-4/5">
+      <section class="main-content cyber-glass-card max-w-full rounded-2xl p-3 md:p-5">
         <section class="module-wrap__detail article-info">
           <div class="flex items-center">
             <div class="flex items-center justify-between">
-              <div class="btn btn-ghost btn-circle avatar">
-                <div class="w-10 rounded-full">
-                  <img :src="ArticleInfo.userInfo.avatar || Qie">
+              <NuxtLink
+                v-if="ArticleInfo.uid"
+                :to="`/user/${ArticleInfo.uid}`"
+                class="author-profile-link group inline-flex items-center rounded-full py-1 pl-1 pr-3 transition-colors hover:bg-base-content/5"
+                title="查看作者主页"
+              >
+                <div
+                  class="btn btn-ghost btn-circle avatar ring-2 ring-primary/25 transition-all group-hover:ring-primary/70 group-hover:scale-105"
+                >
+                  <div class="w-10 rounded-full">
+                    <img
+                      :src="ArticleInfo.userInfo.avatar || Qie"
+                      :alt="ArticleInfo.userInfo.nickname"
+                    >
+                  </div>
                 </div>
+                <span class="font-bold ml-2 text-tech link link-hover link-primary">{{
+                  ArticleInfo.userInfo.nickname
+                }}</span>
+                <span
+                  class="ml-2 text-xs text-base-content/45 transition-colors group-hover:text-primary"
+                >主页</span>
+              </NuxtLink>
+              <div v-else class="flex items-center">
+                <div class="btn btn-ghost btn-circle avatar">
+                  <div class="w-10 rounded-full">
+                    <img
+                      :src="ArticleInfo.userInfo.avatar || Qie"
+                      :alt="ArticleInfo.userInfo.nickname"
+                    >
+                  </div>
+                </div>
+                <span class="ml-2 font-bold text-tech">{{ ArticleInfo.userInfo.nickname }}</span>
               </div>
-              <span class="text-color font-bold">{{ ArticleInfo.userInfo.nickname }}</span>
             </div>
             <div class="dropdown dropdown-bottom ml-6">
-              <div tabindex="0" role="button" class="btn m-1 btn-neutral">
+              <div tabindex="0" role="button" class="btn m-1 cyber-btn-secondary">
                 主 题
               </div>
               <ul
                 tabindex="0"
-                class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                class="dropdown-content z-[1] menu p-2 shadow border border-tech bg-[var(--tech-dropdown-bg)] rounded-box w-52 text-tech"
               >
                 <li v-for="item of themeList" @click="previewThemeChange(item)">
                   <a>{{ item }}</a>
@@ -246,10 +274,10 @@ watch(
           <MdPreview
             :key="mdKey"
             v-model="ArticleInfo.content"
-            class="x-md-editor rounded-lg p-3 bg-base-100"
+            class="x-md-editor rounded-lg p-3 bg-transparent"
             preview-only
             :preview-theme="previewTheme"
-            :theme="theme"
+            :theme="mdEditorTheme"
             @on-get-catalog="onGetCatalogHandle"
           />
         </section>
@@ -263,7 +291,7 @@ watch(
 
       <aside
         ref="aside"
-        class="w-80 absolute right-0 top-0 hidden lg:block rounded-lg h-full overflow-auto"
+        class="aside-bar hidden lg:block absolute right-0 top-0 h-full w-80 overflow-auto rounded-xl border border-tech cyber-glass-card p-3"
         :class="{ 'aside-bar__fixed': fixedAsideBar }"
       >
         <div class="sticky-box">
@@ -273,36 +301,13 @@ watch(
     </div>
     <!-- 阅读进度环 -->
     <ReadingProgressRing position="top-right" :auto-hide="true" style="top: 70px" />
-    <!-- fab 浮点按钮 -->
-    <div class="fab fab-flower bottom-20 right-4">
-      <div tabindex="0" role="button" class="btn btn-circle btn-primary text-2xl">
-        <xia-icon icon="blog-plus-circle" />
-      </div>
-      <div class="fab-close">
-        <span class="btn btn-circle btn-error text-2xl">
-          <xia-icon icon="blog-error" />
-        </span>
-      </div>
-      <div class="tooltip tooltip-left" data-tip="总结文章">
-        <button class="btn btn-circle" @click="goAISummary">
-          <xia-icon icon="blog-rengongzhinengjiqiren" width="100%" height="100%" class="size-6" />
-        </button>
-      </div>
-      <div class="tooltip tooltip-left" data-tip="工具箱">
-        <NuxtLink to="/tool/sm">
-          <button class="btn btn-circle">
-            <xia-icon icon="blog-tool" width="100%" height="100%" class="size-6" />
-          </button>
-        </NuxtLink>
-      </div>
-      <div class="tooltip" data-tip="关于">
-        <NuxtLink to="/about">
-          <button class="btn btn-circle">
-            <xia-icon icon="blog-about" width="100%" height="100%" class="size-6" />
-          </button>
-        </NuxtLink>
-      </div>
-    </div>
+    <RpgArticleRpgFab
+      v-if="ArticleInfo.id && ArticleInfo.uid"
+      :article-id="ArticleInfo.id"
+      :author-uid="Number(ArticleInfo.uid)"
+      :article="ArticleInfo"
+      @tipped="onTipped"
+    />
   </div>
 </template>
 

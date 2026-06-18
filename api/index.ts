@@ -1,4 +1,3 @@
-import * as article from './article';
 import * as tag from './tag';
 import * as category from './category';
 import * as tool from './tool';
@@ -17,6 +16,19 @@ export const getUserInfo = async (): Promise<userInfoState> => {
     role,
   };
 };
+
+export interface UpdateUserProfileParams {
+  id: number;
+  nickname: string;
+  intro?: string;
+  homepage?: string;
+  avatar?: string;
+}
+
+/** 更新当前用户资料（昵称、头像、简介、主页） */
+export const updateUserProfile = (params: UpdateUserProfileParams) => {
+  return request.patch('/user/edit', params);
+};
 // 古诗词
 export const gushici = async () => {
   return await request
@@ -28,6 +40,11 @@ export const gushici = async () => {
 // 获取天气
 export const getWeather = () => {
   return request.get('/resources/weather');
+};
+
+/** 注册页可选头像（公开，无需登录） */
+export const getRegisterAvatars = (): Promise<{ avatars: string[] }> => {
+  return request.get('/resources/register-avatars');
 };
 
 // 发送邮箱验证码
@@ -60,13 +77,14 @@ export const emailRegister = (params: {
 };
 
 const api = {
-  ...article,
   ...tag,
   ...category,
   ...tool,
   getUserInfo,
+  updateUserProfile,
   gushici,
   getWeather,
+  getRegisterAvatars,
   sendEmailCode,
   emailLogin,
   emailRegister,

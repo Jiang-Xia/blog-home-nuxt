@@ -1,7 +1,9 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
-    other
-  </div>
+  <CyberToolCard title="其他工具" desc="占位页，后续可扩展更多实用工具">
+    <p class="text-sm text-tech-muted">
+      敬请期待…
+    </p>
+  </CyberToolCard>
 </template>
 
-<script setup></script>
+<script setup lang="ts"></script>

@@ -5,7 +5,8 @@ import { useRoute } from 'vue-router';
 import { beforeTimeNow } from '@/utils';
 import { addComment, addReply, delComment, delReply } from '@/api/article';
 
-import { messageDanger, messageSuccess } from '~~/utils/toast';
+import { messageDanger, messageSuccess, messageWarning } from '~~/utils/toast';
+import { useRpg } from '~~/composables/use-rpg';
 
 defineProps({
   comments: {
@@ -20,6 +21,7 @@ defineProps({
 const emits = defineEmits(['commented']);
 const userInfo = useUserInfo();
 const route = useRoute();
+const { isBanned, fetchQuests } = useRpg();
 const formactTime = (item: any) => {
   const time = new Date(item.createTime).getTime();
   return beforeTimeNow(time);
@@ -29,6 +31,10 @@ const formactTime = (item: any) => {
 const inputContent = ref('');
 const addCommentHandle = async () => {
   if (!tip()) {
+    return;
+  }
+  if (isBanned.value) {
+    messageWarning('您当前处于禁言状态，暂时无法评论');
     return;
   }
   if (!inputContent.value) {
@@ -45,6 +51,7 @@ const addCommentHandle = async () => {
     messageSuccess('评论成功');
     emits('commented');
     inputContent.value = '';
+    await fetchQuests();
   }
 };
 const delCommentHandle = async (id: string) => {
@@ -93,6 +100,10 @@ const currentParentId = ref('');
    */
 const clickReplyHandle = (type: string, item: any, pId?: string) => {
   if (!tip()) {
+    return;
+  }
+  if (isBanned.value) {
+    messageWarning('您当前处于禁言状态，暂时无法回复');
     return;
   }
   currentReplyBoxId.value = item.id;
@@ -153,37 +164,56 @@ const replyedHandle = (content: string) => {
 
 <template>
   <div class="comment-container text-base-content/70">
+    <RpgInteractBar />
     <textarea
       v-model="inputContent"
       class="textarea textarea-success w-full"
       placeholder="动动你的双手吧~"
+      :disabled="isBanned"
     />
     <div class="tool-bar mt-1">
       <h4 class="font-bold text-sm">
         全部评论({{ total }})
       </h4>
-      <button
-        class="btn btn-neutral btn-sm px-4 tracking-widest"
-        :disabled="!inputContent"
+      <CyberButton
+        variant="primary"
+        class="!px-4 !py-2 !text-sm tracking-widest"
+        :disabled="!inputContent || isBanned"
         @click="addCommentHandle"
       >
         确 认
-      </button>
+      </CyberButton>
     </div>
     <section v-for="commentItem in comments" :key="commentItem.id" class="flex mt-4">
       <!-- 头像 -->
       <div class="w-10 mr-2">
-        <div
-          class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100"
+        <NuxtLink
+          v-if="commentItem.uid"
+          :to="`/user/${commentItem.uid}`"
+          class="inline-block hover:opacity-80"
         >
-          <img
-            v-if="commentItem.userInfo.avatar"
-            class="rounded-full"
-            :src="commentItem.userInfo.avatar"
+          <CommonAvatarWithFrame
+            :avatar="commentItem.userInfo.avatar"
             :alt="commentItem.userInfo.nickname"
+            :frame="commentItem.userInfo.avatarFrame"
+            :size="32"
           >
-          <xia-icon v-else icon="blog-yonghu" />
-        </div>
+            <template #fallback>
+              <xia-icon icon="blog-yonghu" />
+            </template>
+          </CommonAvatarWithFrame>
+        </NuxtLink>
+        <CommonAvatarWithFrame
+          v-else
+          :avatar="commentItem.userInfo.avatar"
+          :alt="commentItem.userInfo.nickname"
+          :frame="commentItem.userInfo.avatarFrame"
+          :size="32"
+        >
+          <template #fallback>
+            <xia-icon icon="blog-yonghu" />
+          </template>
+        </CommonAvatarWithFrame>
       </div>
       <!-- 评论内容主体 -->
       <div class="flex-1">
@@ -198,21 +228,21 @@ const replyedHandle = (content: string) => {
         <div class="py-1">
           <button
             v-show="commentItem.id !== currentReplyBoxId"
-            class="btn btn-ghost btn-xs text-xs text-gray-500"
+            class="btn btn-ghost btn-xs text-xs text-tech-subtle"
             @click="clickReplyHandle('comment', commentItem)"
           >
             <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
           </button>
           <button
             v-if="commentItem.id === currentReplyBoxId"
-            class="btn btn-ghost btn-xs text-xs text-gray-500"
+            class="btn btn-ghost btn-xs text-xs text-tech-subtle"
             @click="currentReplyBoxId = ''"
           >
             取消回复
           </button>
           <button
             v-if="uid === commentItem.uid"
-            class="btn btn-ghost btn-xs text-xs text-gray-500"
+            class="btn btn-ghost btn-xs text-xs text-tech-subtle"
             @click="delCommentHandle(commentItem.id)"
           >
             <xia-icon icon="blog-shanchu" width="14px" class="mr-1" />删除
@@ -233,17 +263,33 @@ const replyedHandle = (content: string) => {
           <section v-for="replyItem in commentItem.replys" :key="replyItem.id" class="flex mt-4">
             <!-- 头像 -->
             <div class="w-10 mr-2">
-              <div
-                class="rounded-full h-8 w-8 bg-gray-300 inline-flex items-center justify-center text-base-100"
+              <NuxtLink
+                v-if="replyItem.uid"
+                :to="`/user/${replyItem.uid}`"
+                class="inline-block hover:opacity-80"
               >
-                <img
-                  v-if="replyItem.userInfo.avatar"
-                  class="rounded-full"
-                  :src="replyItem.userInfo.avatar"
+                <CommonAvatarWithFrame
+                  :avatar="replyItem.userInfo.avatar"
                   :alt="replyItem.userInfo.nickname"
+                  :frame="replyItem.userInfo.avatarFrame"
+                  :size="32"
                 >
-                <xia-icon v-else icon="blog-yonghu" />
-              </div>
+                  <template #fallback>
+                    <xia-icon icon="blog-yonghu" />
+                  </template>
+                </CommonAvatarWithFrame>
+              </NuxtLink>
+              <CommonAvatarWithFrame
+                v-else
+                :avatar="replyItem.userInfo.avatar"
+                :alt="replyItem.userInfo.nickname"
+                :frame="replyItem.userInfo.avatarFrame"
+                :size="32"
+              >
+                <template #fallback>
+                  <xia-icon icon="blog-yonghu" />
+                </template>
+              </CommonAvatarWithFrame>
             </div>
             <div class="flex-1">
               <span class="text-xs">
@@ -262,21 +308,21 @@ const replyedHandle = (content: string) => {
               <div class="py-1">
                 <button
                   v-show="replyItem.id !== currentReplyBoxId"
-                  class="btn btn-ghost btn-xs text-xs text-gray-500"
+                  class="btn btn-ghost btn-xs text-xs text-tech-subtle"
                   @click="clickReplyHandle('reply', replyItem, commentItem.id)"
                 >
                   <xia-icon icon="blog-pinglun" width="14px" class="mr-1" />回复
                 </button>
                 <button
                   v-if="replyItem.id === currentReplyBoxId"
-                  class="btn btn-ghost btn-xs text-xs text-gray-500"
+                  class="btn btn-ghost btn-xs text-xs text-tech-subtle"
                   @click="currentReplyBoxId = ''"
                 >
                   取消回复
                 </button>
                 <button
                   v-if="uid === replyItem.uid"
-                  class="btn btn-ghost btn-xs text-xs text-gray-500"
+                  class="btn btn-ghost btn-xs text-xs text-tech-subtle"
                   @click="delReplytHandle(replyItem.id)"
                 >
                   <xia-icon icon="blog-shanchu" width="14px" class="mr-1" />删除

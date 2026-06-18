@@ -75,7 +75,7 @@ export default {
   <div class="join mt-4">
     <button
       v-if="prev"
-      class="btn btn-neutral join-item"
+      class="btn cyber-btn-secondary join-item"
       @click="currentChange(current - 1)"
     >
       <svg
@@ -86,11 +86,7 @@ export default {
         stroke="currentColor"
         stroke-width="2"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M15 19l-7-7 7-7"
-        />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
       </svg>
     </button>
     <button
@@ -100,7 +96,7 @@ export default {
       :class="{
         'btn-active': current === item,
         'btn-primary': current === item,
-        'btn-neutral': current !== item,
+        'cyber-btn-secondary': current !== item,
       }"
       @click="currentChange(item)"
     >
@@ -108,7 +104,7 @@ export default {
     </button>
     <button
       v-if="next"
-      class="btn btn-neutral join-item"
+      class="btn cyber-btn-secondary join-item"
       @click="currentChange(current + 1)"
     >
       <svg
@@ -119,11 +115,7 @@ export default {
         stroke="currentColor"
         stroke-width="2"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M9 5l7 7-7 7"
-        />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
       </svg>
     </button>
   </div>

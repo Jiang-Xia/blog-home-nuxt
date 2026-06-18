@@ -1,18 +1,38 @@
 import request from '~~/api/request';
+import { filterApprovedComments } from '@/utils/comment';
+import { isNotFoundError } from '@/utils/api-error';
+import { uploadArticleImage as uploadArticleContentImage, parseUploadedUrl } from '@/api/resources';
 
 export const getArticleList = (data: any) => {
   return request.post('/article/list', data);
 };
-export const getArticleInfo = (params: any) => {
-  // console.log(params.id)
+export const getArticleInfo = async (params: { id?: string | number }) => {
   if (!params.id) {
-    return Promise.reject(Error('id不能为空'));
+    return null;
   }
-  return request.get('/article/info', params);
+  try {
+    return await request.get('/article/info', params, { silent: true });
+  }
+  catch (err) {
+    if (isNotFoundError(err)) {
+      return null;
+    }
+    throw err;
+  }
 };
 
 export const createArticle = (data: any) => {
   return request.post('/article/create', data);
+};
+
+export const editArticle = (data: any) => {
+  return request.post('/article/edit', data);
+};
+
+/** 上传 Markdown 编辑器图片 */
+export const uploadArticleImage = async (file: File) => {
+  const res = await uploadArticleContentImage(file);
+  return parseUploadedUrl(res);
 };
 
 // 更新阅读量
@@ -35,9 +55,14 @@ export const getArchives = () => {
   return request.get('/article/archives');
 };
 
-// 获取文章评论
-export const getComment = (id?: string, otherParams?: any) => {
-  return request.get('/comment/findAll', { articleId: id, ...otherParams });
+// 获取文章评论（仅展示已审核通过的评论与回复）
+export const getComment = async (id?: string, otherParams?: any) => {
+  const { status: _status, ...safeParams } = otherParams || {};
+  const res = await request.get('/comment/findAll', { articleId: id, ...safeParams });
+  if (res?.list) {
+    res.list = filterApprovedComments(res.list);
+  }
+  return res;
 };
 // 新增评论
 export const addComment = (data: any) => {
@@ -55,4 +80,44 @@ export const addReply = (data: any) => {
 // 删除回复
 export const delReply = (id: string) => {
   return request.del('/reply/delete', { id });
+};
+
+// 获取我的收藏列表（分页）
+export const getMyCollectList = (params: { page?: number; pageSize?: number }) => {
+  return request.get('/collect/list', params);
+};
+
+/** 收藏/取消收藏（toggle） */
+export const toggleCollect = (articleId: string | number) => {
+  return request.post('/collect', { articleId: String(articleId) });
+};
+
+/** 检查当前用户是否已收藏 */
+export const checkCollected = (articleId: string | number) => {
+  return request.get('/collect/check', { articleId: String(articleId) });
+};
+
+/** 获取文章收藏总数 */
+export const getCollectCount = (articleId: string | number) => {
+  return request.get('/collect/count', { articleId: String(articleId) });
+};
+
+// 获取我的评论列表（分页）
+export const getMyComments = (params: { page?: number; pageSize?: number }) => {
+  return request.get('/comment/my-list', params);
+};
+
+// 获取我的回复列表（分页）
+export const getMyReplies = (params: { page?: number; pageSize?: number }) => {
+  return request.get('/reply/my-list', params);
+};
+
+// 获取我的文章列表（分页）
+export const getMyArticleList = (params: { page?: number; pageSize?: number }) => {
+  return request.get('/article/my-list', params);
+};
+
+/** 禁用/恢复文章（软删除） */
+export const disableArticle = (id: number | string, isDelete = true) => {
+  return request.patch('/article/disabled', { id, isDelete });
 };

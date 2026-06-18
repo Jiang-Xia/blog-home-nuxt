@@ -5,30 +5,48 @@
     @mousemove="onmousemoveHandle"
     @mouseout="mouseoutHandle"
   >
-    <div
-      ref="cardFilter"
-      class="card-filter"
-    />
-    <div
-      ref="cardImg"
-      class="card-img"
-    />
+    <div ref="cardFilter" class="card-filter" />
+    <div ref="cardImg" class="card-img" />
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import loadingImg from '@/assets/images/gif/loading3-min.gif';
+import errorImg from '@/assets/images/common/LoadFailed.svg';
 
 const props = defineProps({
   pic: {
     type: String,
-    default: `url("${loadingImg}")`,
+    default: '',
+  },
+  failImg: {
+    type: String,
+    default: errorImg,
   },
 });
 const cardContainer = ref();
 const cardFilter = ref();
 const cardImg = ref();
+
+const setPic = (url) => {
+  if (!cardContainer.value || !url) return;
+  cardContainer.value.style.setProperty('--pic', `url("${url}")`);
+};
+
+const loadPic = (url) => {
+  if (!cardContainer.value) return;
+  if (!url) {
+    setPic(props.failImg);
+    return;
+  }
+  setPic(loadingImg);
+  const img = new Image();
+  img.onload = () => setPic(url);
+  img.onerror = () => setPic(props.failImg);
+  img.src = url;
+};
+
 const onmousemoveHandle = (event) => {
   cardImg.value.style.visibility = 'visible';
 
@@ -41,18 +59,14 @@ const onmousemoveHandle = (event) => {
   const percentX = (Math.min(Math.max(offsetX / rect.width, 0), 1) * 100).toFixed(2);
   const percentY = (Math.min(Math.max(offsetY / rect.height, 0), 1) * 100).toFixed(2);
 
-  // console.log('X: ' + percentX + '%')
-  // console.log('Y: ' + percentY + '%')
-
   cardContainer.value.style.setProperty('--x', `${percentX}%`);
   cardContainer.value.style.setProperty('--y', `${percentY}%`);
 };
 const mouseoutHandle = () => {
   cardImg.value.style.visibility = 'hidden';
 };
-onMounted(() => {
-  cardContainer.value.style.setProperty('--pic', `url(${props.pic})`);
-});
+onMounted(() => loadPic(props.pic));
+watch(() => props.pic, loadPic);
 </script>
 
 <style lang="less" scoped>
@@ -60,8 +74,6 @@ onMounted(() => {
     --border-size: 16px;
     --x: 0;
     --y: 0;
-    // --pic: url("https://oss.aiyuzhou8.com/2023/05/08-.jpg");
-    // --pic: url("https://i.pinimg.com/736x/f0/c3/23/f0c323f370acf6cf35973ca5f53ecc89.jpg");
 
     position: relative;
     margin: auto;
@@ -76,10 +88,9 @@ onMounted(() => {
     &::after {
       content: '';
       position: absolute;
-      inset: 16px;
+      inset: var(--pic-inset, 16px);
       background: var(--pic);
-      // background-size: cover;
-      background-size: 100% 100%;
+      background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       border-radius: var(--border-size);

@@ -1,9 +1,7 @@
 <script setup lang="ts">
 /* / 路径显示的默认页面 */
-import { ref } from 'vue';
 import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
-import { throttle } from '@/utils';
 import { dailyImage } from '~~/api/article.js';
 import { originUrl } from '~/config';
 
@@ -22,30 +20,11 @@ if (imagesData.value) {
   });
 }
 
-const scrollTop = ref(0);
-const scrollHandle = () => {
-  scrollTop.value = document.documentElement.scrollTop || document.body.scrollTop; // 微信里面获取body的
-};
-const throttledScrollHandle = throttle(scrollHandle, 100);
-// 客戶端执行
 onMounted(() => {
-  // console.log(document.documentElement)
-  /*
-    之所以绑定window的滚动事件 是为了元素样式为固定定位（相对于window定位的）时会覆盖document子元素的滚动条
-    造成错位不好看。这里的滚动对象是 document.documentElement
-  */
-  window.addEventListener('scroll', throttledScrollHandle, true);
-  // 写入一个cookie，用于判断用户是否点过赞
   if (!Cookies.get('browserId')) {
-    // 存个当前时间戳
     Cookies.set('browserId', dayjs().valueOf().toString(), { expires: 7 });
   }
 });
-onUnmounted(() => {
-  window.removeEventListener('scroll', throttledScrollHandle, true);
-});
-// 博客运行时间
-const runTime = Math.ceil((dayjs().unix() - dayjs('2022-03-01').unix()) / (24 * 60 * 60));
 useHead({
   htmlAttrs: {
     lang: 'zh-CN',
@@ -117,45 +96,49 @@ useHead({
   script: [],
   link: [{ rel: 'shortcut icon', href: originUrl + '/favicon.ico' }],
 });
+// 博客运行时间
+const runTime = Math.ceil((dayjs().unix() - dayjs('2022-03-01').unix()) / (24 * 60 * 60));
+
+const route = useRoute();
+const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
 </script>
 
 <template>
-  <div class="app-layout gradient-bar bg-base-200 text-base-content">
-    <!-- 导航栏 -->
-    <header
-      class="app-layout-header"
-      :class="{
-        'app-layout-header__active': scrollTop > 98,
-        'glass': scrollTop > 98 && scrollTop < 360,
-        'bg-info-content': scrollTop > 360,
-      }"
-    >
+  <div class="app-layout tech-shell min-h-screen bg-tech-shell text-tech">
+    <CyberBackground />
+    <header class="app-layout-header border-b border-tech bg-tech-header backdrop-blur-md">
       <Nav />
     </header>
-    <!-- 路由显示区域 -->
     <div class="app-layout-body">
       <NuxtPage />
     </div>
-    <!-- 页脚 -->
-    <footer class="app-layout-footer text-base-content/70">
+    <footer class="app-layout-footer border-t border-tech text-tech-subtle">
       <p>
-        😁 博客已平稳运行 {{ runTime }} 天
-        <a :href="originUrl + '/sitemap.xml'" target="_blank" class="link link-hover">SITEMAP</a>
-        😀
+        博客已平稳运行 {{ runTime }} 天
+        <a
+          :href="originUrl + '/sitemap.xml'"
+          target="_blank"
+          class="link link-hover text-tech-muted"
+        >SITEMAP</a>
       </p>
       <p>
-        <NuxtLink target="_blank" href="https://beian.miit.gov.cn/#/Integrated/recordQuery">
+        <NuxtLink
+          target="_blank"
+          href="https://beian.miit.gov.cn/#/Integrated/recordQuery"
+          class="text-tech-subtle hover:text-tech-muted"
+        >
           桂ICP备2022001119号-1
         </NuxtLink>
       </p>
-      <p>
-        Powered By Typescript & Vue3 & Vite3 & Nuxt3 & Tailwindcss & DaisyUI & Node.js & NestJS
+      <p class="text-tech-faint">
+        Powered By Typescript & Vue3 & Nuxt3 & Tailwindcss & DaisyUI & Node.js & NestJS
       </p>
     </footer>
-    <!-- 回到顶部 -->
-    <xia-backtop class="shake-slow right-4">
+    <!-- 回到顶部（文章详情页由冒险 FAB 提供） -->
+    <xia-backtop v-if="showGlobalBacktop" class="shake-slow right-4">
       <xia-icon icon="blog-rocket4" width="34px" height="34px" />
     </xia-backtop>
+    <RpgGlobalInit />
   </div>
 </template>
 
@@ -173,34 +156,17 @@ useHead({
     // 会编译成和 & 同级类名即 app-layout-header
     &-header {
       box-sizing: border-box;
-      // height: 64px;
-      // line-height: 58px;
       width: 100%;
       z-index: 10010;
       top: 0px;
       left: 0px;
       position: fixed;
-      // box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16),
-      //   0 2px 10px 0 rgba(0, 0, 0, 0.12);
-      // transition: all 1s;
       transition: all 0.4s ease;
-      // background: transparent;
-      padding-top: 20px;
-      padding-bottom: 20px;
-
-      padding: 0 1.5vw 0;
-      // 会编译成和 & 同级类名即 app-layout-header__active
-      &__active {
-        // backdrop-filter: saturate(5) blur(20px);
-        // backdrop-filter: blur(10px);
-        // background: var(--nav-color);
-        // border-color: var(--nav-color);
-        padding: 0;
-      }
     }
 
     &-body {
       min-height: calc(100vh - 120px);
+      padding-top: 64px;
     }
 
     &-footer {

@@ -1,55 +1,28 @@
 <script setup lang="ts">
 import config from '~~/config';
-// definePageMeta({
-//   layout: 'custom', // 不使用default布局
-// })
+import { SiteTitle } from '@/utils/constant';
+
+useHead({
+  title: '404',
+  titleTemplate: title => `${title} - ${SiteTitle}`,
+});
+
 const route = useRoute();
 </script>
 
 <template>
-  <div class="common-page">
-    <img
-      :src="config.gif404"
-      alt="404"
-    >
-    <div class="b-text">
-      <div
-        class="gradient-text text-xl px-8 sm:px-0 sm:text-4xl md:mb-6 font-light h-11 leading-none"
-      >
-        Page not found: {{ route.fullPath }}
-      </div>
-      <div class="w-full flex items-center justify-center">
-        <xia-button @click="navigateTo('/')">
-          Go back home
-        </xia-button>
-      </div>
-    </div>
-  </div>
+  <CyberPageContainer label="ERROR" title="404" subtitle="页面不存在">
+    <CyberCard class="flex flex-col items-center py-12 text-center">
+      <img :src="config.gif404" alt="404" class="mb-8 max-h-48 opacity-80">
+      <p class="cyber-gradient-text mb-2 text-2xl font-light md:text-4xl">
+        Page not found
+      </p>
+      <p class="mb-8 text-sm text-tech-subtle">
+        {{ route.fullPath }}
+      </p>
+      <CyberButton to="/">
+        返回首页
+      </CyberButton>
+    </CyberCard>
+  </CyberPageContainer>
 </template>
-
-<style lang="less" scoped>
-  .common-page {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    // justify-content: center;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-    &::after {
-      pointer-events: none;
-      content: '';
-      position: absolute;
-      bottom: -30vh;
-      left: 0;
-      height: 40vh;
-      width: 100%;
-      background: linear-gradient(45deg, #00dc82 0%, #36e4da 50%, #0047e1 100%);
-      filter: blur(20vh);
-    }
-    .b-text {
-      margin-top: -70px;
-    }
-  }
-</style>

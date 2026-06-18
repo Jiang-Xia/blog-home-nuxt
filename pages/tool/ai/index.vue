@@ -1,58 +1,46 @@
 <template>
-  <div class="p-4 max-w-6xl mx-auto rounded-xl bg-base-100">
-    <div class="card bg-base-100 shadow-xl mx-auto rounded-xl mb-4">
-      <div class="card-body">
-        <h2 class="card-title">
-          参数配置
-        </h2>
-        <div class="pl-8 pt-4">
-          <div class="flex items-center mb-4">
-            <span class="w-20"><span class="text-red-600">*</span>baseURL</span>
-            <input
-              v-model="baseURL"
-              type="text"
-              placeholder="baseURL"
-              class="input input-bordered input-md max-w-xs w-5/6"
-            >
-          </div>
-          <div class="flex items-center mb-4">
-            <span class="w-20"><span class="text-red-600">*</span>model</span>
-            <!-- <input
-              v-model="model"
-              type="text"
-              placeholder="deepseek-reasoner或者deepseek-chat"
-              class="input input-bordered input-md max-w-xs w-5/6"
-            > -->
-            <select
-              v-model="model"
-              placeholder="模型"
-              class="select select-accent select-bordered max-w-xs w-5/6"
-            >
-              <option v-for="item in modelList" :value="item.value">
-                {{ item.label }}
-              </option>
-            </select>
-          </div>
-          <div class="flex items-center mb-4">
-            <span class="w-20"><span class="text-red-600">*</span>apiKey</span>
-            <input
-              v-model="apiKey"
-              type="text"
-              placeholder="apiKey"
-              class="input input-bordered input-md max-w-xs w-5/6"
-            >
-          </div>
+  <div class="space-y-4">
+    <CyberToolCard title="参数配置" class="mx-auto w-full">
+      <div class="space-y-4 pt-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="w-20 shrink-0 text-sm text-tech-muted"><span class="text-error">*</span>baseURL</span>
+          <input
+            v-model="baseURL"
+            type="text"
+            placeholder="baseURL"
+            class="input input-bordered login-input min-w-0 flex-1 max-w-md"
+          >
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="w-20 shrink-0 text-sm text-tech-muted"><span class="text-error">*</span>model</span>
+          <select
+            v-model="model"
+            class="select select-bordered login-input min-w-0 flex-1 max-w-md"
+          >
+            <option v-for="item in modelList" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </option>
+          </select>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="w-20 shrink-0 text-sm text-tech-muted"><span class="text-error">*</span>apiKey</span>
+          <input
+            v-model="apiKey"
+            type="text"
+            placeholder="apiKey"
+            class="input input-bordered login-input min-w-0 flex-1 max-w-md"
+          >
         </div>
       </div>
-    </div>
+    </CyberToolCard>
 
-    <div class="mockup-browser border-base-300 border mx-auto">
+    <div class="mockup-browser border border-tech bg-[var(--tech-input-bg)] mx-auto text-tech">
       <div class="mockup-browser-toolbar">
-        <div class="input border-base-300 border">
+        <div class="input border-tech border">
           {{ model }}
         </div>
       </div>
-      <div class="border-base-300 border-t px-4 py-16">
+      <div class="border-tech border-t px-4 py-16">
         <template v-for="(item, index) in chatList">
           <div v-if="item.role === 'assistant'" class="chat chat-start">
             <div class="chat-image avatar">
@@ -90,13 +78,13 @@
         <textarea
           v-model="inputText"
           placeholder="给AI发送消息"
-          class="textarea textarea-bordered textarea-md w-3/5"
+          class="textarea textarea-bordered login-input w-3/5"
         />
         <div class="flex items-center">
           <span v-if="loading" class="loading loading-infinity loading-lg" />
-          <button class="btn btn-neutral ml-2" :disabled="loading" @click="onChange">
+          <CyberButton variant="primary" class="ml-2" :disabled="loading" @click="onChange">
             发 送
-          </button>
+          </CyberButton>
         </div>
       </div>
     </div>

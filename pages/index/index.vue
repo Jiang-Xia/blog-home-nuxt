@@ -2,141 +2,149 @@
 import { gushici } from '@/api/index';
 import { SiteTitle } from '@/utils/constant';
 
-const banners = useBanners();
-// console.log(imagesData);
 useHead({
-  title: '文章列表',
+  title: '首页',
   titleTemplate: title => `${title} - ${SiteTitle}`,
 });
-interface GushiciData {
-  content?: string;
-  author?: string;
-  origin?: string;
-}
 
-const gushiciData = ref<GushiciData>({});
+const { data: gushiciData } = await useAsyncData('gushici_Get', () => gushici());
 
-try {
-  const { data } = await useAsyncData('gushici_Get', () => gushici());
-  gushiciData.value = data.value || {};
-}
-catch (error) {
-  console.log(error);
-}
+const poetryContent = computed(() => gushiciData.value?.content || '每日诗词');
+const poetryAuthor = computed(() => {
+  const { author, origin } = gushiciData.value || {};
+  if (author && origin) return `${author} — ${origin}`;
+  return author || origin || '';
+});
 
-// 下一页
-const goToNextPage = () => {
-  window.scroll({ top: window.innerHeight, left: 0, behavior: 'smooth' });
+const { typedContent, typedAuthor, isTypingContent, isTypingAuthor, showTyped }
+  = usePoetryTypewriter(
+    () => poetryContent.value,
+    () => poetryAuthor.value,
+  );
+
+const scrollToArticles = () => {
+  document.getElementById('articles')?.scrollIntoView({ behavior: 'smooth' });
 };
 </script>
 
 <template>
-  <div class="home-container">
+  <div>
     <h1 class="hidden">
       首页 - {{ SiteTitle }}
     </h1>
-    <section class="banner-container">
-      <!-- 文字信息 -->
-      <div class="site-info">
-        <!-- <div id="site-title" class="site-title">江夏</div> -->
-        <div id="site-subtitle" class="site-subtitle">
-          <p class="content">
-            {{ gushiciData.content }}
+
+    <section
+      class="relative flex flex-col items-center px-4 pb-10 pt-8 text-center md:pb-14 md:pt-12"
+    >
+      <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl cyber-logo-badge">
+        <span class="text-xl font-bold cyber-gradient-text">X</span>
+      </div>
+
+      <div
+        class="mb-5 inline-flex items-center gap-2 rounded-full border border-tech bg-tech-header px-4 py-1.5 text-sm text-tech-muted"
+      >
+        <span class="h-1.5 w-1.5 rounded-full bg-success" />
+        个人技术博客 · 持续更新中
+      </div>
+
+      <div class="poetry-typewriter relative mb-5 w-full max-w-3xl">
+        <div class="pointer-events-none select-none opacity-0" aria-hidden="true">
+          <h2 class="mb-2 text-2xl font-bold leading-relaxed md:text-4xl">
+            <span class="cyber-gradient-text">{{ poetryContent }}</span>
+          </h2>
+          <p class="mx-auto max-w-xl text-sm md:text-base">
+            {{ poetryAuthor || '\u00A0' }}
           </p>
-          <br>
-          <p v-if="gushiciData.author" class="author-info">
-            {{ gushiciData.author }}-[{{ gushiciData.origin }}]
+        </div>
+
+        <div class="absolute inset-x-0 top-0 text-center">
+          <h2 class="mb-2 text-2xl font-bold leading-relaxed text-tech md:text-4xl">
+            <span class="cyber-gradient-text">
+              <template v-if="showTyped">{{ typedContent }}</template>
+              <template v-else>{{ poetryContent }}</template>
+            </span>
+            <span v-if="showTyped && isTypingContent" class="typing-cursor">|</span>
+          </h2>
+
+          <p class="mx-auto max-w-xl text-sm text-tech-muted md:text-base">
+            <template v-if="!showTyped">
+              {{ poetryAuthor }}
+            </template>
+            <template v-else>
+              {{ typedAuthor }}
+            </template>
+            <span v-if="showTyped && isTypingAuthor" class="typing-cursor">|</span>
           </p>
         </div>
       </div>
-      <!-- 向下提示箭头 -->
-      <div class="go-down" @click="goToNextPage">
-        <xia-icon icon="blog-double-down" height="32px" width="32px" />
+
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <CyberButton variant="primary" class="!px-6 !py-3" @click="scrollToArticles">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 4H20v16H6.5a2.5 2.5 0 0 1 0-5H20" />
+          </svg>
+          浏览文章
+        </CyberButton>
+        <CyberButton variant="secondary" to="/tool" class="!px-6 !py-3">
+          查看工具
+        </CyberButton>
+        <CyberButton
+          variant="secondary"
+          to="/rpg"
+          class="!px-6 !py-3 !border-[var(--rpg-amber-border)] !text-[var(--rpg-amber-light)]"
+        >
+          ⚔️ 开始冒险
+        </CyberButton>
       </div>
-      <div class="banner-content">
-        <xia-carousel :images="banners" :duration="60000" interval arrow />
+
+      <div class="mt-10 flex flex-wrap items-center justify-center gap-8 md:gap-12">
+        <div class="text-center">
+          <div class="text-xl font-bold text-primary md:text-2xl">
+            100+
+          </div>
+          <div class="mt-1 text-sm text-tech-subtle">
+            技术文章
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="text-xl font-bold text-primary md:text-2xl">
+            15+
+          </div>
+          <div class="mt-1 text-sm text-tech-subtle">
+            实用工具
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="text-xl font-bold text-primary md:text-2xl">
+            RPG
+          </div>
+          <div class="mt-1 text-sm text-tech-subtle">
+            文字冒险玩法
+          </div>
+        </div>
       </div>
     </section>
-    <section class="home-content">
-      <ArticleList />
+
+    <RpgHomeBanner class="mb-8" />
+
+    <section id="articles" class="mx-auto max-w-6xl px-4 pb-16">
+      <CyberSectionHeader
+        class="mb-6"
+        label="ARTICLES"
+        title="最新文章"
+        subtitle="技术分享与生活记录，欢迎阅读与交流"
+      />
+      <div class="cyber-glass-card p-4 md:p-6">
+        <ArticleList />
+      </div>
     </section>
   </div>
 </template>
-
-<style lang="less" scoped>
-  .grayscale {
-    filter: grayscale(0.95);
-  }
-
-  .home-content {
-    position: relative;
-    min-height: 150vh;
-    min-width: 40%;
-    overflow: hidden;
-    z-index: 0;
-  }
-
-  .banner-container {
-    height: 100vh;
-    .site-info {
-      pointer-events: none;
-      position: absolute;
-      width: 100%;
-      top: 50%;
-      left: 0;
-      transform: translate3d(0, -50%, 0);
-      z-index: 2;
-      font-size: 24px;
-      color: #fff;
-      text-align: center;
-      .site-title {
-        // letter-spacing: .5em;
-        font-size: 38px;
-      }
-
-      .content {
-        letter-spacing: 0.5em;
-      }
-      .author-info {
-        font-size: 16px;
-      }
-    }
-    .go-down {
-      cursor: pointer;
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translate3d(-50%, 0, 0);
-      z-index: 3;
-      color: rgba(255, 255, 255, 0.3);
-      animation: arrow-down 2s infinite;
-    }
-    .banner-content {
-      position: relative;
-      height: 100%;
-
-      img {
-        color: #fff;
-        height: 100%;
-        width: 100%;
-      }
-
-      .text-wrap {
-        position: absolute;
-        width: 100%;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 2;
-
-        h2 {
-          color: #fff;
-          font-size: 56px;
-          text-shadow: 3px 3px #000;
-          text-align: center;
-          font-weight: 500;
-        }
-      }
-    }
-  }
-</style>

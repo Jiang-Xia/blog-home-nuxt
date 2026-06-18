@@ -27,7 +27,6 @@ const okHandle = async () => {
   }
   await request.post('/link', linkState.value);
   messageSuccess('申请成功');
-  isOpen.value = false;
   linkState.value = {
     icon: '',
     url: '',
@@ -35,9 +34,7 @@ const okHandle = async () => {
     desp: '',
   };
   linkList.value = await request.get('/link', { client: true });
-  // console.log(linkList.value)
 };
-const isOpen = ref(false);
 useHead({
   title: '友链',
   titleTemplate: title => `${title} - ${SiteTitle}`,
@@ -45,108 +42,86 @@ useHead({
 </script>
 
 <template>
-  <NuxtLayout name="main-content">
-    <div class="links-container pt-3 rounded-box xl:p-4">
-      <h1 class="hidden">
-        友情链接 - {{ SiteTitle }}
-      </h1>
-      <div class="flex justify-end">
-        <label for="link-add-modal" class="btn modal-button btn-soft btn-secondary shake-rotate">+ 申请外链</label>
-      </div>
+  <CyberPageContainer label="LINKS" title="友情链接" subtitle="与志同道合的站点互联互通">
+    <h1 class="hidden">
+      友情链接 - {{ SiteTitle }}
+    </h1>
 
-      <!-- 新增弹框 -->
-      <input id="link-add-modal" type="checkbox" class="modal-toggle">
-      <div class="modal">
-        <div class="modal-box relative">
+    <div class="mb-6 flex justify-end">
+      <label for="link-add-modal" class="cyber-btn-primary cursor-pointer text-sm">
+        + 申请外链
+      </label>
+    </div>
+
+    <input id="link-add-modal" type="checkbox" class="modal-toggle">
+    <div class="modal">
+      <div class="modal-box cyber-glass-card border border-tech">
+        <label
+          for="link-add-modal"
+          class="btn btn-sm cyber-btn-secondary btn-circle absolute right-2 top-2"
+        >✕</label>
+        <h3 class="text-lg font-bold text-tech">
+          申请外链
+        </h3>
+        <div class="mt-4 space-y-4">
           <label
-            for="link-add-modal"
-            class="btn btn-neutral btn-sm btn-circle absolute right-2 top-2"
-          >✕</label>
-          <h3 class="text-lg font-bold">
-            申请外链
-          </h3>
-          <div class="pl-8 pt-4">
-            <div class="flex items-center mb-4">
-              <span class="w-16"><span class="text-red-600">*</span>网站名</span>
-              <input
-                v-model="linkState.title"
-                type="text"
-                placeholder="网站名"
-                class="input input-bordered input-sm max-w-xs w-5/6"
-              >
-            </div>
-            <div class="flex items-center mb-4">
-              <span class="w-16"><span class="text-red-600">*</span>网址</span>
-              <input
-                v-model="linkState.url"
-                type="text"
-                placeholder="网址"
-                class="input input-bordered input-sm max-w-xs w-5/6"
-              >
-            </div>
-            <div class="flex items-center mb-4">
-              <span class="w-16"><span class="text-red-600">*</span>图标</span>
-              <input
-                v-model="linkState.icon"
-                type="text"
-                placeholder="图标"
-                class="input input-bordered input-sm max-w-xs w-5/6"
-              >
-            </div>
-            <div class="flex items-center">
-              <span class="w-16"><span class="text-red-600">*</span>个签</span>
-              <input
-                v-model="linkState.desp"
-                type="text"
-                placeholder="个签"
-                class="input input-bordered input-sm max-w-xs w-5/6"
-              >
-            </div>
-            <div class="modal-action">
-              <label for="link-add-modal" class="btn btn-neutral" @click="okHandle">确 认</label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 友链列表 -->
-      <div class="flex flex-wrap justify-start mt-6">
-        <div
-          v-for="item in linkList"
-          class="card w-full lg:w-80 shadow-xl bg-base-100 transition duration-700 ease-in-out hover:scale-105 border border-base-300 m-3"
-        >
-          <div class="card-body p-2 sm:p-4">
-            <h2 class="card-title">
-              <a target="_blank" :href="item.url">{{ item.title }}</a>
-            </h2>
-            <a class="flex items-center" target="_blank" :href="item.url">
-              <div class="avatar">
-                <div class="w-10 rounded-full bg-base-300">
-                  <xia-image
-                    v-show="item.icon"
-                    lazyload
-                    :src="item.icon"
-                    :alt="item.title"
-                    class="h-full"
-                  />
-                </div>
-              </div>
-              <div class="pl-2 text-sm">{{ item.desp }}</div>
-            </a>
+            v-for="field in [
+              { key: 'title', label: '网站名', placeholder: '网站名' },
+              { key: 'url', label: '网址', placeholder: 'https://...' },
+              { key: 'icon', label: '图标', placeholder: '图标 URL' },
+              { key: 'desp', label: '个签', placeholder: '站点简介' },
+            ]"
+            :key="field.key"
+            class="form-control"
+          >
+            <span class="label"><span class="label-text"><span class="text-red-500">*</span>{{ field.label }}</span></span>
+            <input
+              v-model="linkState[field.key as keyof LinkState]"
+              type="text"
+              :placeholder="field.placeholder"
+              class="input input-bordered w-full login-input"
+            >
+          </label>
+          <div class="modal-action">
+            <label for="link-add-modal" class="cursor-pointer" @click="okHandle">
+              <CyberButton variant="primary">确 认</CyberButton>
+            </label>
           </div>
         </div>
       </div>
     </div>
-  </NuxtLayout>
-</template>
 
-<style lang="less" scoped>
-  .links-container {
-    min-height: 40vh;
-    // background: var(--main-bgc);
-    .link-btn {
-      // background: var(--minor-bgc);
-      border: none;
-    }
-  }
-</style>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <CyberCard
+        v-for="item in linkList"
+        :key="item.url"
+        hover
+        class="group !p-4 transition-transform hover:scale-[1.02]"
+      >
+        <h2 class="mb-2 text-lg font-semibold text-tech">
+          <a
+            target="_blank"
+            :href="item.url"
+            class="no-underline transition-colors hover:text-primary"
+          >{{ item.title }}</a>
+        </h2>
+        <a class="flex items-center gap-3 no-underline" target="_blank" :href="item.url">
+          <div class="avatar">
+            <div class="w-10 rounded-full bg-tech-header ring-2 ring-tech">
+              <xia-image
+                v-show="item.icon"
+                lazyload
+                :src="item.icon"
+                :alt="item.title"
+                class="h-full"
+              />
+            </div>
+          </div>
+          <p class="text-sm text-tech-muted group-hover:text-tech transition-colors">{{
+            item.desp
+          }}</p>
+        </a>
+      </CyberCard>
+    </div>
+  </CyberPageContainer>
+</template>
