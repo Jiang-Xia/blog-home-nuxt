@@ -313,7 +313,7 @@ function useRpgSocketCore() {
     const authToken = buildAuthToken();
     if (!authToken) return;
 
-    socket.value = io(`${originUrl}/rpg`, {
+    const newSocket = io(`${originUrl}/rpg`, {
       auth: { token: authToken },
       transports: ['websocket', 'polling'],
       reconnection: true,
@@ -321,14 +321,15 @@ function useRpgSocketCore() {
       reconnectionDelay: 3000,
     });
 
-    socket.value.io.on('reconnect_attempt', () => {
+    newSocket.io.on('reconnect_attempt', () => {
       const freshToken = buildAuthToken();
-      if (freshToken && socket.value) {
-        socket.value.auth = { token: freshToken };
+      if (freshToken) {
+        newSocket.auth = { token: freshToken };
       }
     });
 
-    bindSocketEvents(socket.value);
+    bindSocketEvents(newSocket);
+    socket.value = newSocket;
   };
 
   /** 主动断开并清理 socket 引用 */

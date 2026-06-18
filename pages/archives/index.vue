@@ -20,14 +20,16 @@ useHead({
       <div
         v-for="(archive, idx) in archivesList"
         :key="idx"
-        tabindex="0"
         class="collapse collapse-arrow rounded-2xl border border-tech cyber-glass-card backdrop-blur-md"
       >
-        <input type="checkbox" checked>
-        <div class="collapse-title flex items-center gap-2 text-xl font-medium text-tech">
+        <input :id="`archive-${idx}`" type="checkbox" checked>
+        <label
+          :for="`archive-${idx}`"
+          class="collapse-title flex cursor-pointer items-center gap-2 text-xl font-medium text-tech"
+        >
           <span class="cyber-feature-tag">{{ archive.year }}</span>
           年文章
-        </div>
+        </label>
         <div class="collapse-content">
           <div v-for="(value2, key2) in archive.data" :key="key2" class="mb-4">
             <h4 class="mb-2 border-b border-tech pb-1 text-sm font-medium text-tech-muted">

@@ -97,14 +97,20 @@ watch(
   { immediate: true },
 );
 
-/** Tab 切换时由父组件统一 loadTab，子组件不再各自 onMounted 请求 */
+/** Tab 切换时由父组件统一 loadTab，未登录时不请求接口 */
 watch(
   activeTab,
   (tab) => {
+    if (!isLoggedIn.value) return;
     loadTab(tab);
   },
   { immediate: true },
 );
+
+/** 登录成功后加载当前 Tab 数据 */
+watch(isLoggedIn, (loggedIn) => {
+  if (loggedIn) loadTab(activeTab.value);
+});
 
 /** 切换 Tab 并同步 URL（status 时不带 query） */
 const switchTab = (tab: typeof activeTab.value) => {
@@ -113,8 +119,9 @@ const switchTab = (tab: typeof activeTab.value) => {
   router.replace({ query: q });
 };
 
-/** 排行榜筛选变更时重新拉榜（仅在排行 Tab 激活时） */
+/** 排行榜筛选变更时重新拉榜（仅在已登录且排行 Tab 激活时） */
 watch([leaderboardType, leaderboardPeriod], () => {
+  if (!isLoggedIn.value) return;
   if (activeTab.value === 'leaderboard') loadTab('leaderboard');
 });
 

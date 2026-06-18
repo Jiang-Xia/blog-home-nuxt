@@ -56,6 +56,7 @@ import type {
  * 子组件通过 props 渲染，mutation 在本 composable 内完成并 refresh 对应 ref。
  */
 export function useRpgPage() {
+  const token = useToken();
   const rpgStatus = ref<RpgStatus | null>(null);
   const signInfo = ref<SignInfo | null>(null);
   const banStatus = ref<BanStatus | null>(null);
@@ -326,8 +327,9 @@ export function useRpgPage() {
     }
   };
 
-  /** Tab 切换入口：按 tab 名分发到对应 load*Tab */
+  /** Tab 切换入口：按 tab 名分发到对应 load*Tab（未登录时不请求） */
   const loadTab = async (tab: string) => {
+    if (!token.value) return;
     if (tab === 'status') await loadStatusTab();
     else if (tab === 'inventory') await loadInventoryTab();
     else if (tab === 'pet') await loadPetTab();
@@ -472,6 +474,7 @@ export function useRpgPage() {
   const handleSocketRefresh = async (
     scope: import('~~/composables/use-rpg-socket').RpgRefreshScope,
   ) => {
+    if (!token.value) return;
     if (scope === 'status') await reloadStatusCore();
     else if (scope === 'achievements') await reloadAchievements();
     else if (scope === 'quests') await reloadQuests();

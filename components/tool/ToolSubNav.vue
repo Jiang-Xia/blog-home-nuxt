@@ -2,33 +2,47 @@
 import { TOOL_LINKS } from '@/utils/constant';
 
 const route = useRoute();
+const mobileOpen = ref(false);
 
 const selectedTool = computed(() => TOOL_LINKS.find(item => item.path === route.path));
+
+watch(
+  () => route.path,
+  () => {
+    mobileOpen.value = false;
+  },
+);
 </script>
 
 <template>
   <div>
-    <div class="cyber-glass-card mb-4 p-4 md:hidden">
-      <div class="dropdown w-full">
-        <button tabindex="0" class="cyber-btn-secondary w-full justify-start !py-2.5">
-          <xia-icon :icon="selectedTool?.icon || 'blog-tool'" class="mr-2" />
-          <span>{{ selectedTool?.title || '选择工具' }}</span>
-        </button>
-        <ul
-          tabindex="0"
-          class="menu dropdown-content z-50 mt-2 w-full rounded-xl border border-tech bg-[var(--tech-dropdown-bg)] p-2 shadow-xl backdrop-blur-xl"
-        >
-          <li v-for="item in TOOL_LINKS" :key="item.path">
-            <NuxtLink
-              :to="item.path"
-              class="text-tech-muted hover:text-primary"
-              :class="{ 'text-primary': route.path === item.path }"
-            >
-              <xia-icon :icon="item.icon" class="mr-2" />
-              <span>{{ item.title }}</span>
-            </NuxtLink>
-          </li>
-        </ul>
+    <div class="relative z-20 mb-4 md:z-auto">
+      <div class="cyber-glass-card overflow-visible p-4 md:hidden">
+        <div class="dropdown w-full" :class="{ 'dropdown-open': mobileOpen }">
+          <button
+            type="button"
+            class="cyber-btn-secondary w-full justify-start !py-2.5"
+            @click="mobileOpen = !mobileOpen"
+          >
+            <xia-icon :icon="selectedTool?.icon || 'blog-tool'" class="mr-2" />
+            <span>{{ selectedTool?.title || '选择工具' }}</span>
+          </button>
+          <ul
+            class="menu dropdown-content z-[100] mt-2 max-h-[min(24rem,calc(100vh-12rem))] w-full overflow-y-auto rounded-xl border border-tech bg-[var(--tech-dropdown-bg)] p-2 shadow-xl backdrop-blur-xl"
+          >
+            <li v-for="item in TOOL_LINKS" :key="item.path">
+              <NuxtLink
+                :to="item.path"
+                class="text-tech-muted hover:text-primary"
+                :class="{ 'text-primary': route.path === item.path }"
+                @click="mobileOpen = false"
+              >
+                <xia-icon :icon="item.icon" class="mr-2" />
+                <span>{{ item.title }}</span>
+              </NuxtLink>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
