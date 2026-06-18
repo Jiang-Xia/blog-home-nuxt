@@ -29,30 +29,29 @@ const {
   initRpg,
 } = useRpg();
 
-const { connect, onLevelUp, onLifeChange, onBanStatus } = useRpgSocket();
+const { on } = useRpgSocket();
 
 // 升级弹窗
 const showLevelUp = ref(false);
 const levelUpData = ref<LevelUpResult | null>(null);
 
-// WebSocket事件处理
-onLevelUp.value = (data: LevelUpResult) => {
+on('levelUp', (data: LevelUpResult) => {
   levelUpData.value = data;
   showLevelUp.value = true;
-};
+});
 
-onLifeChange.value = (data: { lifeDeducted: number; currentLife: number }) => {
+on('lifeChange', (data: { lifeDeducted: number; currentLife: number }) => {
   if (rpgStatus.value) {
     rpgStatus.value.lifeValue = data.currentLife;
   }
-};
+});
 
-onBanStatus.value = (data: any) => {
+on('banStatus', (data: any) => {
   if (banStatus.value) {
     banStatus.value.banned = data.banned;
     banStatus.value.banEndTime = data.banEndTime;
   }
-};
+});
 
 // 签到
 const lastSignInResult = ref<any>(null);
@@ -84,18 +83,9 @@ const handleToggleBuff = async (
   await fetchBuffs();
 };
 
-// 初始化RPG数据 + 连接WebSocket
-const userInfo = useUserInfo();
+// 初始化RPG数据（WebSocket 由 RpgGlobalInit 统一连接）
 onMounted(async () => {
   await initRpg();
-  // uid由 nav.vue 异步获取，用watch等待
-  watch(
-    () => userInfo.value?.uid,
-    (uid) => {
-      if (uid) connect();
-    },
-    { immediate: true },
-  );
 });
 </script>
 

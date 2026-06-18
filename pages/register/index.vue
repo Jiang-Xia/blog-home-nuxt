@@ -94,10 +94,11 @@ const onAvatarFileChange = async (event: Event) => {
   if (!file) return;
   avatarUploading.value = true;
   try {
-    const res = await uploadRegisterAvatar(file);
+    const res = await uploadRegisterAvatar(file, form.avatar);
     form.avatar = parseUploadedUrl(res);
   }
-  catch {
+  catch (err: any) {
+    console.log(err);
     messageDanger('头像上传失败');
   }
   finally {

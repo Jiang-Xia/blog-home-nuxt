@@ -18,15 +18,15 @@ const {
   fetchQuests,
 } = useRpg();
 
-const { connect, onLifeChange, onBanStatus } = useRpgSocket();
+const { on } = useRpgSocket();
 
-onLifeChange.value = (data: { currentLife: number }) => {
+on('lifeChange', (data: { currentLife: number }) => {
   if (rpgStatus.value) {
     rpgStatus.value.lifeValue = data.currentLife;
   }
-};
+});
 
-onBanStatus.value = (data: { banned: boolean; banEndTime: string | null }) => {
+on('banStatus', (data: { banned: boolean; banEndTime: string | null }) => {
   if (banStatus.value) {
     banStatus.value.banned = data.banned;
     banStatus.value.banEndTime = data.banEndTime;
@@ -34,12 +34,11 @@ onBanStatus.value = (data: { banned: boolean; banEndTime: string | null }) => {
   else {
     fetchBanStatus();
   }
-};
+});
 
 onMounted(async () => {
   if (!userInfo.value?.uid) return;
   await Promise.all([initRpgInteract(), fetchQuests()]);
-  connect();
 });
 
 watch(
@@ -47,7 +46,6 @@ watch(
   async (uid) => {
     if (uid) {
       await Promise.all([initRpgInteract(), fetchQuests()]);
-      connect();
     }
   },
 );

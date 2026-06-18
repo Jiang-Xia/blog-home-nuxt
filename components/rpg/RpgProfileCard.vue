@@ -15,6 +15,7 @@ import type {
 } from '~~/types/rpg';
 import { getRpgLifeColor } from '~~/composables/use-rpg-theme';
 import { formactDate } from '@/utils/common';
+import { messageInfo } from '@/utils/toast';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
 import RpgQuestPanel from './QuestPanel.vue';
 import RpgAchievementPanel from './AchievementPanel.vue';
@@ -88,54 +89,34 @@ const claimableQuests = computed(() => allQuests.value.filter(q => q.completed &
 
 const activeBuffCount = computed(() => props.buffs.length);
 
-const {
-  connect,
-  onLevelUp,
-  onLifeChange,
-  onBanStatus,
-  onAchievementComplete,
-  onQuestReward,
-  onBuffGranted,
-} = useRpgSocket();
+const { on } = useRpgSocket();
 
 const showLevelUp = ref(false);
 const levelUpData = ref<LevelUpResult | null>(null);
 
-/** WebSocket：升级推送 → 弹出升级动画 */
-onLevelUp.value = (data: LevelUpResult) => {
-  levelUpData.value = data;
-  showLevelUp.value = true;
-};
-
-/** WebSocket：生命值变化 → 通知父组件 refresh status */
-onLifeChange.value = () => {
+/** WebSocket：生命值/禁言/成就/任务/Buff → 通知父组件增量刷新（弹窗由 RpgGlobalInit 统一处理） */
+on('lifeChange', () => {
   emit('refresh', 'status');
-};
+});
 
-/** WebSocket：禁言状态变化 → 通知父组件 refresh status */
-onBanStatus.value = () => {
+on('banStatus', () => {
   emit('refresh', 'status');
-};
+});
 
-/** WebSocket：成就达成 → toast + 刷新成就与核心状态 */
-onAchievementComplete.value = (data: { name: string; expReward: number }) => {
-  messageSuccess(`🏆 成就达成：${data.name} +${data.expReward} 经验`);
+on('achievementComplete', () => {
   emit('refresh', 'achievements');
   emit('refresh', 'status');
-};
+});
 
-/** WebSocket：任务奖励 → toast + 刷新任务与核心状态 */
-onQuestReward.value = (data: { questName: string; expReward: number }) => {
-  messageSuccess(`📋 任务奖励：${data.questName} +${data.expReward} 经验`);
+on('questReward', () => {
   emit('refresh', 'quests');
   emit('refresh', 'status');
-};
+});
 
-/** WebSocket：获得 Buff → toast + 刷新 Buff 列表 */
-onBuffGranted.value = (data: { name: string; description?: string }) => {
+on('buffGranted', (data: { name: string }) => {
   messageInfo(`✨ 获得增益：${data.name}`);
   emit('refresh', 'buffs');
-};
+});
 
 const lastSignInResult = ref<any>(null);
 
@@ -165,19 +146,6 @@ const toggleHitRecords = () => {
     emit('loadHitRecords');
   }
 };
-
-const userInfo = useUserInfo();
-
-/** uid 就绪后连接 RPG WebSocket，实时事件通过 emit refresh 交给父组件刷新 */
-onMounted(() => {
-  watch(
-    () => userInfo.value?.uid,
-    (uid) => {
-      if (uid) connect();
-    },
-    { immediate: true },
-  );
-});
 </script>
 
 <template>

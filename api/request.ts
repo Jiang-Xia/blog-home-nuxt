@@ -89,6 +89,14 @@ const requestMap = new Map();
 // 防重复请求白名单，匹配的URL跳过防重检测
 const DEBOUNCE_WHITELIST = ['/rpg/'];
 
+function shouldSkipRequestDebounce(url: string, body: unknown): boolean {
+  if (DEBOUNCE_WHITELIST.some(prefix => url.includes(prefix))) {
+    return true;
+  }
+  // FormData 无法稳定序列化，同 URL 并发上传（如文章多图）不应被误判为重复请求
+  return isMultipartBody(body);
+}
+
 /**
  * 根据HTTP状态码和响应信息生成用户友好的错误提示
  * @param status HTTP状态码
@@ -188,8 +196,16 @@ const getNetworkErrorMessage = (error: any): string => {
  * @param url 请求URL
  * @returns 加密后的请求体或原始请求体
  */
+const isMultipartBody = (body: unknown): body is FormData => {
+  return typeof FormData !== 'undefined' && body instanceof FormData;
+};
+
 const encryptMsg = (body: any, url: string) => {
   const bool = url.includes('encrypt');
+  // FormData 不能 JSON 序列化，加密会破坏 multipart 文件上传
+  if (bool && body && isMultipartBody(body)) {
+    return body;
+  }
   if (bool && body) {
     // console.log('encryptMsg-body====>', JSON.stringify(body))
     body = aesEncrypt(JSON.stringify(body));
@@ -286,15 +302,15 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
     log(`请求开始 req --------------> ${url}`);
 
     try {
-      // 白名单内的请求（如RPG相关）跳过防重检测
-      const isWhitelisted = DEBOUNCE_WHITELIST.some(prefix => url.includes(prefix));
+      // 白名单 / multipart 上传跳过防重检测
+      const skipDebounce = shouldSkipRequestDebounce(url, options.body);
       // 检查是否正在请求中，防止重复请求
-      if (!isWhitelisted && requestMap.has(requestId)) {
+      if (!skipDebounce && requestMap.has(requestId)) {
         log(`防抖，禁止重复请求！--------------> ${url}`, 'warn');
         safeReject(new Error('防抖，禁止重复请求！'));
         return;
       }
-      else if (!isWhitelisted) {
+      else if (!skipDebounce) {
         requestMap.set(requestId, options);
       }
     }

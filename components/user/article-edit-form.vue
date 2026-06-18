@@ -209,7 +209,7 @@ const onCoverFileChange = async (event: Event) => {
   if (!file) return;
   coverUploading.value = true;
   try {
-    const res = await uploadCover(file);
+    const res = await uploadCover(file, formState.cover);
     formState.cover = parseUploadedUrl(res);
     coverError.value = false;
   }

@@ -384,7 +384,10 @@ export function useRpgPage() {
     drawing.value = true;
     try {
       const results = await lotteryDraw(count, currency);
-      await reloadStatusCore();
+      await Promise.all([
+        reloadStatusCore(),
+        loadedTabs.value.has('inventory') ? reloadInventory() : Promise.resolve(),
+      ]);
       return results;
     }
     finally {

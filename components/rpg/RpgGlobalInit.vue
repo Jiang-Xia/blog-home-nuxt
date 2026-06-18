@@ -4,52 +4,71 @@
    */
 import { useRpg } from '~~/composables/use-rpg';
 import { useRpgSocket } from '~~/composables/use-rpg-socket';
-import { messageSuccess, messageInfo } from '@/utils/toast';
+import { messageInfo } from '@/utils/toast';
 import type { LevelUpResult } from '~~/types/rpg';
 
 const token = useToken();
 const userInfo = useUserInfo();
 
-const { rpgStatus, signInfo, fetchStatus, fetchSignInfo, fetchQuests, fetchBanStatus } = useRpg();
+const {
+  rpgStatus,
+  signInfo,
+  fetchStatus,
+  fetchSignInfo,
+  fetchQuests,
+  fetchBanStatus,
+  fetchAchievements,
+} = useRpg();
 
-const { connect, disconnect, onLevelUp, onLifeChange, onAchievementComplete, onQuestReward }
-  = useRpgSocket();
+const { connect, disconnect, on } = useRpgSocket();
 
 const levelUpVisible = ref(false);
 const levelUpData = ref<LevelUpResult | null>(null);
 
-onLevelUp.value = (data: LevelUpResult) => {
+const achievementVisible = ref(false);
+const achievementName = ref('');
+const achievementExpReward = ref(0);
+
+on('levelUp', (data: LevelUpResult) => {
   levelUpData.value = data;
   levelUpVisible.value = true;
   if (rpgStatus.value) {
     rpgStatus.value.level = data.newLevel;
   }
   fetchStatus();
-};
+});
 
-onLifeChange.value = (data: { currentLife: number }) => {
+on('lifeChange', (data: { currentLife: number }) => {
   if (rpgStatus.value) {
     rpgStatus.value.lifeValue = data.currentLife;
   }
-};
+});
 
-onAchievementComplete.value = (data: { name?: string; achievementName?: string }) => {
-  const name = data.name || data.achievementName || '新成就';
-  messageSuccess(`🏆 成就达成：${name}`);
-  fetchQuests();
-};
+on(
+  'achievementComplete',
+  (data: { name?: string; achievementName?: string; expReward?: number }) => {
+    achievementName.value = data.name || data.achievementName || '新成就';
+    achievementExpReward.value = data.expReward ?? 0;
+    achievementVisible.value = true;
+    fetchAchievements();
+    fetchQuests();
+    fetchStatus();
+  },
+);
 
-onQuestReward.value = (data: { questName?: string; exp?: number }) => {
+on('questReward', (data: { questName?: string; exp?: number; expReward?: number }) => {
   const label = data.questName ? `「${data.questName}」` : '任务';
-  messageSuccess(`✨ ${label} 奖励已发放${data.exp ? ` +${data.exp} EXP` : ''}`);
+  const exp = data.exp ?? data.expReward;
+  messageInfo(`✨ ${label} 奖励已发放${exp ? ` +${exp} EXP` : ''}`);
   fetchQuests();
   fetchStatus();
-};
+});
 
-const initGlobalRpg = async () => {
+/** 登录后立即连 Socket，RPG 数据后台并行拉取 */
+const initGlobalRpg = () => {
   if (!token.value || !userInfo.value?.uid) return;
-  await Promise.all([fetchStatus(), fetchSignInfo(), fetchQuests(), fetchBanStatus()]);
   connect();
+  void Promise.all([fetchStatus(), fetchSignInfo(), fetchQuests(), fetchBanStatus()]);
 };
 
 const teardown = () => {
@@ -88,6 +107,12 @@ const closeLevelUp = () => {
   levelUpData.value = null;
 };
 
+const closeAchievement = () => {
+  achievementVisible.value = false;
+  achievementName.value = '';
+  achievementExpReward.value = 0;
+};
+
 /** 首次进入且未签到时轻提示（每会话一次） */
 const signHintShown = ref(false);
 watch(
@@ -108,6 +133,12 @@ watch(
       :visible="levelUpVisible"
       :level-up-data="levelUpData"
       @close="closeLevelUp"
+    />
+    <RpgAchievementAnimation
+      :visible="achievementVisible"
+      :name="achievementName"
+      :exp-reward="achievementExpReward"
+      @close="closeAchievement"
     />
   </ClientOnly>
 </template>
