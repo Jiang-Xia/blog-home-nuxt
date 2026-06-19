@@ -36,6 +36,25 @@ import type {
   LevelReward,
 } from '~~/types/rpg';
 
+/** 同 key 并发 GET 共享 Promise，避免多组件重复请求 */
+const rpgInflight: Record<string, Promise<void> | null> = {
+  status: null,
+  signInfo: null,
+  banStatus: null,
+  quests: null,
+};
+
+function runDeduped(key: string, task: () => Promise<void>): Promise<void> {
+  if (rpgInflight[key]) {
+    return rpgInflight[key]!;
+  }
+  const p = task().finally(() => {
+    rpgInflight[key] = null;
+  });
+  rpgInflight[key] = p;
+  return p;
+}
+
 /**
  * RPG 状态管理 composable（useState 共享，多组件可读写同一份数据）
  */
@@ -188,36 +207,39 @@ export function useRpg() {
     }
   };
 
-  const fetchStatus = async () => {
-    loading.value = true;
-    try {
-      rpgStatus.value = await getRpgStatus();
-    }
-    catch (e) {
-      console.error('[useRpg] 获取RPG状态失败:', e);
-    }
-    finally {
-      loading.value = false;
-    }
-  };
+  const fetchStatus = () =>
+    runDeduped('status', async () => {
+      loading.value = true;
+      try {
+        rpgStatus.value = await getRpgStatus();
+      }
+      catch (e) {
+        console.error('[useRpg] 获取RPG状态失败:', e);
+      }
+      finally {
+        loading.value = false;
+      }
+    });
 
-  const fetchSignInfo = async () => {
-    try {
-      signInfo.value = await getRpgSignInfo();
-    }
-    catch (e) {
-      console.error('[useRpg] 获取签到信息失败:', e);
-    }
-  };
+  const fetchSignInfo = () =>
+    runDeduped('signInfo', async () => {
+      try {
+        signInfo.value = await getRpgSignInfo();
+      }
+      catch (e) {
+        console.error('[useRpg] 获取签到信息失败:', e);
+      }
+    });
 
-  const fetchBanStatus = async () => {
-    try {
-      banStatus.value = await getRpgBanStatus();
-    }
-    catch (e) {
-      console.error('[useRpg] 获取禁言状态失败:', e);
-    }
-  };
+  const fetchBanStatus = () =>
+    runDeduped('banStatus', async () => {
+      try {
+        banStatus.value = await getRpgBanStatus();
+      }
+      catch (e) {
+        console.error('[useRpg] 获取禁言状态失败:', e);
+      }
+    });
 
   const fetchHitRecords = async (page = 1, pageSize = 10) => {
     try {
@@ -273,30 +295,31 @@ export function useRpg() {
     }
   };
 
-  const fetchQuests = async () => {
-    try {
-      const data = (await getMyQuests()) as any;
-      if (Array.isArray(data)) {
-        quests.value = data;
-        questGroups.value = { daily: data, bounty: [], special: [] };
+  const fetchQuests = () =>
+    runDeduped('quests', async () => {
+      try {
+        const data = (await getMyQuests()) as any;
+        if (Array.isArray(data)) {
+          quests.value = data;
+          questGroups.value = { daily: data, bounty: [], special: [] };
+        }
+        else {
+          questGroups.value = {
+            daily: data.daily || [],
+            bounty: data.bounty || [],
+            special: data.special || [],
+          };
+          quests.value = [
+            ...questGroups.value.daily,
+            ...questGroups.value.bounty,
+            ...questGroups.value.special,
+          ];
+        }
       }
-      else {
-        questGroups.value = {
-          daily: data.daily || [],
-          bounty: data.bounty || [],
-          special: data.special || [],
-        };
-        quests.value = [
-          ...questGroups.value.daily,
-          ...questGroups.value.bounty,
-          ...questGroups.value.special,
-        ];
+      catch (e) {
+        console.error('[useRpg] 获取任务进度失败:', e);
       }
-    }
-    catch (e) {
-      console.error('[useRpg] 获取任务进度失败:', e);
-    }
-  };
+    });
 
   const claimQuest = async (questCode: string): Promise<boolean> => {
     try {

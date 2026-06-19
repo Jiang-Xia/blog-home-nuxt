@@ -31,8 +31,17 @@
 
 ## 通知
 
-- 导航栏 `NavNotificationBell`（60s 轮询未读）
-- 评论创建时后端写 `site_notification`
+- 导航栏 `NavNotificationBell`（WebSocket `siteNotification` 实时未读数，无轮询）
+- 评论创建时后端写 `site_notification` 并经 `RealtimeGateway` 推送
+- Home composable：`use-realtime-socket` + `use-site-notification`
+
+## 实时通信（全站）
+
+| 文件 | 职责 |
+|------|------|
+| `composables/use-realtime-socket.ts` | 连接 `/realtime`，分发事件 |
+| `composables/use-rpg-realtime-handlers.ts` | RPG Toast/弹窗（`RpgGlobalInit`） |
+| `composables/use-site-notification.ts` | 通知铃铛未读数 |
 
 ## 关键 API 封装
 

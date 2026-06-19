@@ -1,8 +1,9 @@
-// 自定义字体
+// 自定义字体（子集 ~156KB，见 scripts/font/build-subset.mjs）
+// ?v= 在子集字符集变更后递增，配合 nginx 短缓存强制浏览器拉新字体
 @font-face {
   font-family: HarmonyOS-Sans;
   font-display: swap;
-  src: url(https://jiang-xia.top/x-blog/api/v1/static/uploads/2024-03/eqiic4bsyyu39pd95y7ecd-HarmonyOS_Sans_SC_Regular.woff2);
+  src: url(/fonts/HarmonyOS_Sans_SC_Subset.woff2?v=1) format('woff2');
 }
 // @font-face {
 //   font-family: ZhuZiAWan;

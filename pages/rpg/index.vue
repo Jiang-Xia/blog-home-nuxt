@@ -6,7 +6,7 @@
 import { ref, watch, computed } from 'vue';
 import { messageError, messageSuccess } from '~~/utils/toast';
 import { useRpgPage } from '~~/composables/use-rpg-page';
-import { useRpgSocket } from '~~/composables/use-rpg-socket';
+import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
 
 const route = useRoute();
 const router = useRouter();
@@ -74,7 +74,7 @@ const {
   handleSocketRefresh,
 } = useRpgPage();
 
-const { onDataRefresh } = useRpgSocket();
+const { onDataRefresh } = useRealtimeSocket();
 onDataRefresh(handleSocketRefresh);
 
 definePageMeta({

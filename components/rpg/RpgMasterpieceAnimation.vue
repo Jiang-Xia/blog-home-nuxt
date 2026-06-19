@@ -2,7 +2,7 @@
 /**
    * 神作晋升动画
    */
-import type { RpgMasterpiecePayload } from '~~/composables/use-rpg-socket';
+import type { RpgMasterpiecePayload } from '~~/composables/use-realtime-socket';
 
 const props = defineProps<{
   visible: boolean;

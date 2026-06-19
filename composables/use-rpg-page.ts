@@ -469,10 +469,10 @@ export function useRpgPage() {
 
   /**
    * WebSocket 推送后按 scope 增量刷新，避免全量 reloadStatusTab。
-   * scope 由 use-rpg-socket-handlers 的 notifyDataRefresh 上报。
+   * scope 由 use-rpg-realtime-handlers 的 notifyDataRefresh 上报。
    */
   const handleSocketRefresh = async (
-    scope: import('~~/composables/use-rpg-socket').RpgRefreshScope,
+    scope: import('~~/composables/use-realtime-socket').RpgRefreshScope,
   ) => {
     if (!token.value) return;
     if (scope === 'status') await reloadStatusCore();

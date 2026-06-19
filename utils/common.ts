@@ -10,34 +10,53 @@ import { resolveStaticUrl } from '@/utils/static-url';
 
 export { resolveStaticUrl };
 
-// 分类
 const categoryOptions: any = ref([]);
-// 标签
 const tagsOptions: any = ref([]);
+const categoryLoaded = ref(false);
+const tagsLoaded = ref(false);
 export const xBLogStore = useStorage('x-blog-store', { likes: [] });
 
+const loadCategoryOptions = async () => {
+  if (categoryLoaded.value) return;
+  try {
+    const res = await getAllCategory();
+    categoryOptions.value = (res || []).filter((v: any) => v.articleCount);
+    categoryLoaded.value = true;
+  }
+  catch (e) {
+    console.error('[common] 加载分类失败:', e);
+  }
+};
+
+const loadTagOptions = async (selectedTagIds: string[] = []) => {
+  if (tagsLoaded.value) {
+    tagsOptions.value.forEach((v: any) => {
+      v.checked = selectedTagIds.includes(v.id);
+    });
+    return;
+  }
+  try {
+    const res = await getAllTag();
+    tagsOptions.value = (res || [])
+      .filter((v: any) => v.articleCount)
+      .map((v: any) => ({
+        ...v,
+        checked: selectedTagIds.includes(v.id),
+      }));
+    tagsLoaded.value = true;
+  }
+  catch (e) {
+    console.error('[common] 加载标签失败:', e);
+  }
+};
+
+/** @deprecated 请用 loadCategoryOptions / loadTagOptions（lazy） */
 const getOptions = async (type: string) => {
   if (type === '分类') {
-    let { data: res } = await useAsyncData('index_GetCategory', () => getAllCategory());
-    if (!res.value) {
-      res = ref([]); // 仅为了解决开发环境报错
-    }
-    // console.log('=>>>>>>>>>>>>>>>>>>>>>', res.value)
-    categoryOptions.value = res.value.filter((v: any) => v.articleCount);
-    // console.log(res)
+    await loadCategoryOptions();
   }
   else {
-    let { data: res } = await useAsyncData('index_GetTag', () => getAllTag());
-    // console.log({ res: res.value, })
-    if (!res.value) {
-      res = ref([]); // 仅为了解决开发环境报错
-    }
-    tagsOptions.value = res.value
-      .filter((v: any) => v.articleCount)
-      .map((v: any) => {
-        v.checked = false;
-        return v;
-      });
+    await loadTagOptions();
   }
 };
 const colors: string[] = [
@@ -64,7 +83,15 @@ const getRandomClor = () => {
   const index = Math.floor(Math.random() * colors.length);
   return colors[index];
 };
-export { categoryOptions, tagsOptions, getOptions, colors, getRandomClor };
+export {
+  categoryOptions,
+  tagsOptions,
+  getOptions,
+  loadCategoryOptions,
+  loadTagOptions,
+  colors,
+  getRandomClor,
+};
 
 export const updateViews = async (id: LocationQueryValue | LocationQueryValue[]) => {
   await request.post('/article/views', { id });

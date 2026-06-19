@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { useRpg } from '~~/composables/use-rpg';
 import {
-  useRpgSocket,
+  useRealtimeSocket,
   type LevelUpResult,
   type RpgAchievementCompletePayload,
   type RpgActivityUpdatePayload,
@@ -24,7 +24,7 @@ import {
   type RpgSocialReceivedPayload,
   type RpgTipReceivedPayload,
   type RpgWeatherBuffPayload,
-} from '~~/composables/use-rpg-socket';
+} from '~~/composables/use-realtime-socket';
 import {
   formatGuildEventMessage,
   LEADERBOARD_PERIOD_LABEL,
@@ -36,12 +36,12 @@ import { messageInfo, messageSuccess, messageWarning } from '@/utils/toast';
 const EXP_TOAST_DEBOUNCE_MS = 5000;
 
 /**
- * 全站 RPG WebSocket 事件处理（仅由 RpgGlobalInit 调用一次）
+ * 全站 RPG 实时事件处理（仅由 RpgGlobalInit 调用一次）
  * - 更新 useRpg 共享状态
  * - Toast / 弹窗反馈
  * - 通知冒险页 onDataRefresh 增量刷新
  */
-export function useRpgSocketHandlers() {
+export function useRpgRealtimeHandlers() {
   const {
     rpgStatus,
     banStatus,
@@ -52,7 +52,7 @@ export function useRpgSocketHandlers() {
     fetchBuffs,
   } = useRpg();
 
-  const { on, notifyDataRefresh } = useRpgSocket();
+  const { on, notifyDataRefresh } = useRealtimeSocket();
 
   /** 全屏弹窗状态（由 RpgGlobalInit 挂载对应 Animation 组件） */
   const levelUpVisible = ref(false);

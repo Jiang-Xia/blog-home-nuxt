@@ -8,7 +8,7 @@ export const getNotifications = (params: { page?: number; pageSize?: number } = 
   return request.get('/notification/list', params);
 };
 
-/** 未读数量；导航栏轮询 */
+/** 未读数量；登录时拉一次，平时由 WebSocket siteNotification 更新 */
 export const getUnreadNotificationCount = () => {
   return request.get('/notification/unread-count');
 };

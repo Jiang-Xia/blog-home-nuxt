@@ -1,18 +1,15 @@
 <script setup lang="ts">
 /**
    * 导航栏站内通知铃铛
-   * - 60s 轮询未读数；展开时拉列表并 markRead
+   * - WebSocket siteNotification 实时更新未读数；展开时拉列表并 markRead
    * - 展示字段来自 API payload，勿本地 map 业务 type
    */
-import {
-  getNotifications,
-  getUnreadNotificationCount,
-  markNotificationsRead,
-} from '@/api/notification';
+import { getNotifications, markNotificationsRead } from '@/api/notification';
+import { useSiteNotification } from '~~/composables/use-site-notification';
 import { beforeTimeNow } from '@/utils';
 
 const token = useToken();
-const unreadCount = ref(0);
+const { unreadCount, resetUnread } = useSiteNotification();
 const open = ref(false);
 const list = ref<any[]>([]);
 const loading = ref(false);
@@ -43,16 +40,6 @@ const notificationDesc = (item: any) => {
   return '点击查看详情';
 };
 
-const fetchUnread = async () => {
-  if (!token.value) return;
-  try {
-    unreadCount.value = Number(await getUnreadNotificationCount()) || 0;
-  }
-  catch {
-    unreadCount.value = 0;
-  }
-};
-
 /** 展开面板时拉取最近通知 */
 const fetchList = async () => {
   if (!token.value) return;
@@ -76,7 +63,7 @@ const toggle = async () => {
   if (open.value) {
     await fetchList();
     await markNotificationsRead();
-    unreadCount.value = 0;
+    resetUnread();
   }
 };
 
@@ -88,21 +75,16 @@ const onDocumentClick = (event: MouseEvent) => {
 };
 
 onMounted(() => {
-  fetchUnread();
   if (import.meta.client) {
     document.addEventListener('click', onDocumentClick);
-    const timer = window.setInterval(fetchUnread, 60000);
     onUnmounted(() => {
       document.removeEventListener('click', onDocumentClick);
-      window.clearInterval(timer);
     });
   }
 });
 
 watch(token, (v) => {
-  if (v) fetchUnread();
-  else {
-    unreadCount.value = 0;
+  if (!v) {
     closePanel();
   }
 });

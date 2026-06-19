@@ -24,3 +24,7 @@ logs
 .env.local
 .env.*.local
 !.env.example
+
+# Font subset build artifacts (source font ~4MB, regenerate via npm run font:subset)
+scripts/font/*.source.woff2
+scripts/font/subset-charset.txt

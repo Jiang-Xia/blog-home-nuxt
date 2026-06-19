@@ -8,7 +8,8 @@ import { getArticleList, getComment } from '@/api/article';
 import {
   categoryOptions,
   formactDate,
-  getOptions,
+  loadCategoryOptions,
+  loadTagOptions,
   tagsOptions,
   updateLikesHandle,
   xBLogStore,
@@ -104,8 +105,38 @@ if (articleData.value) {
   articleList.value = articleData.value.list;
   queryPrams.total = articleData.value.pagination.total;
 }
-getOptions('标签');
-getOptions('分类');
+
+const filterOptionsLoading = ref(false);
+
+const toggleCategoryDropdown = async () => {
+  tagDropdownOpen.value = false;
+  const opening = !categoryDropdownOpen.value;
+  categoryDropdownOpen.value = opening;
+  if (opening) {
+    filterOptionsLoading.value = true;
+    try {
+      await loadCategoryOptions();
+    }
+    finally {
+      filterOptionsLoading.value = false;
+    }
+  }
+};
+
+const toggleTagDropdown = async () => {
+  categoryDropdownOpen.value = false;
+  const opening = !tagDropdownOpen.value;
+  tagDropdownOpen.value = opening;
+  if (opening) {
+    filterOptionsLoading.value = true;
+    try {
+      await loadTagOptions([...queryPrams.tags]);
+    }
+    finally {
+      filterOptionsLoading.value = false;
+    }
+  }
+};
 
 const listLoading = ref(false);
 const categoryDropdownOpen = ref(false);
@@ -266,6 +297,13 @@ onMounted(
   /* async */ () => {
     likesHydrated.value = true;
     document.addEventListener('click', closeFilterDropdowns);
+    void loadSidebarComments();
+    if (props.presetCategory) {
+      void loadCategoryOptions();
+    }
+    if (props.presetTags.length) {
+      void loadTagOptions([...props.presetTags]);
+    }
   },
 );
 
@@ -275,12 +313,24 @@ onUnmounted(() => {
 const theme = useTheme();
 const isDark = computed(() => isDarkTheme(theme.value));
 
-// 最新评论
+// 最新评论（CSR，不阻塞 SSR）
 const commentsList = ref<any>([]);
-const { data: commentsData } = await useAsyncData('articleList_GetComment', () =>
-  getComment('', { pageSize: 16 }),
-);
-commentsList.value = commentsData.value?.list ?? [];
+const commentsLoading = ref(false);
+
+const loadSidebarComments = async () => {
+  if (!import.meta.client || props.hideSidebar) return;
+  commentsLoading.value = true;
+  try {
+    const res = await getComment('', { pageSize: 16 });
+    commentsList.value = res?.list ?? [];
+  }
+  catch {
+    commentsList.value = [];
+  }
+  finally {
+    commentsLoading.value = false;
+  }
+};
 
 const { getAuthorLevel, fetchLevelsForUids } = useAuthorRpgLevels();
 
@@ -380,11 +430,8 @@ watch(articleList, syncAuthorLevels, { immediate: true });
                 <button
                   type="button"
                   class="btn btn-soft btn-secondary btn-sm"
-                  :disabled="listLoading"
-                  @click="
-                    categoryDropdownOpen = !categoryDropdownOpen;
-                    tagDropdownOpen = false;
-                  "
+                  :disabled="listLoading || filterOptionsLoading"
+                  @click="toggleCategoryDropdown"
                 >
                   <xia-icon icon="blog-category" /> 分类筛选
                   <span v-if="categoryName">({{ categoryName }})</span>
@@ -467,11 +514,8 @@ watch(articleList, syncAuthorLevels, { immediate: true });
                 <button
                   type="button"
                   class="btn btn-soft btn-accent btn-sm"
-                  :disabled="listLoading"
-                  @click="
-                    tagDropdownOpen = !tagDropdownOpen;
-                    categoryDropdownOpen = false;
-                  "
+                  :disabled="listLoading || filterOptionsLoading"
+                  @click="toggleTagDropdown"
                 >
                   <xia-icon icon="blog-tag" /> 标签筛选
                   <span v-if="checkedTags">({{ checkedTags }})</span>
@@ -789,6 +833,10 @@ watch(articleList, syncAuthorLevels, { immediate: true });
         <ul class="list border border-tech bg-[var(--tech-input-bg)] rounded-box text-tech">
           <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">
             所有文章最新的评论~
+          </li>
+
+          <li v-if="commentsLoading" class="p-4 text-sm text-tech-subtle">
+            加载评论中…
           </li>
 
           <li

@@ -6,7 +6,7 @@
 import { ref, watch, onMounted } from 'vue';
 import { refreshUserInfo } from '@/composables/use-common';
 
-const { frame: avatarFrame, fetchStatus } = useEquippedAvatarFrame();
+const { frame: avatarFrame } = useEquippedAvatarFrame();
 
 const route = useRoute();
 const router = useRouter();
@@ -53,7 +53,6 @@ onMounted(async () => {
   catch {
     // 错误由全局拦截器处理
   }
-  fetchStatus().catch(() => {});
 });
 </script>
 

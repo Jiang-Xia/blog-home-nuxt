@@ -49,9 +49,9 @@ export function resolveAvatarFrameFromRpgStatus(
   return null;
 }
 
-/** 当前登录用户的装备头像框（需先 fetchStatus） */
+/** 当前登录用户的装备头像框（依赖 RpgGlobalInit 已拉取的 rpgStatus） */
 export function useEquippedAvatarFrame() {
-  const { rpgStatus, fetchStatus } = useRpg();
+  const { rpgStatus } = useRpg();
   const frame = computed(() => resolveAvatarFrameFromRpgStatus(rpgStatus.value));
-  return { frame, fetchStatus, rpgStatus };
+  return { frame, rpgStatus };
 }

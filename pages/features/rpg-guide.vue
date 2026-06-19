@@ -306,7 +306,7 @@ const socialActions = [
           另有隐藏成就「海报传播者」——分享赛季海报后解锁。
         </p>
         <p class="text-sm text-tech-muted">
-          成就达成后自动发放经验，并通过 WebSocket 实时推送通知。
+          成就达成后自动发放经验，并通过 `/realtime` WebSocket 实时推送通知。
         </p>
       </CyberCard>
     </section>
@@ -630,7 +630,10 @@ const socialActions = [
             { title: 'Buff 策略', desc: '经验类 Buff 需手动激活，建议在发文或做悬赏任务前开启。' },
             { title: '宠物优先', desc: '尽早兑换或孵化宠物并出战，永久经验加成长期收益最高。' },
             { title: '文章运营', desc: '优质文章被互动可累积声望与神作，发文初始经验随声望提升。' },
-            { title: '实时通知', desc: '冒险中心连接 WebSocket，升级、成就、禁言等会即时推送。' },
+            {
+              title: '实时通知',
+              desc: '登录后连接 /realtime WebSocket，升级、成就、禁言、站内通知等即时推送。',
+            },
           ]"
           :key="tip.title"
           class="!p-4"

@@ -7,7 +7,7 @@ import { activateBuff, deactivateBuff } from '~~/api/rpg';
 import { messageSuccess } from '~~/utils/toast';
 import { formactDate } from '@/utils/common';
 import { useRpg } from '~~/composables/use-rpg';
-import { useRpgSocket } from '~~/composables/use-rpg-socket';
+import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
 
 const {
   rpgStatus,
@@ -29,9 +29,9 @@ const {
   initRpg,
 } = useRpg();
 
-const { on } = useRpgSocket();
+const { on } = useRealtimeSocket();
 
-// 升级弹窗（冒险页局部；全站弹窗由 RpgGlobalInit + useRpgSocketHandlers 负责）
+// 升级弹窗（冒险页局部；全站弹窗由 RpgGlobalInit + useRpgRealtimeHandlers 负责）
 const showLevelUp = ref(false);
 const levelUpData = ref<LevelUpResult | null>(null);
 
@@ -41,14 +41,14 @@ on('levelUp', (data: LevelUpResult) => {
   showLevelUp.value = true;
 });
 
-/** 仅同步 HP，Toast 由 useRpgSocketHandlers 统一处理 */
+/** 仅同步 HP，Toast 由 useRpgRealtimeHandlers 统一处理 */
 on('lifeChange', (data: { lifeDeducted: number; currentLife: number }) => {
   if (rpgStatus.value) {
     rpgStatus.value.lifeValue = data.currentLife;
   }
 });
 
-/** 仅同步禁言状态，Toast 由 useRpgSocketHandlers 统一处理 */
+/** 仅同步禁言状态，Toast 由 useRpgRealtimeHandlers 统一处理 */
 on('banStatus', (data: any) => {
   if (banStatus.value) {
     banStatus.value.banned = data.banned;

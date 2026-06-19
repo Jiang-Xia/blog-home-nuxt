@@ -14,6 +14,8 @@ const proxyTarget = originUrl && apiPrefix ? `${originUrl}${apiPrefix}` : '';
 //     };
 //   });
 console.warn('当前环境: ', process.env.VITE_ENV);
+// 子集字体 cache bust；npm run font:subset 且字符集变化后递增
+const FONT_SUBSET_VERSION = '1';
 // console.warn({ 当前环境自定义配置: configs });
 export default defineNuxtConfig({
   modules: [
@@ -28,6 +30,14 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
+        {
+          // 与 styles/base/app.less 中 @font-face 的 ?v= 保持一致
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          href: `/fonts/HarmonyOS_Sans_SC_Subset.woff2?v=${FONT_SUBSET_VERSION}`,
+          crossorigin: 'anonymous',
+        },
         {
           rel: 'preload',
           as: 'style',

@@ -6,11 +6,7 @@ import { messageDanger, messageSuccess } from '@/utils/toast';
 
 const userInfo = useUserInfo();
 const editing = ref(false);
-const { frame: avatarFrame, fetchStatus } = useEquippedAvatarFrame();
-
-onMounted(() => {
-  fetchStatus().catch(() => {});
-});
+const { frame: avatarFrame } = useEquippedAvatarFrame();
 
 const displayHomepage = computed(() => {
   const url = userInfo.value?.homepage || '';

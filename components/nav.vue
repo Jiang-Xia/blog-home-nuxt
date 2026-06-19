@@ -137,19 +137,13 @@ const clear = () => {
 };
 if (import.meta.client) {
   token.value = getToken(TokenKey);
-  if (token.value) {
-    refreshUserInfo();
-  }
-  else {
+  if (!token.value) {
     clear();
   }
 }
 watch(token, (newToken) => {
   if (!import.meta.client) return;
-  if (newToken) {
-    refreshUserInfo();
-  }
-  else {
+  if (!newToken) {
     clearUserInfoFn();
   }
 });

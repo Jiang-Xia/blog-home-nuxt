@@ -2,21 +2,23 @@
 /**
    * 全站 RPG 初始化 — 登录后拉取状态、连接 WebSocket、统一推送反馈
    *
-   * WS 事件 → 全屏弹窗映射（其余事件仅 Toast，见 use-rpg-socket-handlers）：
+   * WS 事件 → 全屏弹窗映射（其余事件仅 Toast，见 use-rpg-realtime-handlers）：
    * - levelUp              → RpgLevelUpAnimation
    * - achievementComplete  → RpgAchievementAnimation
    * - masterpiece          → RpgMasterpieceAnimation
    */
 import { useRpg } from '~~/composables/use-rpg';
-import { useRpgSocket } from '~~/composables/use-rpg-socket';
-import { useRpgSocketHandlers } from '~~/composables/use-rpg-socket-handlers';
+import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
+import { useRpgRealtimeHandlers } from '~~/composables/use-rpg-realtime-handlers';
+import { refreshUserInfo } from '@/composables/use-common';
 import { messageInfo } from '@/utils/toast';
 
 const token = useToken();
 const userInfo = useUserInfo();
 
 const { signInfo, fetchStatus, fetchSignInfo, fetchQuests, fetchBanStatus } = useRpg();
-const { connect, disconnect } = useRpgSocket();
+const { connect, disconnect } = useRealtimeSocket();
+const initInflight = ref<Promise<void> | null>(null);
 
 const {
   levelUpVisible,
@@ -29,13 +31,23 @@ const {
   closeLevelUp,
   closeAchievement,
   closeMasterpiece,
-} = useRpgSocketHandlers();
+} = useRpgRealtimeHandlers();
 
-/** 登录后立即连 Socket，RPG 数据后台并行拉取 */
+/** 登录后立即连 Socket，用户信息与 RPG 数据并行拉取 */
 const initGlobalRpg = () => {
-  if (!token.value || !userInfo.value?.uid) return;
-  connect();
-  void Promise.all([fetchStatus(), fetchSignInfo(), fetchQuests(), fetchBanStatus()]);
+  if (!token.value) return;
+  if (initInflight.value) return initInflight.value;
+  initInflight.value = (async () => {
+    if (!userInfo.value?.uid) {
+      await refreshUserInfo();
+    }
+    if (!token.value || !userInfo.value?.uid) return;
+    connect();
+    await Promise.all([fetchStatus(), fetchSignInfo(), fetchQuests(), fetchBanStatus()]);
+  })().finally(() => {
+    initInflight.value = null;
+  });
+  return initInflight.value;
 };
 
 const teardown = () => {
@@ -43,8 +55,8 @@ const teardown = () => {
 };
 
 onMounted(() => {
-  if (token.value && userInfo.value?.uid) {
-    initGlobalRpg();
+  if (token.value) {
+    void initGlobalRpg();
   }
 });
 
@@ -52,7 +64,7 @@ watch(
   () => userInfo.value?.uid,
   (uid) => {
     if (uid && token.value) {
-      initGlobalRpg();
+      void initGlobalRpg();
     }
     else {
       teardown();
@@ -61,8 +73,8 @@ watch(
 );
 
 watch(token, (t) => {
-  if (t && userInfo.value?.uid) {
-    initGlobalRpg();
+  if (t) {
+    void initGlobalRpg();
   }
   else {
     teardown();
