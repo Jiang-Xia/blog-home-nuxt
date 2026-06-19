@@ -142,7 +142,11 @@ const needsRpgGlobal = computed(() => {
         </NuxtLink>
       </p>
       <p class="text-tech-faint">
-        Powered By Typescript & Vue3 & Nuxt3 & Tailwindcss & DaisyUI & Node.js & NestJS
+        前台与管理端 MIT 开源 ·
+        <NuxtLink to="/open-source" class="link link-hover text-tech-muted">
+          后端闭源与合作
+        </NuxtLink>
+        · Powered By Typescript & Vue3 & Nuxt3 & Tailwindcss & DaisyUI & Node.js & NestJS
       </p>
     </footer>
     <!-- 回到顶部（文章详情页由冒险 FAB 提供） -->

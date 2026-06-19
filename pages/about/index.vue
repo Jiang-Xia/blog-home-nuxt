@@ -24,7 +24,7 @@ useHead({
     <h1 class="hidden">
       关于我 - {{ SiteTitle }}
     </h1>
-    <CyberCard class="!p-2 md:!p-4">
+    <CyberCard class="about-md !p-2 md:!p-4">
       <MdPreview
         :key="mdKey"
         v-model="content"
@@ -36,3 +36,17 @@ useHead({
     </CyberCard>
   </CyberPageContainer>
 </template>
+
+<style scoped lang="less">
+  /* 关于页二维码/配图不宜占满版心 */
+  .about-md :deep(.x-md-editor img) {
+    display: block;
+    max-width: min(240px, 100%);
+    max-height: 280px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin: 0.75rem 0;
+    border-radius: 0.5rem;
+  }
+</style>

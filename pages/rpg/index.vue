@@ -5,13 +5,14 @@
    */
 import { ref, watch, computed } from 'vue';
 import { messageError, messageSuccess } from '~~/utils/toast';
+import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 import { useRpgPage } from '~~/composables/use-rpg-page';
 import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
 
 const route = useRoute();
 const router = useRouter();
-const profileCardRef = ref<{ setSignInResult: (result: any) => void } | null>(null);
-const lotteryBoxRef = ref<{ showDrawResults: (results: any[]) => void } | null>(null);
+const profileCardRef = ref<{ setSignInResult: (_result: any) => void } | null>(null);
+const lotteryBoxRef = ref<{ showDrawResults: (_results: any[]) => void } | null>(null);
 const onboardingRef = ref<{ open: () => void } | null>(null);
 
 const token = useToken();
@@ -180,7 +181,7 @@ const onDraw = async (count: number, currency: 'ticket' | 'currency') => {
     return results;
   }
   catch (e: any) {
-    messageError(e?.message || '抽奖失败');
+    handleRpgCurrencyError(e, '抽奖失败');
     return [];
   }
 };
@@ -235,7 +236,7 @@ const onBuyPet = async (petCode: string) => {
     messageSuccess('兑换成功');
   }
   catch (e: any) {
-    messageError(e?.message || '兑换失败');
+    handleRpgCurrencyError(e, '兑换失败');
   }
 };
 

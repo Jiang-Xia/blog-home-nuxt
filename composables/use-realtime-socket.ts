@@ -110,6 +110,7 @@ export interface RpgSocialReceivedPayload {
 /** tipReceived 事件 */
 export interface RpgTipReceivedPayload {
   fromUid: number;
+  fromNickname?: string;
   amount: number;
   articleId: number;
   articleTitle: string;

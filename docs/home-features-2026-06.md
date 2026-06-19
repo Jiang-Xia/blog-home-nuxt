@@ -40,7 +40,8 @@
 | 文件 | 职责 |
 |------|------|
 | `composables/use-realtime-socket.ts` | 连接 `/realtime`，分发事件 |
-| `composables/use-rpg-realtime-handlers.ts` | RPG Toast/弹窗（`RpgGlobalInit`） |
+| `composables/use-rpg-realtime-handlers.ts` | RPG Toast/弹窗（升级/成就/神作/收到加油·鲜花·鸡蛋·打赏）；`RpgGlobalInit` |
+| `composables/use-rpg-recharge.ts` + `RpgRechargeModal` | 钻石不足时充值引导弹窗（1元=100钻石 + 二维码） |
 | `composables/use-site-notification.ts` | 通知铃铛未读数 |
 
 ## 关键 API 封装

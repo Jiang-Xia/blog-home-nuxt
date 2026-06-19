@@ -14,42 +14,44 @@
     </div>
 
     <!-- 按钮固定在屏幕中间下方 -->
-    <div class="fixed bottom-10 left-1/2 transform -translate-x-1/2 flex gap-2 z-50">
+    <div
+      class="fixed bottom-10 left-1/2 z-50 flex max-w-[96vw] flex-wrap justify-center gap-2 -translate-x-1/2 px-2"
+    >
       <button class="btn btn-primary btn-xs" @click="rotateLeft">
-        Rotate Left
+        左转
       </button>
       <button class="btn btn-primary btn-xs" @click="rotateRight">
-        Rotate Right
+        右转
       </button>
       <button class="btn btn-secondary btn-xs" @click="prevImage">
-        Prev
+        上一张
       </button>
       <button class="btn btn-secondary btn-xs" @click="nextImage">
-        Next
+        下一张
       </button>
       <button class="btn btn-accent btn-xs" @click="resetTransform">
-        Reset
+        重置
       </button>
       <button class="btn btn-warning btn-xs" @click="flipVerticalImage">
-        Flip Vertically
+        上下翻转
       </button>
       <button class="btn btn-warning btn-xs" @click="flipHorizontalImage">
-        Flip Horizontally
+        左右翻转
       </button>
       <button class="btn btn-secondary btn-xs" @click="zoomIn">
-        Zoom In
+        放大
       </button>
       <button class="btn btn-secondary btn-xs" @click="zoomOut">
-        Zoom Out
+        缩小
       </button>
       <button class="btn btn-info btn-xs" @click="toggleFullscreen">
-        {{ isFullscreen ? 'Exit Fullscreen' : 'Fullscreen' }}
+        {{ isFullscreen ? '退出全屏' : '全屏' }}
       </button>
     </div>
 
     <!-- 关闭按钮 - 使用 daisyUI btn-warning 样式并统一按钮大小 -->
     <button class="btn btn-warning btn-xs absolute top-4 right-4 z-50" @click="closeViewer">
-      Close
+      关闭
     </button>
   </div>
 </template>
@@ -84,6 +86,17 @@ watch(currentIndex, () => {
   currentImage.value = props.images[currentIndex.value];
 });
 
+watch(
+  () => props.initialIndex,
+  (index) => {
+    if (index >= 0 && index < props.images.length) {
+      currentIndex.value = index;
+      currentImage.value = props.images[index];
+      resetTransform();
+    }
+  },
+);
+
 // 确保在打开查看器时正确设置当前图片
 onMounted(() => {
   currentImage.value = props.images[currentIndex.value];
@@ -114,11 +127,6 @@ const zoomIn = () => {
 
 const zoomOut = () => {
   scale.value -= 0.1;
-};
-
-// 恢复图片为 1:1 比例
-const resetScale = () => {
-  scale.value = 1;
 };
 
 // 翻转图片（上下翻转）

@@ -23,6 +23,7 @@ export const NAV_LINKS: NavLink[] = [
   { path: '/projects', title: '项目' },
   { path: '/tool', title: '工具箱' },
   { path: '/features', title: '特性' },
+  // { path: '/open-source', title: '开源' },
 ];
 
 export const TOOL_LINKS: ToolLink[] = [

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { socialCheer, socialEgg, socialFlower } from '~~/api/rpg';
 import { messageSuccess, messageError } from '~~/utils/toast';
+import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 
 defineProps<{ targetUid: number }>();
 const userInfo = useUserInfo();
 const loading = ref(false);
 
-const act = async (fn: () => Promise<any>, getLabel?: (res: any) => string) => {
+const act = async (fn: () => Promise<any>, getLabel?: (_res: any) => string) => {
   if (!userInfo.value?.uid) {
     messageError('请先登录');
     return;
@@ -17,7 +18,7 @@ const act = async (fn: () => Promise<any>, getLabel?: (res: any) => string) => {
     messageSuccess(getLabel ? getLabel(res) : '操作成功');
   }
   catch (e: any) {
-    messageError(e?.message || '操作失败');
+    handleRpgCurrencyError(e, '操作失败');
   }
   finally {
     loading.value = false;

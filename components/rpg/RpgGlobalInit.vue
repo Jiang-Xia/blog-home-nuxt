@@ -6,6 +6,8 @@
    * - levelUp              → RpgLevelUpAnimation
    * - achievementComplete  → RpgAchievementAnimation
    * - masterpiece          → RpgMasterpieceAnimation
+   * - socialReceived/tipReceived → RpgSocialFeedbackAnimation
+   * - 钻石不足              → RpgRechargeModal（handleRpgCurrencyError）
    */
 import { useRpg } from '~~/composables/use-rpg';
 import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
@@ -28,10 +30,15 @@ const {
   achievementExpReward,
   masterpieceVisible,
   masterpieceData,
+  socialFeedbackVisible,
+  socialFeedbackData,
   closeLevelUp,
   closeAchievement,
   closeMasterpiece,
+  closeSocialFeedback,
 } = useRpgRealtimeHandlers();
+
+const { visible: rechargeVisible, closeRechargeModal } = useRpgRecharge();
 
 /** 登录后立即连 Socket，用户信息与 RPG 数据并行拉取 */
 const initGlobalRpg = () => {
@@ -113,5 +120,11 @@ watch(
       :data="masterpieceData"
       @close="closeMasterpiece"
     />
+    <RpgSocialFeedbackAnimation
+      :visible="socialFeedbackVisible"
+      :data="socialFeedbackData"
+      @close="closeSocialFeedback"
+    />
+    <RpgRechargeModal :visible="rechargeVisible" @close="closeRechargeModal" />
   </ClientOnly>
 </template>

@@ -30,6 +30,7 @@ import {
   LEADERBOARD_PERIOD_LABEL,
   SOCIAL_ACTION_LABEL,
 } from '~~/constants/rpg-ws-display';
+import type { RpgSocialFeedbackData } from '~~/types/rpg';
 import { messageInfo, messageSuccess, messageWarning } from '@/utils/toast';
 
 /** 前端 expGain 二次防抖窗口（与后端 8s 互补） */
@@ -64,6 +65,9 @@ export function useRpgRealtimeHandlers() {
 
   const masterpieceVisible = ref(false);
   const masterpieceData = ref<RpgMasterpiecePayload | null>(null);
+
+  const socialFeedbackVisible = ref(false);
+  const socialFeedbackData = ref<RpgSocialFeedbackData | null>(null);
 
   /** expGain 前端二次防抖：后端已 8s 合并，此处再 5s 合并 Toast，避免连续弹窗 */
   let expToastTimer: ReturnType<typeof setTimeout> | null = null;
@@ -186,19 +190,39 @@ export function useRpgRealtimeHandlers() {
     notifyDataRefresh('status');
   });
 
-  /** 收到社交互动：按 action Toast（加油/鸡蛋/鲜花）；同步 HP → refresh status */
+  const showSocialFeedback = (feedback: RpgSocialFeedbackData) => {
+    socialFeedbackData.value = feedback;
+    socialFeedbackVisible.value = true;
+  };
+
+  /** 收到社交互动：Toast + 全屏弹框；同步 HP → refresh status */
   on('socialReceived', (data) => {
     const payload = data as RpgSocialReceivedPayload;
     const actionLabel = SOCIAL_ACTION_LABEL[payload.action] || payload.action;
     const from = payload.fromNickname || '冒险者';
     if (payload.action === 'cheer') {
       messageInfo(`💪 ${from} 给你加油了！HP +${payload.hpDelta}`);
+      showSocialFeedback({
+        kind: 'cheer',
+        fromNickname: from,
+        hpDelta: payload.hpDelta,
+      });
     }
     else if (payload.action === 'egg') {
       messageWarning(`🥚 ${from} 向你扔了鸡蛋！HP ${payload.hpDelta}`);
+      showSocialFeedback({
+        kind: 'egg',
+        fromNickname: from,
+        hpDelta: payload.hpDelta,
+      });
     }
     else if (payload.action === 'flower') {
       messageInfo(`🌸 ${from} 向你送了鲜花！声望 +${payload.reputationDelta}`);
+      showSocialFeedback({
+        kind: 'flower',
+        fromNickname: from,
+        reputationDelta: payload.reputationDelta,
+      });
     }
     else {
       messageInfo(`${from} 对你进行了${actionLabel}`);
@@ -210,10 +234,17 @@ export function useRpgRealtimeHandlers() {
     notifyDataRefresh('status');
   });
 
-  /** 收到打赏：Success Toast → refresh status / inventory */
+  /** 收到打赏：Toast + 全屏弹框 → refresh status / inventory */
   on('tipReceived', (data) => {
     const payload = data as RpgTipReceivedPayload;
+    const from = payload.fromNickname || '冒险者';
     messageSuccess(`💎 收到打赏 +${payload.amount} 钻石《${payload.articleTitle}》`);
+    showSocialFeedback({
+      kind: 'tip',
+      fromNickname: from,
+      amount: payload.amount,
+      articleTitle: payload.articleTitle,
+    });
     void fetchStatus();
     notifyDataRefresh('status');
     notifyDataRefresh('inventory');
@@ -347,6 +378,11 @@ export function useRpgRealtimeHandlers() {
     masterpieceData.value = null;
   };
 
+  const closeSocialFeedback = () => {
+    socialFeedbackVisible.value = false;
+    socialFeedbackData.value = null;
+  };
+
   return {
     levelUpVisible,
     levelUpData,
@@ -355,8 +391,11 @@ export function useRpgRealtimeHandlers() {
     achievementExpReward,
     masterpieceVisible,
     masterpieceData,
+    socialFeedbackVisible,
+    socialFeedbackData,
     closeLevelUp,
     closeAchievement,
     closeMasterpiece,
+    closeSocialFeedback,
   };
 }
