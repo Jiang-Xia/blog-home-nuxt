@@ -24,7 +24,7 @@ useHead({
     :title="tagMeta?.label ? `# ${tagMeta.label}` : '标签文章'"
     subtitle="该标签下的全部文章"
   >
-    <div class="cyber-glass-card p-4 md:p-6">
+    <div class="cyber-glass-card overflow-visible p-4 md:p-6">
       <ArticleList
         embed-mode
         hide-sidebar

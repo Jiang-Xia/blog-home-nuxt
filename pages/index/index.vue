@@ -151,7 +151,7 @@ const scrollToArticles = () => {
         title="最新文章"
         subtitle="技术分享与生活记录，欢迎阅读与交流"
       />
-      <div class="cyber-glass-card p-4 md:p-6">
+      <div class="cyber-glass-card overflow-visible p-4 md:p-6">
         <ArticleList />
       </div>
     </section>

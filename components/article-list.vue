@@ -13,6 +13,7 @@ import {
   tagsOptions,
   updateLikesHandle,
   xBLogStore,
+  resolveStaticUrl,
 } from '@/utils/common';
 import { colorRgb } from '~~/utils/color';
 import { debounce } from '~~/utils';
@@ -148,9 +149,6 @@ const closeFilterDropdowns = () => {
 };
 
 const router = useRouter();
-const navigateToDetail = (id: string) => {
-  router.push(`/detail/${id}`);
-};
 
 // 下一页
 const getArticleListHandle = async (val = 1) => {
@@ -230,7 +228,15 @@ const checkedTags = computed(() => {
 const categoryName = computed(() => {
   return categoryOptions.value.find((v: any) => v.id === queryPrams.category)?.label;
 });
-  // 分页
+
+const filterDropdownOpen = computed(() => categoryDropdownOpen.value || tagDropdownOpen.value);
+
+const MAX_VISIBLE_CARD_TAGS = 3;
+
+const visibleCardTags = (tags: any[] = []) => tags.slice(0, MAX_VISIBLE_CARD_TAGS);
+
+const hiddenCardTagCount = (tags: any[] = []) => Math.max(0, tags.length - MAX_VISIBLE_CARD_TAGS);
+// 分页
 const current = ref(1);
 const currentChangeHandle = (val: number) => {
   current.value = val;
@@ -264,11 +270,20 @@ const toRgb = (color: string, alpha = 0.24) => {
   return color;
 };
 
-const tagFilterStyle = (item: any) => ({
-  borderColor: item.color,
-  color: item.checked ? 'var(--color-primary-content)' : item.color,
-  backgroundColor: item.checked ? item.color : toRgb(item.color),
+const metaBadgeStyle = (color: string) => ({
+  borderColor: color,
+  color,
+  backgroundColor: toRgb(color),
 });
+
+const tagFilterStyle = (item: any) =>
+  item.checked
+    ? {
+        borderColor: item.color,
+        color: 'var(--color-primary-content)',
+        backgroundColor: item.color,
+      }
+    : metaBadgeStyle(item.color);
 
 // 客户端执行
 // 本地点赞：hydration 后再读 localStorage，避免 SSR/客户端图标不一致
@@ -413,7 +428,10 @@ watch(articleList, syncAuthorLevels, { immediate: true });
       </div>
 
       <!-- 筛选条件 -->
-      <div class="condition-card-wrap mb-4 max-w-7xl">
+      <div
+        class="condition-card-wrap mb-4 max-w-7xl"
+        :class="{ 'is-filter-open': filterDropdownOpen }"
+      >
         <base-card
           icon="blog-filter"
           :title="'筛选条件(' + queryPrams.total + ')'"
@@ -437,8 +455,9 @@ watch(articleList, syncAuthorLevels, { immediate: true });
                   <span v-if="categoryName">({{ categoryName }})</span>
                 </button>
                 <ul
+                  v-show="categoryDropdownOpen"
                   tabindex="0"
-                  class="dropdown-content menu z-[120] hidden w-72 max-h-96 rounded-box border border-tech bg-[var(--tech-dropdown-bg)] shadow-sm text-tech md:block"
+                  class="filter-dropdown-panel dropdown-content menu z-[120] max-md:hidden"
                 >
                   <div
                     v-for="item of categoryOptions"
@@ -521,22 +540,23 @@ watch(articleList, syncAuthorLevels, { immediate: true });
                   <span v-if="checkedTags">({{ checkedTags }})</span>
                 </button>
                 <ul
+                  v-show="tagDropdownOpen"
                   tabindex="0"
-                  class="dropdown-content menu z-[120] hidden w-72 max-h-96 rounded-box border border-tech bg-[var(--tech-dropdown-bg)] shadow-sm text-tech md:block"
+                  class="filter-dropdown-panel dropdown-content menu z-[120] max-md:hidden"
                 >
-                  <div class="flex flex-wrap gap-2 p-3">
+                  <div class="filter-tag-grid">
                     <button
                       v-for="item of tagsOptions"
                       :key="item.id"
                       type="button"
-                      class="badge badge-outline badge-sm cursor-pointer transition-colors"
+                      class="article-meta-badge filter-tag-item transition-colors"
                       :style="tagFilterStyle(item)"
                       @click="clickTagHandle(item, '标签')"
                     >
                       {{ item.label }} ({{ item.articleCount }})
                     </button>
                   </div>
-                  <div class="mt-4 text-center">
+                  <div class="mt-3 text-center">
                     <button
                       type="button"
                       class="btn-block btn btn-soft btn-error btn-xs"
@@ -550,12 +570,12 @@ watch(articleList, syncAuthorLevels, { immediate: true });
 
               <!-- 移动端：内联展开 -->
               <div v-show="tagDropdownOpen" class="mobile-filter-panel mt-2 md:hidden" @click.stop>
-                <div class="flex flex-wrap gap-2 p-1">
+                <div class="filter-tag-grid filter-tag-grid--mobile">
                   <button
                     v-for="item of tagsOptions"
                     :key="'m-tag-' + item.id"
                     type="button"
-                    class="badge badge-outline badge-sm cursor-pointer transition-colors"
+                    class="article-meta-badge filter-tag-item transition-colors"
                     :style="tagFilterStyle(item)"
                     @click="clickTagHandle(item, '标签')"
                   >
@@ -591,33 +611,40 @@ watch(articleList, syncAuthorLevels, { immediate: true });
           <div
             v-for="item in articleList"
             :key="item.id"
-            class="article-item cyber-glass-card cyber-glass-card--hover mb-5 overflow-hidden transition-all cursor-pointer"
+            class="article-item cyber-glass-card cyber-glass-card--hover mb-5 overflow-hidden transition-all"
             role="article"
-            tabindex="0"
-            @click="navigateToDetail(item.id)"
-            @keydown.enter="navigateToDetail(item.id)"
           >
             <figure class="article-item-cover m-0">
-              <XiaCardBorderLight
-                v-if="isDark"
-                :pic="item.cover"
-                class="article-item-cover-border"
-                style="--border-size: 8px; --pic-inset: 8px"
-              />
-              <xia-image
-                v-else
-                :src="item.cover"
-                lazyload
-                class="article-item-cover-img w-full bg-base-300 [&_img]:object-cover"
-                :alt="item.category.label"
-              />
+              <NuxtLink
+                :to="`/detail/${item.id}`"
+                class="article-cover-link"
+                :aria-label="`阅读：${item.title}`"
+              >
+                <XiaCardBorderLight
+                  v-if="isDark"
+                  :pic="resolveStaticUrl(item.cover)"
+                  class="article-item-cover-border"
+                  style="--border-size: 8px; --pic-inset: 8px"
+                />
+                <xia-image
+                  v-else
+                  :src="resolveStaticUrl(item.cover)"
+                  lazyload
+                  class="article-item-cover-img w-full bg-base-300 [&_img]:object-cover"
+                  :alt="item.category.label"
+                />
+              </NuxtLink>
             </figure>
             <div class="card-body text-base-content/70">
               <h2 class="card-title text-base-content flex-wrap gap-1">
-                {{ item.title }}
-                <div v-if="item.topping" class="badge badge-soft badge-secondary">
-                  TOP
-                </div>
+                <NuxtLink :to="`/detail/${item.id}`" class="article-title-link">{{
+                  item.title
+                }}</NuxtLink>
+                <span
+                  v-if="item.topping"
+                  class="article-top-badge inline-flex shrink-0 items-center rounded-md px-1.5 py-px text-[10px] font-bold"
+                  title="置顶"
+                >TOP</span>
                 <RpgLevelBadge
                   v-if="item.articleLevel && item.articleLevel > 1"
                   :level="item.articleLevel"
@@ -628,39 +655,52 @@ watch(articleList, syncAuthorLevels, { immediate: true });
               <p class="text-sm text-overflow-hidden-3">
                 {{ item.description }}
               </p>
-              <div class="card-actions justify-start text-xs flex-wrap">
-                <div class="flex items-center">
+              <div class="card-actions flex-col items-stretch gap-2 text-xs">
+                <div class="article-meta-chips flex flex-wrap items-center gap-1">
                   <!-- 分类 -->
                   <NuxtLink
                     v-if="item.category?.id"
                     :to="`/category/${item.category.id}`"
-                    class="text-icon mr-2 flex items-center no-underline hover:opacity-80"
-                    :style="{ color: item.category.color }"
-                    @click.stop
+                    class="article-meta-badge no-underline hover:opacity-80"
+                    :style="metaBadgeStyle(item.category.color)"
                   >
-                    <xia-icon icon="blog-category" class="mr-1" />
-                    {{ item.category.label }}
+                    <xia-icon icon="blog-category" width="10px" height="10px" /><span>{{
+                      item.category.label
+                    }}</span>
                   </NuxtLink>
-                  <!-- 标签 -->
+                  <!-- 标签（最多展示 3 个，其余折叠） -->
                   <NuxtLink
-                    v-for="tag in item.tags"
+                    v-for="tag in visibleCardTags(item.tags)"
                     :key="tag.id"
                     :to="`/tag/${tag.id}`"
-                    class="text-icon mr-2 flex items-center no-underline hover:opacity-80"
-                    :style="{ color: tag.color }"
-                    @click.stop
+                    class="article-meta-badge no-underline hover:opacity-80"
+                    :style="metaBadgeStyle(tag.color)"
                   >
-                    <xia-icon icon="blog-tag" class="mr-1" />
-                    {{ tag.label }}
+                    <xia-icon icon="blog-tag" width="10px" height="10px" /><span>{{
+                      tag.label
+                    }}</span>
                   </NuxtLink>
+                  <span
+                    v-if="hiddenCardTagCount(item.tags)"
+                    class="article-meta-badge article-meta-badge--more"
+                    :title="`${hiddenCardTagCount(item.tags)} 个更多标签`"
+                  >
+                    +{{ hiddenCardTagCount(item.tags) }}
+                  </span>
+                </div>
+                <div
+                  class="article-meta-stats flex flex-wrap items-center gap-x-3 gap-y-1 text-base-content/60"
+                >
                   <!-- 阅读量 -->
-                  <span class="text-icon mr-2 flex items-center pointer"><xia-icon icon="blog-view" class="mr-1" />{{ item.views }}</span>
+                  <span class="inline-flex shrink-0 items-center whitespace-nowrap">
+                    <xia-icon icon="blog-view" class="mr-1" />{{ item.views }}
+                  </span>
                   <!-- 点赞数 -->
                   <button
                     type="button"
-                    class="text-icon mr-2 flex items-center pointer bg-transparent border-0 p-0 cursor-pointer"
+                    class="inline-flex shrink-0 items-center whitespace-nowrap bg-transparent border-0 p-0 cursor-pointer"
                     :aria-label="isItemLiked(item.id) ? '取消点赞' : '点赞'"
-                    @click.stop.prevent="updateLikesHandle(item)"
+                    @click.prevent="updateLikesHandle(item)"
                   >
                     <xia-icon
                       :icon="isItemLiked(item.id) ? 'blog-like-solid' : 'blog-like'"
@@ -669,7 +709,7 @@ watch(articleList, syncAuthorLevels, { immediate: true });
                     {{ item.likes }}
                   </button>
                   <!-- 评论数 -->
-                  <span class="text-icon mr-2 flex items-center">
+                  <span class="inline-flex shrink-0 items-center whitespace-nowrap">
                     <xia-icon icon="blog-pinglun" class="mr-1" />
                     {{ item.commentCount }}
                   </span>
@@ -681,7 +721,6 @@ watch(articleList, syncAuthorLevels, { immediate: true });
                       :to="`/user/${item.uid}`"
                       class="author-link group inline-flex items-center gap-1.5 rounded-full transition-all hover:opacity-90"
                       title="查看作者主页"
-                      @click.stop
                     >
                       <div
                         class="avatar btn btn-ghost btn-circle btn-xs ring-1 ring-transparent transition-all group-hover:ring-primary/50"
@@ -714,7 +753,11 @@ watch(articleList, syncAuthorLevels, { immediate: true });
                     </template>
                     <span>{{ formactDate(item.createTime) }}</span>
                   </div>
-                  <span class="btn btn-xs cyber-btn-secondary xia-btn pointer-events-none">Read</span>
+                  <NuxtLink
+                    :to="`/detail/${item.id}`"
+                    class="article-read-btn shrink-0 no-underline"
+                    aria-label="阅读全文"
+                  >阅读</NuxtLink>
                 </div>
               </div>
             </div>
@@ -888,9 +931,56 @@ watch(articleList, syncAuthorLevels, { immediate: true });
     }
 
     .condition-card-wrap {
+      &.is-filter-open {
+        position: relative;
+        z-index: 50;
+      }
+
+      :deep(.card-wrap) {
+        overflow: visible;
+      }
+
       :deep(.card-wrap .card-content) {
         overflow: visible;
       }
+    }
+
+    .filter-dropdown-panel {
+      position: absolute;
+      left: 0;
+      top: calc(100% + 0.375rem);
+      width: min(24rem, calc(100vw - 2rem));
+      max-height: min(20rem, 50vh);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      border-radius: 0.75rem;
+      border: 1px solid var(--tech-border);
+      background: var(--tech-dropdown-bg);
+      box-shadow: 0 12px 32px rgb(0 0 0 / 18%);
+      color: var(--tech-fg);
+      padding: 0.375rem;
+    }
+
+    .filter-tag-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.625rem 0.75rem;
+      padding: 0.5rem;
+    }
+
+    /* 与卡片 .article-meta-badge 同高同字号，宽度随文案自适应 */
+    .filter-tag-item {
+      width: fit-content;
+      max-width: 100%;
+      height: 1.125rem;
+      padding: 0 0.3125rem;
+      font-size: 0.6875rem;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .filter-tag-grid--mobile {
+      padding: 0;
     }
 
     .mobile-filter-panel {
@@ -959,7 +1049,62 @@ watch(articleList, syncAuthorLevels, { immediate: true });
     .category__text {
       line-height: 1.8;
       flex: 1;
+      min-width: 0;
+      word-break: break-word;
     }
+
+    .article-meta-chips {
+      min-width: 0;
+    }
+
+    .article-meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      height: 1.125rem;
+      padding: 0 0.3125rem;
+      border: 1px solid;
+      border-radius: 0.25rem;
+      font-size: 0.6875rem;
+      line-height: 1;
+      white-space: nowrap;
+      flex-shrink: 0;
+      cursor: pointer;
+
+      :deep(.x-icon) {
+        line-height: 0;
+        flex-shrink: 0;
+        margin-right: 1px;
+
+        svg {
+          display: block;
+          width: 10px;
+          height: 10px;
+        }
+      }
+    }
+
+    button.article-meta-badge {
+      margin: 0;
+      font-family: inherit;
+      appearance: none;
+    }
+
+    .article-meta-badge--more {
+      border-color: var(--tech-border);
+      color: var(--tech-fg-muted);
+      background: transparent;
+      cursor: default;
+      padding: 0 0.375rem;
+    }
+
+    .article-top-badge {
+      background: color-mix(in oklch, var(--color-secondary) 16%, transparent);
+      color: var(--color-secondary);
+      border: 1px solid color-mix(in oklch, var(--color-secondary) 32%, transparent);
+      line-height: 1.2;
+    }
+
     // 右边卡片
     .info-tool {
       // position: absolute;
@@ -1003,6 +1148,39 @@ watch(articleList, syncAuthorLevels, { immediate: true });
         width: 100%;
         display: flex;
         flex-direction: column;
+        transition:
+          box-shadow 0.25s ease,
+          transform 0.25s ease;
+
+        &.cyber-glass-card--hover:hover {
+          border-color: var(--tech-border);
+          background-color: var(--tech-glass);
+          box-shadow:
+            0 6px 20px rgb(15 23 42 / 0.08),
+            0 0 12px color-mix(in oklch, var(--tech-primary-glow) 45%, transparent);
+        }
+
+        .article-cover-link {
+          display: block;
+          width: 100%;
+          text-decoration: none;
+          cursor: pointer;
+          transition: opacity 0.2s;
+
+          &:hover {
+            opacity: 0.92;
+          }
+        }
+
+        .article-title-link {
+          color: inherit;
+          text-decoration: none;
+          transition: color 0.2s;
+
+          &:hover {
+            color: var(--color-primary);
+          }
+        }
 
         .article-item-cover {
           --cover-height: 160px;
@@ -1062,16 +1240,56 @@ watch(articleList, syncAuthorLevels, { immediate: true });
       }
     }
 
-    .xia-btn {
-      text-transform: uppercase;
-      background: linear-gradient(to right, var(--color-secondary) 50%, var(--color-neutral) 50%);
-      background-size: 200% 100%;
-      background-position: right bottom;
-      transition: all 2s ease;
-      border: none;
+    @keyframes article-read-breathe {
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 transparent;
+      }
+
+      50% {
+        box-shadow: 0 0 8px 1.5px color-mix(in oklch, var(--tech-primary-glow) 80%, transparent);
+      }
     }
-    .article-item:hover .xia-btn {
-      background-position: left bottom;
+
+    .article-read-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.375rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.375rem;
+      border: 1px solid var(--tech-btn-secondary-border);
+      background: transparent;
+      font-size: 0.6875rem;
+      line-height: 1.25;
+      font-weight: 500;
+      color: var(--tech-fg);
+      text-transform: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .article-item:hover .article-read-btn {
+      border-color: color-mix(
+        in oklch,
+        var(--tech-section-label) 55%,
+        var(--tech-btn-secondary-border)
+      );
+      animation: article-read-breathe 2.2s ease-in-out infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .article-item:hover .article-read-btn {
+        animation: none;
+        box-shadow: 0 0 8px 1.5px color-mix(in oklch, var(--tech-primary-glow) 65%, transparent);
+      }
+    }
+
+    .article-read-btn:hover,
+    .article-read-btn:focus-visible,
+    .article-read-btn:active {
+      background: transparent;
+      color: var(--tech-fg);
+      filter: none;
     }
   }
 </style>

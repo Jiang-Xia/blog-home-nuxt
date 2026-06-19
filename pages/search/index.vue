@@ -23,7 +23,7 @@ useHead({
     :title="searchQuery ? `搜索「${searchQuery}」` : '搜索文章'"
     subtitle="在全站文章中查找关键词"
   >
-    <div class="cyber-glass-card p-4 md:p-6">
+    <div class="cyber-glass-card overflow-visible p-4 md:p-6">
       <ArticleList
         embed-mode
         hide-sidebar

@@ -93,6 +93,11 @@ export default defineNuxtConfig({
         changeOrigin: true,
         rewrite: (path: string) => path.replace(new RegExp(`^${prefixPath}`), ''),
       },
+      // 本地上传封面/头像：/static → blog-server:5000（与生产 /x-api/blog-server/static 对应）
+      '/static': {
+        target: originUrl || 'http://localhost:5000',
+        changeOrigin: true,
+      },
     },
     compressPublicAssets: {
       // 只压缩output/public目录的文件
