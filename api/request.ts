@@ -86,10 +86,13 @@ export const awaitWrap = <T, U = any>(promise: Promise<T>): Promise<[U | null, T
 // 防止重复请求的Map集合
 const requestMap = new Map();
 
-// 防重复请求白名单，匹配的URL跳过防重检测
-const DEBOUNCE_WHITELIST = ['/rpg/'];
+// 防重复请求白名单：mutation 不参与 GET 防抖（FormData 上传见 shouldSkipRequestDebounce）
+const DEBOUNCE_WHITELIST: string[] = [];
 
-function shouldSkipRequestDebounce(url: string, body: unknown): boolean {
+function shouldSkipRequestDebounce(url: string, body: unknown, method = 'GET'): boolean {
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method.toUpperCase())) {
+    return true;
+  }
   if (DEBOUNCE_WHITELIST.some(prefix => url.includes(prefix))) {
     return true;
   }
@@ -303,7 +306,7 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
 
     try {
       // 白名单 / multipart 上传跳过防重检测
-      const skipDebounce = shouldSkipRequestDebounce(url, options.body);
+      const skipDebounce = shouldSkipRequestDebounce(url, options.body, method);
       // 检查是否正在请求中，防止重复请求
       if (!skipDebounce && requestMap.has(requestId)) {
         log(`防抖，禁止重复请求！--------------> ${url}`, 'warn');

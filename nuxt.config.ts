@@ -14,6 +14,8 @@ const proxyTarget = originUrl && apiPrefix ? `${originUrl}${apiPrefix}` : '';
 //     };
 //   });
 console.warn('当前环境: ', process.env.VITE_ENV);
+// 子集字体 cache bust；npm run font:subset 且字符集变化后递增
+const FONT_SUBSET_VERSION = '1';
 // console.warn({ 当前环境自定义配置: configs });
 export default defineNuxtConfig({
   modules: [
@@ -29,6 +31,14 @@ export default defineNuxtConfig({
     head: {
       link: [
         {
+          // 与 styles/base/app.less 中 @font-face 的 ?v= 保持一致
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          href: `/fonts/HarmonyOS_Sans_SC_Subset.woff2?v=${FONT_SUBSET_VERSION}`,
+          crossorigin: 'anonymous',
+        },
+        {
           rel: 'preload',
           as: 'style',
           href: 'https://cdn.staticfile.org/csshake/1.5.3/csshake.min.css',
@@ -43,8 +53,7 @@ export default defineNuxtConfig({
       script: scripts,
     },
     pageTransition: {
-      name: 'scale',
-      mode: 'out-in',
+      name: 'fade',
       appear: true,
     },
   },
@@ -83,6 +92,11 @@ export default defineNuxtConfig({
         target: proxyTarget,
         changeOrigin: true,
         rewrite: (path: string) => path.replace(new RegExp(`^${prefixPath}`), ''),
+      },
+      // 本地上传封面/头像：/static → blog-server:5000（与生产 /x-api/blog-server/static 对应）
+      '/static': {
+        target: originUrl || 'http://localhost:5000',
+        changeOrigin: true,
       },
     },
     compressPublicAssets: {

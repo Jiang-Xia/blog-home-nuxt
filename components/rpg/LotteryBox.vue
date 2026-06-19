@@ -152,7 +152,7 @@ const toggleHistory = () => {
           @click.stop
         >
           <RpgRarityBadge
-            class="rarity-badge"
+            class="result-rarity"
             :rarity="currentResult.item.rarity"
             :rarity-label="currentResult.item.rarityLabel"
             :rarity-color="currentResult.item.rarityColor"
@@ -369,7 +369,7 @@ const toggleHistory = () => {
     background: var(--rpg-modal-surface, var(--rpg-surface));
     border: 1.5px solid var(--rpg-border);
     border-radius: 16px;
-    padding: 28px 32px;
+    padding: 32px 32px 28px;
     text-align: center;
     min-width: 280px;
     max-width: 320px;
@@ -391,14 +391,8 @@ const toggleHistory = () => {
     }
   }
 
-  .rarity-badge {
-    display: inline-block;
-    padding: 3px 12px;
-    border-radius: 12px;
-    color: white;
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 12px;
+  .result-rarity {
+    margin-bottom: 14px;
   }
 
   .result-name {
@@ -424,6 +418,7 @@ const toggleHistory = () => {
   .result-hint {
     font-size: 11px;
     color: var(--rpg-text-muted);
+    margin-top: 4px;
   }
 
   .pool-preview {

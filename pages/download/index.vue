@@ -35,6 +35,13 @@ const entries = [
     to: '/rpg',
     color: 'from-amber-500 to-orange-500',
   },
+  {
+    icon: '📦',
+    title: '开源与合作',
+    desc: '三端说明 · 后端闭源 · 付费咨询',
+    to: '/open-source',
+    color: 'from-emerald-500 to-teal-500',
+  },
 ];
 </script>
 

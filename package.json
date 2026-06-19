@@ -19,7 +19,8 @@
     "lint-staged": "lint-staged",
     "prettier": "prettier . --write",
     "pm2:prod": "pm2 start ecosystem.config.js --env production",
-    "pm2:dev": "pm2 start ecosystem.config.js --env development"
+    "pm2:dev": "pm2 start ecosystem.config.js --env development",
+    "font:subset": "node scripts/font/build-subset.mjs"
   },
   "dependencies": {
     "@nuxt/ui": "^4.7.1",

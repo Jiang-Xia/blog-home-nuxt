@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { tipArticle } from '~~/api/rpg';
 import { messageSuccess, messageError } from '~~/utils/toast';
+import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 
 const props = defineProps<{ articleId: number; authorUid: number }>();
 const emit = defineEmits<{ tipped: [] }>();
 const userInfo = useUserInfo();
-const amount = ref(5);
+const amount = ref(50);
 const loading = ref(false);
 
 const submit = async () => {
@@ -24,7 +25,7 @@ const submit = async () => {
     emit('tipped');
   }
   catch (e: any) {
-    messageError(e?.message || '打赏失败');
+    handleRpgCurrencyError(e, '打赏失败');
   }
   finally {
     loading.value = false;

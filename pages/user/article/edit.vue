@@ -2,17 +2,13 @@
 /**
    * 用户写文章 / 编辑文章页面
    */
-import { computed, onMounted } from 'vue';
-import { getToken, TokenKey } from '@/utils/cookie';
-import { messageWarning } from '@/utils/toast';
+import { computed } from 'vue';
 
 definePageMeta({
   layout: 'default',
 });
 
 const route = useRoute();
-const router = useRouter();
-const token = useToken();
 
 const articleId = computed(() => {
   const id = route.query.id;
@@ -29,17 +25,6 @@ const pageSubtitle = computed(() =>
 
 useHead({
   title: pageTitle,
-});
-
-onMounted(() => {
-  const currentToken = token.value || getToken(TokenKey);
-  if (!currentToken) {
-    messageWarning('请先登录后再写文章');
-    router.replace({
-      path: '/login',
-      query: { redirect: route.fullPath },
-    });
-  }
 });
 </script>
 

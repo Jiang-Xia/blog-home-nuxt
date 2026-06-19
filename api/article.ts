@@ -56,7 +56,10 @@ export const getArchives = () => {
 };
 
 // 获取文章评论（仅展示已审核通过的评论与回复）
-export const getComment = async (id?: string, otherParams?: any) => {
+export const getComment = async (
+  id?: string,
+  otherParams?: { page?: number; pageSize?: number; sort?: string },
+) => {
   const { status: _status, ...safeParams } = otherParams || {};
   const res = await request.get('/comment/findAll', { articleId: id, ...safeParams });
   if (res?.list) {

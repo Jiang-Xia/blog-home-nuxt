@@ -384,6 +384,7 @@ Layout 根节点已带 `bg-tech-shell text-tech`，普通内容页**无需再包
 - [ ] 移动端断点（`md:`、`lg:`）已检查
 - [ ] 浏览器 API 在 `onMounted` / `import.meta.client` 内
 - [ ] 可复用样式已提取到 `main.css` 或 Cyber 组件，而非散落在页面
+- [ ] **文档**：已更新 `README.md` 常用页面表；新 API/能力见 `docs/home-features-*.md`（规则：`.cursor/rules/feature-doc-sync.mdc`）
 
 ---
 
@@ -391,6 +392,7 @@ Layout 根节点已带 `bg-tech-shell text-tech`，普通内容页**无需再包
 
 | 文件 | 内容 |
 |------|------|
+| `.cursor/rules/feature-doc-sync.mdc` | **新功能必同步文档**（工作区根目录） |
 | `.cursor/rules/home-00-core.mdc` | 项目总览与目录职责 |
 | `.cursor/rules/home-02-vue-ts-style.mdc` | Vue + TS 编码风格 |
 | `.cursor/rules/home-05-tailwind-ui.mdc` | Tailwind / DaisyUI 约定 |

@@ -28,7 +28,7 @@ const data = await request.get('/article/info', { id });
 - Header：`Authorization: Bearer <token>`
 - Cookie 读写集中在 `utils/cookie.ts`（`TokenKey` / `RefreshTokenKey`）
 - 401 走无感 refresh + 请求队列（`queue`），禁止静默吞错
-- WebSocket 鉴权同样用 Bearer，见 `use-rpg-socket.ts`
+- WebSocket 鉴权同样用 Bearer，见 `use-realtime-socket.ts`（namespace `/realtime`）
 
 ## 其他机制
 

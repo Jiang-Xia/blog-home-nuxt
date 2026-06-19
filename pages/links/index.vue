@@ -20,20 +20,50 @@ const linkState = ref<LinkState>({
   title: '',
   desp: '',
 });
+const submitting = ref(false);
+const modalOpen = ref(false);
+
+const isValidUrl = (url: string) => {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  }
+  catch {
+    return false;
+  }
+};
+
 const okHandle = async () => {
-  if (Object.keys(linkState.value).some(v => !linkState.value[v as keyof LinkState])) {
-    messageDanger('请信息填写完整信息', 2);
+  if (submitting.value) {
     return;
   }
-  await request.post('/link', linkState.value);
-  messageSuccess('申请成功');
-  linkState.value = {
-    icon: '',
-    url: '',
-    title: '',
-    desp: '',
-  };
-  linkList.value = await request.get('/link', { client: true });
+  if (Object.keys(linkState.value).some(v => !linkState.value[v as keyof LinkState])) {
+    messageDanger('请信息填写完整信息');
+    return;
+  }
+  if (!isValidUrl(linkState.value.url)) {
+    messageDanger('请输入有效的 http/https 网址');
+    return;
+  }
+  try {
+    submitting.value = true;
+    await request.post('/link', linkState.value);
+    modalOpen.value = false;
+    linkState.value = {
+      icon: '',
+      url: '',
+      title: '',
+      desp: '',
+    };
+    linkList.value = await request.get('/link', { client: true });
+    messageSuccess('申请已提交，等待站长审核', 4500);
+  }
+  catch {
+    messageDanger('申请失败，请稍后重试');
+  }
+  finally {
+    submitting.value = false;
+  }
 };
 useHead({
   title: '友链',
@@ -53,7 +83,7 @@ useHead({
       </label>
     </div>
 
-    <input id="link-add-modal" type="checkbox" class="modal-toggle">
+    <input id="link-add-modal" v-model="modalOpen" type="checkbox" class="modal-toggle">
     <div class="modal">
       <div class="modal-box cyber-glass-card border border-tech">
         <label
@@ -83,15 +113,19 @@ useHead({
             >
           </label>
           <div class="modal-action">
-            <label for="link-add-modal" class="cursor-pointer" @click="okHandle">
-              <CyberButton variant="primary">确 认</CyberButton>
-            </label>
+            <CyberButton variant="primary" :disabled="submitting" @click="okHandle">
+              <span v-if="submitting" class="loading loading-spinner loading-sm" />
+              {{ submitting ? '提交中...' : '确 认' }}
+            </CyberButton>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-if="!linkList?.length" class="flex min-h-48 items-center justify-center">
+      <xia-empty description="暂无友链，欢迎申请~" />
+    </div>
+    <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <CyberCard
         v-for="item in linkList"
         :key="item.url"

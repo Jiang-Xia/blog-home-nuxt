@@ -36,7 +36,7 @@ useHead({
     },
     {
       name: 'viewport',
-      content: 'width=device-width, initial-scale=1, maximum-scale=1',
+      content: 'width=device-width, initial-scale=1',
     },
     {
       'http-equiv': 'Content-Type',
@@ -101,6 +101,15 @@ const runTime = Math.ceil((dayjs().unix() - dayjs('2022-03-01').unix()) / (24 * 
 
 const route = useRoute();
 const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
+const needsRpgGlobal = computed(() => {
+  const path = route.path;
+  return (
+    path === '/'
+    || path.startsWith('/rpg')
+    || path.startsWith('/detail/')
+    || path.startsWith('/user/profile')
+  );
+});
 </script>
 
 <template>
@@ -120,6 +129,8 @@ const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
           target="_blank"
           class="link link-hover text-tech-muted"
         >SITEMAP</a>
+        ·
+        <a :href="originUrl + '/feed.xml'" target="_blank" class="link link-hover text-tech-muted">RSS</a>
       </p>
       <p>
         <NuxtLink
@@ -131,14 +142,18 @@ const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
         </NuxtLink>
       </p>
       <p class="text-tech-faint">
-        Powered By Typescript & Vue3 & Nuxt3 & Tailwindcss & DaisyUI & Node.js & NestJS
+        前台与管理端 MIT 开源 ·
+        <NuxtLink to="/open-source" class="link link-hover text-tech-muted">
+          后端闭源与合作
+        </NuxtLink>
+        · Powered By Typescript & Vue3 & Nuxt3 & Tailwindcss & DaisyUI & Node.js & NestJS
       </p>
     </footer>
     <!-- 回到顶部（文章详情页由冒险 FAB 提供） -->
     <xia-backtop v-if="showGlobalBacktop" class="shake-slow right-4">
       <xia-icon icon="blog-rocket4" width="34px" height="34px" />
     </xia-backtop>
-    <RpgGlobalInit />
+    <RpgGlobalInit v-if="needsRpgGlobal" />
   </div>
 </template>
 

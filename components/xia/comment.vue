@@ -1,4 +1,9 @@
 <script setup lang="ts">
+/**
+   * 详情页评论/回复模块
+   * - 创建评论/回复后根据 API 返回 status 提示待审核
+   * - 支持加载更多（由父组件传入 hasMore / loadingMore）
+   */
 import { computed, ref } from 'vue';
 import type { PropType } from 'vue';
 import { useRoute } from 'vue-router';
@@ -17,8 +22,16 @@ defineProps({
     type: Number,
     default: 0,
   },
+  hasMore: {
+    type: Boolean,
+    default: false,
+  },
+  loadingMore: {
+    type: Boolean,
+    default: false,
+  },
 });
-const emits = defineEmits(['commented']);
+const emits = defineEmits(['commented', 'loadMore']);
 const userInfo = useUserInfo();
 const route = useRoute();
 const { isBanned, fetchQuests } = useRpg();
@@ -48,7 +61,14 @@ const addCommentHandle = async () => {
   };
   const res = await addComment(params);
   if (res) {
-    messageSuccess('评论成功');
+    // status 来自 POST /comment/create，pending 时不刷新列表（尚未公开展示）
+    const status = typeof res === 'object' && res?.status ? res.status : 'approved';
+    if (status === 'pending') {
+      messageSuccess('评论已提交，审核通过后将展示');
+    }
+    else {
+      messageSuccess('评论成功');
+    }
     emits('commented');
     inputContent.value = '';
     await fetchQuests();
@@ -75,7 +95,7 @@ const tip = () => {
           color: 'error',
           variant: 'outline',
           onClick: async () => {
-            await navigateTo('/login');
+            await goLogin();
           },
         },
       ],
@@ -141,8 +161,14 @@ const addReplytHandle = async (content: string) => {
       content, // 评论内容
       replyUid: targetUser.value.id, // 目标用户uid
     };
-    await addReply(params);
-    messageSuccess('评论成功');
+    const res = await addReply(params);
+    const status = res?.status ?? 'approved';
+    if (status === 'pending') {
+      messageSuccess('回复已提交，审核通过后将展示');
+    }
+    else {
+      messageSuccess('回复成功');
+    }
     currentReplyBoxId.value = '';
     emits('commented');
   }
@@ -340,6 +366,17 @@ const replyedHandle = (content: string) => {
         </div>
       </div>
     </section>
+    <div v-if="hasMore" class="mt-4 flex justify-center">
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm cyber-btn-secondary"
+        :disabled="loadingMore"
+        @click="emits('loadMore')"
+      >
+        <span v-if="loadingMore" class="loading loading-spinner loading-xs" />
+        {{ loadingMore ? '加载中...' : '加载更多评论' }}
+      </button>
+    </div>
   </div>
 </template>
 

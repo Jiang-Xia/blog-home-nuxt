@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+   * 留言板页
+   * - 顶层留言分页（pageSize=30），子回复随父节点返回
+   */
 import { reactive, ref, computed } from 'vue';
 import { messageDanger, messageSuccess, messageWarning } from '@/utils/toast';
 import { useRpg } from '~~/composables/use-rpg';
@@ -13,9 +17,16 @@ interface MsgInterFace {
   address: string;
   comment: string;
 }
-const { data: msgboardList, refresh } = await useAsyncData('msgboard_Get', () =>
-  request.get('/msgboard').then((res: any) => res.list),
+const { data: initialMsgData, refresh } = await useAsyncData('msgboard_Get', () =>
+  request.get('/msgboard', { page: 1, pageSize: 30 }),
 );
+const flatMsgList = ref<any[]>(initialMsgData.value?.list ?? []);
+const msgboardPage = ref(1);
+const msgboardHasMore = ref(
+  (initialMsgData.value?.pagination?.total ?? 0) > flatMsgList.value.length,
+);
+const msgboardLoading = ref(false);
+
 const buildTree = (list: any[], rootId = 0) => {
   const tree: any[] = [];
   for (const v of list) {
@@ -29,9 +40,41 @@ const buildTree = (list: any[], rootId = 0) => {
   }
   return tree;
 };
-msgboardList.value = buildTree(msgboardList.value);
+
+const msgboardList = ref<any[]>([]);
+
+const rebuildTree = () => {
+  msgboardList.value = buildTree(flatMsgList.value);
+};
+
+rebuildTree();
+
+const reloadMsgboard = async () => {
+  msgboardPage.value = 1;
+  const res = await request.get('/msgboard', { page: 1, pageSize: 30 });
+  flatMsgList.value = res?.list ?? [];
+  msgboardHasMore.value = flatMsgList.value.length < (res?.pagination?.total ?? 0);
+  rebuildTree();
+};
+
+/** 分页加载更多顶层留言 */
+const loadMoreMsgboard = async () => {
+  if (msgboardLoading.value || !msgboardHasMore.value) return;
+  msgboardLoading.value = true;
+  try {
+    msgboardPage.value += 1;
+    const res = await request.get('/msgboard', { page: msgboardPage.value, pageSize: 30 });
+    flatMsgList.value = [...flatMsgList.value, ...(res?.list ?? [])];
+    msgboardHasMore.value = flatMsgList.value.length < (res?.pagination?.total ?? 0);
+    rebuildTree();
+  }
+  finally {
+    msgboardLoading.value = false;
+  }
+};
 const userInfo = useUserInfo();
 const { isBanned } = useRpg();
+const submitting = ref(false);
 const showToast = ref(false);
 const guestNickname = () => getRandomNickname();
 const resolveFormName = () => (userInfo.value?.uid ? userInfo.value.nickname : guestNickname());
@@ -52,11 +95,11 @@ onMounted(() => {
     dialog.value = false;
   });
 });
-const getAllMsgboard = async () => {
-  const { list } = await request.get('/msgboard', { pageSize: 10000 });
-  msgboardList.value = buildTree(list);
-};
+const getAllMsgboard = reloadMsgboard;
 const confirmHandle = async () => {
+  if (submitting.value) {
+    return;
+  }
   try {
     if (userInfo.value?.uid && isBanned.value) {
       messageWarning('您当前处于禁言状态，暂时无法留言');
@@ -72,7 +115,9 @@ const confirmHandle = async () => {
       messageDanger('邮箱格式不正确哦！');
       return;
     }
+    submitting.value = true;
     await request.post('/msgboard', msgForm);
+    messageSuccess('留言发表成功');
     keys.forEach((k) => {
       if (k === 'name') {
         msgForm.name = resolveFormName();
@@ -83,8 +128,11 @@ const confirmHandle = async () => {
     });
     getAllMsgboard();
   }
-  catch (error) {
-    console.log(error);
+  catch {
+    messageDanger('发表失败，请稍后重试');
+  }
+  finally {
+    submitting.value = false;
   }
 };
 const replayModal = ref<HTMLDialogElement>();
@@ -186,7 +234,7 @@ useHead({
           </span>
           <input
             v-model="msgForm.eamil"
-            type="text"
+            type="email"
             placeholder="您的邮件"
             class="input input-bordered w-full login-input"
             maxlength="30"
@@ -216,13 +264,20 @@ useHead({
           />
         </label>
 
-        <CyberButton variant="primary" class="mt-2" @click="confirmHandle">
-          发表
+        <CyberButton variant="primary" class="mt-2" :disabled="submitting" @click="confirmHandle">
+          <span v-if="submitting" class="loading loading-spinner loading-sm" />
+          {{ submitting ? '提交中...' : '发表' }}
         </CyberButton>
       </div>
     </CyberCard>
 
     <div class="mx-auto max-w-3xl space-y-3">
+      <CyberCard
+        v-if="!msgboardList?.length"
+        class="!p-8 flex items-center justify-center min-h-48"
+      >
+        <xia-empty description="还没有留言，来抢沙发吧~" />
+      </CyberCard>
       <CyberCard v-for="item in msgboardList" :key="item.id" class="!p-4">
         <div class="mb-3 flex flex-wrap items-center gap-2 text-sm text-tech-subtle">
           <div class="avatar h-7 w-7">
@@ -311,6 +366,16 @@ useHead({
           </div>
         </div>
       </CyberCard>
+      <div v-if="msgboardHasMore" class="flex justify-center pt-2">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          :disabled="msgboardLoading"
+          @click="loadMoreMsgboard"
+        >
+          {{ msgboardLoading ? '加载中...' : '加载更多留言' }}
+        </button>
+      </div>
     </div>
 
     <dialog id="replay_modal" ref="replayModal" class="modal">

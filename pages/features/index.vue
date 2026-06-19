@@ -107,7 +107,7 @@ const experienceModules: FeatureModule[] = [
   {
     icon: '📡',
     title: '实时推送',
-    desc: 'Socket.IO /rpg 命名空间，升级、成就、禁言等事件即时通知。',
+    desc: 'Socket.IO /realtime 命名空间，升级、成就、禁言、站内通知等即时推送。',
     tags: ['WebSocket'],
     to: '/rpg',
     color: 'from-red-500 to-orange-500',

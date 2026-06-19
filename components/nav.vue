@@ -41,6 +41,9 @@ function closeSearch() {
   showSearch.value = false;
   searchText.value = '';
   articleList.value = [];
+  searchLoading.value = false;
+  searchError.value = false;
+  searchQueried.value = false;
   queryPrams.title = '';
   queryPrams.description = '';
   queryPrams.content = '';
@@ -70,7 +73,14 @@ const queryPrams = reactive({
 });
 const searchText = ref('');
 const articleList: any = ref([]);
+const searchLoading = ref(false);
+const searchError = ref(false);
+const searchQueried = ref(false);
+
 const getArticleListHandle = async () => {
+  searchLoading.value = true;
+  searchError.value = false;
+  searchQueried.value = true;
   try {
     const res = await getArticleList(queryPrams);
     articleList.value = (res?.list ?? []).map((v: any) => ({
@@ -81,7 +91,22 @@ const getArticleListHandle = async () => {
   }
   catch {
     articleList.value = [];
+    searchError.value = true;
   }
+  finally {
+    searchLoading.value = false;
+  }
+};
+
+const router = useRouter();
+
+const goToSearchPage = () => {
+  const q = searchText.value.trim();
+  if (!q) {
+    return;
+  }
+  closeSearch();
+  router.push({ path: '/search', query: { q } });
 };
 
 const onSearchHandle = debounce(() => {
@@ -97,6 +122,9 @@ const onSearchHandle = debounce(() => {
     queryPrams.description = '';
     queryPrams.content = '';
     articleList.value = [];
+    searchLoading.value = false;
+    searchError.value = false;
+    searchQueried.value = false;
   }
 }, 300);
 
@@ -109,19 +137,13 @@ const clear = () => {
 };
 if (import.meta.client) {
   token.value = getToken(TokenKey);
-  if (token.value) {
-    refreshUserInfo();
-  }
-  else {
+  if (!token.value) {
     clear();
   }
 }
 watch(token, (newToken) => {
   if (!import.meta.client) return;
-  if (newToken) {
-    refreshUserInfo();
-  }
-  else {
+  if (!newToken) {
     clearUserInfoFn();
   }
 });
@@ -140,8 +162,12 @@ function isNavActive(path: string) {
     <template #actions>
       <!-- Mobile menu -->
       <div class="dropdown lg:hidden" :class="{ 'dropdown-open': checked }">
-        <label
+        <button
+          type="button"
           class="btn btn-ghost btn-sm btn-circle text-tech-muted hover:text-tech"
+          aria-label="打开菜单"
+          :aria-expanded="checked"
+          aria-controls="mobile-nav-menu"
           @click.stop="checked = !checked"
         >
           <svg
@@ -153,8 +179,9 @@ function isNavActive(path: string) {
           >
             <path d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z" />
           </svg>
-        </label>
+        </button>
         <ul
+          id="mobile-nav-menu"
           tabindex="0"
           class="menu menu-sm dropdown-content z-50 mt-2 w-40 rounded-xl border shadow-xl backdrop-blur-md"
         >
@@ -202,11 +229,16 @@ function isNavActive(path: string) {
       <xia-icon
         class="cursor-pointer px-1 text-tech-muted hover:text-tech"
         :icon="themeToggleIcon"
+        aria-label="切换主题"
+        role="button"
+        tabindex="0"
         @click="clickIcon"
+        @keydown.enter="clickIcon"
       />
       <XiaTheme />
 
       <ClientOnly>
+        <NavNotificationBell />
         <RpgNavHud v-if="token" class="mr-1" />
         <CyberButton v-if="!token" variant="primary" to="/login" class="!px-4 !py-2 text-sm">
           登录
@@ -253,26 +285,50 @@ function isNavActive(path: string) {
     <div class="relative mx-auto max-w-xl">
       <input
         v-model="searchText"
-        type="text"
+        type="search"
         placeholder="搜索文章..."
-        class="input input-bordered w-full bg-[var(--tech-dropdown-bg)]"
+        aria-label="搜索文章"
+        aria-autocomplete="list"
+        role="combobox"
+        :aria-expanded="articleList.length > 0 || searchQueried"
+        class="input input-bordered w-full bg-[var(--tech-dropdown-bg)] pr-10"
         autocomplete="off"
         @input="onSearchHandle"
-        @keyup.enter="onSearchHandle"
+        @keyup.enter="goToSearchPage"
         @keyup.esc="closeSearch"
       >
+      <span
+        v-if="searchLoading"
+        class="loading loading-spinner loading-sm absolute right-3 top-1/2 -translate-y-1/2 text-tech-muted"
+      />
       <ul
         v-if="articleList.length"
         class="menu absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-auto rounded-xl border border-tech bg-[var(--tech-dropdown-bg)] p-2 shadow-xl backdrop-blur-xl"
+        role="listbox"
       >
-        <li v-for="item in articleList" :key="item.id">
+        <li v-for="item in articleList.slice(0, 5)" :key="item.id" role="option">
           <NuxtLink
             class="text-sm text-tech-muted hover:text-tech"
             :to="'/detail/' + item.id"
             @click="closeSearch"
           >{{ item.value }}</NuxtLink>
         </li>
+        <li v-if="searchText.trim()" class="border-t border-tech pt-1 mt-1">
+          <button
+            type="button"
+            class="w-full rounded-lg px-3 py-2 text-left text-sm text-primary hover:bg-tech-header"
+            @click="goToSearchPage"
+          >
+            查看全部结果
+          </button>
+        </li>
       </ul>
+      <p
+        v-else-if="searchQueried && !searchLoading && searchText.trim()"
+        class="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-tech bg-[var(--tech-dropdown-bg)] px-4 py-3 text-sm text-tech-muted shadow-xl"
+      >
+        {{ searchError ? '搜索失败，请稍后重试' : '未找到相关文章' }}
+      </p>
     </div>
   </div>
 </template>

@@ -1,12 +1,36 @@
 <script setup lang="ts">
-/** 他人公开主页（SSR 渲染，便于搜索引擎收录） */
+/** 他人公开主页；Tab 列表首屏 SSR，超出 10 条 client load more */
 import { resolveStaticUrl } from '@/utils/static-url';
 import { SiteTitle } from '@/utils/constant';
+import { getPublicArticles, getPublicCollects, getPublicLikes } from '@/api/profile';
 
 const route = useRoute();
 const uid = computed(() => route.params.uid as string);
 const { profile, articles, collects, likes, loading } = await usePublicProfile(uid);
 const userInfo = useUserInfo();
+
+const articlesList = ref<any[]>([]);
+const collectsList = ref<any[]>([]);
+const likesList = ref<any[]>([]);
+const tabPages = reactive({ articles: 1, collects: 1, likes: 1 });
+const tabHasMore = reactive({ articles: false, collects: false, likes: false });
+const tabLoading = ref(false);
+
+watch(
+  [articles, collects, likes],
+  () => {
+    articlesList.value = [...articles.value];
+    collectsList.value = [...collects.value];
+    likesList.value = [...likes.value];
+    tabHasMore.articles = articles.value.length >= 10;
+    tabHasMore.collects = collects.value.length >= 10;
+    tabHasMore.likes = likes.value.length >= 10;
+    tabPages.articles = 1;
+    tabPages.collects = 1;
+    tabPages.likes = 1;
+  },
+  { immediate: true },
+);
 
 if (!profile.value) {
   throw createError({
@@ -26,10 +50,41 @@ const tabOptions: { key: ProfileTab; label: string }[] = [
 ];
 
 const currentList = computed(() => {
-  if (activeTab.value === 'collects') return collects.value;
-  if (activeTab.value === 'likes') return likes.value;
-  return articles.value;
+  if (activeTab.value === 'collects') return collectsList.value;
+  if (activeTab.value === 'likes') return likesList.value;
+  return articlesList.value;
 });
+
+/** 当前 Tab 追加下一页（articles / collects / likes） */
+const loadMoreForTab = async () => {
+  if (tabLoading.value || !tabHasMore[activeTab.value]) return;
+  tabLoading.value = true;
+  try {
+    const nextPage = tabPages[activeTab.value] + 1;
+    const fetcher
+      = activeTab.value === 'collects'
+        ? getPublicCollects
+        : activeTab.value === 'likes'
+          ? getPublicLikes
+          : getPublicArticles;
+    const res = await fetcher(uid.value, nextPage, 10);
+    const items = res?.list ?? [];
+    if (activeTab.value === 'collects') {
+      collectsList.value = [...collectsList.value, ...items];
+    }
+    else if (activeTab.value === 'likes') {
+      likesList.value = [...likesList.value, ...items];
+    }
+    else {
+      articlesList.value = [...articlesList.value, ...items];
+    }
+    tabPages[activeTab.value] = nextPage;
+    tabHasMore[activeTab.value] = items.length >= 10;
+  }
+  finally {
+    tabLoading.value = false;
+  }
+};
 
 const avatarSrc = computed(() => {
   const av = profile.value?.avatar;
@@ -158,16 +213,22 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
             {{ opt.label }}
             <span class="opacity-70">({{
               opt.key === 'articles'
-                ? articles.length
+                ? articlesList.length
                 : opt.key === 'collects'
-                  ? collects.length
-                  : likes.length
+                  ? collectsList.length
+                  : likesList.length
             }})</span>
           </button>
         </div>
 
-        <div v-if="!currentList.length" class="empty-hint">
-          暂无内容
+        <div v-if="loading" class="empty-hint">
+          <span class="loading loading-spinner loading-md text-primary" />
+          <p class="mt-2">
+            加载中...
+          </p>
+        </div>
+        <div v-else-if="!currentList.length" class="empty-hint">
+          <xia-empty description="暂无内容" />
         </div>
         <div v-else class="article-grid">
           <NuxtLink
@@ -177,10 +238,12 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
             class="article-card"
           >
             <div class="article-cover">
-              <img
+              <xia-image
+                lazyload
                 :src="resolveStaticUrl(a.cover) || '/assets/images/common/LoadFailed.svg'"
                 :alt="a.title"
-              >
+                class="h-full w-full [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
+              />
             </div>
             <div class="article-body">
               <h4 class="article-title">
@@ -197,6 +260,17 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
               </div>
             </div>
           </NuxtLink>
+        </div>
+        <div v-if="tabHasMore[activeTab]" class="mt-4 flex justify-center">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            :disabled="tabLoading"
+            @click="loadMoreForTab"
+          >
+            <span v-if="tabLoading" class="loading loading-spinner loading-xs" />
+            {{ tabLoading ? '加载中...' : '加载更多' }}
+          </button>
         </div>
       </div>
     </div>

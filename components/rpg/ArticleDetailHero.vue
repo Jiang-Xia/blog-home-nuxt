@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import defaultImg from '@/assets/images/create.webp';
-import { isTrueCoverLink } from '@/utils';
 import { formactDate } from '@/utils/common';
+import { resolveStaticUrl } from '@/utils/static-url';
+import { colorRgb } from '~~/utils/color';
 
 const props = defineProps<{
   article: Record<string, any>;
@@ -11,17 +12,30 @@ const props = defineProps<{
   articleId?: number | string;
 }>();
 
-const tagToRgb = (color: string, alpha = 0.24) => {
-  if (!color?.startsWith('#') || color.length < 7) return 'transparent';
-  const r = parseInt(color.slice(1, 3), 16);
-  const g = parseInt(color.slice(3, 5), 16);
-  const b = parseInt(color.slice(5, 7), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+const toRgb = (color: string, alpha = 0.24) => {
+  if (!color) return 'transparent';
+  const rgb = colorRgb(color);
+  return rgb.replace(')', `,${alpha})`);
+};
+
+const metaBadgeStyle = (color?: string) => {
+  if (!color) {
+    return {
+      borderColor: 'var(--rpg-border)',
+      color: 'var(--rpg-text-label)',
+      backgroundColor: 'var(--rpg-surface)',
+    };
+  }
+  return {
+    borderColor: color,
+    color,
+    backgroundColor: toRgb(color),
+  };
 };
 
 const emit = defineEmits<{ like: [] }>();
 
-const coverSrc = computed(() => isTrueCoverLink(props.article.cover) || defaultImg);
+const coverSrc = computed(() => resolveStaticUrl(props.article.cover) || defaultImg);
 
 const showArticleLevel = computed(
   () => props.article.articleLevel && props.article.articleLevel > 1,
@@ -98,38 +112,28 @@ const hasRpgHighlights = computed(
       </div>
 
       <div class="hero-meta">
-        <span v-if="article.category?.label" class="hero-chip">
-          <span class="hero-chip-icon" aria-hidden="true">
-            <xia-icon icon="blog-category" width="14px" height="14px" />
-          </span>
-          <span class="hero-chip-text">{{ article.category.label }}</span>
+        <span
+          v-if="article.category?.label"
+          class="hero-meta-badge"
+          :style="metaBadgeStyle(article.category.color)"
+        >
+          <xia-icon icon="blog-category" width="10px" height="10px" /><span>{{
+            article.category.label
+          }}</span>
         </span>
-        <span v-if="tagLabel && !tags?.length" class="hero-chip">
-          <span class="hero-chip-icon" aria-hidden="true">
-            <xia-icon icon="blog-tag" width="14px" height="14px" />
-          </span>
-          <span class="hero-chip-text">{{ tagLabel }}</span>
+        <span v-if="tagLabel && !tags?.length" class="hero-meta-badge" :style="metaBadgeStyle()">
+          <xia-icon icon="blog-tag" width="10px" height="10px" /><span>{{ tagLabel }}</span>
         </span>
         <span
           v-for="tag in tags"
           :key="tag.label"
-          class="hero-chip hero-chip--tag"
-          :style="{
-            borderColor: tag.color,
-            color: tag.color,
-            backgroundColor: tagToRgb(tag.color || '', 0.18),
-          }"
+          class="hero-meta-badge"
+          :style="metaBadgeStyle(tag.color)"
         >
-          <span class="hero-chip-icon" aria-hidden="true">
-            <xia-icon icon="blog-tag" width="14px" height="14px" />
-          </span>
-          <span class="hero-chip-text">{{ tag.label }}</span>
+          <xia-icon icon="blog-tag" width="10px" height="10px" /><span>{{ tag.label }}</span>
         </span>
-        <span v-if="article.uTime" class="hero-chip">
-          <span class="hero-chip-icon" aria-hidden="true">
-            <xia-icon icon="blog-time" width="14px" height="14px" />
-          </span>
-          <span class="hero-chip-text">更新于 {{ formactDate(article.uTime) }}</span>
+        <span v-if="article.uTime" class="hero-meta-badge hero-meta-badge--neutral">
+          <xia-icon icon="blog-time" width="10px" height="10px" /><span>更新于 {{ formactDate(article.uTime) }}</span>
         </span>
       </div>
 
@@ -371,45 +375,42 @@ const hasRpgHighlights = computed(
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem 0.875rem;
+    gap: 0.375rem;
     margin-bottom: 1.25rem;
   }
 
-  .hero-chip {
+  .hero-meta-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: 0;
     max-width: 100%;
-    line-height: 1.25;
-  }
-
-  .hero-chip-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 0.875rem;
-    height: 0.875rem;
-    color: var(--rpg-text-muted);
-  }
-
-  .hero-chip-icon :deep(.x-icon) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    height: 1.125rem;
+    padding: 0 0.3125rem;
+    border: 1px solid;
+    border-radius: 0.25rem;
+    font-size: 0.6875rem;
     line-height: 1;
+    white-space: nowrap;
+    flex-shrink: 0;
+    -webkit-font-smoothing: antialiased;
   }
 
-  .hero-chip-icon :deep(.x-icon svg) {
+  .hero-meta-badge :deep(.x-icon) {
+    line-height: 0;
+    flex-shrink: 0;
+    margin-right: 1px;
+  }
+
+  .hero-meta-badge :deep(.x-icon svg) {
     display: block;
-    width: 0.875rem;
-    height: 0.875rem;
+    width: 10px;
+    height: 10px;
   }
 
-  .hero-chip-text {
-    font-size: 0.8125rem;
-    line-height: 1.25;
-    color: var(--rpg-text-secondary);
+  .hero-meta-badge--neutral {
+    border-color: var(--rpg-border);
+    color: var(--rpg-text-label);
+    background: var(--rpg-surface);
   }
 
   .hero-rpg-strip {
@@ -479,5 +480,22 @@ const hasRpgHighlights = computed(
     .hero-rpg-link {
       align-self: center;
     }
+  }
+</style>
+
+<style>
+  /* cyber-light：统计/标签去掉毛玻璃发糊 */
+  html.tech-shell[data-theme='cyber-light'] .article-detail-hero .hero-stat {
+    backdrop-filter: none;
+    background: rgb(255 255 255 / 0.92);
+    border-color: var(--rpg-border);
+  }
+
+  html.tech-shell[data-theme='cyber-light'] .article-detail-hero .hero-meta-badge {
+    background-color: rgb(255 255 255 / 0.92);
+  }
+
+  html.tech-shell[data-theme='cyber-light'] .article-detail-hero .hero-meta-badge--neutral {
+    background: rgb(255 255 255 / 0.92);
   }
 </style>

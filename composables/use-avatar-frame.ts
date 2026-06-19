@@ -1,5 +1,27 @@
 import type { RpgStatus, AvatarFrameInfo } from '~~/types/rpg';
 
+/** 从公开 loadout / userInfo 解析头像框展示信息 */
+export function resolvePublicAvatarFrame(
+  frame:
+    | {
+      code?: string;
+      name?: string;
+      color?: string | null;
+      effectJson?: { color?: string };
+    }
+    | null
+    | undefined,
+): AvatarFrameInfo | null {
+  if (!frame) return null;
+  const color = frame.color ?? frame.effectJson?.color ?? null;
+  if (!frame.code && !frame.name && !color) return null;
+  return {
+    code: frame.code ?? '',
+    name: frame.name ?? frame.code ?? '',
+    color,
+  };
+}
+
 /** 从 RPG 状态解析当前应展示的头像框（优先装备框，其次角色专属框） */
 export function resolveAvatarFrameFromRpgStatus(
   status: RpgStatus | null | undefined,
@@ -27,9 +49,9 @@ export function resolveAvatarFrameFromRpgStatus(
   return null;
 }
 
-/** 当前登录用户的装备头像框（需先 fetchStatus） */
+/** 当前登录用户的装备头像框（依赖 RpgGlobalInit 已拉取的 rpgStatus） */
 export function useEquippedAvatarFrame() {
-  const { rpgStatus, fetchStatus } = useRpg();
+  const { rpgStatus } = useRpg();
   const frame = computed(() => resolveAvatarFrameFromRpgStatus(rpgStatus.value));
-  return { frame, fetchStatus, rpgStatus };
+  return { frame, rpgStatus };
 }

@@ -19,9 +19,27 @@ export const getPublicArticles = (uid: number | string, page = 1, pageSize = 10)
   return request.get(`/user/public/${uid}/articles`, { page, pageSize });
 };
 
-/** 公开 RPG 展示 */
+/** 公开 RPG 展示（用户主页等完整字段） */
 export const getPublicRpgStatus = (uid: number | string) => {
   return request.get(`/rpg/public/${uid}/status`);
+};
+
+/** 批量公开 RPG 等级（文章列表作者徽章，仅 level） */
+export const getPublicRpgLevelsBatch = (uids: Array<number | string>) => {
+  const unique = [
+    ...new Set(
+      uids
+        .filter(Boolean)
+        .map(id => Number(id))
+        .filter(id => id > 0),
+    ),
+  ];
+  if (!unique.length) {
+    return Promise.resolve({} as Record<string, { level: number }>);
+  }
+  return request.get('/rpg/public/status/batch', { uids: unique.join(',') }) as Promise<
+    Record<string, { level: number }>
+  >;
 };
 
 /** 公开用户收藏文章 */

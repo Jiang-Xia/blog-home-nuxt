@@ -1,9 +1,8 @@
 import { useState } from '#app';
-import { getPublicRpgStatus } from '~~/api/profile';
+import { getPublicRpgLevelsBatch } from '~~/api/profile';
 
 interface AuthorRpgBrief {
   level: number;
-  reputation: number;
 }
 
 /**
@@ -11,50 +10,57 @@ interface AuthorRpgBrief {
  */
 export function useAuthorRpgLevels() {
   const levelCache = useState<Record<number, AuthorRpgBrief>>('author-rpg-levels', () => ({}));
-  const loadingSet = useState<Record<number, boolean>>('author-rpg-loading', () => ({}));
+  const batchInflight = useState<Promise<void> | null>('author-rpg-batch-inflight', () => null);
+  const pendingUids = useState<number[]>('author-rpg-pending-uids', () => []);
 
   const getAuthorLevel = (uid?: number | null): number | null => {
     if (!uid) return null;
     return levelCache.value[uid]?.level ?? null;
   };
 
+  const applyBatchResult = (uids: number[], data: Record<string, { level?: number }>) => {
+    const next = { ...levelCache.value };
+    for (const uid of uids) {
+      const brief = data[String(uid)];
+      next[uid] = { level: brief?.level ?? 1 };
+    }
+    levelCache.value = next;
+  };
+
+  const flushPendingBatch = async () => {
+    while (pendingUids.value.length) {
+      const batch = [...new Set(pendingUids.value)].filter(
+        uid => levelCache.value[uid] === undefined,
+      );
+      pendingUids.value = [];
+      if (!batch.length) return;
+
+      try {
+        const res = await getPublicRpgLevelsBatch(batch);
+        applyBatchResult(batch, res);
+      }
+      catch {
+        applyBatchResult(batch, {});
+      }
+    }
+  };
+
   const fetchLevelsForUids = async (uids: number[]) => {
     if (!import.meta.client) return;
 
-    const unique = [...new Set(uids.filter(Boolean))];
-    const pending = unique.filter(
-      uid => levelCache.value[uid] === undefined && !loadingSet.value[uid],
-    );
-    if (pending.length === 0) return;
+    const unique = [...new Set(uids.map(uid => Number(uid)).filter(id => id > 0))];
+    const need = unique.filter(uid => levelCache.value[uid] === undefined);
+    if (!need.length) return;
 
-    pending.forEach((uid) => {
-      loadingSet.value = { ...loadingSet.value, [uid]: true };
-    });
+    pendingUids.value = [...new Set([...pendingUids.value, ...need])];
 
-    await Promise.all(
-      pending.map(async (uid) => {
-        try {
-          const res = await getPublicRpgStatus(uid);
-          levelCache.value = {
-            ...levelCache.value,
-            [uid]: {
-              level: res?.level ?? 1,
-              reputation: res?.reputation ?? 0,
-            },
-          };
-        }
-        catch {
-          levelCache.value = {
-            ...levelCache.value,
-            [uid]: { level: 1, reputation: 0 },
-          };
-        }
-        finally {
-          const { [uid]: _loading, ...rest } = loadingSet.value;
-          loadingSet.value = rest;
-        }
-      }),
-    );
+    if (!batchInflight.value) {
+      batchInflight.value = flushPendingBatch().finally(() => {
+        batchInflight.value = null;
+      });
+    }
+
+    await batchInflight.value;
   };
 
   return {

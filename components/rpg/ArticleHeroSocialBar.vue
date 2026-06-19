@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { socialCheer, socialEgg, socialFlower } from '~~/api/rpg';
 import { messageError, messageSuccess } from '~~/utils/toast';
+import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 import { useRpg } from '~~/composables/use-rpg';
 
 const props = defineProps<{
@@ -20,13 +21,13 @@ const isAuthor = computed(() => userInfo.value?.uid === props.authorUid);
 const ensureLogin = async () => {
   if (!userInfo.value?.uid) {
     messageError('请先登录');
-    await navigateTo('/login');
+    await goLogin();
     return false;
   }
   return true;
 };
 
-const act = async (fn: () => Promise<any>, getLabel?: (res: any) => string) => {
+const act = async (fn: () => Promise<any>, getLabel?: (_res: any) => string) => {
   if (!(await ensureLogin())) return;
   if (isAuthor.value) {
     messageError('不能对自己操作');
@@ -40,7 +41,7 @@ const act = async (fn: () => Promise<any>, getLabel?: (res: any) => string) => {
     await fetchQuests();
   }
   catch (e: any) {
-    messageError(e?.message || '操作失败');
+    handleRpgCurrencyError(e, '操作失败');
   }
   finally {
     loading.value = false;

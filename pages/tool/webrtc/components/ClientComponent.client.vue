@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { useDevicesList, useUserMedia, useDisplayMedia } from '@vueuse/core';
 import { downloadFile } from '~/utils/common';
+import { messageDanger, messageSuccess } from '~~/utils/toast';
 
-const currentCamera: any = ref(); // 摄像头
-const currentMicrophone: any = ref(); // 麦克风
+const currentCamera = ref<string>();
+const currentMicrophone = ref<string>();
 
-/* 摄像头(拍照) */
-const videoUserMedia = ref();
-const mediaRecorderUserMedia = ref();
+const videoUserMedia = ref<HTMLVideoElement>();
+const videoDisplayMedia = ref<HTMLVideoElement>();
+const mediaRecorderUserMedia = ref<MediaRecorder | null>(null);
+const mediaRecorderDisplayMedia = ref<MediaRecorder | null>(null);
+const isRecordingUserMedia = ref(false);
+const isRecordingDisplayMedia = ref(false);
+
 const {
   devices,
   videoInputs: cameras,
@@ -15,101 +20,215 @@ const {
 } = useDevicesList({
   requestPermissions: true,
 });
+
 watch(
-  () => devices.value,
+  devices,
   () => {
-    console.log('devices.value', devices.value);
-    console.log(
-      'cameras.value',
-      cameras.value.map(c => c.deviceId),
-    );
-    console.log(
-      'microphones.value',
-      microphones.value.map(c => c.deviceId),
-    );
-    currentCamera.value = cameras.value[0]?.deviceId;
-    currentMicrophone.value = microphones.value[0]?.deviceId;
+    if (!currentCamera.value && cameras.value.length) {
+      currentCamera.value = cameras.value[0]?.deviceId;
+    }
+    if (!currentMicrophone.value && microphones.value.length) {
+      currentMicrophone.value = microphones.value[0]?.deviceId;
+    }
   },
+  { immediate: true },
 );
-const changeCamera: any = (e: any) => {
-  currentCamera.value = e.target.value;
-  // console.log(currentCamera.value)
-  // autoSwitch.value = false
-  restart();
-};
+
 const {
   stream: streamUserMedia,
-  start: startUserMedia,
   enabled: enabledUserMedia,
   restart,
-  autoSwitch,
 } = useUserMedia({
   constraints: {
-    // 传一个响应式对象用于可监听
     video: { deviceId: currentCamera },
     audio: { deviceId: currentMicrophone },
   },
 });
-  // 保存视频
-const saveUserMedia = () => {
-  mediaRecorderUserMedia.value.stop();
-  mediaRecorderDisplayMedia.value = null;
-  enabledUserMedia.value = !enabledUserMedia.value;
-};
 
-watch(
-  () => streamUserMedia.value,
-  (stream) => {
-    videoUserMedia.value.srcObject = stream;
-    if (stream) {
-      mediaRecorderUserMedia.value = createMediaRecorder(stream).mediaRecorder;
+const { stream: streamDisplayMedia, enabled: enabledDisplayMedia } = useDisplayMedia();
+
+watch(currentCamera, () => {
+  if (enabledUserMedia.value) {
+    restart();
+  }
+});
+
+watch(currentMicrophone, () => {
+  if (enabledUserMedia.value) {
+    restart();
+  }
+});
+
+watch(streamUserMedia, (stream) => {
+  if (videoUserMedia.value) {
+    videoUserMedia.value.srcObject = stream ?? null;
+  }
+  stopRecorder(mediaRecorderUserMedia, isRecordingUserMedia);
+});
+
+watch(streamDisplayMedia, (stream) => {
+  if (videoDisplayMedia.value) {
+    videoDisplayMedia.value.srcObject = stream ?? null;
+  }
+  stopRecorder(mediaRecorderDisplayMedia, isRecordingDisplayMedia);
+});
+
+function getSupportedMimeType() {
+  const types = [
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm',
+    'video/mp4',
+  ];
+  return types.find(type => MediaRecorder.isTypeSupported(type)) ?? '';
+}
+
+function createMediaRecorder(stream: MediaStream) {
+  const mimeType = getSupportedMimeType();
+  if (!mimeType) {
+    messageDanger('当前浏览器不支持 MediaRecorder 录制');
+    return null;
+  }
+
+  const chunks: Blob[] = [];
+  const mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+  mediaRecorder.ondataavailable = (event) => {
+    if (event.data.size > 0) {
+      chunks.push(event.data);
     }
-  },
-);
-
-// 创建录制器
-const createMediaRecorder = (stream: MediaStream) => {
-  const chunks: any[] = [];
-  const mediaRecorder = stream && new MediaRecorder(stream);
-  mediaRecorder.ondataavailable = function (event: any) {
-    chunks.push(event.data);
   };
-  // 开始录制
-  mediaRecorder.start();
+
   mediaRecorder.onstop = () => {
-    // 创建一个 Blob 对象，其中包含录制的所有数据
-    const blob = new Blob(chunks, { type: 'video/mp4' });
-    downloadFile(URL.createObjectURL(blob), '视频');
+    const blob = new Blob(chunks, { type: mimeType });
+    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+    const url = URL.createObjectURL(blob);
+    downloadFile(url, `录制-${Date.now()}.${ext}`);
+    URL.revokeObjectURL(url);
+    messageSuccess('视频已保存');
   };
-  return { mediaRecorder, chunks };
-};
 
-/* 屏幕共享(录屏) */
-const videoDisplayMedia = ref();
-const mediaRecorderDisplayMedia = ref();
-const {
-  stream: streamDisplayMedia,
-  start: startDisplayMedia,
-  enabled: enabledDisplayMedia,
-} = useDisplayMedia();
-watch(
-  () => streamDisplayMedia.value,
-  (stream) => {
-    videoDisplayMedia.value.srcObject = streamDisplayMedia.value;
-    if (stream) {
-      mediaRecorderDisplayMedia.value = createMediaRecorder(stream).mediaRecorder;
-    }
-  },
-);
-const saveDisplayMedia = () => {
-  mediaRecorderDisplayMedia.value.stop();
-  mediaRecorderDisplayMedia.value = null;
-  enabledDisplayMedia.value = !enabledDisplayMedia.value;
-};
+  return mediaRecorder;
+}
+
+function stopRecorder(
+  recorderRef: Ref<MediaRecorder | null>,
+  recordingRef: Ref<boolean>,
+  save = false,
+) {
+  const recorder = recorderRef.value;
+  if (!recorder || recorder.state === 'inactive') {
+    recorderRef.value = null;
+    recordingRef.value = false;
+    return;
+  }
+
+  if (save) {
+    recorder.stop();
+  }
+  else {
+    recorder.onstop = () => {};
+    recorder.stop();
+  }
+
+  recorderRef.value = null;
+  recordingRef.value = false;
+}
+
+function toggleRecording(
+  stream: MediaStream | undefined,
+  recorderRef: Ref<MediaRecorder | null>,
+  recordingRef: Ref<boolean>,
+) {
+  if (!stream) {
+    messageDanger('请先开启媒体流');
+    return;
+  }
+
+  if (recordingRef.value) {
+    stopRecorder(recorderRef, recordingRef, true);
+    return;
+  }
+
+  const recorder = createMediaRecorder(stream);
+  if (!recorder) {
+    return;
+  }
+
+  recorderRef.value = recorder;
+  recordingRef.value = true;
+  recorder.start(1000);
+}
+
+function stopAllTracks() {
+  streamUserMedia.value?.getTracks().forEach(track => track.stop());
+  streamDisplayMedia.value?.getTracks().forEach(track => track.stop());
+}
+
+onUnmounted(() => {
+  stopRecorder(mediaRecorderUserMedia, isRecordingUserMedia);
+  stopRecorder(mediaRecorderDisplayMedia, isRecordingDisplayMedia);
+  stopAllTracks();
+});
 </script>
 
 <template>
-  <div class="p-4">
+  <section class="space-y-4">
+    <h3 class="text-base font-medium text-tech">
+      媒体采集
+    </h3>
+    <p class="text-sm text-tech-muted">
+      摄像头预览与屏幕共享，支持选择设备并录制为 WebM/MP4（取决于浏览器）。
+    </p>
+
+    <div
+      class="mockup-window border border-tech bg-[var(--tech-input-bg)] mx-auto md:w-3/4 text-tech"
+    >
+      <div class="flex flex-col items-center p-4 bg-base-200 h-full">
+        <div class="join mb-2 flex-wrap justify-center">
+          <button
+            class="btn btn-sm cyber-btn-secondary join-item"
+            @click="enabledUserMedia = !enabledUserMedia"
+          >
+            {{ enabledUserMedia ? '停止摄像头' : '开启摄像头' }}
+          </button>
+          <button
+            class="btn btn-sm join-item"
+            :class="isRecordingUserMedia ? 'btn-error' : 'cyber-btn-secondary'"
+            :disabled="!enabledUserMedia"
+            @click="toggleRecording(streamUserMedia, mediaRecorderUserMedia, isRecordingUserMedia)"
+          >
+            {{ isRecordingUserMedia ? '停止并保存' : '开始录制' }}
+          </button>
+          <select
+            v-model="currentCamera"
+            class="select select-bordered join-item select-sm max-w-48"
+            :disabled="!cameras.length"
+          >
+            <option v-for="item in cameras" :key="item.deviceId" :value="item.deviceId">
+              {{ item.label || `摄像头 ${item.deviceId.slice(0, 8)}` }}
+            </option>
+          </select>
+          <select
+            v-model="currentMicrophone"
+            class="select select-bordered join-item select-sm max-w-48"
+            :disabled="!microphones.length"
+          >
+            <option v-for="item in microphones" :key="item.deviceId" :value="item.deviceId">
+              {{ item.label || `麦克风 ${item.deviceId.slice(0, 8)}` }}
+            </option>
+          </select>
+        </div>
+        <video
+          ref="videoUserMedia"
+          class="h-96 w-full max-w-3xl rounded-xl bg-black object-contain"
+          muted
+          autoplay
+          playsinline
+        />
+      </div>
+    </div>
+
     <div
       class="mockup-window border border-tech bg-[var(--tech-input-bg)] mx-auto md:w-3/4 text-tech"
     >
@@ -117,70 +236,33 @@ const saveDisplayMedia = () => {
         <div class="join mb-2">
           <button
             class="btn btn-sm cyber-btn-secondary join-item"
-            @click="enabledUserMedia = !enabledUserMedia"
-          >
-            {{ enabledUserMedia ? '停止' : '开始' }}
-          </button>
-          <button
-            v-if="mediaRecorderUserMedia"
-            class="btn btn-sm cyber-btn-secondary join-item"
-            @click="saveUserMedia"
-          >
-            保存
-          </button>
-          <button class="btn btn-sm btn-outline join-item">
-            摄像头(录像)
-          </button>
-          <select
-            class="select select-bordered join-item select-sm max-w-36"
-            @change="changeCamera"
-          >
-            <option
-              v-for="item in cameras"
-              :selected="currentCamera === item.deviceId"
-              :label="item.label"
-              :value="item.deviceId"
-            />
-          </select>
-        </div>
-        <video
-          ref="videoUserMedia" class="h-96 rounded-xl" muted
-          autoplay
-          controls
-        />
-      </div>
-    </div>
-
-    <div
-      class="mockup-window border border-tech bg-[var(--tech-input-bg)] mx-auto mt-4 md:w-3/4 text-tech"
-    >
-      <div class="flex flex-col items-center p-4 bg-base-200 h-full">
-        <div class="join mb-2">
-          <button
-            class="btn btn-sm cyber-btn-secondary join-item"
             @click="enabledDisplayMedia = !enabledDisplayMedia"
           >
-            {{ enabledDisplayMedia ? '停止' : '开始' }}
+            {{ enabledDisplayMedia ? '停止共享' : '开始屏幕共享' }}
           </button>
           <button
-            v-if="mediaRecorderDisplayMedia"
-            class="btn btn-sm cyber-btn-secondary join-item"
-            @click="saveDisplayMedia"
+            class="btn btn-sm join-item"
+            :class="isRecordingDisplayMedia ? 'btn-error' : 'cyber-btn-secondary'"
+            :disabled="!enabledDisplayMedia"
+            @click="
+              toggleRecording(
+                streamDisplayMedia,
+                mediaRecorderDisplayMedia,
+                isRecordingDisplayMedia,
+              )
+            "
           >
-            保存
-          </button>
-          <button class="btn btn-sm btn-outline join-item">
-            屏幕共享(录屏)
+            {{ isRecordingDisplayMedia ? '停止并保存' : '开始录屏' }}
           </button>
         </div>
         <video
-          ref="videoDisplayMedia" class="h-96 rounded-xl" muted
+          ref="videoDisplayMedia"
+          class="h-96 w-full max-w-3xl rounded-xl bg-black object-contain"
+          muted
           autoplay
-          controls
+          playsinline
         />
       </div>
     </div>
-  </div>
+  </section>
 </template>
-
-<style lang="less" scoped></style>

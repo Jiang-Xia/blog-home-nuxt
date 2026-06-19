@@ -379,3 +379,15 @@ export function getGuildRoleLabel(role: string): string {
 export function formatRewardDetail(detail: string): string {
   return detail.replace(/Buff/g, '增益').replace(/EXP/g, '经验').replace(/HP/g, '生命');
 }
+
+/** 收到社交互动 / 打赏弹框类型（WebSocket socialReceived、tipReceived） */
+export type RpgSocialFeedbackKind = 'cheer' | 'egg' | 'flower' | 'tip';
+
+export interface RpgSocialFeedbackData {
+  kind: RpgSocialFeedbackKind;
+  fromNickname: string;
+  hpDelta?: number;
+  reputationDelta?: number;
+  amount?: number;
+  articleTitle?: string;
+}

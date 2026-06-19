@@ -56,6 +56,7 @@ import type {
  * 子组件通过 props 渲染，mutation 在本 composable 内完成并 refresh 对应 ref。
  */
 export function useRpgPage() {
+  const token = useToken();
   const rpgStatus = ref<RpgStatus | null>(null);
   const signInfo = ref<SignInfo | null>(null);
   const banStatus = ref<BanStatus | null>(null);
@@ -326,8 +327,9 @@ export function useRpgPage() {
     }
   };
 
-  /** Tab 切换入口：按 tab 名分发到对应 load*Tab */
+  /** Tab 切换入口：按 tab 名分发到对应 load*Tab（未登录时不请求） */
   const loadTab = async (tab: string) => {
+    if (!token.value) return;
     if (tab === 'status') await loadStatusTab();
     else if (tab === 'inventory') await loadInventoryTab();
     else if (tab === 'pet') await loadPetTab();
@@ -467,11 +469,12 @@ export function useRpgPage() {
 
   /**
    * WebSocket 推送后按 scope 增量刷新，避免全量 reloadStatusTab。
-   * scope 由 use-rpg-socket-handlers 的 notifyDataRefresh 上报。
+   * scope 由 use-rpg-realtime-handlers 的 notifyDataRefresh 上报。
    */
   const handleSocketRefresh = async (
-    scope: import('~~/composables/use-rpg-socket').RpgRefreshScope,
+    scope: import('~~/composables/use-realtime-socket').RpgRefreshScope,
   ) => {
+    if (!token.value) return;
     if (scope === 'status') await reloadStatusCore();
     else if (scope === 'achievements') await reloadAchievements();
     else if (scope === 'quests') await reloadQuests();

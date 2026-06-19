@@ -1,11 +1,16 @@
 <script setup lang="ts">
+/**
+   * 文章详情页
+   * - 评论分页、JSON-LD / canonical SEO
+   * - 集成相关推荐、分享、移动 TOC、相邻文章导航
+   */
 import { ref, reactive, computed, watch } from 'vue';
 import { MdPreview } from 'md-editor-v3';
 
-import { useScroll } from '@vueuse/core';
 import { getArticleInfo, getComment } from '@/api/article';
 import { updateViews, xBLogStore, updateLikesHandle } from '@/utils/common';
 import { resolveStaticUrl } from '@/utils/static-url';
+import { resolvePublicAvatarFrame } from '@/composables/use-avatar-frame';
 import type { tocInter } from '@/utils';
 import Qie from '@/assets/images/animal/qie.svg';
 import { SiteTitle } from '@/utils/constant';
@@ -69,6 +74,9 @@ const setArticleData = () => {
 };
 setArticleData();
 
+const adjacentPrev = computed(() => articleData.value?.prev ?? null);
+const adjacentNext = computed(() => articleData.value?.next ?? null);
+
 const recordArticleView = (id: string) => {
   if (import.meta.client) {
     updateViews(id);
@@ -84,12 +92,17 @@ const tagLabel = computed(() => {
   return getTagLabel(ArticleInfo.tags);
 });
 
-// 获取文章目录
+const mdHeadingId = ({ index }: { text: string; level?: number; index: number }) =>
+// 用序号作 id，避免重复标题导致 TOC 多选高亮
+  `heading-${index}`;
+
+// 获取文章目录（id 与 MdPreview 渲染的 heading id 保持一致）
 const onGetCatalogHandle = (list: any) => {
-  topics.value = list.map((v: any) => {
-    v.id = v.text;
-    return v;
-  });
+  topics.value = list.map((v: any, i: number) => ({
+    level: String(v.level),
+    id: mdHeadingId({ text: v.text, level: v.level, index: i + 1 }),
+    text: v.text,
+  }));
 };
 const previewTheme = ref('default');
 const previewThemeChange = (e: any) => {
@@ -119,42 +132,65 @@ onMounted(() => {
   ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never);
 });
 
-/* 评论回复功能 */
-const comments = ref([]);
+/* 评论：顶层分页，回复仍随父评论返回 */
+const COMMENT_PAGE_SIZE = 20;
+const comments = ref<any[]>([]);
 const commentTotal = ref(0);
+const commentTopTotal = ref(0);
+const commentPage = ref(1);
+const commentsLoading = ref(false);
+
+const calcCommentTotal = (list: any[]) => {
+  let total = commentTopTotal.value;
+  list.forEach((v: any) => {
+    total += v.allReplyCount || 0;
+  });
+  return total;
+};
+
+const applyCommentList = (list: any[], append: boolean) => {
+  comments.value = append ? [...comments.value, ...list] : list;
+  commentTotal.value = calcCommentTotal(comments.value);
+};
+
 const { data: res, refresh: refreshCommentsFn } = await useAsyncData(
   () => `detail_GetComment_${articleId.value}`,
-  () => getComment(articleId.value),
+  () => getComment(articleId.value, { page: 1, pageSize: COMMENT_PAGE_SIZE }),
 );
-const getCommentHandle = async () => {
-  comments.value = res.value.list;
-  let total = res.value.pagination.total;
-  res.value.list.map((v: any) => (total += v.allReplyCount));
-  commentTotal.value = total;
-  // console.log({ comments, total });
+
+const getCommentHandle = () => {
+  if (!res.value) return;
+  commentPage.value = 1;
+  commentTopTotal.value = res.value.pagination?.total ?? 0;
+  applyCommentList(res.value.list ?? [], false);
 };
+
 getCommentHandle();
 
+const commentHasMore = computed(() => comments.value.length < commentTopTotal.value);
+
+/** 追加加载更多顶层评论 */
+const loadMoreComments = async () => {
+  if (commentsLoading.value || !commentHasMore.value) return;
+  commentsLoading.value = true;
+  try {
+    commentPage.value += 1;
+    const more = await getComment(articleId.value, {
+      page: commentPage.value,
+      pageSize: COMMENT_PAGE_SIZE,
+    });
+    applyCommentList(more?.list ?? [], true);
+  }
+  finally {
+    commentsLoading.value = false;
+  }
+};
+
 const commented = async () => {
+  commentPage.value = 1;
   await refreshCommentsFn();
   getCommentHandle();
 };
-  // 目录吸顶
-const mainViewArea = ref<HTMLElement>();
-let fixedAsideBar = ref<boolean>();
-if (import.meta.client) {
-  // 都是响应式的
-  const { y } = useScroll(window, {});
-  fixedAsideBar = computed(() => {
-    let top = 0;
-    if (mainViewArea.value) {
-      top = mainViewArea.value.offsetTop - 66;
-    }
-    return !!y.value && y.value > top;
-  });
-}
-// 侧边栏吸顶
-
 const onTipped = async () => {
   await refresh();
   setArticleData();
@@ -168,6 +204,15 @@ const pageDescription = computed(() => {
 });
 const coverUrl = computed(() => resolveStaticUrl(ArticleInfo.cover));
 
+const authorAvatarSrc = computed(() => {
+  const av = ArticleInfo.userInfo?.avatar;
+  return av ? resolveStaticUrl(av) : Qie;
+});
+
+const authorAvatarFrame = computed(() =>
+  resolvePublicAvatarFrame(ArticleInfo.userInfo?.avatarFrame),
+);
+
 useHead({
   title: pageTitle,
   titleTemplate: title => `${title} - ${SiteTitle}`,
@@ -177,6 +222,37 @@ useHead({
     { property: 'og:description', content: pageDescription },
     { property: 'og:image', content: coverUrl },
     { property: 'og:type', content: 'article' },
+  ],
+  link: [
+    // canonical 与 JSON-LD 供搜索引擎收录
+    {
+      rel: 'canonical',
+      href: computed(() =>
+        import.meta.client
+          ? `${window.location.origin}/detail/${articleId.value}`
+          : `/detail/${articleId.value}`,
+      ),
+    },
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() =>
+        JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          'headline': ArticleInfo.title,
+          'description': pageDescription.value,
+          'datePublished': ArticleInfo.createTime || ArticleInfo.uTime,
+          'dateModified': ArticleInfo.uTime || ArticleInfo.createTime,
+          'author': {
+            '@type': 'Person',
+            'name': ArticleInfo.userInfo?.nickname || '作者',
+          },
+          'image': coverUrl.value ? [coverUrl.value] : undefined,
+        }),
+      ),
+    },
   ],
 });
 
@@ -217,90 +293,97 @@ watch(
       :article-id="ArticleInfo.id"
       @like="updateLikesHandle(ArticleInfo)"
     />
-    <div ref="mainViewArea" class="main-view-area mx-auto w-full max-w-5xl px-4 py-8 xl:w-4/5">
-      <section class="main-content cyber-glass-card max-w-full rounded-2xl p-3 md:p-5">
-        <section class="module-wrap__detail article-info">
-          <div class="flex items-center">
-            <div class="flex items-center justify-between">
-              <NuxtLink
-                v-if="ArticleInfo.uid"
-                :to="`/user/${ArticleInfo.uid}`"
-                class="author-profile-link group inline-flex items-center rounded-full py-1 pl-1 pr-3 transition-colors hover:bg-base-content/5"
-                title="查看作者主页"
-              >
-                <div
-                  class="btn btn-ghost btn-circle avatar ring-2 ring-primary/25 transition-all group-hover:ring-primary/70 group-hover:scale-105"
+    <div class="main-view-area mx-auto w-full px-4 py-8">
+      <div class="article-layout">
+        <section class="main-content cyber-glass-card min-w-0 rounded-2xl p-3 md:p-5">
+          <section class="module-wrap__detail article-info">
+            <div class="flex items-center">
+              <div class="flex items-center justify-between">
+                <NuxtLink
+                  v-if="ArticleInfo.uid"
+                  :to="`/user/${ArticleInfo.uid}`"
+                  class="author-profile-link group inline-flex items-center rounded-full py-1 pl-1 pr-3 transition-colors hover:bg-base-content/5"
+                  title="查看作者主页"
                 >
-                  <div class="w-10 rounded-full">
-                    <img
-                      :src="ArticleInfo.userInfo.avatar || Qie"
-                      :alt="ArticleInfo.userInfo.nickname"
-                    >
-                  </div>
+                  <CommonAvatarWithFrame
+                    :avatar="authorAvatarSrc"
+                    :alt="ArticleInfo.userInfo.nickname"
+                    :frame="authorAvatarFrame"
+                    :size="40"
+                    class="transition-transform group-hover:scale-105"
+                  />
+                  <span class="font-bold ml-2 text-tech link link-hover link-primary">{{
+                    ArticleInfo.userInfo.nickname
+                  }}</span>
+                  <span
+                    class="ml-2 text-xs text-base-content/45 transition-colors group-hover:text-primary"
+                  >主页</span>
+                </NuxtLink>
+                <div v-else class="flex items-center">
+                  <CommonAvatarWithFrame
+                    :avatar="authorAvatarSrc"
+                    :alt="ArticleInfo.userInfo.nickname"
+                    :frame="authorAvatarFrame"
+                    :size="40"
+                  />
+                  <span class="ml-2 font-bold text-tech">{{ ArticleInfo.userInfo.nickname }}</span>
                 </div>
-                <span class="font-bold ml-2 text-tech link link-hover link-primary">{{
-                  ArticleInfo.userInfo.nickname
-                }}</span>
-                <span
-                  class="ml-2 text-xs text-base-content/45 transition-colors group-hover:text-primary"
-                >主页</span>
-              </NuxtLink>
-              <div v-else class="flex items-center">
-                <div class="btn btn-ghost btn-circle avatar">
-                  <div class="w-10 rounded-full">
-                    <img
-                      :src="ArticleInfo.userInfo.avatar || Qie"
-                      :alt="ArticleInfo.userInfo.nickname"
-                    >
-                  </div>
+              </div>
+              <div class="dropdown dropdown-bottom ml-6">
+                <div
+                  tabindex="0"
+                  role="button"
+                  class="btn m-1 cyber-btn-secondary"
+                  aria-label="切换预览主题"
+                  @keydown.enter.prevent="($event.target as HTMLElement)?.click()"
+                >
+                  主 题
                 </div>
-                <span class="ml-2 font-bold text-tech">{{ ArticleInfo.userInfo.nickname }}</span>
+                <ul
+                  tabindex="0"
+                  class="dropdown-content z-[1] menu p-2 shadow border border-tech bg-[var(--tech-dropdown-bg)] rounded-box w-52 text-tech"
+                >
+                  <li v-for="item of themeList" @click="previewThemeChange(item)">
+                    <a>{{ item }}</a>
+                  </li>
+                </ul>
               </div>
             </div>
-            <div class="dropdown dropdown-bottom ml-6">
-              <div tabindex="0" role="button" class="btn m-1 cyber-btn-secondary">
-                主 题
-              </div>
-              <ul
-                tabindex="0"
-                class="dropdown-content z-[1] menu p-2 shadow border border-tech bg-[var(--tech-dropdown-bg)] rounded-box w-52 text-tech"
-              >
-                <li v-for="item of themeList" @click="previewThemeChange(item)">
-                  <a>{{ item }}</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <MdPreview
-            :key="mdKey"
-            v-model="ArticleInfo.content"
-            class="x-md-editor rounded-lg p-3 bg-transparent"
-            preview-only
-            :preview-theme="previewTheme"
-            :theme="mdEditorTheme"
-            @on-get-catalog="onGetCatalogHandle"
+            <MdPreview
+              :key="mdKey"
+              v-model="ArticleInfo.content"
+              class="x-md-editor rounded-lg p-3 bg-transparent"
+              preview-only
+              :preview-theme="previewTheme"
+              :theme="mdEditorTheme"
+              :md-heading-id="mdHeadingId"
+              @on-get-catalog="onGetCatalogHandle"
+            />
+            <ArticleRelated v-if="ArticleInfo.id" :article-id="ArticleInfo.id" />
+            <ArticleAdjacentNav :prev="adjacentPrev" :next="adjacentNext" />
+            <ArticleShareBar :article-id="ArticleInfo.id" :title="ArticleInfo.title" />
+          </section>
+          <XiaComment
+            class="module-wrap__detail comment-module"
+            :comments="comments"
+            :total="commentTotal"
+            :has-more="commentHasMore"
+            :loading-more="commentsLoading"
+            @commented="commented"
+            @load-more="loadMoreComments"
           />
         </section>
-        <XiaComment
-          class="module-wrap__detail comment-module"
-          :comments="comments"
-          :total="commentTotal"
-          @commented="commented"
-        />
-      </section>
 
-      <aside
-        ref="aside"
-        class="aside-bar hidden lg:block absolute right-0 top-0 h-full w-80 overflow-auto rounded-xl border border-tech cyber-glass-card p-3"
-        :class="{ 'aside-bar__fixed': fixedAsideBar }"
-      >
-        <div class="sticky-box">
-          <Catalogue :topics="topics" />
-        </div>
-      </aside>
+        <aside v-if="topics.length" class="aside-bar hidden lg:block">
+          <div class="aside-bar__inner cyber-glass-card rounded-xl border border-tech p-3">
+            <Catalogue :topics="topics" />
+          </div>
+        </aside>
+      </div>
     </div>
     <!-- 阅读进度环 -->
     <ReadingProgressRing position="top-right" :auto-hide="true" style="top: 70px" />
+    <ArticleTocDrawer :topics="topics" />
     <RpgArticleRpgFab
       v-if="ArticleInfo.id && ArticleInfo.uid"
       :article-id="ArticleInfo.id"
@@ -362,33 +445,60 @@ watch(
   }
   .main-view-area {
     margin: 20px auto 0;
-    position: relative;
-    .main-content {
-      width: calc(100% - 324px);
+    /* 无目录：适中阅读宽度；有目录：随视口放宽，避免大屏正文过窄 */
+    max-width: min(100%, 44rem);
+
+    @media (min-width: 1024px) {
+      max-width: min(92vw, 72rem);
+    }
+
+    @media (min-width: 1280px) {
+      max-width: min(88vw, 87.5rem);
     }
   }
-  .aside-bar__fixed {
-    .sticky-box {
-      position: fixed;
-      top: 66px;
-      width: inherit; // 这样定位时还是继承父元素的宽度
+
+  .article-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+
+    @media (min-width: 1024px) {
+      grid-template-columns: minmax(0, 1fr) 15rem;
+      gap: 1.25rem;
+    }
+
+    @media (min-width: 1280px) {
+      grid-template-columns: minmax(0, 1fr) 17.5rem;
+      gap: 1.5rem;
     }
   }
-  @media (max-width: 1140px) {
-    .main-view-area {
-      .main-content {
-        width: 820px;
-      }
+
+  .aside-bar {
+    /* 侧栏需与正文同高，sticky 才能在滚动时吸顶 */
+    min-height: 100%;
+  }
+
+  .aside-bar__inner {
+    position: sticky;
+    top: 72px;
+  }
+
+  :deep(.x-md-editor) {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      scroll-margin-top: 5rem;
     }
   }
+
   .article-detail {
     position: relative;
   }
-
-  .article-info {
-  }
   .comment-module {
-    margin-top: 76px;
+    margin-top: 1.5rem;
     min-height: 30vh;
   }
   .md-editor {

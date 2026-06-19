@@ -61,6 +61,7 @@ export const SCRIPTS = {
   // PDF 相关
   PDF_LIB: 'https://cdn.staticfile.net/pdf-lib/1.17.1/pdf-lib.min.js',
   PDF_JS: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js',
+  PDF_JS_WORKER: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.worker.min.js',
 
   // 加密相关
   JSENCRYPT:
@@ -80,10 +81,13 @@ export const SCRIPTS = {
 };
 
 /**
- * 加载 PDF 相关脚本
+ * 加载 PDF 相关脚本，并在 pdf.js 就绪后配置 Worker（v3 必需）
  */
-export function loadPdfScripts(): Promise<Array<void>> {
-  return loadScripts([SCRIPTS.PDF_LIB, SCRIPTS.PDF_JS, SCRIPTS.SMOOTH_SIGNATURE]);
+export async function loadPdfScripts(): Promise<void> {
+  await loadScripts([SCRIPTS.PDF_LIB, SCRIPTS.PDF_JS, SCRIPTS.SMOOTH_SIGNATURE]);
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = SCRIPTS.PDF_JS_WORKER;
+  }
 }
 
 /**

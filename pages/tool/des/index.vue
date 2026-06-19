@@ -1,83 +1,93 @@
 <template>
-  <div class="space-y-4">
-    <CyberToolCard title="秘钥设置" class="w-full">
-      <div class="flex w-full flex-wrap items-center gap-2">
-        <select v-model="encryption" class="select select-bordered login-input max-w-44">
-          <option v-for="item in encryptionList" :key="item.value" :value="item.value">
-            {{ item.label }}
-          </option>
-        </select>
-        <input
-          v-model="secretKey"
-          class="input input-bordered login-input min-w-0 flex-1"
-          placeholder="秘钥"
+  <div class="space-y-5">
+    <CryptoToolSection label="KEY CONFIG">
+      <div class="cyber-glass-card !p-4 md:!p-5">
+        <div
+          class="crypto-form-grid grid items-end gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)_auto]"
         >
-        <input
-          v-model="offset"
-          class="input input-bordered login-input max-w-44"
-          placeholder="偏移量"
-        >
-        <CyberButton variant="primary" class="shrink-0" @click="createKey">
-          <xia-icon icon="blog-quanxian" /> 生成秘钥
-        </CyberButton>
+          <label class="form-control w-full">
+            <span class="label-text mb-1.5 block text-xs leading-none text-tech-muted">加密算法</span>
+            <select v-model="encryption" class="select select-bordered login-input w-full">
+              <option v-for="item in encryptionList" :key="item.value" :value="item.value">
+                {{ item.label }}
+              </option>
+            </select>
+          </label>
+          <label class="form-control w-full">
+            <span class="label-text mb-1.5 block text-xs leading-none text-tech-muted">秘钥</span>
+            <input
+              v-model="secretKey"
+              class="input input-bordered login-input w-full"
+              placeholder="输入或生成秘钥"
+            >
+          </label>
+          <label class="form-control w-full">
+            <span class="label-text mb-1.5 block text-xs leading-none text-tech-muted">偏移量 (IV)</span>
+            <input
+              v-model="offset"
+              class="input input-bordered login-input w-full"
+              placeholder="偏移量"
+            >
+          </label>
+          <label class="form-control w-full shrink-0 lg:w-auto">
+            <span
+              class="label-text mb-1.5 block text-xs leading-none invisible select-none"
+              aria-hidden="true"
+            >&nbsp;</span>
+            <CyberButton variant="primary" class="w-full lg:w-auto" @click="createKey">
+              <xia-icon icon="blog-quanxian" /> 生成秘钥
+            </CyberButton>
+          </label>
+        </div>
       </div>
-    </CyberToolCard>
+    </CryptoToolSection>
 
-    <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
-      <CyberToolCard title="原文" width-class="w-full sm:flex-1">
-        <textarea
-          v-model="plaintext"
-          placeholder="原文"
-          class="textarea textarea-bordered login-input min-h-44 w-full"
-        />
-      </CyberToolCard>
+    <CryptoToolSection label="CIPHER">
+      <CryptoWorkspace
+        v-model:input="plaintext"
+        v-model:output="ciphertext"
+        input-label="原文"
+        output-label="密文"
+        input-placeholder="输入待加密的原文..."
+        output-placeholder="加密结果将显示在这里..."
+      >
+        <template #actions>
+          <select
+            v-model="outputType"
+            class="select select-bordered login-input w-full"
+            @change="ciphertext = ''"
+          >
+            <option value="Hex">
+              Hex
+            </option>
+            <option value="Base64">
+              Base64
+            </option>
+          </select>
+          <CyberButton variant="secondary" class="w-full" @click="encrypted">
+            <xia-icon icon="blog-suoding" /> 加密 →
+          </CyberButton>
+          <CyberButton variant="secondary" class="w-full" @click="decrypt">
+            ← 解密 <xia-icon icon="blog-jiesuo" />
+          </CyberButton>
+        </template>
+      </CryptoWorkspace>
+    </CryptoToolSection>
 
-      <div class="flex w-full flex-col gap-2 sm:w-36 sm:shrink-0">
-        <select
-          v-model="outputType"
-          class="select select-bordered login-input w-full"
-          @change="ciphertext = ''"
-        >
-          <option value="Hex">
-            Hex
-          </option>
-          <option value="Base64">
-            Base64
-          </option>
-        </select>
-        <CyberButton variant="secondary" class="w-full" @click="encrypted">
-          <xia-icon icon="blog-suoding" /> 加密原文
-        </CyberButton>
-        <CyberButton variant="secondary" class="w-full" @click="decrypt">
-          <xia-icon icon="blog-jiesuo" /> 解密密文
-        </CyberButton>
-      </div>
-
-      <CyberToolCard title="密文" width-class="w-full sm:flex-1">
-        <textarea
-          v-model="ciphertext"
-          placeholder="密文"
-          class="textarea textarea-bordered login-input min-h-44 w-full"
-        />
-      </CyberToolCard>
-    </div>
-
-    <CyberToolCard title="对称加密算法介绍">
-      <div class="space-y-3 text-sm leading-relaxed text-tech-muted">
-        <p>
-          对称加密算法转换工具，包含有AES加密、DES加密、RC4加密、Rabbit加密、TripleDes加密等相关对称加密算法互相转换的工具。
-          除了上述的对称加密算法外，还有3DES、Blowfish、IDEA、RC5、RC6等对称加密算法
-        </p>
-        <p>对称加密的优势：对称加密的速度比公钥加密快很多，在很多场合都需要对称加密</p>
-        <h3 class="text-base font-semibold text-tech">
-          对称加密与非对称加密的区别
-        </h3>
-        <p>
-          对称加密算法在加密和解密时使用的是同一个秘钥；而非对称加密算法需要两个密钥来进行加密和解密，这两个秘钥是公开密钥（public
-          key）和私有密钥（private key）。
-        </p>
-      </div>
-    </CyberToolCard>
+    <CryptoAboutPanel title="对称加密算法介绍">
+      <p>
+        对称加密算法转换工具，包含有AES加密、DES加密、RC4加密、Rabbit加密、TripleDes加密等相关对称加密算法互相转换的工具。
+        除了上述的对称加密算法外，还有3DES、Blowfish、IDEA、RC5、RC6等对称加密算法
+      </p>
+      <p>对称加密的优势：对称加密的速度比公钥加密快很多，在很多场合都需要对称加密</p>
+      <h3 class="text-base font-semibold text-tech">
+        对称加密与非对称加密的区别
+      </h3>
+      <p>
+        对称加密算法在加密和解密时使用的是同一个秘钥；而非对称加密算法需要两个密钥来进行加密和解密，这两个秘钥是公开密钥（public
+        key）和私有密钥（private key）。
+      </p>
+    </CryptoAboutPanel>
   </div>
 </template>
 

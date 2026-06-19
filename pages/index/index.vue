@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { gushici } from '@/api/index';
+import { getArticleList } from '@/api/article';
 import { SiteTitle } from '@/utils/constant';
 
 useHead({
@@ -8,6 +9,14 @@ useHead({
 });
 
 const { data: gushiciData } = await useAsyncData('gushici_Get', () => gushici());
+const { data: articleStats } = await useAsyncData('home_ArticleStats', () =>
+  getArticleList({ page: 1, pageSize: 1, client: true }),
+);
+
+const articleTotal = computed(() => articleStats.value?.pagination?.total ?? 0);
+const articleTotalLabel = computed(() =>
+  articleTotal.value > 0 ? `${articleTotal.value}+` : '100+',
+);
 
 const poetryContent = computed(() => gushiciData.value?.content || '每日诗词');
 const poetryAuthor = computed(() => {
@@ -108,7 +117,7 @@ const scrollToArticles = () => {
       <div class="mt-10 flex flex-wrap items-center justify-center gap-8 md:gap-12">
         <div class="text-center">
           <div class="text-xl font-bold text-primary md:text-2xl">
-            100+
+            {{ articleTotalLabel }}
           </div>
           <div class="mt-1 text-sm text-tech-subtle">
             技术文章
@@ -142,7 +151,7 @@ const scrollToArticles = () => {
         title="最新文章"
         subtitle="技术分享与生活记录，欢迎阅读与交流"
       />
-      <div class="cyber-glass-card p-4 md:p-6">
+      <div class="cyber-glass-card overflow-visible p-4 md:p-6">
         <ArticleList />
       </div>
     </section>

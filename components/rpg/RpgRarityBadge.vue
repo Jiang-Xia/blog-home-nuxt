@@ -12,7 +12,7 @@ const displayColor = computed(() => props.rarityColor || '#94a3b8');
 <template>
   <span
     v-if="rarity || rarityLabel"
-    class="badge badge-xs gap-0.5"
+    class="badge badge-xs inline-flex items-center gap-1 whitespace-nowrap border px-2"
     :class="$attrs.class"
     :style="{
       backgroundColor: displayColor + '20',

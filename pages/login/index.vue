@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+   * 登录页
+   * - 账号/邮箱登录；成功后 resolveRedirectPath 回跳（防 open redirect）
+   */
 import { reactive } from 'vue';
 import request from '~~/api/request.js';
 import { messageDanger, messageSuccess, messageInfo } from '~~/utils/toast';
@@ -24,6 +28,7 @@ const authCodeLoadError = ref(false);
 const captchaId = ref('');
 const token = useToken();
 const route = useRoute();
+const submitting = ref(false);
 
 const persistLoginTokens = (accessToken: string, refreshToken: string) => {
   token.value = accessToken;
@@ -55,6 +60,9 @@ const form: formState = reactive({
 });
   /* 登录 */
 const okHandle = async () => {
+  if (submitting.value) {
+    return;
+  }
   const requiredFields
     = loginType.value === 'account'
       ? ['username', 'password', 'authCode']
@@ -85,6 +93,7 @@ const okHandle = async () => {
 
   let res: any;
 
+  submitting.value = true;
   try {
     let url = '/user/login';
     const params: any = { loginType: loginType.value };
@@ -103,7 +112,7 @@ const okHandle = async () => {
     res = await request.post(url, params);
     persistLoginTokens(res.info.accessToken, res.info.refreshToken);
     await refreshUserInfo();
-    await navigateTo('/');
+    await navigateTo(resolveRedirectPath(route.query.redirect as string));
     messageSuccess('登录成功');
   }
   catch (err: any) {
@@ -113,6 +122,9 @@ const okHandle = async () => {
       captchaId.value = '';
       void changeAuthCode();
     }
+  }
+  finally {
+    submitting.value = false;
   }
 };
   // 更换验证码
@@ -191,7 +203,7 @@ const exchangeOAuthTicket = async (ticket: string) => {
     await refreshUserInfo();
     messageSuccess('登录成功');
     history.replaceState({}, '', route.path);
-    await navigateTo('/');
+    await navigateTo(resolveRedirectPath(route.query.redirect as string));
   }
   catch {
     messageDanger('登录凭证无效或已过期，请重新登录');
@@ -396,8 +408,9 @@ onMounted(() => {
           Login with GitHub
         </CyberButton>
 
-        <CyberButton type="submit" variant="primary" class="w-full">
-          登录
+        <CyberButton type="submit" variant="primary" class="w-full" :disabled="submitting">
+          <span v-if="submitting" class="loading loading-spinner loading-sm" />
+          {{ submitting ? '登录中...' : '登录' }}
         </CyberButton>
       </form>
     </CyberCard>

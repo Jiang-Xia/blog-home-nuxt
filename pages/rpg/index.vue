@@ -5,13 +5,14 @@
    */
 import { ref, watch, computed } from 'vue';
 import { messageError, messageSuccess } from '~~/utils/toast';
+import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 import { useRpgPage } from '~~/composables/use-rpg-page';
-import { useRpgSocket } from '~~/composables/use-rpg-socket';
+import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
 
 const route = useRoute();
 const router = useRouter();
-const profileCardRef = ref<{ setSignInResult: (result: any) => void } | null>(null);
-const lotteryBoxRef = ref<{ showDrawResults: (results: any[]) => void } | null>(null);
+const profileCardRef = ref<{ setSignInResult: (_result: any) => void } | null>(null);
+const lotteryBoxRef = ref<{ showDrawResults: (_results: any[]) => void } | null>(null);
 const onboardingRef = ref<{ open: () => void } | null>(null);
 
 const token = useToken();
@@ -74,7 +75,7 @@ const {
   handleSocketRefresh,
 } = useRpgPage();
 
-const { onDataRefresh } = useRpgSocket();
+const { onDataRefresh } = useRealtimeSocket();
 onDataRefresh(handleSocketRefresh);
 
 definePageMeta({
@@ -97,14 +98,20 @@ watch(
   { immediate: true },
 );
 
-/** Tab 切换时由父组件统一 loadTab，子组件不再各自 onMounted 请求 */
+/** Tab 切换时由父组件统一 loadTab，未登录时不请求接口 */
 watch(
   activeTab,
   (tab) => {
+    if (!isLoggedIn.value) return;
     loadTab(tab);
   },
   { immediate: true },
 );
+
+/** 登录成功后加载当前 Tab 数据 */
+watch(isLoggedIn, (loggedIn) => {
+  if (loggedIn) loadTab(activeTab.value);
+});
 
 /** 切换 Tab 并同步 URL（status 时不带 query） */
 const switchTab = (tab: typeof activeTab.value) => {
@@ -113,8 +120,9 @@ const switchTab = (tab: typeof activeTab.value) => {
   router.replace({ query: q });
 };
 
-/** 排行榜筛选变更时重新拉榜（仅在排行 Tab 激活时） */
+/** 排行榜筛选变更时重新拉榜（仅在已登录且排行 Tab 激活时） */
 watch([leaderboardType, leaderboardPeriod], () => {
+  if (!isLoggedIn.value) return;
   if (activeTab.value === 'leaderboard') loadTab('leaderboard');
 });
 
@@ -173,7 +181,7 @@ const onDraw = async (count: number, currency: 'ticket' | 'currency') => {
     return results;
   }
   catch (e: any) {
-    messageError(e?.message || '抽奖失败');
+    handleRpgCurrencyError(e, '抽奖失败');
     return [];
   }
 };
@@ -228,7 +236,7 @@ const onBuyPet = async (petCode: string) => {
     messageSuccess('兑换成功');
   }
   catch (e: any) {
-    messageError(e?.message || '兑换失败');
+    handleRpgCurrencyError(e, '兑换失败');
   }
 };
 
@@ -346,6 +354,7 @@ const onLeaveGuild = async () => {
           role="tab"
           class="rpg-page-tab"
           :class="{ active: activeTab === 'status' }"
+          :aria-selected="activeTab === 'status'"
           @click="switchTab('status')"
         >
           冒险状态
@@ -355,6 +364,7 @@ const onLeaveGuild = async () => {
           role="tab"
           class="rpg-page-tab"
           :class="{ active: activeTab === 'inventory' }"
+          :aria-selected="activeTab === 'inventory'"
           @click="switchTab('inventory')"
         >
           背包
@@ -364,6 +374,7 @@ const onLeaveGuild = async () => {
           role="tab"
           class="rpg-page-tab"
           :class="{ active: activeTab === 'pet' }"
+          :aria-selected="activeTab === 'pet'"
           @click="switchTab('pet')"
         >
           宠物
@@ -373,6 +384,7 @@ const onLeaveGuild = async () => {
           role="tab"
           class="rpg-page-tab"
           :class="{ active: activeTab === 'guild' }"
+          :aria-selected="activeTab === 'guild'"
           @click="switchTab('guild')"
         >
           公会
@@ -382,6 +394,7 @@ const onLeaveGuild = async () => {
           role="tab"
           class="rpg-page-tab"
           :class="{ active: activeTab === 'leaderboard' }"
+          :aria-selected="activeTab === 'leaderboard'"
           @click="switchTab('leaderboard')"
         >
           排行
@@ -521,7 +534,8 @@ const onLeaveGuild = async () => {
 <style scoped>
   .rpg-page-tabs {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     gap: 6px;
     padding: 6px;
     border-radius: 12px;

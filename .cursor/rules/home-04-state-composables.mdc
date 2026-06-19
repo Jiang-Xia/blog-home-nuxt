@@ -33,6 +33,6 @@ const rpgStatus = useState<RpgStatus | null>('rpg-status', () => null);
 ## 要求
 
 - 接口返回先最小归一化再写入 state，减少页面适配
-- 登录态更新时同步 token、userInfo 与依赖缓存（含 WebSocket 重连 token）
+- 登录态更新时同步 token、userInfo 与依赖缓存（含 `useRealtimeSocket` 重连 token）
 - 不在多个 composable 复制同一业务状态；可复用则抽公共 composable
 - 客户端副作用（DOM、Socket）加 `import.meta.client` 守卫
