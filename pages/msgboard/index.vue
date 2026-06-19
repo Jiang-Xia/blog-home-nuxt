@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+   * 留言板页
+   * - 顶层留言分页（pageSize=30），子回复随父节点返回
+   */
 import { reactive, ref, computed } from 'vue';
 import { messageDanger, messageSuccess, messageWarning } from '@/utils/toast';
 import { useRpg } from '~~/composables/use-rpg';
@@ -13,9 +17,16 @@ interface MsgInterFace {
   address: string;
   comment: string;
 }
-const { data: msgboardList, refresh } = await useAsyncData('msgboard_Get', () =>
-  request.get('/msgboard').then((res: any) => res.list),
+const { data: initialMsgData, refresh } = await useAsyncData('msgboard_Get', () =>
+  request.get('/msgboard', { page: 1, pageSize: 30 }),
 );
+const flatMsgList = ref<any[]>(initialMsgData.value?.list ?? []);
+const msgboardPage = ref(1);
+const msgboardHasMore = ref(
+  (initialMsgData.value?.pagination?.total ?? 0) > flatMsgList.value.length,
+);
+const msgboardLoading = ref(false);
+
 const buildTree = (list: any[], rootId = 0) => {
   const tree: any[] = [];
   for (const v of list) {
@@ -29,7 +40,38 @@ const buildTree = (list: any[], rootId = 0) => {
   }
   return tree;
 };
-msgboardList.value = buildTree(msgboardList.value ?? []);
+
+const msgboardList = ref<any[]>([]);
+
+const rebuildTree = () => {
+  msgboardList.value = buildTree(flatMsgList.value);
+};
+
+rebuildTree();
+
+const reloadMsgboard = async () => {
+  msgboardPage.value = 1;
+  const res = await request.get('/msgboard', { page: 1, pageSize: 30 });
+  flatMsgList.value = res?.list ?? [];
+  msgboardHasMore.value = flatMsgList.value.length < (res?.pagination?.total ?? 0);
+  rebuildTree();
+};
+
+/** 分页加载更多顶层留言 */
+const loadMoreMsgboard = async () => {
+  if (msgboardLoading.value || !msgboardHasMore.value) return;
+  msgboardLoading.value = true;
+  try {
+    msgboardPage.value += 1;
+    const res = await request.get('/msgboard', { page: msgboardPage.value, pageSize: 30 });
+    flatMsgList.value = [...flatMsgList.value, ...(res?.list ?? [])];
+    msgboardHasMore.value = flatMsgList.value.length < (res?.pagination?.total ?? 0);
+    rebuildTree();
+  }
+  finally {
+    msgboardLoading.value = false;
+  }
+};
 const userInfo = useUserInfo();
 const { isBanned } = useRpg();
 const submitting = ref(false);
@@ -53,10 +95,7 @@ onMounted(() => {
     dialog.value = false;
   });
 });
-const getAllMsgboard = async () => {
-  const { list } = await request.get('/msgboard', { pageSize: 10000 });
-  msgboardList.value = buildTree(list);
-};
+const getAllMsgboard = reloadMsgboard;
 const confirmHandle = async () => {
   if (submitting.value) {
     return;
@@ -327,6 +366,16 @@ useHead({
           </div>
         </div>
       </CyberCard>
+      <div v-if="msgboardHasMore" class="flex justify-center pt-2">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          :disabled="msgboardLoading"
+          @click="loadMoreMsgboard"
+        >
+          {{ msgboardLoading ? '加载中...' : '加载更多留言' }}
+        </button>
+      </div>
     </div>
 
     <dialog id="replay_modal" ref="replayModal" class="modal">

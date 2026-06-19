@@ -1,9 +1,10 @@
 <script setup lang="ts">
 /**
    * 用户文章列表组件
-   * 展示当前用户编写的所有文章，支持分页加载
+   * - 分页加载我的文章
+   * - 客户端状态/标题筛选（status 字段来自 API，badge 文案本地映射）
    */
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { getMyArticleList, disableArticle } from '@/api/article';
 import { beforeTimeNow } from '@/utils';
 import { messageSuccess, messageError } from '~~/utils/toast';
@@ -14,6 +15,32 @@ const page = ref(1);
 const pageSize = 10;
 const total = ref(0);
 const hasMore = ref(true);
+const statusFilter = ref<'all' | 'publish' | 'draft' | 'scheduled'>('all');
+const titleKeyword = ref('');
+
+/** 客户端筛选：状态 Tab + 标题关键字 */
+const filteredList = computed(() => {
+  let rows = list.value;
+  if (statusFilter.value !== 'all') {
+    rows = rows.filter(item => item.status === statusFilter.value);
+  }
+  const kw = titleKeyword.value.trim().toLowerCase();
+  if (kw) {
+    rows = rows.filter(item => (item.title || '').toLowerCase().includes(kw));
+  }
+  return rows;
+});
+
+const resetAndLoad = async () => {
+  page.value = 1;
+  list.value = [];
+  hasMore.value = true;
+  await loadData();
+};
+
+watch(statusFilter, () => {
+  // 状态筛选在客户端进行；若列表未拉全则继续 load
+});
 
 const STATUS_MAP: Record<string, { label: string; class: string }> = {
   publish: { label: '已发布', class: 'badge-outline badge-success' },
@@ -102,7 +129,7 @@ onMounted(() => {
     </div>
 
     <!-- 空状态 -->
-    <div v-else-if="list.length === 0" class="text-center py-10 text-base-content/50">
+    <div v-else-if="filteredList.length === 0" class="text-center py-10 text-base-content/50">
       <p class="text-3xl mb-2">
         📝
       </p>
@@ -111,7 +138,34 @@ onMounted(() => {
 
     <!-- 列表 -->
     <div v-else>
-      <article v-for="item in list" :key="item.id" class="article-item">
+      <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div role="tablist" class="tabs tabs-boxed tabs-sm">
+          <button
+            v-for="tab in [
+              { key: 'all', label: '全部' },
+              { key: 'publish', label: '已发布' },
+              { key: 'draft', label: '草稿' },
+              { key: 'scheduled', label: '定时' },
+            ]"
+            :key="tab.key"
+            type="button"
+            role="tab"
+            class="tab"
+            :class="{ 'tab-active': statusFilter === tab.key }"
+            @click="statusFilter = tab.key as typeof statusFilter"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
+        <input
+          v-model="titleKeyword"
+          type="search"
+          class="input input-bordered input-sm w-full sm:max-w-xs"
+          placeholder="搜索标题..."
+          aria-label="搜索文章标题"
+        >
+      </div>
+      <article v-for="item in filteredList" :key="item.id" class="article-item">
         <div class="article-item-inner rounded-lg p-3 -mx-3 hover:bg-base-200/70 transition-colors">
           <div class="flex items-start justify-between gap-3">
             <component

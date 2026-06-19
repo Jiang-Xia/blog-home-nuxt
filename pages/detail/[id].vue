@@ -1,4 +1,9 @@
 <script setup lang="ts">
+/**
+   * 文章详情页
+   * - 评论分页、JSON-LD / canonical SEO
+   * - 集成相关推荐、分享、移动 TOC、相邻文章导航
+   */
 import { ref, reactive, computed, watch } from 'vue';
 import { MdPreview } from 'md-editor-v3';
 
@@ -88,6 +93,7 @@ const tagLabel = computed(() => {
 });
 
 const mdHeadingId = ({ index }: { text: string; level?: number; index: number }) =>
+// 用序号作 id，避免重复标题导致 TOC 多选高亮
   `heading-${index}`;
 
 // 获取文章目录（id 与 MdPreview 渲染的 heading id 保持一致）
@@ -126,23 +132,62 @@ onMounted(() => {
   ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never);
 });
 
-/* 评论回复功能 */
-const comments = ref([]);
+/* 评论：顶层分页，回复仍随父评论返回 */
+const COMMENT_PAGE_SIZE = 20;
+const comments = ref<any[]>([]);
 const commentTotal = ref(0);
+const commentTopTotal = ref(0);
+const commentPage = ref(1);
+const commentsLoading = ref(false);
+
+const calcCommentTotal = (list: any[]) => {
+  let total = commentTopTotal.value;
+  list.forEach((v: any) => {
+    total += v.allReplyCount || 0;
+  });
+  return total;
+};
+
+const applyCommentList = (list: any[], append: boolean) => {
+  comments.value = append ? [...comments.value, ...list] : list;
+  commentTotal.value = calcCommentTotal(comments.value);
+};
+
 const { data: res, refresh: refreshCommentsFn } = await useAsyncData(
   () => `detail_GetComment_${articleId.value}`,
-  () => getComment(articleId.value),
+  () => getComment(articleId.value, { page: 1, pageSize: COMMENT_PAGE_SIZE }),
 );
-const getCommentHandle = async () => {
-  comments.value = res.value.list;
-  let total = res.value.pagination.total;
-  res.value.list.map((v: any) => (total += v.allReplyCount));
-  commentTotal.value = total;
-  // console.log({ comments, total });
+
+const getCommentHandle = () => {
+  if (!res.value) return;
+  commentPage.value = 1;
+  commentTopTotal.value = res.value.pagination?.total ?? 0;
+  applyCommentList(res.value.list ?? [], false);
 };
+
 getCommentHandle();
 
+const commentHasMore = computed(() => comments.value.length < commentTopTotal.value);
+
+/** 追加加载更多顶层评论 */
+const loadMoreComments = async () => {
+  if (commentsLoading.value || !commentHasMore.value) return;
+  commentsLoading.value = true;
+  try {
+    commentPage.value += 1;
+    const more = await getComment(articleId.value, {
+      page: commentPage.value,
+      pageSize: COMMENT_PAGE_SIZE,
+    });
+    applyCommentList(more?.list ?? [], true);
+  }
+  finally {
+    commentsLoading.value = false;
+  }
+};
+
 const commented = async () => {
+  commentPage.value = 1;
   await refreshCommentsFn();
   getCommentHandle();
 };
@@ -177,6 +222,37 @@ useHead({
     { property: 'og:description', content: pageDescription },
     { property: 'og:image', content: coverUrl },
     { property: 'og:type', content: 'article' },
+  ],
+  link: [
+    // canonical 与 JSON-LD 供搜索引擎收录
+    {
+      rel: 'canonical',
+      href: computed(() =>
+        import.meta.client
+          ? `${window.location.origin}/detail/${articleId.value}`
+          : `/detail/${articleId.value}`,
+      ),
+    },
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() =>
+        JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          'headline': ArticleInfo.title,
+          'description': pageDescription.value,
+          'datePublished': ArticleInfo.createTime || ArticleInfo.uTime,
+          'dateModified': ArticleInfo.uTime || ArticleInfo.createTime,
+          'author': {
+            '@type': 'Person',
+            'name': ArticleInfo.userInfo?.nickname || '作者',
+          },
+          'image': coverUrl.value ? [coverUrl.value] : undefined,
+        }),
+      ),
+    },
   ],
 });
 
@@ -254,7 +330,13 @@ watch(
                 </div>
               </div>
               <div class="dropdown dropdown-bottom ml-6">
-                <div tabindex="0" role="button" class="btn m-1 cyber-btn-secondary">
+                <div
+                  tabindex="0"
+                  role="button"
+                  class="btn m-1 cyber-btn-secondary"
+                  aria-label="切换预览主题"
+                  @keydown.enter.prevent="($event.target as HTMLElement)?.click()"
+                >
                   主 题
                 </div>
                 <ul
@@ -277,13 +359,18 @@ watch(
               :md-heading-id="mdHeadingId"
               @on-get-catalog="onGetCatalogHandle"
             />
+            <ArticleRelated v-if="ArticleInfo.id" :article-id="ArticleInfo.id" />
             <ArticleAdjacentNav :prev="adjacentPrev" :next="adjacentNext" />
+            <ArticleShareBar :article-id="ArticleInfo.id" :title="ArticleInfo.title" />
           </section>
           <XiaComment
             class="module-wrap__detail comment-module"
             :comments="comments"
             :total="commentTotal"
+            :has-more="commentHasMore"
+            :loading-more="commentsLoading"
             @commented="commented"
+            @load-more="loadMoreComments"
           />
         </section>
 
@@ -296,6 +383,7 @@ watch(
     </div>
     <!-- 阅读进度环 -->
     <ReadingProgressRing position="top-right" :auto-hide="true" style="top: 70px" />
+    <ArticleTocDrawer :topics="topics" />
     <RpgArticleRpgFab
       v-if="ArticleInfo.id && ArticleInfo.uid"
       :article-id="ArticleInfo.id"

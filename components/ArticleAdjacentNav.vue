@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+   * 详情页同作者相邻文章导航（上一篇 / 下一篇）
+   * 数据来自 GET /article/info 返回的 prev / next 字段
+   */
 export interface ArticleNavItem {
   id: number | string;
   title: string;

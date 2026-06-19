@@ -98,6 +98,17 @@ const getArticleListHandle = async () => {
   }
 };
 
+const router = useRouter();
+
+const goToSearchPage = () => {
+  const q = searchText.value.trim();
+  if (!q) {
+    return;
+  }
+  closeSearch();
+  router.push({ path: '/search', query: { q } });
+};
+
 const onSearchHandle = debounce(() => {
   if (searchText.value.trim()) {
     queryPrams.page = 1;
@@ -224,11 +235,16 @@ function isNavActive(path: string) {
       <xia-icon
         class="cursor-pointer px-1 text-tech-muted hover:text-tech"
         :icon="themeToggleIcon"
+        aria-label="切换主题"
+        role="button"
+        tabindex="0"
         @click="clickIcon"
+        @keydown.enter="clickIcon"
       />
       <XiaTheme />
 
       <ClientOnly>
+        <NavNotificationBell />
         <RpgNavHud v-if="token" class="mr-1" />
         <CyberButton v-if="!token" variant="primary" to="/login" class="!px-4 !py-2 text-sm">
           登录
@@ -284,7 +300,7 @@ function isNavActive(path: string) {
         class="input input-bordered w-full bg-[var(--tech-dropdown-bg)] pr-10"
         autocomplete="off"
         @input="onSearchHandle"
-        @keyup.enter="onSearchHandle"
+        @keyup.enter="goToSearchPage"
         @keyup.esc="closeSearch"
       >
       <span
@@ -296,12 +312,21 @@ function isNavActive(path: string) {
         class="menu absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-auto rounded-xl border border-tech bg-[var(--tech-dropdown-bg)] p-2 shadow-xl backdrop-blur-xl"
         role="listbox"
       >
-        <li v-for="item in articleList" :key="item.id" role="option">
+        <li v-for="item in articleList.slice(0, 5)" :key="item.id" role="option">
           <NuxtLink
             class="text-sm text-tech-muted hover:text-tech"
             :to="'/detail/' + item.id"
             @click="closeSearch"
           >{{ item.value }}</NuxtLink>
+        </li>
+        <li v-if="searchText.trim()" class="border-t border-tech pt-1 mt-1">
+          <button
+            type="button"
+            class="w-full rounded-lg px-3 py-2 text-left text-sm text-primary hover:bg-tech-header"
+            @click="goToSearchPage"
+          >
+            查看全部结果
+          </button>
         </li>
       </ul>
       <p

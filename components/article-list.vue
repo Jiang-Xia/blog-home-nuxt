@@ -1,8 +1,10 @@
 <script setup lang="ts">
+/**
+   * 文章列表（首页 / 搜索 / 标签 / 分类 embed 复用）
+   * embedMode：隐藏侧栏，使用 preset* 预置筛选条件
+   */
 import { computed, reactive, ref, watch, onMounted, onUnmounted } from 'vue';
 import { getArticleList, getComment } from '@/api/article';
-import { beforeTimeNow } from '@/utils';
-import { getWeather } from '@/api/index';
 import {
   categoryOptions,
   formactDate,
@@ -16,6 +18,25 @@ import { debounce } from '~~/utils';
 import { messageDanger } from '@/utils/toast';
 import { isDarkTheme, useTheme } from '@/composables/use-home';
 import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels';
+
+const props = withDefaults(
+  defineProps<{
+    embedMode?: boolean;
+    presetCategory?: string;
+    presetTags?: string[];
+    presetKeyword?: string;
+    hideSidebar?: boolean;
+    asyncDataKey?: string;
+  }>(),
+  {
+    embedMode: false,
+    presetCategory: '',
+    presetTags: () => [],
+    presetKeyword: '',
+    hideSidebar: false,
+    asyncDataKey: 'index_GetList',
+  },
+);
 
 interface queryState {
   page: number;
@@ -51,6 +72,19 @@ const queryPrams: queryState = reactive({
   sort: 'DESC', // 降序
 });
 
+if (props.presetCategory) {
+  queryPrams.category = props.presetCategory;
+}
+if (props.presetTags.length) {
+  queryPrams.tags = [...props.presetTags];
+}
+const searchText = ref(props.presetKeyword || '');
+if (props.presetKeyword) {
+  queryPrams.title = props.presetKeyword;
+  queryPrams.description = props.presetKeyword;
+  queryPrams.content = props.presetKeyword;
+}
+
 /*
    * 第一个参数为唯一key
    * ！注意：如果有使用useAsyncData时，会最先执行此函数，也是是如此，
@@ -60,7 +94,12 @@ const queryPrams: queryState = reactive({
 const {
   // 这样生命的变量时响应式的，不这样声明请求回来复制不然渲染到模板上
   data: articleData,
-} = await useAsyncData('index_GetList', () => getArticleList(queryPrams));
+} = await useAsyncData(props.asyncDataKey, () =>
+  getArticleList({
+    ...queryPrams,
+    tags: [...queryPrams.tags],
+  }),
+);
 if (articleData.value) {
   articleList.value = articleData.value.list;
   queryPrams.total = articleData.value.pagination.total;
@@ -168,7 +207,6 @@ const currentChangeHandle = (val: number) => {
 };
 
 // 模糊搜索
-const searchText = ref('');
 const performSearch = () => {
   const keyword = searchText.value.trim();
   queryPrams.page = 1;
@@ -202,8 +240,11 @@ const tagFilterStyle = (item: any) => ({
 });
 
 // 客户端执行
-// 本地点赞记录
+// 本地点赞：hydration 后再读 localStorage，避免 SSR/客户端图标不一致
+const likesHydrated = ref(false);
 const localLikes = computed<number[]>(() => xBLogStore.value.likes);
+const isItemLiked = (id: string | number) =>
+  likesHydrated.value && localLikes.value.includes(id as never);
 
 // 分类标签设置hover样式
 const categoryMouseenter = (e: any, item: any) => {
@@ -223,6 +264,7 @@ const weatherUrl
 
 onMounted(
   /* async */ () => {
+    likesHydrated.value = true;
     document.addEventListener('click', closeFilterDropdowns);
   },
 );
@@ -545,32 +587,39 @@ watch(articleList, syncAuthorLevels, { immediate: true });
               <div class="card-actions justify-start text-xs flex-wrap">
                 <div class="flex items-center">
                   <!-- 分类 -->
-                  <span
-                    class="text-icon mr-2 flex items-center"
+                  <NuxtLink
+                    v-if="item.category?.id"
+                    :to="`/category/${item.category.id}`"
+                    class="text-icon mr-2 flex items-center no-underline hover:opacity-80"
                     :style="{ color: item.category.color }"
+                    @click.stop
                   >
                     <xia-icon icon="blog-category" class="mr-1" />
                     {{ item.category.label }}
-                  </span>
+                  </NuxtLink>
                   <!-- 标签 -->
-                  <span
-                    class="text-icon mr-2 flex items-center"
-                    :style="{ color: item.tags[0]?.color }"
+                  <NuxtLink
+                    v-for="tag in item.tags"
+                    :key="tag.id"
+                    :to="`/tag/${tag.id}`"
+                    class="text-icon mr-2 flex items-center no-underline hover:opacity-80"
+                    :style="{ color: tag.color }"
+                    @click.stop
                   >
                     <xia-icon icon="blog-tag" class="mr-1" />
-                    {{ getTagLabel(item.tags) }}
-                  </span>
+                    {{ tag.label }}
+                  </NuxtLink>
                   <!-- 阅读量 -->
                   <span class="text-icon mr-2 flex items-center pointer"><xia-icon icon="blog-view" class="mr-1" />{{ item.views }}</span>
                   <!-- 点赞数 -->
                   <button
                     type="button"
                     class="text-icon mr-2 flex items-center pointer bg-transparent border-0 p-0 cursor-pointer"
-                    :aria-label="localLikes.includes(item.id) ? '取消点赞' : '点赞'"
+                    :aria-label="isItemLiked(item.id) ? '取消点赞' : '点赞'"
                     @click.stop.prevent="updateLikesHandle(item)"
                   >
                     <xia-icon
-                      :icon="localLikes.includes(item.id) ? 'blog-like-solid' : 'blog-like'"
+                      :icon="isItemLiked(item.id) ? 'blog-like-solid' : 'blog-like'"
                       class="mr-1"
                     />
                     {{ item.likes }}
@@ -651,7 +700,7 @@ watch(articleList, syncAuthorLevels, { immediate: true });
       </div>
     </main>
     <!-- 右边筛选卡片 -->
-    <aside class="info-tool">
+    <aside v-if="!hideSidebar" class="info-tool">
       <base-card icon="blog-filter" title="关键字" min-height="110px" class="mx-4 mb-4">
         <div class="join w-full mt-2">
           <button
@@ -746,7 +795,7 @@ watch(articleList, syncAuthorLevels, { immediate: true });
             v-for="comment in commentsList"
             :key="comment.id"
             class="list-row text-base-content/80 cursor-pointer"
-            @click="$router.push(`detail/${comment.articleId}`)"
+            @click="$router.push(`/detail/${comment.articleId}`)"
           >
             <div class="flex items-center">
               <xia-image class="size-9 rounded-box" lazyload :src="comment.userInfo.avatar" />

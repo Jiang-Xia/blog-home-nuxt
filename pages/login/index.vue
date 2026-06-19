@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+   * 登录页
+   * - 账号/邮箱登录；成功后 resolveRedirectPath 回跳（防 open redirect）
+   */
 import { reactive } from 'vue';
 import request from '~~/api/request.js';
 import { messageDanger, messageSuccess, messageInfo } from '~~/utils/toast';
@@ -108,7 +112,7 @@ const okHandle = async () => {
     res = await request.post(url, params);
     persistLoginTokens(res.info.accessToken, res.info.refreshToken);
     await refreshUserInfo();
-    await navigateTo('/');
+    await navigateTo(resolveRedirectPath(route.query.redirect as string));
     messageSuccess('登录成功');
   }
   catch (err: any) {
@@ -199,7 +203,7 @@ const exchangeOAuthTicket = async (ticket: string) => {
     await refreshUserInfo();
     messageSuccess('登录成功');
     history.replaceState({}, '', route.path);
-    await navigateTo('/');
+    await navigateTo(resolveRedirectPath(route.query.redirect as string));
   }
   catch {
     messageDanger('登录凭证无效或已过期，请重新登录');

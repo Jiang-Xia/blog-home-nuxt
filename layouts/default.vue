@@ -101,6 +101,15 @@ const runTime = Math.ceil((dayjs().unix() - dayjs('2022-03-01').unix()) / (24 * 
 
 const route = useRoute();
 const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
+const needsRpgGlobal = computed(() => {
+  const path = route.path;
+  return (
+    path === '/'
+    || path.startsWith('/rpg')
+    || path.startsWith('/detail/')
+    || path.startsWith('/user/profile')
+  );
+});
 </script>
 
 <template>
@@ -120,6 +129,8 @@ const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
           target="_blank"
           class="link link-hover text-tech-muted"
         >SITEMAP</a>
+        ·
+        <a :href="originUrl + '/feed.xml'" target="_blank" class="link link-hover text-tech-muted">RSS</a>
       </p>
       <p>
         <NuxtLink
@@ -138,7 +149,7 @@ const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
     <xia-backtop v-if="showGlobalBacktop" class="shake-slow right-4">
       <xia-icon icon="blog-rocket4" width="34px" height="34px" />
     </xia-backtop>
-    <RpgGlobalInit />
+    <RpgGlobalInit v-if="needsRpgGlobal" />
   </div>
 </template>
 

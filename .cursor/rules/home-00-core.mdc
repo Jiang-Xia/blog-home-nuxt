@@ -41,4 +41,5 @@ Nuxt 4 · Vue 3 Composition API · TypeScript · Pinia · Nuxt UI 4 · Tailwind 
 - SSR 安全：浏览器 API 包在 `import.meta.client` 或 `.client.vue` 内。
 - 路由/layout 约束见 `home-10-pages-layout-routing.mdc`；新页面开发与样式见 `home-14-page-development.mdc`（详 `docs/page-development-guide.md`）。
 - 注释约束见 `home-09-commenting-hard-requirement.mdc`。
+- **新功能文档同步**见工作区 `.cursor/rules/feature-doc-sync.mdc`（README、docs、SQL patch 登记）。
 - Pinia / Server / Plugins 专项见 `home-11` ~ `home-13`。

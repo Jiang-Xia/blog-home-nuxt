@@ -79,7 +79,7 @@ export const updateLikesHandle = async (item: any) => {
   const { uid } = useUserInfo().value;
   if (!uid) {
     messageError('请先登录');
-    await navigateTo('/login');
+    await goLogin();
     return;
   }
   const id = item.id as never;
