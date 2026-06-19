@@ -24,6 +24,7 @@ const authCodeLoadError = ref(false);
 const captchaId = ref('');
 const token = useToken();
 const route = useRoute();
+const submitting = ref(false);
 
 const persistLoginTokens = (accessToken: string, refreshToken: string) => {
   token.value = accessToken;
@@ -55,6 +56,9 @@ const form: formState = reactive({
 });
   /* 登录 */
 const okHandle = async () => {
+  if (submitting.value) {
+    return;
+  }
   const requiredFields
     = loginType.value === 'account'
       ? ['username', 'password', 'authCode']
@@ -85,6 +89,7 @@ const okHandle = async () => {
 
   let res: any;
 
+  submitting.value = true;
   try {
     let url = '/user/login';
     const params: any = { loginType: loginType.value };
@@ -113,6 +118,9 @@ const okHandle = async () => {
       captchaId.value = '';
       void changeAuthCode();
     }
+  }
+  finally {
+    submitting.value = false;
   }
 };
   // 更换验证码
@@ -396,8 +404,9 @@ onMounted(() => {
           Login with GitHub
         </CyberButton>
 
-        <CyberButton type="submit" variant="primary" class="w-full">
-          登录
+        <CyberButton type="submit" variant="primary" class="w-full" :disabled="submitting">
+          <span v-if="submitting" class="loading loading-spinner loading-sm" />
+          {{ submitting ? '登录中...' : '登录' }}
         </CyberButton>
       </form>
     </CyberCard>

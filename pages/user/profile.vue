@@ -3,15 +3,11 @@
    * 用户个人中心页面 - 使用 daisyUI tabs 组织内容
    */
 import { ref, watch, onMounted } from 'vue';
-import { getToken, TokenKey } from '@/utils/cookie';
 import { refreshUserInfo } from '@/composables/use-common';
-import { messageWarning } from '@/utils/toast';
 
 const { frame: avatarFrame, fetchStatus } = useEquippedAvatarFrame();
 
 const route = useRoute();
-const router = useRouter();
-const token = useToken();
 const userInfo = useUserInfo();
 
 type ProfileTab = 'card' | 'article' | 'collect' | 'comment';
@@ -43,15 +39,6 @@ useHead({
 });
 
 onMounted(async () => {
-  const currentToken = token.value || getToken(TokenKey);
-  if (!currentToken) {
-    messageWarning('请先登录后再访问个人中心');
-    router.replace({
-      path: '/login',
-      query: { redirect: route.fullPath },
-    });
-    return;
-  }
   try {
     await refreshUserInfo();
   }
@@ -91,39 +78,47 @@ onMounted(async () => {
       </CyberCard>
 
       <!-- daisyUI 标签页 -->
-      <div role="tablist" class="tabs tabs-border mb-4">
-        <a
+      <div role="tablist" class="tabs tabs-border mb-4 overflow-x-auto flex-nowrap">
+        <button
+          type="button"
           role="tab"
-          class="tab"
+          class="tab shrink-0"
           :class="{ 'tab-active': activeTab === 'card' }"
+          :aria-selected="activeTab === 'card'"
           @click="activeTab = 'card'"
         >
           我的名片
-        </a>
-        <a
+        </button>
+        <button
+          type="button"
           role="tab"
-          class="tab"
+          class="tab shrink-0"
           :class="{ 'tab-active': activeTab === 'article' }"
+          :aria-selected="activeTab === 'article'"
           @click="activeTab = 'article'"
         >
           我的文章
-        </a>
-        <a
+        </button>
+        <button
+          type="button"
           role="tab"
-          class="tab"
+          class="tab shrink-0"
           :class="{ 'tab-active': activeTab === 'collect' }"
+          :aria-selected="activeTab === 'collect'"
           @click="activeTab = 'collect'"
         >
           我的收藏
-        </a>
-        <a
+        </button>
+        <button
+          type="button"
           role="tab"
-          class="tab"
+          class="tab shrink-0"
           :class="{ 'tab-active': activeTab === 'comment' }"
+          :aria-selected="activeTab === 'comment'"
           @click="activeTab = 'comment'"
         >
           我的评论/回复
-        </a>
+        </button>
       </div>
 
       <!-- 标签页内容 -->

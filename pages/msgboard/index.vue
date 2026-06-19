@@ -29,9 +29,10 @@ const buildTree = (list: any[], rootId = 0) => {
   }
   return tree;
 };
-msgboardList.value = buildTree(msgboardList.value);
+msgboardList.value = buildTree(msgboardList.value ?? []);
 const userInfo = useUserInfo();
 const { isBanned } = useRpg();
+const submitting = ref(false);
 const showToast = ref(false);
 const guestNickname = () => getRandomNickname();
 const resolveFormName = () => (userInfo.value?.uid ? userInfo.value.nickname : guestNickname());
@@ -57,6 +58,9 @@ const getAllMsgboard = async () => {
   msgboardList.value = buildTree(list);
 };
 const confirmHandle = async () => {
+  if (submitting.value) {
+    return;
+  }
   try {
     if (userInfo.value?.uid && isBanned.value) {
       messageWarning('您当前处于禁言状态，暂时无法留言');
@@ -72,7 +76,9 @@ const confirmHandle = async () => {
       messageDanger('邮箱格式不正确哦！');
       return;
     }
+    submitting.value = true;
     await request.post('/msgboard', msgForm);
+    messageSuccess('留言发表成功');
     keys.forEach((k) => {
       if (k === 'name') {
         msgForm.name = resolveFormName();
@@ -83,8 +89,11 @@ const confirmHandle = async () => {
     });
     getAllMsgboard();
   }
-  catch (error) {
-    console.log(error);
+  catch {
+    messageDanger('发表失败，请稍后重试');
+  }
+  finally {
+    submitting.value = false;
   }
 };
 const replayModal = ref<HTMLDialogElement>();
@@ -186,7 +195,7 @@ useHead({
           </span>
           <input
             v-model="msgForm.eamil"
-            type="text"
+            type="email"
             placeholder="您的邮件"
             class="input input-bordered w-full login-input"
             maxlength="30"
@@ -216,13 +225,20 @@ useHead({
           />
         </label>
 
-        <CyberButton variant="primary" class="mt-2" @click="confirmHandle">
-          发表
+        <CyberButton variant="primary" class="mt-2" :disabled="submitting" @click="confirmHandle">
+          <span v-if="submitting" class="loading loading-spinner loading-sm" />
+          {{ submitting ? '提交中...' : '发表' }}
         </CyberButton>
       </div>
     </CyberCard>
 
     <div class="mx-auto max-w-3xl space-y-3">
+      <CyberCard
+        v-if="!msgboardList?.length"
+        class="!p-8 flex items-center justify-center min-h-48"
+      >
+        <xia-empty description="还没有留言，来抢沙发吧~" />
+      </CyberCard>
       <CyberCard v-for="item in msgboardList" :key="item.id" class="!p-4">
         <div class="mb-3 flex flex-wrap items-center gap-2 text-sm text-tech-subtle">
           <div class="avatar h-7 w-7">

@@ -43,8 +43,7 @@ export default defineNuxtConfig({
       script: scripts,
     },
     pageTransition: {
-      name: 'scale',
-      mode: 'out-in',
+      name: 'fade',
       appear: true,
     },
   },

@@ -166,8 +166,14 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
           </button>
         </div>
 
-        <div v-if="!currentList.length" class="empty-hint">
-          暂无内容
+        <div v-if="loading" class="empty-hint">
+          <span class="loading loading-spinner loading-md text-primary" />
+          <p class="mt-2">
+            加载中...
+          </p>
+        </div>
+        <div v-else-if="!currentList.length" class="empty-hint">
+          <xia-empty description="暂无内容" />
         </div>
         <div v-else class="article-grid">
           <NuxtLink
@@ -177,10 +183,12 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
             class="article-card"
           >
             <div class="article-cover">
-              <img
+              <xia-image
+                lazyload
                 :src="resolveStaticUrl(a.cover) || '/assets/images/common/LoadFailed.svg'"
                 :alt="a.title"
-              >
+                class="h-full w-full [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
+              />
             </div>
             <div class="article-body">
               <h4 class="article-title">

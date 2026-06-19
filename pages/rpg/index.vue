@@ -353,6 +353,7 @@ const onLeaveGuild = async () => {
           role="tab"
           class="rpg-page-tab"
           :class="{ active: activeTab === 'status' }"
+          :aria-selected="activeTab === 'status'"
           @click="switchTab('status')"
         >
           冒险状态
@@ -362,6 +363,7 @@ const onLeaveGuild = async () => {
           role="tab"
           class="rpg-page-tab"
           :class="{ active: activeTab === 'inventory' }"
+          :aria-selected="activeTab === 'inventory'"
           @click="switchTab('inventory')"
         >
           背包
@@ -371,6 +373,7 @@ const onLeaveGuild = async () => {
           role="tab"
           class="rpg-page-tab"
           :class="{ active: activeTab === 'pet' }"
+          :aria-selected="activeTab === 'pet'"
           @click="switchTab('pet')"
         >
           宠物
@@ -380,6 +383,7 @@ const onLeaveGuild = async () => {
           role="tab"
           class="rpg-page-tab"
           :class="{ active: activeTab === 'guild' }"
+          :aria-selected="activeTab === 'guild'"
           @click="switchTab('guild')"
         >
           公会
@@ -389,6 +393,7 @@ const onLeaveGuild = async () => {
           role="tab"
           class="rpg-page-tab"
           :class="{ active: activeTab === 'leaderboard' }"
+          :aria-selected="activeTab === 'leaderboard'"
           @click="switchTab('leaderboard')"
         >
           排行
@@ -528,7 +533,8 @@ const onLeaveGuild = async () => {
 <style scoped>
   .rpg-page-tabs {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     gap: 6px;
     padding: 6px;
     border-radius: 12px;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch, onMounted, onUnmounted } from 'vue';
 import { getArticleList, getComment } from '@/api/article';
 import { beforeTimeNow } from '@/utils';
 import { getWeather } from '@/api/index';
@@ -12,6 +12,8 @@ import {
   xBLogStore,
 } from '@/utils/common';
 import { colorRgb } from '~~/utils/color';
+import { debounce } from '~~/utils';
+import { messageDanger } from '@/utils/toast';
 import { isDarkTheme, useTheme } from '@/composables/use-home';
 import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels';
 
@@ -62,22 +64,46 @@ const {
 if (articleData.value) {
   articleList.value = articleData.value.list;
   queryPrams.total = articleData.value.pagination.total;
-  console.log('文章列表总文章======>', articleData.value.pagination.total);
 }
-// console.log({articleData:articleData.value})
-// 此测试印证上面描述
-// const { data: articleData } = await useAsyncData("index_GetList", () =>
-//   Promise.resolve()
-// );
 getOptions('标签');
 getOptions('分类');
+
+const listLoading = ref(false);
+const categoryDropdownOpen = ref(false);
+const tagDropdownOpen = ref(false);
+
+const closeFilterDropdowns = () => {
+  categoryDropdownOpen.value = false;
+  tagDropdownOpen.value = false;
+};
+
+const router = useRouter();
+const navigateToDetail = (id: string) => {
+  router.push(`/detail/${id}`);
+};
+
 // 下一页
 const getArticleListHandle = async (val = 1) => {
+  listLoading.value = true;
   queryPrams.page = val;
   current.value = val;
-  const res = await getArticleList(queryPrams);
-  articleList.value = res.list;
-  queryPrams.total = res.pagination.total;
+  try {
+    const res = await getArticleList({
+      ...queryPrams,
+      tags: [...queryPrams.tags],
+    });
+    articleList.value = res.list;
+    queryPrams.total = res.pagination.total;
+  }
+  catch (error) {
+    if (error instanceof Error && error.message.includes('禁止重复请求')) {
+      return;
+    }
+    messageDanger('加载文章列表失败，请稍后重试');
+  }
+  finally {
+    listLoading.value = false;
+  }
 };
   // 获取标签名(暂时没有用)
 const getTagLabel = (arr: []): string => {
@@ -91,12 +117,12 @@ const clickTagHandle = (item: itemState, type: string) => {
   current.value = 1;
   if (type === '分类') {
     if (queryPrams.category === item.id) {
-      // 清空选中
       queryPrams.category = '';
     }
     else {
       queryPrams.category = item.id;
     }
+    categoryDropdownOpen.value = false;
   }
   else {
     // 标签
@@ -114,12 +140,16 @@ const clickTagHandle = (item: itemState, type: string) => {
   }
   getArticleListHandle(1);
 };
-const restTags = () => {
-  tagsOptions.value.map((v: any) => {
+const resetTagsSelection = () => {
+  tagsOptions.value.forEach((v: any) => {
     v.checked = false;
-    return v;
   });
   queryPrams.tags = [];
+  tagDropdownOpen.value = false;
+};
+
+const restTags = () => {
+  resetTagsSelection();
   current.value = 1;
   getArticleListHandle(1);
 };
@@ -139,16 +169,19 @@ const currentChangeHandle = (val: number) => {
 
 // 模糊搜索
 const searchText = ref('');
-const onSearchHandle = () => {
+const performSearch = () => {
+  const keyword = searchText.value.trim();
   queryPrams.page = 1;
   queryPrams.category = '';
-  restTags();
-  queryPrams.title = searchText.value;
-  queryPrams.description = searchText.value;
-  queryPrams.content = searchText.value;
+  resetTagsSelection();
+  queryPrams.title = keyword;
+  queryPrams.description = keyword;
+  queryPrams.content = keyword;
   current.value = 1;
   getArticleListHandle(1);
 };
+const onSearchHandle = performSearch;
+const onSearchClick = debounce(performSearch, 300);
 const changeSort = () => {
   queryPrams.sort === 'ASC' ? (queryPrams.sort = 'DESC') : (queryPrams.sort = 'ASC');
   current.value = 1;
@@ -190,13 +223,13 @@ const weatherUrl
 
 onMounted(
   /* async */ () => {
-    // 古诗词
-    // weatherData.value = await getWeather()
-    //  console.log(weatherData.value)
-    // messageDanger('请输入你的评论！')
-    // console.log('commentsList', commentsList.value);
+    document.addEventListener('click', closeFilterDropdowns);
   },
 );
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeFilterDropdowns);
+});
 const theme = useTheme();
 const isDark = computed(() => isDarkTheme(theme.value));
 
@@ -205,7 +238,7 @@ const commentsList = ref<any>([]);
 const { data: commentsData } = await useAsyncData('articleList_GetComment', () =>
   getComment('', { pageSize: 16 }),
 );
-commentsList.value = commentsData.value.list;
+commentsList.value = commentsData.value?.list ?? [];
 
 const { getAuthorLevel, fetchLevelsForUids } = useAuthorRpgLevels();
 
@@ -213,13 +246,80 @@ const syncAuthorLevels = (list: any[]) => {
   fetchLevelsForUids(list.map((item: any) => item.uid).filter(Boolean));
 };
 
-syncAuthorLevels(articleList.value);
-watch(articleList, syncAuthorLevels);
+watch(articleList, syncAuthorLevels, { immediate: true });
 </script>
 
 <template>
   <div class="article-list-page">
     <main class="main-content px-3">
+      <!-- 移动端：搜索与排序 -->
+      <div class="mobile-toolbar mb-4 md:hidden">
+        <base-card icon="blog-filter" title="搜索" min-height="72px">
+          <div class="join w-full mt-2">
+            <button
+              type="button"
+              :title="queryPrams.sort === 'ASC' ? '升序' : '降序'"
+              class="join-item btn cyber-btn-secondary btn-square w-10 btn-sm text-xs"
+              :disabled="listLoading"
+              @click="changeSort"
+            >
+              <svg
+                v-if="queryPrams.sort === 'ASC'"
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z"
+                />
+              </svg>
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h7a1 1 0 100-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z"
+                />
+              </svg>
+            </button>
+            <input
+              v-model="searchText"
+              type="search"
+              placeholder="输入标题或者摘要"
+              aria-label="搜索文章"
+              class="join-item input input-bordered input-sm flex-1 min-w-0"
+              :disabled="listLoading"
+              @keyup.enter="onSearchHandle"
+            >
+            <button
+              type="button"
+              class="join-item btn cyber-btn-secondary btn-square w-10 btn-sm"
+              :disabled="listLoading"
+              @click="onSearchClick"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </button>
+          </div>
+        </base-card>
+      </div>
+
       <!-- 筛选条件 -->
       <div class="condition-card-wrap mb-4 max-w-7xl">
         <base-card
@@ -227,96 +327,189 @@ watch(articleList, syncAuthorLevels);
           :title="'筛选条件(' + queryPrams.total + ')'"
           min-height="110px"
         >
-          <div class="condition-box">
+          <div class="condition-box flex flex-wrap gap-2">
             <!-- 分类筛选 -->
-            <button
-              class="btn btn-soft btn-secondary btn-sm mr-4"
-              popovertarget="popover-1"
-              style="anchor-name: --anchor-1"
-            >
-              <xia-icon icon="blog-category" /> 分类筛选
-              <span v-if="categoryName">({{ categoryName }})</span>
-            </button>
-            <ul
-              id="popover-1"
-              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box border border-tech bg-[var(--tech-dropdown-bg)] shadow-sm text-tech"
-              popover
-              style="position-anchor: --anchor-1"
-            >
+            <div class="filter-block w-full sm:w-auto">
               <div
-                v-for="item of categoryOptions"
-                :key="item.id"
-                class="category-item"
-                :color="item.color"
-                :class="item.id === queryPrams.category ? 'active' : ''"
-                @click="clickTagHandle(item, '分类')"
-                @mouseenter="(e) => categoryMouseenter(e, item)"
-                @mouseleave="(e) => categoryMouseleave(e)"
+                class="dropdown w-full sm:w-auto"
+                :class="{ 'dropdown-open': categoryDropdownOpen }"
+                @click.stop
+              >
+                <button
+                  type="button"
+                  class="btn btn-soft btn-secondary btn-sm"
+                  :disabled="listLoading"
+                  @click="
+                    categoryDropdownOpen = !categoryDropdownOpen;
+                    tagDropdownOpen = false;
+                  "
+                >
+                  <xia-icon icon="blog-category" /> 分类筛选
+                  <span v-if="categoryName">({{ categoryName }})</span>
+                </button>
+                <ul
+                  tabindex="0"
+                  class="dropdown-content menu z-[120] hidden w-72 max-h-96 rounded-box border border-tech bg-[var(--tech-dropdown-bg)] shadow-sm text-tech md:block"
+                >
+                  <div
+                    v-for="item of categoryOptions"
+                    :key="item.id"
+                    class="category-item"
+                    :color="item.color"
+                    :class="item.id === queryPrams.category ? 'active' : ''"
+                    @click="clickTagHandle(item, '分类')"
+                    @mouseenter="(e) => categoryMouseenter(e, item)"
+                    @mouseleave="(e) => categoryMouseleave(e)"
+                  >
+                    <div
+                      class="category__inner flex justify-between items-center"
+                      :style="{
+                        borderColor: item.id === queryPrams.category ? 'transparent' : '',
+                      }"
+                    >
+                      <span class="category__text">{{ item['label'] }}</span>
+                      <div
+                        class="category__tag"
+                        :color="item.color"
+                        size="small"
+                        :style="{ backgroundColor: item.color }"
+                      >
+                        <span>{{ item['articleCount'] }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </ul>
+              </div>
+
+              <!-- 移动端：内联展开，避免被 card overflow 裁切 -->
+              <div
+                v-show="categoryDropdownOpen"
+                class="mobile-filter-panel mt-2 md:hidden"
+                @click.stop
               >
                 <div
-                  class="category__inner flex justify-between items-center"
-                  :style="{
-                    borderColor: item.id === queryPrams.category ? 'transparent' : '',
-                  }"
+                  v-for="item of categoryOptions"
+                  :key="'m-cat-' + item.id"
+                  class="category-item"
+                  :color="item.color"
+                  :class="item.id === queryPrams.category ? 'active' : ''"
+                  @click="clickTagHandle(item, '分类')"
                 >
-                  <span class="category__text">{{ item['label'] }}</span>
                   <div
-                    class="category__tag"
-                    :color="item.color"
-                    size="small"
+                    class="category__inner flex justify-between items-center"
                     :style="{
-                      backgroundColor: item.color,
+                      borderColor: item.id === queryPrams.category ? 'transparent' : '',
                     }"
                   >
-                    <span>{{ item['articleCount'] }}</span>
+                    <span class="category__text">{{ item['label'] }}</span>
+                    <div
+                      class="category__tag"
+                      :color="item.color"
+                      size="small"
+                      :style="{ backgroundColor: item.color }"
+                    >
+                      <span>{{ item['articleCount'] }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </ul>
+            </div>
 
             <!-- 标签筛选 -->
-            <button
-              class="btn btn-soft btn-accent btn-sm"
-              popovertarget="popover-2"
-              style="anchor-name: --anchor-2"
-            >
-              <xia-icon icon="blog-tag" /> 标签筛选
-              <span v-if="checkedTags">({{ checkedTags }})</span>
-            </button>
-            <ul
-              id="popover-2"
-              class="dropdown dropdown-right menu w-72 max-h-96 rounded-box border border-tech bg-[var(--tech-dropdown-bg)] shadow-sm text-tech"
-              popover
-              style="position-anchor: --anchor-2"
-            >
-              <div class="flex flex-wrap gap-2 p-3">
+            <div class="filter-block w-full sm:w-auto">
+              <div
+                class="dropdown w-full sm:w-auto"
+                :class="{ 'dropdown-open': tagDropdownOpen }"
+                @click.stop
+              >
                 <button
-                  v-for="item of tagsOptions"
-                  :key="item.id"
                   type="button"
-                  class="badge badge-outline badge-sm cursor-pointer transition-colors"
-                  :style="tagFilterStyle(item)"
-                  @click="clickTagHandle(item, '标签')"
+                  class="btn btn-soft btn-accent btn-sm"
+                  :disabled="listLoading"
+                  @click="
+                    tagDropdownOpen = !tagDropdownOpen;
+                    categoryDropdownOpen = false;
+                  "
                 >
-                  {{ item.label }} ({{ item.articleCount }})
+                  <xia-icon icon="blog-tag" /> 标签筛选
+                  <span v-if="checkedTags">({{ checkedTags }})</span>
                 </button>
+                <ul
+                  tabindex="0"
+                  class="dropdown-content menu z-[120] hidden w-72 max-h-96 rounded-box border border-tech bg-[var(--tech-dropdown-bg)] shadow-sm text-tech md:block"
+                >
+                  <div class="flex flex-wrap gap-2 p-3">
+                    <button
+                      v-for="item of tagsOptions"
+                      :key="item.id"
+                      type="button"
+                      class="badge badge-outline badge-sm cursor-pointer transition-colors"
+                      :style="tagFilterStyle(item)"
+                      @click="clickTagHandle(item, '标签')"
+                    >
+                      {{ item.label }} ({{ item.articleCount }})
+                    </button>
+                  </div>
+                  <div class="mt-4 text-center">
+                    <button
+                      type="button"
+                      class="btn-block btn btn-soft btn-error btn-xs"
+                      @click="restTags"
+                    >
+                      <xia-icon icon="blog-refresh" /> 重置
+                    </button>
+                  </div>
+                </ul>
               </div>
-              <div class="mt-4 text-center">
-                <button class="btn-block btn btn-soft btn-error btn-xs" @click="restTags">
-                  <xia-icon icon="blog-refresh" /> 重置
-                </button>
+
+              <!-- 移动端：内联展开 -->
+              <div v-show="tagDropdownOpen" class="mobile-filter-panel mt-2 md:hidden" @click.stop>
+                <div class="flex flex-wrap gap-2 p-1">
+                  <button
+                    v-for="item of tagsOptions"
+                    :key="'m-tag-' + item.id"
+                    type="button"
+                    class="badge badge-outline badge-sm cursor-pointer transition-colors"
+                    :style="tagFilterStyle(item)"
+                    @click="clickTagHandle(item, '标签')"
+                  >
+                    {{ item.label }} ({{ item.articleCount }})
+                  </button>
+                </div>
+                <div class="mt-3 text-center">
+                  <button
+                    type="button"
+                    class="btn-block btn btn-soft btn-error btn-xs"
+                    @click="restTags"
+                  >
+                    <xia-icon icon="blog-refresh" /> 重置
+                  </button>
+                </div>
               </div>
-            </ul>
+            </div>
           </div>
         </base-card>
       </div>
       <!-- 文章列表 -->
-      <div class="article-item-wrap flex flex-wrap w-full max-w-7xl">
+      <div
+        class="article-item-wrap relative flex flex-wrap w-full max-w-7xl"
+        :class="{ 'is-loading': listLoading }"
+      >
+        <div
+          v-if="listLoading"
+          class="list-loading-overlay absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-base-100/50 backdrop-blur-[1px]"
+        >
+          <span class="loading loading-spinner loading-lg text-primary" />
+        </div>
         <transition-group key="article-item-wrap" name="list">
           <div
             v-for="item in articleList"
             :key="item.id"
-            class="article-item cyber-glass-card cyber-glass-card--hover mb-5 overflow-hidden transition-all"
+            class="article-item cyber-glass-card cyber-glass-card--hover mb-5 overflow-hidden transition-all cursor-pointer"
+            role="article"
+            tabindex="0"
+            @click="navigateToDetail(item.id)"
+            @keydown.enter="navigateToDetail(item.id)"
           >
             <figure class="article-item-cover m-0">
               <XiaCardBorderLight
@@ -370,16 +563,18 @@ watch(articleList, syncAuthorLevels);
                   <!-- 阅读量 -->
                   <span class="text-icon mr-2 flex items-center pointer"><xia-icon icon="blog-view" class="mr-1" />{{ item.views }}</span>
                   <!-- 点赞数 -->
-                  <span
-                    class="text-icon mr-2 flex items-center pointer"
-                    @click.stop="updateLikesHandle(item)"
+                  <button
+                    type="button"
+                    class="text-icon mr-2 flex items-center pointer bg-transparent border-0 p-0 cursor-pointer"
+                    :aria-label="localLikes.includes(item.id) ? '取消点赞' : '点赞'"
+                    @click.stop.prevent="updateLikesHandle(item)"
                   >
                     <xia-icon
                       :icon="localLikes.includes(item.id) ? 'blog-like-solid' : 'blog-like'"
                       class="mr-1"
                     />
                     {{ item.likes }}
-                  </span>
+                  </button>
                   <!-- 评论数 -->
                   <span class="text-icon mr-2 flex items-center">
                     <xia-icon icon="blog-pinglun" class="mr-1" />
@@ -426,9 +621,7 @@ watch(articleList, syncAuthorLevels);
                     </template>
                     <span>{{ formactDate(item.createTime) }}</span>
                   </div>
-                  <span @click="$router.push(`detail/${item.id}`)">
-                    <button class="btn btn-xs cyber-btn-secondary xia-btn">Read</button>
-                  </span>
+                  <span class="btn btn-xs cyber-btn-secondary xia-btn pointer-events-none">Read</span>
                 </div>
               </div>
             </div>
@@ -436,16 +629,13 @@ watch(articleList, syncAuthorLevels);
         </transition-group>
 
         <div
-          v-show="!articleList.length"
+          v-show="!articleList.length && !listLoading"
           class="min-h-96 border border-tech bg-[var(--tech-input-bg)] w-full flex items-center rounded-lg shadow-lg text-tech"
         >
-          <xia-empty
-            :style="{ transform: !articleList.length ? 'scale(1,1)' : '' }"
-            description="找不到文章..."
-          />
+          <xia-empty description="找不到文章..." />
         </div>
       </div>
-      <div class="w-full">
+      <div class="w-full" :class="{ 'pointer-events-none opacity-50': listLoading }">
         <!-- 分页 -->
         <div class="flex justify-around">
           <xia-pagination
@@ -466,7 +656,9 @@ watch(articleList, syncAuthorLevels);
         <div class="join w-full mt-2">
           <button
             :title="queryPrams.sort === 'ASC' ? '升序' : '降序'"
+            type="button"
             class="join-item btn cyber-btn-secondary btn-square w-10 btn-sm text-xs"
+            :disabled="listLoading"
             @click="changeSort"
           >
             <svg
@@ -494,14 +686,18 @@ watch(articleList, syncAuthorLevels);
           </button>
           <input
             v-model="searchText"
-            type="text"
+            type="search"
             placeholder="输入标题或者摘要"
+            aria-label="搜索文章"
             class="join-item input input-bordered input-sm max-w-xs"
+            :disabled="listLoading"
             @keyup.enter="onSearchHandle"
           >
           <button
+            type="button"
             class="join-item btn cyber-btn-secondary btn-square w-10 btn-sm"
-            @click="onSearchHandle"
+            :disabled="listLoading"
+            @click="onSearchClick"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -589,11 +785,29 @@ watch(articleList, syncAuthorLevels);
     display: flex;
     :deep(.xia-empty) {
       margin-bottom: 10vh;
-      transition: all 1s;
-      transform: scale(0, 0);
     }
     .el-pagination {
       margin-top: 8vh;
+    }
+
+    .condition-card-wrap {
+      :deep(.card-wrap .card-content) {
+        overflow: visible;
+      }
+    }
+
+    .mobile-filter-panel {
+      max-height: min(50vh, 320px);
+      overflow-y: auto;
+      border-radius: 0.75rem;
+      border: 1px solid var(--tech-border);
+      background: var(--tech-dropdown-bg);
+      padding: 0.5rem;
+      box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+    }
+
+    .filter-block {
+      position: relative;
     }
     // 分类卡片
     .category-card {

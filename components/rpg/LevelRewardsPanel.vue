@@ -78,8 +78,11 @@ const hasAnyReward = (reward: LevelReward) =>
       </div>
     </div>
 
-    <div v-if="loading || levelRewards.length === 0" class="empty">
+    <div v-if="loading" class="empty">
       加载中...
+    </div>
+    <div v-else-if="levelRewards.length === 0" class="empty">
+      暂无等级奖励配置
     </div>
     <div v-else class="reward-grid">
       <div

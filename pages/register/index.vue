@@ -56,6 +56,7 @@ const form: formState = reactive({
 const authCodeUrl = ref('');
 const authCodeLoadError = ref(false);
 const captchaId = ref('');
+const submitting = ref(false);
 
 const registerAvatarPool = ref<string[]>([]);
 const avatarUploading = ref(false);
@@ -113,6 +114,9 @@ if (import.meta.client) {
 
 /* 注册 */
 const okHandle = async () => {
+  if (submitting.value) {
+    return;
+  }
   form.passwordRepeat = form.password;
 
   const requiredFields
@@ -164,6 +168,7 @@ const okHandle = async () => {
   }
 
   try {
+    submitting.value = true;
     await request.post(url, params);
     messageSuccess('注册成功');
     setTimeout(async () => {
@@ -176,6 +181,9 @@ const okHandle = async () => {
       captchaId.value = '';
       void changeAuthCode();
     }
+  }
+  finally {
+    submitting.value = false;
   }
 };
   // 更换验证码
@@ -451,8 +459,15 @@ if (import.meta.client) {
           账号注册
         </button>
       </div>
-      <CyberButton type="button" variant="primary" class="mt-4 w-full" @click="okHandle">
-        注册
+      <CyberButton
+        type="button"
+        variant="primary"
+        class="mt-4 w-full"
+        :disabled="submitting"
+        @click="okHandle"
+      >
+        <span v-if="submitting" class="loading loading-spinner loading-sm" />
+        {{ submitting ? '注册中...' : '注册' }}
       </CyberButton>
     </CyberCard>
   </CyberPageContainer>

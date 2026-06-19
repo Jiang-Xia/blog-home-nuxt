@@ -16,7 +16,10 @@ useHead({
     <h1 class="hidden">
       文章归档 - {{ SiteTitle }}
     </h1>
-    <div class="space-y-4">
+    <div v-if="!archivesList?.length" class="flex min-h-48 items-center justify-center">
+      <xia-empty description="暂无归档文章" />
+    </div>
+    <div v-else class="space-y-4">
       <div
         v-for="(archive, idx) in archivesList"
         :key="idx"

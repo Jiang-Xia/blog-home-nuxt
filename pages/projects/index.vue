@@ -14,7 +14,7 @@
             class="mt-4 h-auto w-full max-w-96 overflow-hidden shadow-xl md:mr-4 md:h-96 md:w-56 !p-0"
           >
             <figure>
-              <img :src="item.image" :alt="item.title">
+              <img :src="item.image" :alt="item.title" loading="lazy">
             </figure>
             <div class="p-4">
               <h2 class="text-lg font-semibold text-tech">
