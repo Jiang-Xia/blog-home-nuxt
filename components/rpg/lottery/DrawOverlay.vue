@@ -13,6 +13,7 @@ import {
   getSpinPhaseFallbackMs,
   LOTTERY_PAUSE_MS,
   LOTTERY_PAUSE_MS_MULTI,
+  LOTTERY_SPIN_MS,
   type LotteryDrawPhase,
 } from '@/utils/lottery-reel';
 
@@ -51,6 +52,13 @@ const safeEmitSkip = () => {
 };
 
 const isMulti = computed(() => props.drawCount > 1);
+
+/** 滚轮动画时长（与 Reel spinDurationMs 一致，用于对齐 lotterySpin 循环音） */
+const activeSpinDurationMs = computed(() => {
+  if (!isMulti.value) return LOTTERY_SPIN_MS;
+  const lastIdx = Math.max(props.drawCount - 1, 0);
+  return getCompactSpinDurationMs(lastIdx);
+});
 const currentResult = computed(() => props.results[0] ?? null);
 const celebrationRarity = computed(() => {
   if (props.phase === 'summary') {
@@ -128,7 +136,7 @@ watch(
     if (phase === 'spinning') {
       resetSpinState();
       void stopSfx('lotteryCharge', 0);
-      void playSfxLoop('lotterySpin');
+      void playSfxLoop('lotterySpin', { durationMs: activeSpinDurationMs.value });
       const maxSpinMs = getSpinPhaseFallbackMs(props.results.length, isMulti.value);
       clearSpinFallback();
       spinFallbackTimer = window.setTimeout(() => {
@@ -156,6 +164,12 @@ watch(
 
 const onReelLanded = () => {
   reelsLanded.value += 1;
+
+  const allLanded = !isMulti.value || reelsLanded.value >= props.results.length;
+  if (allLanded) {
+    // 滚轮停格即停循环底噪，避免动画已停但 lotterySpin 仍响
+    void stopSfx('lotterySpin', 60);
+  }
 
   if (isMulti.value) {
     if (reelsLanded.value >= props.results.length) {
@@ -337,9 +351,14 @@ const handleConfirm = () => {
     overscroll-behavior: none;
   }
 
+  /* 旋转层须大于视口（用 vmax 而非窗口尺寸），避免手机端旋转时露出空白 */
   .overlay-rays {
     position: absolute;
-    inset: -20%;
+    left: 50%;
+    top: 50%;
+    width: 200vmax;
+    height: 200vmax;
+    transform: translate(-50%, -50%);
     background: conic-gradient(
       from 0deg,
       transparent 0deg,
@@ -610,7 +629,7 @@ const handleConfirm = () => {
 
   @keyframes raysSpin {
     to {
-      transform: rotate(360deg);
+      transform: translate(-50%, -50%) rotate(360deg);
     }
   }
 

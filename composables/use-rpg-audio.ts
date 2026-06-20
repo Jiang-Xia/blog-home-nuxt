@@ -23,6 +23,7 @@ import {
   stopAllSynthLoops,
   stopSynthLoop,
   ensureSynthContext,
+  type LotterySpinLoopOptions,
 } from '~~/utils/rpg-audio-synth';
 
 /** localStorage 持久化的音量与静音偏好 */
@@ -225,11 +226,11 @@ export function useRpgAudio() {
     }
   }
 
-  /** 播放循环音效（目前仅 lotterySpin → Web Audio） */
-  async function playSfxLoop(key: RpgSfxKey) {
+  /** 播放循环音效（目前仅 lotterySpin → Web Audio）；options.durationMs 与滚轮动画时长对齐 */
+  async function playSfxLoop(key: RpgSfxKey, options?: LotterySpinLoopOptions) {
     if (settings.value.muted) return;
     if (key === 'lotterySpin') {
-      await startSynthLoop('lotterySpin', settings.value.sfxVolume);
+      await startSynthLoop('lotterySpin', settings.value.sfxVolume, options);
     }
   }
 

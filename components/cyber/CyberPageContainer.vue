@@ -13,7 +13,7 @@
       :label="label"
       :title="title"
       :subtitle="subtitle"
-      :align="backTo ? 'left' : 'center'"
+      align="center"
     />
     <slot />
   </div>

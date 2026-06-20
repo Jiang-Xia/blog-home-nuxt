@@ -15,9 +15,21 @@ let masterGain: GainNode | null = null;
 /** lotterySpin 循环：噪声底 + 定时 tick，由 stopSynthLoop 统一清理 */
 let spinActive = false;
 let spinStartMs = 0;
+let spinDurationMs = 0;
+let spinAutoStopTimer: ReturnType<typeof setTimeout> | null = null;
 let spinTimer: ReturnType<typeof setTimeout> | null = null;
 let spinNoise: AudioBufferSourceNode | null = null;
 let spinNoiseGain: GainNode | null = null;
+
+/** 滚轮 tick 间隔：与 Reel 减速停靠同向（先快后慢） */
+const SPIN_TICK_DELAY_MIN = 52;
+const SPIN_TICK_DELAY_MAX = 175;
+const SPIN_TICK_DECEL_RATE = 58;
+
+export interface LotterySpinLoopOptions {
+  /** 与滚轮 animation duration 对齐，到期自动停循环底噪 */
+  durationMs?: number;
+}
 
 /** 将音量限制在 [0, 1] */
 function clamp01(v: number) {
@@ -558,6 +570,14 @@ function clearSpinTimer() {
   }
 }
 
+/** 清除滚轮自动停止定时器 */
+function clearSpinAutoStopTimer() {
+  if (spinAutoStopTimer) {
+    clearTimeout(spinAutoStopTimer);
+    spinAutoStopTimer = null;
+  }
+}
+
 /** 淡出并停止滚轮底噪源 */
 function stopSpinNoise(fadeMs = 120) {
   if (!audioCtx || !spinNoise || !spinNoiseGain) return;
@@ -577,22 +597,43 @@ function stopSpinNoise(fadeMs = 120) {
 }
 
 /**
- * 滚轮 tick 调度：间隔随时间缩短模拟加速
+ * 滚轮 tick 调度：间隔随时间拉长，与 Reel cubic-bezier 减速停靠节奏一致
  * 由 setTimeout 驱动，stopSynthLoop 须清理 timer
  */
 function scheduleSpinTick(ctx: AudioContext, dest: GainNode, vol: number) {
   if (!spinActive) return;
-  const elapsed = (performance.now() - spinStartMs) / 1000;
+
+  const elapsed = performance.now() - spinStartMs;
+  if (spinDurationMs > 0 && elapsed >= spinDurationMs) {
+    return;
+  }
+
   playLotteryTick(ctx, dest, vol * 0.45, t0(ctx));
-  const delay = Math.max(45, 200 - elapsed * 45);
+
+  const elapsedSec = elapsed / 1000;
+  const delay = Math.min(
+    SPIN_TICK_DELAY_MAX,
+    SPIN_TICK_DELAY_MIN + elapsedSec * SPIN_TICK_DECEL_RATE,
+  );
   spinTimer = setTimeout(() => scheduleSpinTick(ctx, dest, vol), delay);
 }
 
-/** 启动滚轮循环：低通噪声底 + scheduleSpinTick */
-function startLotterySpin(ctx: AudioContext, dest: GainNode, vol: number) {
+/** 启动滚轮循环：低通噪声底 + scheduleSpinTick；durationMs 与 Reel 动画时长对齐 */
+function startLotterySpin(
+  ctx: AudioContext,
+  dest: GainNode,
+  vol: number,
+  options?: LotterySpinLoopOptions,
+) {
   stopSynthLoop('lotterySpin', 0);
   spinActive = true;
   spinStartMs = performance.now();
+  spinDurationMs = options?.durationMs ?? 0;
+  clearSpinAutoStopTimer();
+
+  if (spinDurationMs > 0) {
+    spinAutoStopTimer = setTimeout(() => stopSynthLoop('lotterySpin', 70), spinDurationMs);
+  }
 
   const bufLen = ctx.sampleRate * 2;
   const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
@@ -629,21 +670,27 @@ export async function playSynthSfx(key: Exclude<RpgSynthSfxKey, 'lotterySpin'>, 
 }
 
 /** 启动合成循环（目前仅 lotterySpin 滚轮） */
-export async function startSynthLoop(key: 'lotterySpin', sfxVolume: number) {
+export async function startSynthLoop(
+  key: 'lotterySpin',
+  sfxVolume: number,
+  options?: LotterySpinLoopOptions,
+) {
   const ctx = await resumeSynthContext();
   const dest = master();
   if (!ctx || !dest) return;
 
   const defVol = RPG_SYNTH_SFX.lotterySpin.volume;
   dest.gain.setValueAtTime(clamp01(sfxVolume), ctx.currentTime);
-  startLotterySpin(ctx, dest, defVol);
+  startLotterySpin(ctx, dest, defVol, options);
 }
 
 /** 停止指定合成循环，默认短淡出 */
 export function stopSynthLoop(key: 'lotterySpin', fadeMs = 120) {
   if (key !== 'lotterySpin') return;
   spinActive = false;
+  spinDurationMs = 0;
   clearSpinTimer();
+  clearSpinAutoStopTimer();
   stopSpinNoise(fadeMs);
 }
 

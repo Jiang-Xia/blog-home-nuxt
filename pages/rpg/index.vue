@@ -506,9 +506,7 @@ const onLeaveGuild = async () => {
                   @load-hit-records="loadHitRecords"
                   @toggle-buff="onToggleBuff"
                 />
-                <div v-else class="text-center text-tech-muted py-8">
-                  加载中...
-                </div>
+                <RpgPanelLoading v-else compact />
               </div>
             </div>
             <div class="cyber-glass-card mt-5 p-5">

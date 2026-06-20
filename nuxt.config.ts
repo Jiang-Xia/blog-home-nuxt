@@ -54,7 +54,7 @@ export default defineNuxtConfig({
     },
     pageTransition: {
       name: 'fade',
-      appear: true,
+      mode: 'out-in',
     },
   },
   css: ['~/assets/css/main.css'],

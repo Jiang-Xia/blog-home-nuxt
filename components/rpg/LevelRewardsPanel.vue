@@ -25,20 +25,6 @@ const unlockPercent = computed(() =>
 
 const isUnlocked = (level: number) => currentLevel.value >= level;
 
-const getRewardSummary = (reward: LevelReward) => {
-  const parts: string[] = [];
-  if (reward.currencyReward) {
-    parts.push(`${reward.currencyReward} ${reward.currencyName || '钻石'}`);
-  }
-  if (reward.avatarFrame?.name) {
-    parts.push(reward.avatarFrame.name);
-  }
-  if (reward.title?.name) {
-    parts.push(reward.title.name);
-  }
-  return parts.filter(Boolean).join(' · ') || '暂无奖励';
-};
-
 const hasAnyReward = (reward: LevelReward) =>
   !!(reward.currencyReward || reward.avatarFrame?.name || reward.title?.name);
 </script>
@@ -78,31 +64,35 @@ const hasAnyReward = (reward: LevelReward) =>
       </div>
     </div>
 
-    <div v-if="loading" class="empty">
-      加载中...
-    </div>
+    <RpgPanelLoading v-if="loading" compact />
     <div v-else-if="levelRewards.length === 0" class="empty">
       暂无等级奖励配置
     </div>
-    <div v-else class="reward-grid">
+    <div v-else class="rpg-loot-grid rpg-loot-grid--compact reward-grid">
       <div
         v-for="reward in levelRewards"
         :key="reward.level"
-        class="reward-card"
-        :class="{ unlocked: isUnlocked(reward.level) }"
+        class="rpg-loot-card rpg-loot-card--reward"
+        :class="{
+          'rpg-loot-card--gold': isUnlocked(reward.level),
+          'rpg-loot-card--locked': !isUnlocked(reward.level),
+        }"
       >
-        <div class="reward-card-head">
+        <div class="rpg-loot-card-head">
           <span class="lv-badge">LV{{ reward.level }}</span>
-          <span v-if="isUnlocked(reward.level)" class="unlocked-tag">✓</span>
-          <span v-else class="locked-tag">🔒</span>
+          <span v-if="isUnlocked(reward.level)" class="rpg-loot-status rpg-loot-status--done">✓ 已达成</span>
+          <span v-else class="rpg-loot-status rpg-loot-status--locked">🔒 未解锁</span>
         </div>
 
-        <div class="reward-summary">
-          {{ getRewardSummary(reward) }}
+        <div class="rpg-loot-name">
+          等级 {{ reward.level }} 奖励
         </div>
 
         <div class="reward-tags">
-          <span v-if="reward.currencyReward" class="reward-tag diamond">
+          <span
+            v-if="reward.currencyReward"
+            class="rpg-loot-reward-chip rpg-loot-reward-chip--diamond"
+          >
             💎 {{ reward.currencyReward }} {{ reward.currencyName || '钻石' }}
           </span>
           <span
@@ -112,15 +102,19 @@ const hasAnyReward = (reward: LevelReward) =>
           >
             🖼 {{ reward.avatarFrame.name }}
           </span>
-          <span v-if="reward.title?.name" class="reward-tag title">
+          <span v-if="reward.title?.name" class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">
             🏆 {{ reward.title.name }}
           </span>
-          <span v-if="!hasAnyReward(reward)" class="reward-tag empty"> 暂无奖励 </span>
+          <span v-if="!hasAnyReward(reward)" class="rpg-loot-status rpg-loot-status--pending">暂无奖励</span>
         </div>
 
-        <div class="reward-footer">
-          <span v-if="isUnlocked(reward.level)" class="footer-status done">已达成</span>
-          <span v-else class="footer-status pending">还需 {{ reward.level - currentLevel }} 级</span>
+        <div class="rpg-loot-footer">
+          <div class="rpg-loot-meta">
+            <span v-if="isUnlocked(reward.level)" class="rpg-loot-status rpg-loot-status--done">奖励已解锁</span>
+            <span v-else class="rpg-loot-status rpg-loot-status--pending">
+              还需 {{ reward.level - currentLevel }} 级
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -197,35 +191,8 @@ const hasAnyReward = (reward: LevelReward) =>
     border: 1px dashed var(--rpg-empty-border);
   }
 
-  .reward-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
-    gap: 10px;
-  }
-
-  .reward-card {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 10px;
-    border-radius: 10px;
-    background: var(--rpg-surface);
-    border: 1px solid var(--rpg-border-subtle);
-    opacity: 0.72;
-    transition: all 0.2s;
-    min-height: 132px;
-  }
-
-  .reward-card.unlocked {
-    opacity: 1;
-    border-color: var(--rpg-amber-border);
-    background: var(--rpg-amber-bg-gradient);
-  }
-
-  .reward-card-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .reward-grid .rpg-loot-card {
+    min-height: 140px;
   }
 
   .lv-badge {
@@ -233,30 +200,9 @@ const hasAnyReward = (reward: LevelReward) =>
     font-size: 13px;
     color: var(--rpg-amber-dark);
     padding: 2px 8px;
-    border-radius: 6px;
+    border-radius: 999px;
     background: var(--rpg-amber-bg-faint);
-  }
-
-  .unlocked-tag {
-    color: var(--rpg-success);
-    font-weight: 900;
-    font-size: 12px;
-  }
-
-  .locked-tag {
-    font-size: 11px;
-    opacity: 0.6;
-  }
-
-  .reward-summary {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--rpg-text-label);
-    line-height: 1.35;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    border: 1px solid var(--rpg-amber-border);
   }
 
   .reward-tags {
@@ -266,9 +212,9 @@ const hasAnyReward = (reward: LevelReward) =>
     flex: 1;
   }
 
-  .reward-tag {
+  .reward-tag.frame {
     padding: 3px 8px;
-    border-radius: 6px;
+    border-radius: 999px;
     font-size: 10px;
     font-weight: 600;
     line-height: 1.3;
@@ -276,41 +222,8 @@ const hasAnyReward = (reward: LevelReward) =>
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
-  }
-
-  .reward-tag.frame {
     background: var(--rpg-surface);
     border: 1.5px solid;
     color: var(--rpg-text-label);
-  }
-
-  .reward-tag.title {
-    background: var(--rpg-amber-bg);
-    color: var(--rpg-amber-text);
-  }
-
-  .reward-tag.diamond {
-    background: var(--rpg-diamond-bg);
-    color: var(--rpg-diamond-text);
-  }
-
-  .reward-tag.empty {
-    color: var(--rpg-text-muted);
-    font-weight: 400;
-    background: var(--rpg-empty-bg);
-  }
-
-  .reward-footer {
-    margin-top: auto;
-    font-size: 10px;
-  }
-
-  .footer-status.done {
-    color: var(--rpg-success);
-    font-weight: 600;
-  }
-
-  .footer-status.pending {
-    color: var(--rpg-text-muted);
   }
 </style>

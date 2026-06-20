@@ -241,9 +241,7 @@ onMounted(async () => {
       @close="showLevelUp = false"
     />
   </div>
-  <div v-else class="rpg-loading">
-    加载中...
-  </div>
+  <RpgPanelLoading v-else />
 </template>
 
 <style scoped>
@@ -551,11 +549,5 @@ onMounted(async () => {
     font-size: 10px;
     color: var(--rpg-text-muted);
     margin-top: 2px;
-  }
-
-  .rpg-loading {
-    padding: 24px;
-    text-align: center;
-    color: var(--rpg-text-muted);
   }
 </style>

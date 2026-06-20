@@ -182,7 +182,7 @@ VITE_NUXT_ADMIN_URL=https://admin.jiang-xia.top/login
 VITE_NUXT_OPEN_ENCRYPT=false
 ```
 
-开发模式下，`nuxt.config.ts` 将 `/blog-api` 代理到 `http://localhost:5000/api/v1`。
+开发模式下，前端 `baseUrl` 为 `/blog-api`，由 `nuxt.config.ts` 代理到 `http://localhost:5000/api/v1`（手机/LAN 调试与 PC 一致，勿直连 `localhost:5000`）。
 
 ### 安装依赖
 
@@ -200,9 +200,11 @@ npm install
 # 启动开发服务器
 yarn dev
 
-# 或指定 IP 访问（局域网）
+# 或指定 IP 访问（局域网 / 手机调试）
 yarn dev:ip
 ```
+
+手机访问 `http://<电脑局域网IP>:5050` 时，API 与静态资源均经 Nuxt 代理（`/blog-api`、`/static`），无需改 `VITE_NUXT_ORIGIN_URL`。请确保 **blog-server 已启动**（端口 5000）且防火墙放行 5050。
 
 访问 [http://localhost:5050](http://localhost:5050) 查看效果
 
