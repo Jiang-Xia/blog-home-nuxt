@@ -14,6 +14,16 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+const { playSfx } = useRpgAudio();
+
+/** 弹窗打开时播放对应庆祝音效（与 Animation 组件展示同步） */
+watch(
+  () => props.visible,
+  (v) => {
+    if (v && props.levelUpData) void playSfx('levelUp');
+  },
+);
+
 const rewards = computed(() => {
   if (!props.levelUpData?.unlockedRewards?.length) return [];
   return props.levelUpData.unlockedRewards.map(r => ({
@@ -87,26 +97,27 @@ const handleClose = () => {
   .level-up-overlay {
     position: fixed;
     inset: 0;
-    background: rgb(0 0 0 / 0.82);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: rgb(0 0 0 / 0.88);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10100;
+    isolation: isolate;
   }
 
   .level-up-modal {
     position: relative;
-    z-index: 1;
-    background: var(--rpg-amber-bg-gradient);
+    background: linear-gradient(160deg, #fffbeb 0%, #fef3c7 42%, #fde68a 100%);
+    border: 2px solid #fbbf24;
     border-radius: 20px;
     padding: 28px 48px 32px;
     text-align: center;
     box-shadow:
-      0 20px 60px rgba(0, 0, 0, 0.3),
-      0 0 40px rgba(245, 158, 11, 0.28);
+      0 20px 60px rgb(0 0 0 / 0.45),
+      0 0 40px rgb(245 158 11 / 0.35);
     min-width: 280px;
+    max-width: min(92vw, 380px);
+    overflow: hidden;
     animation: modalGlow 2.4s ease-in-out infinite;
   }
 
@@ -127,9 +138,8 @@ const handleClose = () => {
     font-size: 14px;
     font-weight: 800;
     letter-spacing: 4px;
-    color: var(--rpg-amber-text);
+    color: #92400e;
     margin-bottom: 12px;
-    animation: badgePulse 1s ease infinite;
   }
 
   .level-up-numbers {
@@ -140,12 +150,13 @@ const handleClose = () => {
     align-items: center;
     justify-content: center;
     gap: 4px;
+    color: #78350f;
   }
 
   .old-level {
-    color: var(--rpg-text-muted);
+    color: #a16207;
     text-decoration: line-through;
-    animation: gentleFloat 3s ease-in-out infinite;
+    opacity: 0.72;
   }
 
   .arrow {
@@ -154,39 +165,37 @@ const handleClose = () => {
     justify-content: center;
     color: #d97706;
     margin: 0 6px;
-    animation: arrowNudge 1.2s ease-in-out infinite;
   }
 
   .new-level {
-    color: var(--rpg-amber-dark);
-    animation: levelShine 1.8s ease-in-out infinite;
+    color: #b45309;
   }
 
   .level-up-rewards {
     margin-bottom: 20px;
-    animation: gentleFloat 2.8s ease-in-out infinite;
   }
 
   .rewards-title {
     font-size: 14px;
     font-weight: 600;
-    color: var(--rpg-amber-text);
+    color: #92400e;
     margin-bottom: 8px;
   }
 
   .reward-item {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     justify-content: center;
     margin-bottom: 4px;
     font-size: 14px;
-    color: var(--rpg-amber-text-soft);
+    color: #b45309;
   }
 
   .close-btn {
     padding: 8px 32px;
     border-radius: 8px;
-    background: var(--rpg-amber-dark);
+    background: #d97706;
     color: white;
     font-weight: 700;
     border: none;
@@ -197,18 +206,8 @@ const handleClose = () => {
   }
 
   .close-btn:hover {
-    background: var(--rpg-amber-text-soft);
+    background: #b45309;
     transform: scale(1.03);
-  }
-
-  @keyframes badgePulse {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
   }
 
   @keyframes iconBounce {
@@ -218,40 +217,6 @@ const handleClose = () => {
     }
     50% {
       transform: translateY(-10px) scale(1.12);
-    }
-  }
-
-  @keyframes gentleFloat {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-4px);
-    }
-  }
-
-  @keyframes arrowNudge {
-    0%,
-    100% {
-      transform: translateX(0);
-      opacity: 0.8;
-    }
-    50% {
-      transform: translateX(5px);
-      opacity: 1;
-    }
-  }
-
-  @keyframes levelShine {
-    0%,
-    100% {
-      text-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
-      transform: scale(1);
-    }
-    50% {
-      text-shadow: 0 4px 18px rgba(217, 119, 6, 0.55);
-      transform: scale(1.06);
     }
   }
 
@@ -269,22 +234,26 @@ const handleClose = () => {
     }
   }
 
-  .level-up-enter-active .level-up-modal {
-    animation: modalIn 0.32s ease;
+  .level-up-enter-active,
+  .level-up-leave-active {
+    transition: opacity 0.24s ease;
   }
 
+  .level-up-enter-active .level-up-modal,
   .level-up-leave-active .level-up-modal {
-    animation: modalIn 0.22s ease reverse;
+    transition:
+      transform 0.24s ease,
+      opacity 0.24s ease;
   }
 
-  @keyframes modalIn {
-    from {
-      opacity: 0;
-      transform: scale(0.78);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+  .level-up-enter-from,
+  .level-up-leave-to {
+    opacity: 0;
+  }
+
+  .level-up-enter-from .level-up-modal,
+  .level-up-leave-to .level-up-modal {
+    opacity: 0;
+    transform: scale(0.92);
   }
 </style>

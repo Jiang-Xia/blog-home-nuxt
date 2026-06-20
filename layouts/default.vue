@@ -103,6 +103,8 @@ const route = useRoute();
 const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
 const needsRpgGlobal = computed(() => {
   const path = route.path;
+  // 测试页需挂载 RpgGlobalInit，线上 /tool/test 挡板才能走 handlers + 全屏弹窗
+  if (path.startsWith('/tool/test')) return true;
   return (
     path === '/'
     || path.startsWith('/rpg')

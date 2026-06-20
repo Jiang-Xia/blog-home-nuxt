@@ -327,4 +327,130 @@ html.tech-shell[data-theme='cyber-light'] {
   .rpg-fab-bounce {
     animation: rpg-fab-bounce 2.5s ease-in-out infinite;
   }
+
+  /* ── 全站 Toast：cyber 玻璃态 + RPG 语义色条 ── */
+  .rpg-toast {
+    --rpg-toast-accent: var(--tech-section-label);
+    border: 1px solid var(--tech-border);
+    border-left-width: 3px;
+    border-left-color: var(--rpg-toast-accent);
+    background: var(--tech-glass);
+    color: var(--tech-fg-muted);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:
+      0 8px 28px rgb(0 0 0 / 0.22),
+      0 0 18px color-mix(in oklch, var(--rpg-toast-accent) 14%, transparent);
+    animation: rpg-toast-enter 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .rpg-toast-title {
+    color: var(--rpg-toast-accent);
+  }
+
+  .rpg-toast-desc {
+    color: var(--tech-fg);
+  }
+
+  .rpg-toast-close {
+    color: var(--tech-fg-subtle);
+  }
+
+  .rpg-toast-close:hover {
+    color: var(--tech-fg);
+  }
+
+  .rpg-toast--success {
+    --rpg-toast-accent: var(--rpg-success);
+    border-left-color: var(--rpg-success);
+    background: color-mix(in oklch, var(--tech-glass) 72%, var(--rpg-success-bg));
+    box-shadow:
+      0 8px 28px rgb(0 0 0 / 0.22),
+      0 0 16px color-mix(in oklch, var(--rpg-success) 18%, transparent);
+  }
+
+  .rpg-toast--info {
+    --rpg-toast-accent: var(--tech-section-label);
+    border-left-color: var(--tech-section-label);
+    background: color-mix(in oklch, var(--tech-glass) 75%, var(--rpg-diamond-bg));
+    box-shadow:
+      0 8px 28px rgb(0 0 0 / 0.22),
+      0 0 16px var(--tech-primary-glow);
+  }
+
+  .rpg-toast--warning {
+    --rpg-toast-accent: var(--rpg-amber-light);
+    border-left-color: var(--rpg-amber);
+    background: color-mix(in oklch, var(--tech-glass) 72%, var(--rpg-amber-bg));
+    box-shadow:
+      0 8px 28px rgb(0 0 0 / 0.22),
+      0 0 16px color-mix(in oklch, var(--rpg-amber) 16%, transparent);
+  }
+
+  .rpg-toast--error {
+    --rpg-toast-accent: var(--rpg-danger-text-soft);
+    border-left-color: var(--rpg-danger);
+    background: color-mix(in oklch, var(--tech-glass) 72%, var(--rpg-danger-bg));
+    box-shadow:
+      0 8px 28px rgb(0 0 0 / 0.22),
+      0 0 16px color-mix(in oklch, var(--rpg-danger) 16%, transparent);
+  }
+
+  .rpg-toast [data-slot='actions'] .btn {
+    height: 1.75rem;
+    min-height: 1.75rem;
+    border-radius: 0.5rem;
+    border-color: var(--tech-btn-secondary-border);
+    background: transparent;
+    color: var(--tech-fg);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .rpg-toast [data-slot='actions'] .btn:hover {
+    border-color: var(--tech-section-label);
+    background: var(--tech-btn-secondary-hover-bg);
+    color: var(--tech-section-label);
+  }
+
+  .rpg-toast-progress [data-slot='base'],
+  .rpg-toast-progress > div {
+    border-radius: 0 0 0.75rem 0.75rem;
+    background: color-mix(in oklch, var(--rpg-toast-accent) 22%, transparent);
+  }
+
+  .rpg-toast-progress [data-slot='indicator'],
+  .rpg-toast-progress > div > div {
+    background: linear-gradient(
+      90deg,
+      var(--rpg-toast-accent),
+      color-mix(in oklch, var(--rpg-toast-accent) 65%, var(--tech-gradient-mid))
+    );
+    box-shadow: 0 0 8px color-mix(in oklch, var(--rpg-toast-accent) 50%, transparent);
+  }
+
+  @keyframes rpg-toast-enter {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem) scale(0.96);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* 避开固定顶栏，居中 HUD 通知位 */
+  .rpg-toaster-viewport {
+    top: 4.75rem !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .rpg-toaster-viewport > * {
+    pointer-events: auto;
+  }
 }

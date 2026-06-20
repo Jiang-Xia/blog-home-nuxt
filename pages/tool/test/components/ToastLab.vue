@@ -5,6 +5,7 @@ import {
   messageInfo,
   messageSuccess,
   messageWarning,
+  showToast,
 } from '~~/utils/toast';
 
 const toastItems = [
@@ -17,13 +18,31 @@ const toastItems = [
     btnClass: 'btn-error btn-outline',
     run: () => messageDanger('危险操作已拦截'),
   },
+  {
+    label: 'Action',
+    btnClass: 'btn-outline',
+    run: () =>
+      showToast({
+        description: '需要登录才能继续操作',
+        color: 'warning',
+        duration: 5000,
+        actions: [
+          {
+            label: '去登录',
+            icon: 'i-lucide-log-in',
+            color: 'info',
+            variant: 'outline',
+          },
+        ],
+      }),
+  },
 ];
 </script>
 
 <template>
   <div class="toast-lab">
     <p class="toast-lab-tip">
-      测试全站 Toast 队列（含去重与间隔），与 RPG / 接口错误提示共用同一套封装。
+      测试全站 Toast 队列（cyber 玻璃态 + RPG 语义色，含去重、间隔与 Action 按钮）。
     </p>
     <div class="toast-lab-actions">
       <button

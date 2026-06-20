@@ -3,15 +3,17 @@
    * RPG 冒险模块 - 冒险状态、等级奖励、抽奖与排行榜
    * 所有接口请求在本页统一发起，子组件仅负责渲染
    */
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { messageError, messageSuccess } from '~~/utils/toast';
 import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 import { useRpgPage } from '~~/composables/use-rpg-page';
 import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
 import type { DrawResult } from '~~/types/rpg';
+import { triggerMockAfterLotteryDraw } from '~~/utils/rpg-dev-mock';
 
 const route = useRoute();
 const router = useRouter();
+const { playBgm, stopBgm, initAudio, playSfx } = useRpgAudio();
 const profileCardRef = ref<{ setSignInResult: (_result: any) => void } | null>(null);
 const lotteryBoxRef = ref<{
   showDrawResults: (_results: any[]) => void;
@@ -23,6 +25,8 @@ const token = useToken();
 const isLoggedIn = computed(() => !!token.value);
 
 const activeTab = ref<'status' | 'inventory' | 'pet' | 'guild' | 'leaderboard'>('status');
+
+const isDev = import.meta.dev;
 
 const {
   rpgStatus,
@@ -92,6 +96,17 @@ useHead({
   title: 'RPG 冒险',
 });
 
+onMounted(() => {
+  // 冒险页进入：初始化音频引擎并淡入 BGM
+  void initAudio();
+  void playBgm('adventure');
+});
+
+/** 离开冒险页时淡出 BGM，避免其他页面残留背景音乐 */
+onBeforeUnmount(() => {
+  void stopBgm();
+});
+
 /** 从 URL query.tab 同步 Tab 状态（支持深链进入背包/排行等） */
 watch(
   () => route.query.tab,
@@ -121,6 +136,7 @@ watch(isLoggedIn, (loggedIn) => {
 
 /** 切换 Tab 并同步 URL（status 时不带 query） */
 const switchTab = (tab: typeof activeTab.value) => {
+  if (tab !== activeTab.value) void playSfx('tabSwitch');
   activeTab.value = tab;
   const q = tab === 'status' ? {} : { tab };
   router.replace({ query: q });
@@ -137,6 +153,7 @@ const onSignIn = async () => {
   try {
     const result = await handleSignIn();
     profileCardRef.value?.setSignInResult(result);
+    void playSfx('signIn');
     if (result?.message) {
       messageSuccess(result.message);
     }
@@ -162,6 +179,7 @@ const onClaimQuest = async (questCode: string) => {
 const onEquipLoadout = async (slot: 'title' | 'avatar_frame', code: string) => {
   try {
     await handleEquipLoadout(slot, code);
+    void playSfx('equip');
     messageSuccess('穿戴成功');
   }
   catch (e: any) {
@@ -173,6 +191,7 @@ const onEquipLoadout = async (slot: 'title' | 'avatar_frame', code: string) => {
 const onUnequipLoadout = async (slot: 'title' | 'avatar_frame') => {
   try {
     await handleUnequipLoadout(slot);
+    void playSfx('unequip');
   }
   catch (e: any) {
     messageError(e?.message || '卸下失败');
@@ -189,6 +208,8 @@ const onDraw = async (count: number, currency: 'ticket' | 'currency') => {
   beginLotteryDrawSession();
   try {
     const results = await handleDraw(count, currency);
+    // dev：抽奖 API 后延迟注入 WS 挡板，测与 DrawOverlay 层叠
+    triggerMockAfterLotteryDraw(rpgStatus.value);
     lotteryBoxRef.value?.showDrawResults(results);
     return results;
   }
@@ -202,8 +223,10 @@ const onDraw = async (count: number, currency: 'ticket' | 'currency') => {
 /** 手动激活/停用 Buff */
 const onToggleBuff = async (buff: any) => {
   try {
+    const wasActive = buff.isActive;
     await handleToggleBuff(buff);
-    messageSuccess(buff.isActive ? '已停用' : '已激活');
+    void playSfx(wasActive ? 'buffDeactivate' : 'buffActivate');
+    messageSuccess(wasActive ? '已停用' : '已激活');
   }
   catch (e: any) {
     messageError(e?.message || '操作失败');
@@ -214,6 +237,7 @@ const onToggleBuff = async (buff: any) => {
 const onInventoryEquip = async (slot: string, itemCode: string) => {
   try {
     await handleInventoryEquip(slot, itemCode);
+    void playSfx('equip');
     messageSuccess('穿戴成功');
   }
   catch (e: any) {
@@ -225,6 +249,7 @@ const onInventoryEquip = async (slot: string, itemCode: string) => {
 const onInventoryUnequip = async (slot: string) => {
   try {
     await handleInventoryUnequip(slot);
+    void playSfx('unequip');
   }
   catch (e: any) {
     messageError(e?.message || '卸下失败');
@@ -246,6 +271,7 @@ const onHatchPet = async (itemCode: string) => {
 const onBuyPet = async (petCode: string) => {
   try {
     await handleBuyPet(petCode);
+    void playSfx('petBuy');
     messageSuccess('兑换成功');
   }
   catch (e: any) {
@@ -257,6 +283,7 @@ const onBuyPet = async (petCode: string) => {
 const onDeployPet = async (petId: number) => {
   try {
     await handleDeployPet(petId);
+    void playSfx('petDeploy');
     messageSuccess('宠物已出战');
   }
   catch (e: any) {
@@ -268,6 +295,7 @@ const onDeployPet = async (petId: number) => {
 const onRestPet = async () => {
   try {
     await handleRestPet();
+    void playSfx('petRest');
     messageSuccess('宠物已休息');
   }
   catch (e: any) {
@@ -279,6 +307,7 @@ const onRestPet = async () => {
 const onRenamePet = async (id: number, nickname: string) => {
   try {
     await handleRenamePet(id, nickname);
+    void playSfx('petRename');
   }
   catch (e: any) {
     messageError(e?.message || '改名失败');
@@ -289,6 +318,7 @@ const onRenamePet = async (id: number, nickname: string) => {
 const onCreateGuild = async (name: string) => {
   try {
     await handleCreateGuild(name);
+    void playSfx('guildCreate');
     messageSuccess('公会创建成功');
   }
   catch (e: any) {
@@ -300,6 +330,7 @@ const onCreateGuild = async (name: string) => {
 const onJoinGuild = async (guildId: number) => {
   try {
     await handleJoinGuild(guildId);
+    void playSfx('guildJoin');
     messageSuccess('加入成功');
   }
   catch (e: any) {
@@ -311,6 +342,7 @@ const onJoinGuild = async (guildId: number) => {
 const onLeaveGuild = async () => {
   try {
     await handleLeaveGuild();
+    void playSfx('guildLeave');
     messageSuccess('已退出公会');
   }
   catch (e: any) {
@@ -349,7 +381,8 @@ const onLeaveGuild = async () => {
         </div>
       </div>
 
-      <div v-else class="mb-3 flex justify-end">
+      <div v-else class="mb-3 flex items-center justify-between gap-2">
+        <RpgAudioControl />
         <button
           type="button"
           class="btn btn-ghost btn-xs text-[var(--rpg-text-muted)]"
@@ -461,6 +494,8 @@ const onLeaveGuild = async () => {
             </div>
             <div class="cyber-glass-card mt-5 p-5">
               <div class="card-body p-5">
+                <RpgDevEventPanel v-if="isDev" compact :context="{ status: rpgStatus }" />
+                <RpgLotteryDrawMockBar v-if="isDev" :status="rpgStatus" />
                 <RpgLotteryBox
                   ref="lotteryBoxRef"
                   :lottery-pool="lotteryPool"

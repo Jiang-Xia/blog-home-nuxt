@@ -9,6 +9,8 @@ const props = defineProps<{
   achievements: UserAchievementProgress[];
 }>();
 
+const { playSfx } = useRpgAudio();
+
 // 按分类分组
 const groupedAchievements = computed(() => {
   const groups: Record<string, UserAchievementProgress[]> = {};
@@ -28,6 +30,12 @@ const completionPercent = computed(() =>
 
 // 当前选中的分类
 const activeCategory = ref<string>('all');
+
+/** 切换成就分类 Tab，变更时播放 tabSwitch */
+const switchCategory = (key: string) => {
+  if (key !== activeCategory.value) void playSfx('tabSwitch');
+  activeCategory.value = key;
+};
 
 const filteredAchievements = computed(() => {
   if (activeCategory.value === 'all') return props.achievements;
@@ -85,7 +93,7 @@ const categories = computed(() => {
       <button
         class="ach-tab"
         :class="{ active: activeCategory === 'all' }"
-        @click="activeCategory = 'all'"
+        @click="switchCategory('all')"
       >
         全部
       </button>
@@ -94,7 +102,7 @@ const categories = computed(() => {
         :key="cat.key"
         class="ach-tab"
         :class="{ active: activeCategory === cat.key }"
-        @click="activeCategory = cat.key"
+        @click="switchCategory(cat.key)"
       >
         {{ cat.label }}
         <span class="tab-count">{{ cat.completed }}/{{ cat.count }}</span>

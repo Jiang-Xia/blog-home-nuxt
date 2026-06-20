@@ -1,8 +1,13 @@
 <script setup lang="ts">
+/**
+   * 文章详情 Hero 社交栏：加油 / 砸蛋 / 送花 / 打赏入口
+   * 发送方操作成功后播放对应 social* 音效（收方由 WS 弹窗播音）
+   */
 import { socialCheer, socialEgg, socialFlower } from '~~/api/rpg';
 import { messageError, messageSuccess } from '~~/utils/toast';
 import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 import { useRpg } from '~~/composables/use-rpg';
+import type { RpgSynthSfxKey } from '~~/constants/rpg-audio';
 
 const props = defineProps<{
   authorUid: number;
@@ -13,6 +18,7 @@ const emit = defineEmits<{ tipped: [] }>();
 
 const userInfo = useUserInfo();
 const { fetchQuests } = useRpg();
+const { playSfx } = useRpgAudio();
 const loading = ref(false);
 const showTipModal = ref(false);
 
@@ -27,7 +33,12 @@ const ensureLogin = async () => {
   return true;
 };
 
-const act = async (fn: () => Promise<any>, getLabel?: (_res: any) => string) => {
+/** 统一社交操作：API 成功后可选播放发送方音效 */
+const act = async (
+  fn: () => Promise<any>,
+  getLabel?: (_res: any) => string,
+  sfx?: RpgSynthSfxKey,
+) => {
   if (!(await ensureLogin())) return;
   if (isAuthor.value) {
     messageError('不能对自己操作');
@@ -37,6 +48,7 @@ const act = async (fn: () => Promise<any>, getLabel?: (_res: any) => string) => 
   loading.value = true;
   try {
     const res = await fn();
+    if (sfx) void playSfx(sfx);
     messageSuccess(getLabel ? getLabel(res) : '操作成功');
     await fetchQuests();
   }
@@ -72,6 +84,7 @@ const onTipped = () => {
         act(
           () => socialCheer(authorUid),
           (res) => `加油成功，对方 +${Math.abs(res?.hpDelta ?? 10)} 生命`,
+          'socialCheer',
         )
       "
     >
@@ -84,6 +97,7 @@ const onTipped = () => {
         act(
           () => socialEgg(authorUid),
           () => '扔鸡蛋成功',
+          'socialEgg',
         )
       "
     >
@@ -96,6 +110,7 @@ const onTipped = () => {
         act(
           () => socialFlower(authorUid),
           () => '送鲜花成功',
+          'socialFlower',
         )
       "
     >

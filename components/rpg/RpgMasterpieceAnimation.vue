@@ -4,7 +4,7 @@
    */
 import type { RpgMasterpiecePayload } from '~~/composables/use-realtime-socket';
 
-defineProps<{
+const props = defineProps<{
   visible: boolean;
   data: RpgMasterpiecePayload | null;
 }>();
@@ -12,6 +12,16 @@ defineProps<{
 const emit = defineEmits<{
   close: [];
 }>();
+
+const { playSfx } = useRpgAudio();
+
+/** 神作弹窗展示时播放庆祝音 */
+watch(
+  () => props.visible,
+  (v) => {
+    if (v && props.data) void playSfx('masterpiece');
+  },
+);
 
 const handleClose = () => {
   emit('close');
