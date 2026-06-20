@@ -278,6 +278,7 @@ yarn pm2:dev
 ## 📚 相关文档
 
 - [Home 端 2026-06 功能说明](./docs/home-features-2026-06.md) - 三批优化路由与组件索引
+- [Home 端使用手册（自文档 7 篇）](https://jiang-xia.top/category/c1000001-0000-4000-8000-000000000001) - 全页面截图操作指南，源码见 `blog-server/docs/self-doc/articles/26-home-manual-00-index.md`
 - [页面开发规范](./docs/page-development-guide.md) - Layout / Cyber 样式约定
 - [开源与合作说明（站内）](https://jiang-xia.top/open-source) - 闭源边界、付费套餐、源码授权
 - [源码授权协议模板](./docs/source-license-agreement.md) - 成交时可复制填写
