@@ -98,9 +98,14 @@ useHead({
 });
 
 onMounted(() => {
-  // 冒险页进入：初始化音频引擎并淡入 BGM
+  // 冒险页进入：初始化音频引擎；BGM 默认关闭，由工具条滑条手动开启
   void initAudio();
-  void playBgm('adventure');
+});
+
+/** BGM 滑条 > 0 且未静音时播放，归零或静音时停止 */
+watch([bgmVolume, muted], ([vol, isMuted]) => {
+  if (!isMuted && vol > 0) void playBgm('adventure');
+  else void stopBgm();
 });
 
 /** 离开冒险页时淡出 BGM，避免其他页面残留背景音乐 */

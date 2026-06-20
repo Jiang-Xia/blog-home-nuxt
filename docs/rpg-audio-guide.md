@@ -24,7 +24,7 @@ const { playSfx, initAudio, playBgm, stopBgm } = useRpgAudio();
 
 onMounted(() => {
   void initAudio();
-  void playBgm('adventure'); // 仅需要 BGM 的页面
+  // BGM 默认关闭；冒险页由 BGM 滑条 > 0 时自动 playBgm
 });
 
 /** 用户操作成功后 */
@@ -35,7 +35,8 @@ const onConfirm = async () => {
 </script>
 ```
 
-- 调用前无需判断静音：`playSfx` / `playBgm` 内部会读 `muted`
+- 调用前无需判断静音：`playSfx` / `playBgm` 内部会读 `muted`；`playBgm` 在 `bgmVolume <= 0` 时也会跳过
+- 冒险页 BGM **默认关闭**（`bgmVolume` 默认 0），用户拖动 BGM 滑条后才播放
 - 浏览器策略：首次播放可能需用户交互；howler 已处理 `unlock` 续播
 - SSR：音频 API 仅在 `import.meta.client` 执行
 

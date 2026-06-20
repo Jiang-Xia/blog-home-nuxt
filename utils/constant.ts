@@ -15,7 +15,7 @@ export interface ToolLink extends NavLink {
 export const NAV_LINKS: NavLink[] = [
   { path: '/', title: '首页' },
   { path: '/rpg', title: '冒险', highlight: true, icon: '⚔️' },
-  { path: '/download', title: '快速入口' },
+  { path: '/explore', title: '快速入口' },
   { path: '/archives', title: '归档' },
   { path: '/links', title: '友链' },
   { path: '/msgboard', title: '留言板' },

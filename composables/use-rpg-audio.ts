@@ -34,7 +34,7 @@ interface RpgAudioSettings {
 
 const DEFAULT_SETTINGS: RpgAudioSettings = {
   muted: false,
-  bgmVolume: 0.55,
+  bgmVolume: 0,
   sfxVolume: 0.85,
 };
 
@@ -245,7 +245,7 @@ export function useRpgAudio() {
    * 切换曲目时先淡出当前 BGM
    */
   async function playBgm(key: RpgBgmKey, fadeMs = 800) {
-    if (settings.value.muted) return;
+    if (settings.value.muted || settings.value.bgmVolume <= 0) return;
     await ensureHowler();
     if (currentBgmKey === key) {
       const existing = bgmCache.get(key);
