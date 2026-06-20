@@ -32,7 +32,8 @@ const data = await request.get('/article/info', { id });
 
 ## 其他机制
 
-- 防重复请求：`requestMap` 默认开启；`/rpg/` 在白名单
+- 防重复请求：`requestMap` 默认开启；`/rpg/` 在白名单（允许并发 GET，不误杀）
+- RPG GET in-flight：`api/rpg-inflight.ts` + `api/rpg.ts` 合并同 key 进行中的请求；mutation 成功后 `afterRpgMutation` 清 key 再 refresh
 - 加密：`VITE_NUXT_OPEN_ENCRYPT=true` 时对称 `aesEncrypt/aesDecrypt`，仅对约定路径
 - 错误提示用 `messageDanger`，文案走 `getErrorMessage`，不暴露原始异常
 - 可选工具：`awaitWrap(promise)` 返回 `[err, data]` 元组

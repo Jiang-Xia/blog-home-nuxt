@@ -87,14 +87,18 @@ const handleClose = () => {
   .level-up-overlay {
     position: fixed;
     inset: 0;
-    background: var(--rpg-overlay);
+    background: rgb(0 0 0 / 0.82);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10080;
+    z-index: 10100;
   }
 
   .level-up-modal {
+    position: relative;
+    z-index: 1;
     background: var(--rpg-amber-bg-gradient);
     border-radius: 20px;
     padding: 28px 48px 32px;
@@ -265,15 +269,15 @@ const handleClose = () => {
     }
   }
 
-  .level-up-enter-active {
-    animation: fadeIn 0.32s ease;
+  .level-up-enter-active .level-up-modal {
+    animation: modalIn 0.32s ease;
   }
 
-  .level-up-leave-active {
-    animation: fadeIn 0.22s ease reverse;
+  .level-up-leave-active .level-up-modal {
+    animation: modalIn 0.22s ease reverse;
   }
 
-  @keyframes fadeIn {
+  @keyframes modalIn {
     from {
       opacity: 0;
       transform: scale(0.78);

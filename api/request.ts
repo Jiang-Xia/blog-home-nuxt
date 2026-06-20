@@ -86,8 +86,8 @@ export const awaitWrap = <T, U = any>(promise: Promise<T>): Promise<[U | null, T
 // 防止重复请求的Map集合
 const requestMap = new Map();
 
-// 防重复请求白名单：mutation 不参与 GET 防抖（FormData 上传见 shouldSkipRequestDebounce）
-const DEBOUNCE_WHITELIST: string[] = [];
+// 防重复请求白名单：RPG 页/WS 会并发刷新 status 等 GET，不参与防抖（见 home-03-api-request-contract.mdc）
+const DEBOUNCE_WHITELIST: string[] = ['/rpg/'];
 
 function shouldSkipRequestDebounce(url: string, body: unknown, method = 'GET'): boolean {
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method.toUpperCase())) {

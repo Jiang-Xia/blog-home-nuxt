@@ -8,11 +8,15 @@ import { messageError, messageSuccess } from '~~/utils/toast';
 import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 import { useRpgPage } from '~~/composables/use-rpg-page';
 import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
+import type { DrawResult } from '~~/types/rpg';
 
 const route = useRoute();
 const router = useRouter();
 const profileCardRef = ref<{ setSignInResult: (_result: any) => void } | null>(null);
-const lotteryBoxRef = ref<{ showDrawResults: (_results: any[]) => void } | null>(null);
+const lotteryBoxRef = ref<{
+  showDrawResults: (_results: any[]) => void;
+  cancelDrawAnimation: () => void;
+} | null>(null);
 const onboardingRef = ref<{ open: () => void } | null>(null);
 
 const token = useToken();
@@ -61,6 +65,8 @@ const {
   handleEquipLoadout,
   handleUnequipLoadout,
   handleDraw,
+  beginLotteryDrawSession,
+  refreshAfterDraw,
   handleToggleBuff,
   handleInventoryEquip,
   handleInventoryUnequip,
@@ -173,14 +179,21 @@ const onUnequipLoadout = async (slot: 'title' | 'avatar_frame') => {
   }
 };
 
+/** 抽奖动画结束后按结果增量刷新 */
+const onDrawFinished = (results: DrawResult[]) => {
+  void refreshAfterDraw(results);
+};
+
 /** 抽奖：API 完成后把结果交给 LotteryBox 展示动画 */
 const onDraw = async (count: number, currency: 'ticket' | 'currency') => {
+  beginLotteryDrawSession();
   try {
     const results = await handleDraw(count, currency);
     lotteryBoxRef.value?.showDrawResults(results);
     return results;
   }
   catch (e: any) {
+    lotteryBoxRef.value?.cancelDrawAnimation();
     handleRpgCurrencyError(e, '抽奖失败');
     return [];
   }
@@ -456,6 +469,7 @@ const onLeaveGuild = async () => {
                   :lottery-history="lotteryHistory"
                   :drawing="drawing"
                   @draw="onDraw"
+                  @finished="onDrawFinished"
                   @load-history="loadLotteryHistory"
                 />
               </div>
