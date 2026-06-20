@@ -630,34 +630,17 @@ onBeforeUnmount(() => {
 
     .photos-tool-select {
       appearance: auto;
-      color-scheme: dark;
-      background-color: #111827 !important;
-      color: #f8fafc !important;
+      color-scheme: var(--tech-color-scheme, light);
+      background-color: var(--tech-input-bg) !important;
+      color: var(--tech-fg) !important;
 
       &:focus {
-        background-color: #111827 !important;
+        background-color: var(--tech-input-bg) !important;
       }
 
       option {
-        background-color: #111827 !important;
-        color: #f8fafc !important;
-      }
-    }
-  }
-
-  :global(html.tech-shell[data-theme='cyber-light']) .photos-tool {
-    .photos-tool-select {
-      color-scheme: light;
-      background-color: #ffffff !important;
-      color: #0f172a !important;
-
-      &:focus {
-        background-color: #ffffff !important;
-      }
-
-      option {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
+        background-color: var(--tech-input-bg) !important;
+        color: var(--tech-fg) !important;
       }
     }
   }

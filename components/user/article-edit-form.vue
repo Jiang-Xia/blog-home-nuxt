@@ -16,6 +16,7 @@ import { uploadCover, parseUploadedUrl } from '@/api/resources';
 import { resolveStaticUrl } from '@/utils/common';
 import { messageDanger, messageSuccess } from '@/utils/toast';
 import { useCyberModal } from '@/composables/use-cyber-modal';
+import { COVER_IMAGE, coverAspectRatio } from '@/utils/image-compress';
 
 const props = defineProps<{
   articleId?: string;
@@ -516,7 +517,8 @@ const copyPublishedLink = async () => {
                   >
                 </label>
               </div>
-              <span class="block mt-1.5 text-[0.6875rem] text-base-content/45">建议 16:9，上传后自动压缩</span>
+              <span class="block mt-1.5 text-[0.6875rem] text-base-content/45">建议 {{ COVER_IMAGE.maxWidth }}×{{ COVER_IMAGE.maxHeight }}（Open Graph
+                分享图），上传后自动裁剪压缩</span>
             </label>
             <figure
               class="cover-thumb rounded-lg overflow-hidden shrink-0 border border-dashed transition-colors"
@@ -689,7 +691,7 @@ const copyPublishedLink = async () => {
 
   .cover-thumb {
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: v-bind(coverAspectRatio);
   }
 
   @media (min-width: 640px) {

@@ -20,6 +20,7 @@ import { debounce } from '~~/utils';
 import { messageDanger } from '@/utils/toast';
 import { isDarkTheme, useTheme } from '@/composables/use-home';
 import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels';
+import { coverAspectRatio } from '@/utils/image-compress';
 
 const props = withDefaults(
   defineProps<{
@@ -1144,7 +1145,6 @@ watch(articleList, syncAuthorLevels, { immediate: true });
       transition: all 0.5s;
 
       .article-item {
-        max-height: 408px;
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -1183,15 +1183,15 @@ watch(articleList, syncAuthorLevels, { immediate: true });
         }
 
         .article-item-cover {
-          --cover-height: 160px;
           flex-shrink: 0;
           padding: 12px;
           display: flex;
 
           :deep(.card-container) {
             width: 100%;
-            height: var(--cover-height);
-            min-height: var(--cover-height);
+            aspect-ratio: v-bind(coverAspectRatio);
+            height: auto;
+            min-height: 0;
           }
         }
 
@@ -1204,7 +1204,7 @@ watch(articleList, syncAuthorLevels, { immediate: true });
 
         .article-item-cover-img {
           width: 100%;
-          height: var(--cover-height);
+          aspect-ratio: v-bind(coverAspectRatio);
           display: block;
           border-radius: 8px;
           overflow: hidden;
@@ -1214,6 +1214,7 @@ watch(articleList, syncAuthorLevels, { immediate: true });
             height: 100%;
             width: 100%;
             object-fit: cover;
+            object-position: center;
           }
         }
       }

@@ -74,6 +74,7 @@ const finishEdit = () => {
           :alt="userInfo?.nickname"
           :frame="avatarFrame"
           :size="88"
+          previewable
           class="border-[3px] border-base-100 shadow-lg"
         >
           <template #fallback>

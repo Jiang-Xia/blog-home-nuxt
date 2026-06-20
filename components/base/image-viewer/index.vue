@@ -1,21 +1,23 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 w-full flex justify-center items-center z-50">
+  <div v-if="isOpen" class="fixed inset-0 z-[10050] flex w-full items-center justify-center">
     <!-- 完全覆盖整个屏幕的背景蒙版，点击蒙版关闭查看器 -->
     <div class="absolute inset-0 bg-black opacity-75 z-40" @click="closeViewer" />
 
-    <div ref="viewer" class="relative z-50" :class="{ fullscreen: isFullscreen }">
+    <div ref="viewer" class="relative z-[10050]" :class="{ fullscreen: isFullscreen }">
       <img
         :src="currentImage"
         alt="Image Viewer"
         :style="imgStyle"
         class="transition-all duration-300"
-        @click="toggleFullscreen"
+        :class="{ 'cursor-default': simple }"
+        @click="onImageClick"
       >
     </div>
 
-    <!-- 按钮固定在屏幕中间下方 -->
+    <!-- 工具栏：多图或完整模式 -->
     <div
-      class="fixed bottom-10 left-1/2 z-50 flex max-w-[96vw] flex-wrap justify-center gap-2 -translate-x-1/2 px-2"
+      v-if="!simple"
+      class="fixed bottom-10 left-1/2 z-[10050] flex max-w-[96vw] -translate-x-1/2 flex-wrap justify-center gap-2 px-2"
     >
       <button class="btn btn-primary btn-xs" @click="rotateLeft">
         左转
@@ -23,10 +25,10 @@
       <button class="btn btn-primary btn-xs" @click="rotateRight">
         右转
       </button>
-      <button class="btn btn-secondary btn-xs" @click="prevImage">
+      <button v-if="images.length > 1" class="btn btn-secondary btn-xs" @click="prevImage">
         上一张
       </button>
-      <button class="btn btn-secondary btn-xs" @click="nextImage">
+      <button v-if="images.length > 1" class="btn btn-secondary btn-xs" @click="nextImage">
         下一张
       </button>
       <button class="btn btn-accent btn-xs" @click="resetTransform">
@@ -49,8 +51,8 @@
       </button>
     </div>
 
-    <!-- 关闭按钮 - 使用 daisyUI btn-warning 样式并统一按钮大小 -->
-    <button class="btn btn-warning btn-xs absolute top-4 right-4 z-50" @click="closeViewer">
+    <!-- 关闭按钮 -->
+    <button class="btn btn-warning btn-xs absolute top-4 right-4 z-[10050]" @click="closeViewer">
       关闭
     </button>
   </div>
@@ -67,6 +69,11 @@ const props = defineProps({
   initialIndex: {
     type: Number,
     default: 0,
+  },
+  /** 仅查看大图，隐藏旋转/翻转等工具 */
+  simple: {
+    type: Boolean,
+    default: false,
   },
 });
   // 触发关闭事件
@@ -181,6 +188,12 @@ const resetTransform = () => {
   rotation.value = 0;
   flipVertical.value = false;
   flipHorizontal.value = false; // 清除左右反转
+};
+
+const onImageClick = () => {
+  if (!props.simple) {
+    toggleFullscreen();
+  }
 };
 
 // 图片样式（缩放、翻转、旋转）

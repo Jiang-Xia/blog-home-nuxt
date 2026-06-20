@@ -127,6 +127,39 @@ html.tech-shell[data-theme='cyber'] {
   --rpg-banner-border: rgb(139 92 246 / 0.28);
   --rpg-banner-label: #c4b5fd;
   --rpg-banner-info: #67e8f9;
+
+  /* 文章详情 Hero — 深色玻璃态 */
+  --rpg-hero-bg-opacity: 0.72;
+  --rpg-hero-bg-saturate: 1.1;
+  --rpg-hero-overlay-1: color-mix(in oklch, var(--color-base-100) 34%, transparent);
+  --rpg-hero-overlay-2: color-mix(in oklch, var(--color-base-100) 48%, transparent);
+  --rpg-hero-overlay-3: color-mix(in oklch, var(--color-base-100) 62%, transparent);
+  --rpg-hero-glow-opacity: 1;
+  --rpg-hero-eyebrow-bg: var(--rpg-amber-bg-faint);
+  --rpg-hero-eyebrow-shadow: none;
+  --rpg-hero-card-bg: color-mix(in oklch, var(--rpg-surface) 88%, transparent);
+  --rpg-hero-card-border: var(--rpg-border-subtle);
+  --rpg-hero-card-shadow: none;
+  --rpg-hero-card-backdrop: blur(8px);
+  --rpg-hero-tip-bg: var(--rpg-diamond-bg);
+  --rpg-hero-tip-shadow: none;
+  --rpg-hero-meta-solid-bg: var(--rpg-surface);
+  --rpg-hero-meta-solid-shadow: none;
+  --rpg-hero-strip-bg: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--rpg-banner-bg) 90%, var(--rpg-amber-bg-faint)),
+    var(--rpg-banner-bg)
+  );
+  --rpg-hero-strip-shadow: none;
+  --rpg-hero-social-bar-border: var(--rpg-border-subtle);
+  --rpg-hero-social-btn-bg: transparent;
+  --rpg-hero-social-btn-backdrop: blur(6px);
+  --rpg-hero-social-btn-border: var(--rpg-border);
+  --rpg-hero-social-btn-fg: var(--rpg-text-body);
+  --rpg-hero-social-btn-warning-border: var(--color-warning);
+  --rpg-hero-social-btn-warning-fg: inherit;
+  --rpg-hero-social-btn-secondary-border: var(--color-secondary);
+  --rpg-hero-social-btn-secondary-fg: inherit;
 }
 
 /* ── 浅色 cyber-light ── */
@@ -159,6 +192,43 @@ html.tech-shell[data-theme='cyber-light'] {
   --rpg-banner-border: rgb(139 92 246 / 0.22);
   --rpg-banner-label: #7c3aed;
   --rpg-banner-info: #0284c7;
+
+  /* 文章详情 Hero — 浅色实底卡片 */
+  --rpg-hero-bg-opacity: 0.68;
+  --rpg-hero-bg-saturate: 1.08;
+  --rpg-hero-overlay-1: color-mix(in oklch, var(--color-base-100) 48%, transparent);
+  --rpg-hero-overlay-2: color-mix(in oklch, var(--color-base-100) 56%, transparent);
+  --rpg-hero-overlay-3: color-mix(in oklch, var(--color-base-100) 64%, transparent);
+  --rpg-hero-glow-opacity: 0.35;
+  --rpg-hero-eyebrow-bg: #ffffff;
+  --rpg-hero-eyebrow-shadow: 0 1px 3px rgb(15 23 42 / 0.08);
+  --rpg-hero-card-bg: #ffffff;
+  --rpg-hero-card-border: var(--rpg-border);
+  --rpg-hero-card-shadow: 0 1px 3px rgb(15 23 42 / 0.08);
+  --rpg-hero-card-backdrop: none;
+  --rpg-hero-tip-bg: #ffffff;
+  --rpg-hero-tip-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
+  --rpg-hero-meta-solid-bg: #ffffff;
+  --rpg-hero-meta-solid-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
+  --rpg-hero-strip-bg: #ffffff;
+  --rpg-hero-strip-shadow: 0 1px 4px rgb(15 23 42 / 0.07);
+  --rpg-hero-social-bar-border: var(--rpg-border);
+  --rpg-hero-social-btn-bg: #ffffff;
+  --rpg-hero-social-btn-backdrop: none;
+  --rpg-hero-social-btn-border: var(--rpg-border);
+  --rpg-hero-social-btn-fg: var(--rpg-text-body);
+  --rpg-hero-social-btn-warning-border: color-mix(
+    in oklch,
+    var(--color-warning) 55%,
+    var(--rpg-border)
+  );
+  --rpg-hero-social-btn-warning-fg: color-mix(in oklch, var(--color-warning) 85%, #000);
+  --rpg-hero-social-btn-secondary-border: color-mix(
+    in oklch,
+    var(--color-secondary) 45%,
+    var(--rpg-border)
+  );
+  --rpg-hero-social-btn-secondary-fg: color-mix(in oklch, var(--color-secondary) 80%, #000);
 }
 
 @layer components {

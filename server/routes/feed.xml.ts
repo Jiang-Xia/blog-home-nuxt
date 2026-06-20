@@ -1,13 +1,14 @@
 /**
  * RSS 订阅 feed.xml
- * 数据源：POST /article/list 最近 50 篇；供搜索引擎与 RSS 阅读器抓取
+ * 数据源：POST /x-blog/api/v1/article/list 最近 50 篇；供搜索引擎与 RSS 阅读器抓取
  */
 import { getRequestURL } from 'h3';
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const origin = config.public.siteOrigin || getRequestURL(event).origin;
-  const apiBase = `${origin}/api`;
+  const apiPrefix = process.env.VITE_NUXT_API_PREFIX || '/x-blog/api/v1';
+  const apiBase = `${origin}${apiPrefix}`;
 
   let articles: Array<{
     id: number;
@@ -22,7 +23,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       body: { page: 1, pageSize: 50, client: true, sort: 'DESC' },
     });
-    articles = res?.list ?? [];
+    articles = res?.data?.list ?? res?.list ?? [];
   }
   catch {
     articles = [];

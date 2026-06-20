@@ -135,10 +135,23 @@ const onTipped = () => {
     gap: 8px;
     margin-top: 14px;
     padding-top: 14px;
-    border-top: 1px solid var(--rpg-border-subtle, oklch(var(--bc) / 0.12));
+    border-top: 1px solid var(--rpg-hero-social-bar-border, var(--rpg-border-subtle));
   }
 
   .hero-social-btn {
-    backdrop-filter: blur(6px);
+    backdrop-filter: var(--rpg-hero-social-btn-backdrop, blur(6px));
+    background-color: var(--rpg-hero-social-btn-bg, transparent);
+    border-color: var(--rpg-hero-social-btn-border, var(--rpg-border));
+    color: var(--rpg-hero-social-btn-fg, var(--rpg-text-body));
+  }
+
+  .hero-social-btn.btn-warning {
+    border-color: var(--rpg-hero-social-btn-warning-border, var(--color-warning));
+    color: var(--rpg-hero-social-btn-warning-fg, inherit);
+  }
+
+  .hero-social-btn.btn-secondary {
+    border-color: var(--rpg-hero-social-btn-secondary-border, var(--color-secondary));
+    color: var(--rpg-hero-social-btn-secondary-fg, inherit);
   }
 </style>
