@@ -1,17 +1,9 @@
 <script setup lang="ts">
 /**
-   * RPG 音量控制
-   * - panel：冒险页完整条（静音 + BGM/SFX 滑条）
-   * - nav：导航栏圆形图标钮（与 NavNotificationBell 一致）
+   * RPG 导航栏静音钮（与 NavNotificationBell 圆形图标样式一致）
+   * 冒险页音量/新手引导见 `pages/rpg/index.vue` 内联工具条
    */
-const props = withDefaults(
-  defineProps<{
-    variant?: 'panel' | 'nav';
-  }>(),
-  { variant: 'panel' },
-);
-
-const { muted, bgmVolume, sfxVolume, toggleMute, initAudio } = useRpgAudio();
+const { muted, toggleMute, initAudio } = useRpgAudio();
 
 onMounted(() => {
   void initAudio();
@@ -20,7 +12,6 @@ onMounted(() => {
 
 <template>
   <button
-    v-if="variant === 'nav'"
     type="button"
     class="rpg-audio-nav-trigger"
     :title="muted ? '开启音效' : '静音'"
@@ -62,36 +53,6 @@ onMounted(() => {
       <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
     </svg>
   </button>
-
-  <div v-else class="rpg-audio-control">
-    <button
-      type="button"
-      class="rpg-audio-control__toggle"
-      :title="muted ? '开启音效' : '静音'"
-      :aria-label="muted ? '开启音效' : '静音'"
-      @click="toggleMute"
-    >
-      {{ muted ? '🔇' : '🔊' }}
-    </button>
-    <template v-if="!muted">
-      <label class="vol-row">
-        <span>BGM</span>
-        <input
-          v-model.number="bgmVolume" type="range" min="0"
-          max="1"
-          step="0.05"
-        >
-      </label>
-      <label class="vol-row">
-        <span>SFX</span>
-        <input
-          v-model.number="sfxVolume" type="range" min="0"
-          max="1"
-          step="0.05"
-        >
-      </label>
-    </template>
-  </div>
 </template>
 
 <style scoped>
@@ -116,49 +77,5 @@ onMounted(() => {
     border-color: var(--tech-border);
     background: var(--tech-header);
     color: var(--tech-fg);
-  }
-
-  .rpg-audio-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 10px;
-    border-radius: 10px;
-    border: 1px solid var(--rpg-border, oklch(var(--b3)));
-    background: var(--rpg-surface, oklch(var(--b1)));
-  }
-
-  .rpg-audio-control__toggle {
-    border: none;
-    background: transparent;
-    font-size: 16px;
-    line-height: 1;
-    cursor: pointer;
-    padding: 2px 4px;
-    border-radius: 6px;
-    transition: background 0.15s;
-  }
-
-  .rpg-audio-control__toggle:hover {
-    background: var(--rpg-bg-alt, oklch(var(--b2)));
-  }
-
-  .vol-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 10px;
-    color: var(--rpg-text-muted, oklch(var(--bc) / 0.65));
-    font-weight: 600;
-  }
-
-  .vol-row span {
-    width: 28px;
-    flex-shrink: 0;
-  }
-
-  .vol-row input[type='range'] {
-    width: 72px;
-    accent-color: var(--rpg-violet, oklch(var(--p)));
   }
 </style>

@@ -56,6 +56,13 @@ const TOAST_ICONS: Record<ToastColor, string> = {
 const pending: ToastItem[] = [];
 let draining = false;
 let lastShownAt = 0;
+type ToastApi = ReturnType<typeof useToast>;
+let toastApi: ToastApi | null = null;
+
+/** 在 Nuxt 插件 setup 上下文中绑定 useToast，供异步队列安全调用 */
+export function bindToastApi(api: ToastApi) {
+  toastApi = api;
+}
 
 function sleep(ms: number) {
   return new Promise<void>(resolve => setTimeout(resolve, ms));
@@ -67,7 +74,11 @@ function emitToast(item: ToastItem) {
     return;
   }
 
-  const toast = useToast();
+  const toast = toastApi;
+  if (!toast) {
+    return;
+  }
+
   toast.add({
     title: item.title,
     description: item.description,

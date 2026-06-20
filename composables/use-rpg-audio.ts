@@ -146,11 +146,22 @@ function refreshVolumes() {
   }
 }
 
-/** 初始化 Web Audio 合成器与 howler，完成后置 ready */
+let initEnginesPromise: Promise<void> | null = null;
+
+/** 初始化 Web Audio 合成器与 howler，完成后置 ready（幂等，避免多组件重复初始化） */
 async function initAudioEngines() {
-  await ensureSynthContext();
-  await ensureHowler();
-  ready.value = true;
+  if (ready.value) return;
+  if (initEnginesPromise) return initEnginesPromise;
+
+  initEnginesPromise = (async () => {
+    await ensureSynthContext();
+    await ensureHowler();
+    ready.value = true;
+  })().finally(() => {
+    initEnginesPromise = null;
+  });
+
+  return initEnginesPromise;
 }
 
 /**

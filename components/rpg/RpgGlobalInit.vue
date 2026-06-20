@@ -130,17 +130,19 @@ watch(token, (t) => {
   }
 });
 
-/** 首次进入且未签到时轻提示（每会话一次） */
+/** 首次进入且未签到时轻提示（每会话一次；挂载后再监听，避免 hydration 阶段 inject 失败） */
 const signHintShown = ref(false);
-watch(
-  signInfo,
-  (info) => {
-    if (signHintShown.value || !info || info.signedToday) return;
-    signHintShown.value = true;
-    messageInfo('📅 今日尚未签到，去冒险页签到领 EXP 吧！');
-  },
-  { immediate: true },
-);
+onMounted(() => {
+  watch(
+    signInfo,
+    (info) => {
+      if (signHintShown.value || !info || info.signedToday) return;
+      signHintShown.value = true;
+      messageInfo('📅 今日尚未签到，去冒险页签到领 EXP 吧！');
+    },
+    { immediate: true },
+  );
+});
 </script>
 
 <template>

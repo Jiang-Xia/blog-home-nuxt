@@ -24,7 +24,7 @@ function clamp01(v: number) {
   return Math.max(0, Math.min(1, v));
 }
 
-/** 懒创建 AudioContext 与 masterGain，并 resume 被挂起的上下文 */
+/** 懒创建 AudioContext 与 masterGain（不在此处 resume，避免无用户手势时控制台告警） */
 export async function ensureSynthContext(): Promise<AudioContext | null> {
   if (!import.meta.client) return null;
   if (!audioCtx) {
@@ -32,10 +32,22 @@ export async function ensureSynthContext(): Promise<AudioContext | null> {
     masterGain = audioCtx.createGain();
     masterGain.connect(audioCtx.destination);
   }
-  if (audioCtx.state === 'suspended') {
-    await audioCtx.resume();
-  }
   return audioCtx;
+}
+
+/** 实际播放前恢复被浏览器挂起的 AudioContext（需用户手势后才会成功） */
+async function resumeSynthContext(): Promise<AudioContext | null> {
+  const ctx = await ensureSynthContext();
+  if (!ctx) return null;
+  if (ctx.state === 'suspended') {
+    try {
+      await ctx.resume();
+    }
+    catch {
+      return ctx;
+    }
+  }
+  return ctx;
 }
 
 /** 全合成音效共用的主增益节点 */
@@ -605,7 +617,7 @@ function startLotterySpin(ctx: AudioContext, dest: GainNode, vol: number) {
 
 /** 播放一次性合成音效；lotterySpin 请用 startSynthLoop */
 export async function playSynthSfx(key: Exclude<RpgSynthSfxKey, 'lotterySpin'>, sfxVolume: number) {
-  const ctx = await ensureSynthContext();
+  const ctx = await resumeSynthContext();
   const dest = master();
   if (!ctx || !dest) return;
 
@@ -618,7 +630,7 @@ export async function playSynthSfx(key: Exclude<RpgSynthSfxKey, 'lotterySpin'>, 
 
 /** 启动合成循环（目前仅 lotterySpin 滚轮） */
 export async function startSynthLoop(key: 'lotterySpin', sfxVolume: number) {
-  const ctx = await ensureSynthContext();
+  const ctx = await resumeSynthContext();
   const dest = master();
   if (!ctx || !dest) return;
 
