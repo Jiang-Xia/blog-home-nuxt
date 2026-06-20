@@ -6,53 +6,78 @@ useHead({
   titleTemplate: title => `${title} - ${SiteTitle}`,
 });
 
-const entries = [
+interface QuickEntry {
+  icon: string;
+  title: string;
+  desc: string;
+  tags: string[];
+  to: string;
+  color: string;
+  span: string;
+}
+
+const entries: QuickEntry[] = [
   {
     icon: '📚',
     title: '文章归档',
-    desc: '按时间浏览 · 全部文章',
+    desc: '按时间浏览全部文章，支持分类标签与全文检索。',
+    tags: ['归档', '标签', '浏览'],
     to: '/archives',
     color: 'from-blue-500 to-cyan-500',
+    span: 'md:col-span-6',
   },
   {
     icon: '🛠️',
     title: '工具箱',
-    desc: '加密 · AI · 多媒体',
+    desc: '加密解密、AI 摘要、多媒体处理等实用 Web 工具。',
+    tags: ['加密', 'AI', '多媒体'],
     to: '/tool',
     color: 'from-purple-500 to-pink-500',
+    span: 'md:col-span-6',
   },
   {
     icon: '🖼️',
     title: '光影边框',
-    desc: '品牌相框 · EXIF 水印',
+    desc: '品牌相框一键生成，支持 EXIF 水印与自定义边框样式。',
+    tags: ['相框', 'EXIF', '水印'],
     to: '/tool/photos',
     color: 'from-orange-500 to-red-500',
+    span: 'md:col-span-4',
   },
   {
     icon: '⚔️',
     title: 'RPG 冒险',
-    desc: '签到升级 · 任务 · 抽奖 · 查看攻略',
+    desc: '签到升级、任务奖励、抽奖开宝箱，解锁称号与头像框。',
+    tags: ['签到', '任务', '抽奖'],
     to: '/rpg',
     color: 'from-amber-500 to-orange-500',
+    span: 'md:col-span-4',
   },
   {
     icon: '📦',
     title: '开源与合作',
-    desc: '三端说明 · 后端闭源 · 付费咨询',
+    desc: '三端项目说明、后端闭源政策与付费技术咨询入口。',
+    tags: ['三端', '开源', '合作'],
     to: '/open-source',
     color: 'from-emerald-500 to-teal-500',
+    span: 'md:col-span-4',
   },
 ];
 </script>
 
 <template>
   <CyberPageContainer label="EXPLORE" title="快速入口" subtitle="选择你感兴趣的方向，一键直达">
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <NuxtLink v-for="item in entries" :key="item.to" :to="item.to" class="group no-underline">
-        <CyberCard hover class="flex flex-col items-center text-center !p-6">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
+      <NuxtLink
+        v-for="item in entries"
+        :key="item.to"
+        :to="item.to"
+        :class="['group no-underline', item.span]"
+      >
+        <CyberCard hover class="flex h-full flex-col !p-5">
           <div
             :class="[
-              'mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-xl shadow-lg',
+              'mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-lg',
               item.color,
             ]"
           >
@@ -63,25 +88,12 @@ const entries = [
           >
             {{ item.title }}
           </h3>
-          <p class="mb-4 text-sm text-tech-subtle">
+          <p class="mb-3 flex-1 text-sm leading-relaxed text-tech-muted">
             {{ item.desc }}
           </p>
-          <span
-            class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-tech bg-tech-header py-2.5 text-sm text-tech-muted transition-all group-hover:border-primary/30 group-hover:bg-primary/10 group-hover:text-primary"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-            进入
-          </span>
+          <div class="flex flex-wrap gap-1.5">
+            <span v-for="tag in item.tags" :key="tag" class="cyber-feature-tag">{{ tag }}</span>
+          </div>
         </CyberCard>
       </NuxtLink>
     </div>

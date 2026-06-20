@@ -64,7 +64,7 @@ void stopSfx('lotterySpin', 120);  // 停止循环，可选淡出 ms
 void playBgm('adventure');         // 冒险页 BGM
 ```
 
-- `/rpg`：`onMounted` → `initAudio` + `playBgm`；`onBeforeUnmount` → `stopBgm`
+- `/rpg`：`onMounted` → `initAudio`（BGM 默认关，`bgmVolume` 滑条 > 0 时 watch 触发 `playBgm`）；`onBeforeUnmount` → `stopBgm`
 - 循环音：`lotterySpin` 仅经 `playSfxLoop` / `stopSfx`，不经 `playSfx`
 
 ## 新增合成音效 Checklist
