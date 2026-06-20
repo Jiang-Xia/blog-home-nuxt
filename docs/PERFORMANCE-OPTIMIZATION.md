@@ -36,6 +36,7 @@ sudo nginx -t && sudo systemctl reload nginx
 ### 批次 3 — API 去重
 
 - [ ] 登录后刷新首页：`/user/info` ≤ 1 次，`/rpg/status` ≤ 1 次
+- [ ] 首页首屏：`POST /article/list` 仅 1 次（Hero 统计与 `ArticleList` 共用 `useAsyncData('index_GetList')`，见 [页面开发规范 §2.4](./page-development-guide.md#24-useasyncdata-与请求去重)）
 - [ ] RPG 签到、升级弹窗、`/realtime` WebSocket 推送与刷新正常
 
 ### 批次 4 — SSR 瘦身

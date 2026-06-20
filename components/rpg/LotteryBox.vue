@@ -103,9 +103,10 @@ const onOverlayClose = () => {
   finishDrawAnimation();
 };
 
-/** 展开抽奖记录时懒加载（首次展开 emit 给父组件） */
+/** 展开/收起抽奖记录；变更时播放 tabSwitch */
 const toggleHistory = () => {
   showHistory.value = !showHistory.value;
+  void playSfx('tabSwitch');
   if (showHistory.value && props.lotteryHistory.length === 0) {
     emit('loadHistory');
   }

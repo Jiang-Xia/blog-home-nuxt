@@ -43,6 +43,13 @@ if (!profile.value) {
 
 type ProfileTab = 'articles' | 'collects' | 'likes';
 const activeTab = ref<ProfileTab>('articles');
+const { playSfx } = useRpgAudio();
+
+/** 切换已发布 / 收藏 / 点赞 Tab，变更时播放 tabSwitch */
+const switchProfileTab = (key: ProfileTab) => {
+  if (key !== activeTab.value) void playSfx('tabSwitch');
+  activeTab.value = key;
+};
 
 const tabOptions: { key: ProfileTab; label: string }[] = [
   { key: 'articles', label: '已发布' },
@@ -210,7 +217,7 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
             :key="opt.key"
             class="btn btn-xs"
             :class="activeTab === opt.key ? 'btn-primary' : 'btn-ghost'"
-            @click="activeTab = opt.key"
+            @click="switchProfileTab(opt.key)"
           >
             {{ opt.label }}
             <span class="opacity-70">({{

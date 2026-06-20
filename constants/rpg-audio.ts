@@ -38,7 +38,16 @@ export type RpgSynthSfxKey
     | 'guildCreate'
     | 'guildJoin'
     | 'guildLeave'
-    | 'contentPost';
+    | 'contentPost'
+    | 'rankUp'
+    | 'questComplete'
+    | 'shieldBlock'
+    | 'lifeDamage'
+    | 'lifeRecover'
+    | 'currencyGain'
+    | 'activityStart'
+    | 'banPunish'
+    | 'articleLevelUp';
 
 /** howler 文件播放 */
 export type RpgFileSfxKey = 'lotteryRevealLegendary';
@@ -87,6 +96,15 @@ export const RPG_SYNTH_SFX: Record<RpgSynthSfxKey, { volume: number }> = {
   guildJoin: { volume: 0.42 },
   guildLeave: { volume: 0.35 },
   contentPost: { volume: 0.38 },
+  rankUp: { volume: 0.52 },
+  questComplete: { volume: 0.4 },
+  shieldBlock: { volume: 0.48 },
+  lifeDamage: { volume: 0.42 },
+  lifeRecover: { volume: 0.38 },
+  currencyGain: { volume: 0.46 },
+  activityStart: { volume: 0.44 },
+  banPunish: { volume: 0.5 },
+  articleLevelUp: { volume: 0.38 },
 };
 
 /** 文件音效（howler） */
@@ -96,7 +114,7 @@ export const RPG_FILE_SFX: Record<RpgFileSfxKey, RpgSoundDef> = {
 
 /** 背景音乐（howler） */
 export const RPG_BGM: Record<RpgBgmKey, RpgSoundDef> = {
-  adventure: { src: [`${base}/bgm-adventure.wav`], loop: true, volume: 0.22 },
+  adventure: { src: [`${base}/bgm-adventure.wav`], loop: true, volume: 0.18 },
 };
 
 export const RPG_AUDIO_STORAGE_KEY = 'rpg-audio-settings';

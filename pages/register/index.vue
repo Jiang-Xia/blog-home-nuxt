@@ -170,6 +170,7 @@ const okHandle = async () => {
   try {
     submitting.value = true;
     await request.post(url, params);
+    void useRpgAudio().playSfx('uiClick');
     messageSuccess('注册成功');
     setTimeout(async () => {
       await navigateTo('/login');

@@ -35,21 +35,6 @@ export const uploadArticleImage = async (file: File) => {
   return parseUploadedUrl(res);
 };
 
-// 更新阅读量
-export const updateViews = (data: any) => {
-  return request.post('/article/views', data);
-};
-
-// 更新点赞数
-export const updateLikes = (data: any) => {
-  return request.post('/like', data);
-};
-
-// 必应每日一图
-export const dailyImage = (n?: number) => {
-  return request.get('/resources/daily-img', { n });
-};
-
 // 获取文章归档
 export const getArchives = () => {
   return request.get('/article/archives');
@@ -98,11 +83,6 @@ export const toggleCollect = (articleId: string | number) => {
 /** 检查当前用户是否已收藏 */
 export const checkCollected = (articleId: string | number) => {
   return request.get('/collect/check', { articleId: String(articleId) });
-};
-
-/** 获取文章收藏总数 */
-export const getCollectCount = (articleId: string | number) => {
-  return request.get('/collect/count', { articleId: String(articleId) });
 };
 
 // 获取我的评论列表（分页）

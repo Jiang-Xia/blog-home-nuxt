@@ -9,7 +9,7 @@
 | `composables/use-rpg-audio.ts` | 全站单例：路由合成/文件、BGM、音量/静音、localStorage |
 | `constants/rpg-audio.ts` | 音效键名、音量系数、稀有度映射 helper |
 | `utils/rpg-audio-synth.ts` | Web Audio 合成实现与 `lotterySpin` 循环 |
-| `components/rpg/RpgAudioControl.vue` | 静音 + BGM/SFX 滑条（冒险页） |
+| `components/rpg/RpgAudioControl.vue` | 静音 + BGM/SFX 滑条（冒险页 panel / 导航栏 nav 图标钮） |
 | `public/audio/rpg/` | 仅 2 个必需 wav（见 `public/audio/rpg/README.md`） |
 | `scripts/generate-rpg-audio.mjs` | 重新生成占位 BGM / 传说 fanfare |
 
@@ -61,14 +61,27 @@ const onConfirm = async () => {
 | `lotteryCharge` / `lotterySpin` / `lotteryTick` | 抽奖蓄力 / 滚轮循环 / 落格 |
 | `lotteryRevealCommon` / `Rare` / `Epic` | 抽奖揭晓（合成档） |
 | `levelUp` / `achievement` / `masterpiece` | 全屏弹窗 watch `visible` |
+| `petHatched` | `RpgPetHatchAnimation` watch reveal 阶段 |
+| `itemGranted`（史诗/传说，非 lottery） | `RpgItemRevealAnimation` watch `visible` |
+| `rankChange` | `RpgRankChangeAnimation` watch `visible` |
 | `socialCheer` / `Flower` / `Egg` / `Tip` | 发送方页面；收方见弹窗 |
 | `signIn` | 签到 API 成功（与 WS `levelUp` 独立） |
-| `questReward` | WS `questReward` handler |
+| `questReward` | WS `questReward`；`RpgQuestRewardAnimation` reveal 阶段 |
 | `contentPost` | 评论/留言发表成功 |
 | `equip` / `unequip` | 穿戴/卸下 |
-| `buffActivate` / `buffDeactivate` | Buff 开关；`buffGranted` WS |
+| `buffActivate` / `buffDeactivate` | Buff WS 脉冲；冒险页手动开关 Buff |
+| `articleLevelUp` | WS `articleLevelUp`；`RpgArticleLevelUpBadge` |
 | `petDeploy` / `Rest` / `Hatch` / `Buy` / `Rename` | 宠物操作（孵化音在 WS） |
 | `guildCreate` / `Join` / `Leave` | 公会操作 |
+| `rankUp` | WS `rankChange`；`RpgRankChangeAnimation` |
+| `questComplete` | WS `questComplete`；`RpgQuestCompleteBadge` |
+| `shieldBlock` | WS `shieldUsed`；`RpgScreenPulseFx` |
+| `lifeDamage` / `lifeRecover` | WS `lifeChange`；`RpgScreenPulseFx` |
+| `currencyGain` | WS `currencyChange`（delta ≥ 50）；`RpgCurrencyGainFx` |
+| `activityStart` | WS `activityUpdate`（start）；`RpgActivityStartBanner` |
+| `banPunish` | WS `banStatus`（banned）；`RpgBanPunishAnimation` |
+| `buffActivate` / `buffDeactivate` | WS Buff 脉冲；冒险页手动开关 |
+| `articleLevelUp` | WS；`RpgArticleLevelUpBadge` |
 
 ### 文件音效（`RpgFileSfxKey`）
 
@@ -97,9 +110,18 @@ Helper：
 | `achievementComplete` | `AchievementAnimation.vue` |
 | `masterpiece` | `RpgMasterpieceAnimation.vue` |
 | `socialReceived` / `tipReceived`（收方） | `RpgSocialFeedbackAnimation.vue` |
-| `questReward` | `use-rpg-realtime-handlers.ts` |
-| `buffGranted` / `petHatched` / `itemGranted` | 同上 handler |
-| 发送社交、Tab、equip、签到、评论等 | 各页面/组件 handler |
+| `petHatched` | `RpgPetHatchAnimation.vue` |
+| `itemGranted`（史诗/传说，非 lottery） | `RpgItemRevealAnimation.vue` |
+| `rankChange` | `RpgRankChangeAnimation.vue` |
+| `questReward` | `RpgQuestRewardAnimation.vue` |
+| `questComplete` | `RpgQuestCompleteBadge.vue` |
+| `lifeChange` / `shieldUsed` / `buffGranted` / `buffExpired` | `RpgScreenPulseFx.vue` |
+| `articleLevelUp` | `RpgArticleLevelUpBadge.vue` |
+| `currencyChange`（delta ≥ 50） | `RpgCurrencyGainFx.vue` |
+| `activityUpdate`（start） | `RpgActivityStartBanner.vue` |
+| `banStatus`（banned） | `RpgBanPunishAnimation.vue` |
+| `buffGranted` / `itemGranted`（普通/稀有） | `use-rpg-realtime-handlers.ts` |
+| 发送社交、Tab、equip、签到、评论、登录/注册/发文/友链等 | 各页面/组件 handler |
 
 故意无音：`expGain`（Toast 防抖）、`guildEvent`（全员广播）、删除/失败操作。
 

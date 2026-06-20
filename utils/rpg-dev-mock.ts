@@ -353,6 +353,20 @@ export const RPG_MOCK_SCENARIOS: RpgMockScenario[] = [
     btnClass: 'btn-accent',
   },
   {
+    key: 'currency-small',
+    group: '经济物品',
+    label: '钻石 +5',
+    icon: '💎',
+    event: 'currencyChange',
+    payload: (ctx: RpgMockContext) =>
+      ({
+        delta: 5,
+        balance: (ctx.status?.currency ?? 200) + 5,
+        reason: 'dev_mock',
+        reasonLabel: '开发挡板（小额）',
+      }) satisfies RpgCurrencyChangePayload,
+  },
+  {
     key: 'currency-minus',
     group: '经济物品',
     label: '钻石 -10',
@@ -375,6 +389,48 @@ export const RPG_MOCK_SCENARIOS: RpgMockScenario[] = [
     event: 'lotteryTicketChange',
   },
   { key: 'item-granted', group: '经济物品', label: '获得物品', icon: '🎁', event: 'itemGranted' },
+  {
+    key: 'item-granted-epic',
+    group: '经济物品',
+    label: '史诗物品',
+    icon: '💜',
+    event: 'itemGranted',
+    btnClass: 'btn-accent',
+    payload: () =>
+      ({
+        itemCode: 'title_epic_writer',
+        quantity: 1,
+        source: 'quest',
+        sourceLabel: '任务奖励',
+        config: {
+          name: '史诗称号·文豪',
+          rarityLabel: '史诗',
+          rarityColor: '#8b5cf6',
+          itemTypeLabel: '称号',
+        },
+      }) satisfies RpgItemGrantedPayload,
+  },
+  {
+    key: 'item-granted-legendary',
+    group: '经济物品',
+    label: '传说物品',
+    icon: '🌟',
+    event: 'itemGranted',
+    btnClass: 'btn-warning',
+    payload: () =>
+      ({
+        itemCode: 'frame_legendary_gold',
+        quantity: 1,
+        source: 'achievement',
+        sourceLabel: '成就奖励',
+        config: {
+          name: '传说头像框·金辉',
+          rarityLabel: '传说',
+          rarityColor: '#f59e0b',
+          itemTypeLabel: '头像框',
+        },
+      }) satisfies RpgItemGrantedPayload,
+  },
 
   { key: 'buff-granted', group: 'Buff', label: '获得 Buff', icon: '✨', event: 'buffGranted' },
   {
@@ -495,6 +551,21 @@ export const RPG_MOCK_SCENARIOS: RpgMockScenario[] = [
     label: '排行榜变动',
     icon: '🏅',
     event: 'rankChange',
+  },
+  {
+    key: 'rank-first',
+    group: '宠物公会排行',
+    label: '周榜第 1',
+    icon: '🥇',
+    event: 'rankChange',
+    btnClass: 'btn-warning',
+    payload: () =>
+      ({
+        type: 'exp',
+        period: 'week',
+        rank: 1,
+        score: 12800,
+      }) satisfies RpgRankChangePayload,
   },
   {
     key: 'activity-start',

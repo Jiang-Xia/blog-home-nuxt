@@ -2,7 +2,7 @@
 /**
    * 用户文章编辑表单 - 新增与编辑共用
    * - 草稿 localStorage autosave（debounce 3s）
-   * - 发布成功展示 Cyber 结果面板；离开页 CyberModal 确认
+   * - 发布成功展示 Cyber 结果面板；离开页 RPG 确认弹窗
    */
 import { computed, onMounted, reactive, ref, watch, onBeforeUnmount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
@@ -15,7 +15,7 @@ import { getAllTag } from '@/api/tag';
 import { uploadCover, parseUploadedUrl } from '@/api/resources';
 import { resolveStaticUrl } from '@/utils/common';
 import { messageDanger, messageSuccess } from '@/utils/toast';
-import { useCyberModal } from '@/composables/use-cyber-modal';
+import { useRpgModal } from '@/composables/use-rpg-modal';
 import { COVER_IMAGE, coverAspectRatio } from '@/utils/image-compress';
 
 const props = defineProps<{
@@ -27,7 +27,8 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
-const { confirm } = useCyberModal();
+const { confirm } = useRpgModal();
+const { playSfx } = useRpgAudio();
 const mdEditorTheme = useMdEditorTheme();
 const loading = ref(false);
 const submitting = ref(false);
@@ -206,6 +207,13 @@ const validateForm = () => {
   return true;
 };
 
+/** 即时发布成功时播放 contentPost（推进发文任务） */
+const playPublishSfxIfNeeded = () => {
+  if (formState.status === 'publish') {
+    void playSfx('contentPost');
+  }
+};
+
 const handleSubmit = async () => {
   if (!validateForm()) return;
 
@@ -232,6 +240,7 @@ const handleSubmit = async () => {
       messageSuccess('文章更新成功');
       // 即时发布：展示成功面板，不跳转 profile
       if (formState.status === 'publish') {
+        playPublishSfxIfNeeded();
         publishSuccess.value = { id: Number(props.articleId), title: formState.title.trim() };
         clearLocalDraft();
         isDirty.value = false;
@@ -244,6 +253,7 @@ const handleSubmit = async () => {
       messageSuccess('文章创建成功');
       // 新建并发布：展示成功面板，保留在当前页便于复制链接
       if (formState.status === 'publish' && newId) {
+        playPublishSfxIfNeeded();
         publishSuccess.value = { id: Number(newId), title: formState.title.trim() };
         clearLocalDraft();
         isDirty.value = false;
@@ -338,7 +348,7 @@ onBeforeUnmount(() => {
   }
 });
 
-/** 站内路由离开：未保存时用 CyberModal 确认 */
+/** 站内路由离开：未保存时用 RPG 确认弹窗 */
 onBeforeRouteLeave(async () => {
   if (isDirty.value && !submitting.value && !publishSuccess.value) {
     return await confirm({

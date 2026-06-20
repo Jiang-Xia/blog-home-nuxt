@@ -81,9 +81,54 @@ useHead({
 
 - 统一 `<script setup lang="ts">` + Composition API
 - 页面必备：`useHead({ title })`；需要时 `definePageMeta({ layout })`
-- SSR 数据：`useAsyncData` / `await useAsyncData(...)`，key 保持语义唯一
+- SSR 数据：`useAsyncData` / `await useAsyncData(...)`，key 保持语义唯一（**同 key 合并请求**见 [§2.4](#24-useasyncdata-与请求去重)）
 - 浏览器 API（`window`、`localStorage`、第三方 DOM 脚本）放在 `onMounted` 或 `import.meta.client` 分支
 - 主题切换逻辑参考 `composables/use-home.ts` → `useThemeActions`
+
+### 2.4 useAsyncData 与请求去重
+
+> **`useAsyncData` 的第一个参数是全局缓存 key：同一次页面渲染里，相同 key 只会真正发一次请求，后面的调用直接复用结果。**
+
+Nuxt 会把每个 key 对应的数据放进应用级 payload 缓存（SSR 时写入 HTML，客户端 hydration 时复用）。父组件、子组件、多个 composable 只要使用**相同的字符串 key**，共享的是**同一份响应式数据**，不会重复打 HTTP。
+
+#### 机制简述
+
+```
+pages/index/index.vue     useAsyncData('index_GetList', handler)  → 首次：执行 handler，发起请求
+ArticleList（子组件）      useAsyncData('index_GetList', handler)  → 命中缓存：不再请求
+```
+
+- **执行顺序**：Vue `setup` 父先于子；通常由先 `await useAsyncData` 的一方触发唯一一次请求。
+- **多份 `data`**：`const { data: a }` 与 `const { data: b }` 可以各写一次，但底层是同一 key 的同一份结果。
+- **筛选 / 分页**：若组件内用 `getXxx()` 直接调 API（而非 `refresh()` / 再次 `useAsyncData`），与首屏缓存 key **无关**，按需另发请求。
+
+#### 项目内示例：首页 Hero 总数 + 文章列表
+
+改前用两个 key（`home_ArticleStats` + `index_GetList`）会打 **两次** `POST /article/list`。现改为共用 `index_GetList`：
+
+| 文件 | 用途 |
+|------|------|
+| `pages/index/index.vue` | `useAsyncData('index_GetList', …)` → Hero 读 `pagination.total` |
+| `components/article-list.vue` | 默认 `asyncDataKey: 'index_GetList'` → 列表读 `list` + `pagination` |
+
+父页请求参数须与 `ArticleList` 默认 `queryPrams` 一致（如 `pageSize: 12`、`sort: 'DESC'`）。若以后改列表默认值，**同步改首页**里的同 key handler。
+
+其他落地页通过不同 key 隔离，避免串数据：
+
+- 分类：`async-data-key="category_${id}"`
+- 标签：`async-data-key="tag_${id}"`
+- 搜索：`async-data-key="search_${q}"`
+
+#### 何时在父页也写 `useAsyncData`
+
+若父页只读子组件的数据，可以用 `useNuxtData('someKey')`，但 **SSR 首屏**时父 `setup` 先于子，缓存可能仍空。需要父级首屏就有数据（如首页 Hero 统计）时，应在父页也 `await useAsyncData('someKey', handler)`，子组件用**同 key** 复用即可。
+
+#### 注意
+
+- key 相同但**首次 handler 查询条件不一致**时，以先执行的那次为准，后注册的 handler 不会重跑。
+- key 应**语义唯一**，避免 unrelated 页面 accidentally 共用（例如不要用过于泛化的 `'list'`）。
+
+相关验收：`docs/PERFORMANCE-OPTIMIZATION.md` → 批次 3 API 去重。
 
 ---
 

@@ -42,7 +42,8 @@ const toastItems = [
 <template>
   <div class="toast-lab">
     <p class="toast-lab-tip">
-      测试全站 Toast 队列（cyber 玻璃态 + RPG 语义色，含去重、间隔与 Action 按钮）。
+      测试全站 Toast 队列（右下角堆叠；RPG 面板卡片，随 cyber / cyber-light 切换；含去重、间隔与
+      Action 按钮）。
     </p>
     <div class="toast-lab-actions">
       <button

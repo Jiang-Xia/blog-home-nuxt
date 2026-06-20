@@ -414,6 +414,85 @@ function playGuildLeave(ctx: AudioContext, dest: GainNode, vol: number) {
   noiseBurst(ctx, dest, 0.06, vol * 0.08, t + 0.05);
 }
 
+/** 排行榜 Top10 变动（WS rankChange） */
+function playRankUp(ctx: AudioContext, dest: GainNode, vol: number) {
+  const t = t0(ctx);
+  arp(ctx, dest, [523.25, 659.25, 783.99, 1046.5], 0.1, vol * 0.24, 'square', t);
+  tone(ctx, dest, 1318.51, 0.32, vol * 0.2, 'sine', t + 0.42);
+  sparkle(ctx, dest, t + 0.12, 0.55, 14, vol * 0.12);
+  coinPing(ctx, dest, 1900, vol * 0.26, t + 0.48);
+}
+
+/** 任务完成待领（WS questComplete） */
+function playQuestComplete(ctx: AudioContext, dest: GainNode, vol: number) {
+  const t = t0(ctx);
+  tone(ctx, dest, 587.33, 0.08, vol * 0.22, 'triangle', t);
+  tone(ctx, dest, 784, 0.1, vol * 0.2, 'sine', t + 0.07);
+  tone(ctx, dest, 987.77, 0.12, vol * 0.18, 'triangle', t + 0.14);
+}
+
+/** 护盾抵消扣血（WS shieldUsed） */
+function playShieldBlock(ctx: AudioContext, dest: GainNode, vol: number) {
+  const t = t0(ctx);
+  tone(ctx, dest, 220, 0.06, vol * 0.35, 'square', t);
+  tone(ctx, dest, 440, 0.14, vol * 0.28, 'triangle', t + 0.04);
+  tone(ctx, dest, 660, 0.18, vol * 0.22, 'sine', t + 0.08);
+  noiseBurst(ctx, dest, 0.05, vol * 0.15, t + 0.02);
+}
+
+/** 生命值扣减（WS lifeChange 敏感词） */
+function playLifeDamage(ctx: AudioContext, dest: GainNode, vol: number) {
+  const t = t0(ctx);
+  noiseBurst(ctx, dest, 0.12, vol * 0.35, t);
+  tone(ctx, dest, 110, 0.14, vol * 0.3, 'sawtooth', t + 0.02);
+  tone(ctx, dest, 82.41, 0.16, vol * 0.22, 'square', t + 0.08);
+}
+
+/** 生命值恢复（WS lifeChange） */
+function playLifeRecover(ctx: AudioContext, dest: GainNode, vol: number) {
+  const t = t0(ctx);
+  tone(ctx, dest, 523.25, 0.12, vol * 0.2, 'sine', t);
+  tone(ctx, dest, 659.25, 0.14, vol * 0.18, 'triangle', t + 0.08);
+  sparkle(ctx, dest, t + 0.06, 0.25, 5, vol * 0.08);
+}
+
+/** 大额钻石增加（WS currencyChange） */
+function playCurrencyGain(ctx: AudioContext, dest: GainNode, vol: number) {
+  const t = t0(ctx);
+  coinPing(ctx, dest, 1650, vol * 0.34, t);
+  coinPing(ctx, dest, 1980, vol * 0.32, t + 0.09);
+  coinPing(ctx, dest, 2340, vol * 0.28, t + 0.18);
+  tone(ctx, dest, 987.77, 0.2, vol * 0.16, 'triangle', t + 0.12);
+  sparkle(ctx, dest, t + 0.1, 0.3, 8, vol * 0.1);
+}
+
+/** 活动开始（WS activityUpdate type=start） */
+function playActivityStart(ctx: AudioContext, dest: GainNode, vol: number) {
+  const t = t0(ctx);
+  arp(ctx, dest, [523.25, 659.25, 783.99, 1046.5], 0.07, vol * 0.2, 'triangle', t);
+  tone(ctx, dest, 1174.66, 0.22, vol * 0.18, 'sine', t + 0.28);
+  sparkle(ctx, dest, t + 0.15, 0.35, 10, vol * 0.09);
+}
+
+/** 禁言处罚（WS banStatus banned=true） */
+function playBanPunish(ctx: AudioContext, dest: GainNode, vol: number) {
+  const t = t0(ctx);
+  noiseBurst(ctx, dest, 0.14, vol * 0.28, t);
+  tone(ctx, dest, 110, 0.22, vol * 0.38, 'sawtooth', t + 0.02);
+  tone(ctx, dest, 87.31, 0.28, vol * 0.3, 'square', t + 0.08);
+  tone(ctx, dest, 165, 0.2, vol * 0.22, 'triangle', t + 0.16);
+  tone(ctx, dest, 130.81, 0.35, vol * 0.18, 'sine', t + 0.24);
+}
+
+/** 文章升级（WS articleLevelUp） */
+function playArticleLevelUp(ctx: AudioContext, dest: GainNode, vol: number) {
+  const t = t0(ctx);
+  tone(ctx, dest, 440, 0.07, vol * 0.2, 'triangle', t);
+  tone(ctx, dest, 554.37, 0.08, vol * 0.18, 'sine', t + 0.06);
+  tone(ctx, dest, 659.25, 0.1, vol * 0.16, 'triangle', t + 0.12);
+  sparkle(ctx, dest, t + 0.08, 0.2, 4, vol * 0.07);
+}
+
 /** 合成 key → 播放器；lotterySpin 由循环逻辑单独处理 */
 const SYNTH_PLAYERS: Record<
   Exclude<RpgSynthSfxKey, 'lotterySpin'>,
@@ -448,6 +527,15 @@ const SYNTH_PLAYERS: Record<
   guildJoin: playGuildJoin,
   guildLeave: playGuildLeave,
   contentPost: playContentPost,
+  rankUp: playRankUp,
+  questComplete: playQuestComplete,
+  shieldBlock: playShieldBlock,
+  lifeDamage: playLifeDamage,
+  lifeRecover: playLifeRecover,
+  currencyGain: playCurrencyGain,
+  activityStart: playActivityStart,
+  banPunish: playBanPunish,
+  articleLevelUp: playArticleLevelUp,
 };
 
 /** 清除滚轮 tick 的 setTimeout */

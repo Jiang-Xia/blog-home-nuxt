@@ -18,7 +18,7 @@ alwaysApply: false
 
 **唯一入口**：`useRpgAudio()` — `playSfx` / `playSfxLoop` / `stopSfx` / `playBgm` / `stopBgm`。禁止组件内直接 `new Audio()` 或单独 import howler。
 
-音量与静音：`localStorage` 键 `rpg-audio-settings`；UI 组件 `RpgAudioControl.vue`。
+音量与静音：`localStorage` 键 `rpg-audio-settings`；UI 组件 `RpgAudioControl.vue`（冒险页 panel / 导航栏 nav 圆形图标钮，样式同通知铃铛）。
 
 ## 新交互必须考虑音效
 
@@ -36,10 +36,18 @@ alwaysApply: false
 | `achievementComplete` | `AchievementAnimation` | ❌ |
 | `masterpiece` | `RpgMasterpieceAnimation` | ❌ |
 | `socialReceived` / `tipReceived`（收方） | `RpgSocialFeedbackAnimation` | ❌ |
-| `questReward` | `use-rpg-realtime-handlers` | ❌ 领奖按钮 |
-| `buffGranted` | WS handler | ❌ |
-| `petHatched` | WS handler | ❌ 孵化 API 成功 |
-| `itemGranted` | WS handler（`source !== 'lottery'`） | ❌ 抽奖揭晓已有音 |
+| `petHatched` | `RpgPetHatchAnimation` reveal 阶段 | ❌ 孵化 API 成功 |
+| `itemGranted`（史诗/传说，非 lottery） | `RpgItemRevealAnimation` | ❌ |
+| `rankChange` | `RpgRankChangeAnimation` | ❌ |
+| `questReward` | `RpgQuestRewardAnimation` reveal 阶段 | ❌ 领奖按钮 |
+| `questComplete` | `RpgQuestCompleteBadge` | ❌ |
+| `lifeChange` / `shieldUsed` / `buffGranted` / `buffExpired` | `RpgScreenPulseFx` | ❌ |
+| `articleLevelUp` | `RpgArticleLevelUpBadge` | ❌ |
+| `currencyChange`（delta ≥ 50） | `RpgCurrencyGainFx` | ❌ |
+| `activityUpdate`（start） | `RpgActivityStartBanner` | ❌ |
+| `banStatus`（banned） | `RpgBanPunishAnimation` | ❌ |
+| Buff 冒险页手动开关 | 页面 handler `buffActivate`/`buffDeactivate` | ✅ |
+| `itemGranted`（普通/稀有，非 lottery） | WS handler | ❌ |
 | 发送社交（加油/鸡蛋/鲜花/打赏） | 发送方页面 `social*` | 收方走 WS 弹窗 |
 | Tab 切换、 equip、签到、公会、评论发表等 | 页面 handler | ✅ 仅此一处 |
 | `expGain` | 无音（仅 Toast） | ❌ 故意不播 |

@@ -1,3 +1,4 @@
+import { useRpgLotterySession } from '~~/composables/use-rpg-lottery-session';
 import {
   getRpgStatus,
   getRpgSignInfo,
@@ -56,6 +57,8 @@ import type {
  * 子组件通过 props 渲染，mutation 在本 composable 内完成并 refresh 对应 ref。
  */
 export function useRpgPage() {
+  const { lotteryDrawSessionActive, beginLotteryDrawSession, endLotteryDrawSession }
+    = useRpgLotterySession();
   const token = useToken();
   const rpgStatus = ref<RpgStatus | null>(null);
   const signInfo = ref<SignInfo | null>(null);
@@ -399,14 +402,6 @@ export function useRpgPage() {
     }
   };
 
-  /** 抽奖动画结束后刷新券数/背包等（避免动画期间多次重复请求） */
-  let lotteryDrawSessionActive = false;
-
-  /** 抽奖动画进行中：抑制 WebSocket 触发的 status/inventory 重复刷新 */
-  const beginLotteryDrawSession = () => {
-    lotteryDrawSessionActive = true;
-  };
-
   const LOTTERY_INVENTORY_GRANT_TYPES = new Set([
     'item',
     'cosmetic',
@@ -434,7 +429,7 @@ export function useRpgPage() {
       }
     }
     finally {
-      lotteryDrawSessionActive = false;
+      endLotteryDrawSession();
     }
   };
 
@@ -516,7 +511,7 @@ export function useRpgPage() {
     scope: import('~~/composables/use-realtime-socket').RpgRefreshScope,
   ) => {
     if (!token.value) return;
-    if (lotteryDrawSessionActive && (scope === 'status' || scope === 'inventory')) {
+    if (lotteryDrawSessionActive.value && (scope === 'status' || scope === 'inventory')) {
       return;
     }
     if (scope === 'status') await reloadStatusCore();

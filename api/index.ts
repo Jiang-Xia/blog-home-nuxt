@@ -37,43 +37,9 @@ export const gushici = async () => {
     })
     .then(res => res.data);
 };
-// 获取天气
-export const getWeather = () => {
-  return request.get('/resources/weather');
-};
-
 /** 注册页可选头像（公开，无需登录） */
 export const getRegisterAvatars = (): Promise<{ avatars: string[] }> => {
   return request.get('/resources/register-avatars');
-};
-
-// 发送邮箱验证码
-export const sendEmailCode = (email: string, type: 'login' | 'register') => {
-  return request.post('/user/sendEmailCode', { email, type });
-};
-
-// 邮箱登录
-export const emailLogin = (email: string, password: string, emailCode: string) => {
-  return request.post('/user/login', {
-    email,
-    password,
-    emailCode,
-    loginType: 'email',
-  });
-};
-
-// 邮箱注册
-export const emailRegister = (params: {
-  email: string;
-  password: string;
-  nickname: string;
-  avatar?: string;
-  emailCode: string;
-}) => {
-  return request.post('/user/register', {
-    ...params,
-    registerType: 'email',
-  });
 };
 
 const api = {
@@ -83,11 +49,7 @@ const api = {
   getUserInfo,
   updateUserProfile,
   gushici,
-  getWeather,
   getRegisterAvatars,
-  sendEmailCode,
-  emailLogin,
-  emailRegister,
 };
 // https://gitee.com/api/v5/repos/jiang-xia/blog-home-nuxt/commits?access_token=53db1802db341bf994093cace04c275b&page=1&per_page=20
 export default api;

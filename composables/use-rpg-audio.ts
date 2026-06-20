@@ -34,7 +34,7 @@ interface RpgAudioSettings {
 
 const DEFAULT_SETTINGS: RpgAudioSettings = {
   muted: false,
-  bgmVolume: 0.7,
+  bgmVolume: 0.55,
   sfxVolume: 0.85,
 };
 

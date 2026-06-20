@@ -3,7 +3,7 @@
  *
  * - `message*`：带队列、去重、间隔，适合接口反馈与 RPG 事件
  * - `showToast`：立即展示，适合带操作按钮的交互提示
- * @see app.config.ts `ui.toast`、assets/css/rpg-theme.css `.rpg-toast*`
+ * @see app.config.ts `ui.toast`、assets/css/rpg-theme.css `.rpg-toast*`（与活动横幅同系面板）
  */
 const DEFAULT_DURATION = 2500;
 const MIN_GAP_MS = 800;

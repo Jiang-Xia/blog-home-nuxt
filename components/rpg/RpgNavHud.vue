@@ -4,6 +4,7 @@
    */
 import { useRpg } from '~~/composables/use-rpg';
 
+const { playSfx } = useRpgAudio();
 const {
   rpgStatus,
   signInfo,
@@ -18,6 +19,11 @@ const {
 const hasClaimable = computed(() => claimableQuests.value.length > 0);
 const needSignIn = computed(() => signInfo.value && !signInfo.value.signedToday);
 const showPulse = computed(() => hasClaimable.value || needSignIn.value);
+
+/** 点击进入冒险页前的轻反馈 */
+const onHudClick = () => {
+  void playSfx('uiClick');
+};
 </script>
 
 <template>
@@ -31,6 +37,7 @@ const showPulse = computed(() => hasClaimable.value || needSignIn.value);
         : 'border-[var(--rpg-border)] bg-[var(--rpg-bg-alt)]',
     ]"
     title="进入 RPG 冒险"
+    @click="onHudClick"
   >
     <span class="rpg-hud-level shrink-0 rounded-md px-1.5 py-0.5 text-xs font-bold text-white">
       Lv.{{ rpgStatus.level }}
@@ -80,6 +87,7 @@ const showPulse = computed(() => hasClaimable.value || needSignIn.value);
     v-else-if="!loading"
     to="/rpg"
     class="rpg-nav-hud rpg-theme hidden items-center gap-1.5 rounded-xl border border-[var(--rpg-amber-border)] bg-[var(--rpg-amber-bg-faint)] px-2.5 py-1.5 text-xs font-medium no-underline text-[var(--rpg-amber-text)] transition-all hover:scale-[1.02] md:flex"
+    @click="onHudClick"
   >
     ⚔️ 开始冒险
   </NuxtLink>
