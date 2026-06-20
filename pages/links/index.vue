@@ -22,6 +22,7 @@ const linkState = ref<LinkState>({
 });
 const submitting = ref(false);
 const modalOpen = ref(false);
+const { playSfx } = useRpgAudio();
 
 const isValidUrl = (url: string) => {
   try {
@@ -56,6 +57,7 @@ const okHandle = async () => {
       desp: '',
     };
     linkList.value = await request.get('/link', { client: true });
+    void playSfx('contentPost');
     messageSuccess('申请已提交，等待站长审核', 4500);
   }
   catch {
@@ -84,13 +86,10 @@ useHead({
     </div>
 
     <input id="link-add-modal" v-model="modalOpen" type="checkbox" class="modal-toggle">
-    <div class="modal">
-      <div class="modal-box cyber-glass-card border border-tech">
-        <label
-          for="link-add-modal"
-          class="btn btn-sm cyber-btn-secondary btn-circle absolute right-2 top-2"
-        >✕</label>
-        <h3 class="text-lg font-bold text-tech">
+    <div class="modal rpg-theme">
+      <div class="modal-box max-w-md">
+        <label for="link-add-modal" class="rpg-modal-close">✕</label>
+        <h3 class="text-lg font-bold">
           申请外链
         </h3>
         <div class="mt-4 space-y-4">
@@ -112,11 +111,16 @@ useHead({
               class="input input-bordered w-full login-input"
             >
           </label>
-          <div class="modal-action">
-            <CyberButton variant="primary" :disabled="submitting" @click="okHandle">
+          <div class="rpg-modal-actions">
+            <button
+              type="button"
+              class="rpg-modal-btn rpg-modal-btn--primary"
+              :disabled="submitting"
+              @click="okHandle"
+            >
               <span v-if="submitting" class="loading loading-spinner loading-sm" />
               {{ submitting ? '提交中...' : '确 认' }}
-            </CyberButton>
+            </button>
           </div>
         </div>
       </div>

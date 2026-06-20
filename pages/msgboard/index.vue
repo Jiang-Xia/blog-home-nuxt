@@ -18,7 +18,7 @@ interface MsgInterFace {
   address: string;
   comment: string;
 }
-const { data: initialMsgData, refresh } = await useAsyncData('msgboard_Get', () =>
+const { data: initialMsgData } = await useAsyncData('msgboard_Get', () =>
   request.get('/msgboard', { page: 1, pageSize: 30 }),
 );
 const flatMsgList = ref<any[]>(initialMsgData.value?.list ?? []);
@@ -382,14 +382,14 @@ useHead({
       </div>
     </div>
 
-    <dialog id="replay_modal" ref="replayModal" class="modal">
-      <div class="modal-box cyber-glass-card border border-tech">
+    <dialog id="replay_modal" ref="replayModal" class="modal rpg-theme">
+      <div class="modal-box max-w-md">
         <form method="dialog">
-          <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+          <button type="button" class="rpg-modal-close">
             ✕
           </button>
         </form>
-        <h3 class="text-lg font-bold text-tech">
+        <h3 class="text-lg font-bold">
           回复
         </h3>
         <div class="mt-4 space-y-4">
@@ -412,10 +412,10 @@ useHead({
               maxlength="300"
             />
           </label>
-          <div class="modal-action">
-            <CyberButton variant="primary" @click="okHandle">
+          <div class="rpg-modal-actions">
+            <button type="button" class="rpg-modal-btn rpg-modal-btn--primary" @click="okHandle">
               确 认
-            </CyberButton>
+            </button>
           </div>
         </div>
       </div>

@@ -15,6 +15,11 @@ alwaysApply: false
 3. 内容页优先 `<CyberPageContainer>` + `<CyberSectionHeader>` + `<CyberCard>`
 4. 参考：`pages/features/index.vue`、`pages/login.vue`
 
+## Script / 数据
+
+- SSR：`await useAsyncData(key, handler)`；**同 key 在同一次渲染里只发一次请求**（父/子可复用），详见 `docs/page-development-guide.md` §2.4
+- 浏览器 API 放 `onMounted` / `import.meta.client`
+
 ## Layout
 
 | 场景 | 说明 |

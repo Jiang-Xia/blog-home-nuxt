@@ -3,6 +3,7 @@ import type { LocationQueryValue } from 'vue-router';
 import dayjs from 'dayjs';
 import { useStorage } from '@vueuse/core';
 import request from '@/api/request';
+import { toggleCollect } from '@/api/article';
 import { getAllCategory } from '@/api/category';
 import { getAllTag } from '@/api/tag';
 import { messageError } from '@/utils/toast';
@@ -127,6 +128,9 @@ export const updateLikesHandle = async (item: any) => {
     item.likes = ++item.likes;
   }
   await updateLikes(send);
+  if (import.meta.client) {
+    void useRpgAudio().playSfx('uiClick');
+  }
   try {
     const { fetchQuests } = useRpg();
     await fetchQuests();
@@ -134,6 +138,32 @@ export const updateLikesHandle = async (item: any) => {
   catch {
     // 非组件上下文时忽略
   }
+};
+
+/** 收藏/取消收藏；成功时播放 uiClick，收藏后刷新任务进度 */
+export const toggleCollectHandle = async (
+  articleId: string | number,
+): Promise<{ collected: boolean } | null> => {
+  const { uid } = useUserInfo().value;
+  if (!uid) {
+    messageError('请先登录');
+    await goLogin();
+    return null;
+  }
+  const res = await toggleCollect(articleId);
+  if (import.meta.client) {
+    void useRpgAudio().playSfx('uiClick');
+  }
+  try {
+    if (res?.collected) {
+      const { fetchQuests } = useRpg();
+      await fetchQuests();
+    }
+  }
+  catch {
+    // 非组件上下文时忽略
+  }
+  return res;
 };
 
 export const formactDate = (str: string) => {

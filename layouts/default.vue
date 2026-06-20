@@ -2,23 +2,7 @@
 /* / 路径显示的默认页面 */
 import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
-import { dailyImage } from '~~/api/article.js';
 import { originUrl } from '~/config';
-
-/* 获取全局banner数据 */
-const banners = useBanners();
-const { data: imagesData } = await useAsyncData('index_GetIMG', () => dailyImage(7));
-if (imagesData.value) {
-  banners.value = imagesData.value.images.map((v: any) => {
-    const { copyright, copyrightlink, title } = v;
-    return {
-      copyright,
-      copyrightlink,
-      title,
-      url: 'https://cn.bing.com' + v.url,
-    };
-  });
-}
 
 onMounted(() => {
   if (!Cookies.get('browserId')) {

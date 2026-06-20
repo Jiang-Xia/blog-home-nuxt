@@ -1,2 +1,6 @@
-/** 兼容旧调用，内部转 useCyberModal().confirm */
-export { useConfirmDialog } from './use-cyber-modal';
+import { useRpgModal } from './use-rpg-modal';
+
+/** 兼容旧调用，内部转 useRpgModal().confirm */
+export function useConfirmDialog() {
+  return useRpgModal().confirm;
+}

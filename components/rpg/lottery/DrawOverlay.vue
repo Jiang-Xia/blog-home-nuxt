@@ -46,6 +46,7 @@ const clearSpinFallback = () => {
 const safeEmitSkip = () => {
   if (skipEmitted.value || props.phase !== 'spinning') return;
   skipEmitted.value = true;
+  void playSfx('uiClick');
   emit('skip');
 };
 

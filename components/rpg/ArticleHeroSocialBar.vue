@@ -131,8 +131,12 @@ const onTipped = () => {
         :author-uid="authorUid"
         @tipped="onTipped"
       />
-      <div class="modal-action">
-        <button class="btn btn-sm" @click="showTipModal = false">
+      <div class="rpg-modal-actions">
+        <button
+          type="button"
+          class="rpg-modal-btn rpg-modal-btn--secondary rpg-modal-btn--sm"
+          @click="showTipModal = false"
+        >
           关闭
         </button>
       </div>

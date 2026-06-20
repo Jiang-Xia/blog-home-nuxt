@@ -29,7 +29,25 @@ export const LEADERBOARD_PERIOD_LABEL: Record<string, string> = {
   week: '周榜',
   month: '月榜',
   season: '赛季榜',
+  total: '总榜',
 };
+
+/** 排行榜维度 type → 中文标签（与 RankChangePayload.type 对齐） */
+export const LEADERBOARD_TYPE_LABEL: Record<string, string> = {
+  exp: '经验榜',
+  reputation: '声望榜',
+  currency: '钻石榜',
+  level: '等级榜',
+  signDays: '签到榜',
+};
+
+/** Top10 名次 → 奖牌 emoji */
+export function getRankMedalEmoji(rank: number): string {
+  if (rank === 1) return '🥇';
+  if (rank === 2) return '🥈';
+  if (rank === 3) return '🥉';
+  return '🏅';
+}
 
 /** 公会事件 type → 中文文案（GuildEventPayload.type） */
 export function formatGuildEventMessage(

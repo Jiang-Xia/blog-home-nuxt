@@ -4,6 +4,7 @@
    */
 import { useRpg } from '~~/composables/use-rpg';
 
+const { playSfx } = useRpgAudio();
 const { claimableQuests, questProgressText } = useRpg();
 
 const dismissed = ref(false);
@@ -11,6 +12,7 @@ const dismissed = ref(false);
 const visible = computed(() => !dismissed.value && claimableQuests.value.length > 0);
 
 const dismiss = () => {
+  void playSfx('uiClick');
   dismissed.value = true;
 };
 

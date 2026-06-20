@@ -1,16 +1,15 @@
 <script setup lang="ts">
 /**
    * 文章详情浮动操作：点赞 / 收藏 / 打赏入口
-   * 点赞与收藏成功播放 uiClick；打赏由 ArticleTipPanel 播放 socialTip
+   * 点赞 uiClick 由 updateLikesHandle 统一播放；收藏由 toggleCollectHandle；打赏由 ArticleTipPanel 播放 socialTip
    */
 import { useScroll } from '@vueuse/core';
-import { toggleCollect, checkCollected } from '@/api/article';
-import { updateLikesHandle, xBLogStore } from '@/utils/common';
+import { checkCollected } from '@/api/article';
+import { toggleCollectHandle, updateLikesHandle, xBLogStore } from '@/utils/common';
 import { messageError, messageSuccess } from '@/utils/toast';
 import { useRpg } from '~~/composables/use-rpg';
 
 const { fetchQuests } = useRpg();
-const { playSfx } = useRpgAudio();
 
 const props = defineProps<{
   articleId: string | number;
@@ -51,26 +50,24 @@ const syncLikeState = () => {
   isLiked.value = xBLogStore.value.likes.includes(props.articleId as never);
 };
 
-/** 点赞成功：轻点击音 + 刷新任务 */
+/** 点赞成功：uiClick 由 updateLikesHandle 统一播放 */
 const handleLike = async () => {
   if (!(await ensureLogin())) return;
   await updateLikesHandle({ ...props.article, id: props.article.id ?? props.articleId });
   syncLikeState();
-  void playSfx('uiClick');
   await fetchQuests();
 };
 
-/** 收藏切换成功：轻点击音 */
+/** 收藏切换：音效与任务刷新由 toggleCollectHandle 统一处理 */
 const handleCollect = async () => {
   if (!(await ensureLogin())) return;
   if (collectLoading.value) return;
   collectLoading.value = true;
   try {
-    const res = await toggleCollect(props.articleId);
-    collected.value = !!res?.collected;
-    void playSfx('uiClick');
+    const res = await toggleCollectHandle(props.articleId);
+    if (!res) return;
+    collected.value = !!res.collected;
     messageSuccess(collected.value ? '收藏成功' : '已取消收藏');
-    if (collected.value) await fetchQuests();
   }
   catch (e: any) {
     messageError(e?.message || '收藏操作失败');
@@ -179,8 +176,12 @@ watch(
         :author-uid="authorUid"
         @tipped="onTipped"
       />
-      <div class="modal-action">
-        <button class="btn btn-sm" @click="showTipModal = false">
+      <div class="rpg-modal-actions">
+        <button
+          type="button"
+          class="rpg-modal-btn rpg-modal-btn--secondary rpg-modal-btn--sm"
+          @click="showTipModal = false"
+        >
           关闭
         </button>
       </div>

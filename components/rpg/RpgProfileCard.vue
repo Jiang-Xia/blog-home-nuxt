@@ -94,17 +94,23 @@ defineExpose({
   },
 });
 
+const { playSfx } = useRpgAudio();
+
 type RpgTab = 'quests' | 'achievements' | 'buffs';
 const activeTab = ref<RpgTab>('quests');
+
+/** 切换成就 / 任务 / 增益 Tab，变更时播放 tabSwitch */
 const switchTab = (tab: RpgTab) => {
+  if (tab !== activeTab.value) void playSfx('tabSwitch');
   activeTab.value = tab;
 };
 
 const showHitRecords = ref(false);
 
-/** 展开敏感词记录时懒加载（首次展开 emit 给父组件请求） */
+/** 展开/收起敏感词记录；变更时播放 tabSwitch */
 const toggleHitRecords = () => {
   showHitRecords.value = !showHitRecords.value;
+  void playSfx('tabSwitch');
   if (showHitRecords.value && props.hitRecords.length === 0) {
     emit('loadHitRecords');
   }

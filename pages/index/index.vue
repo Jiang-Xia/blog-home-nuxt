@@ -9,11 +9,22 @@ useHead({
 });
 
 const { data: gushiciData } = await useAsyncData('gushici_Get', () => gushici());
-const { data: articleStats } = await useAsyncData('home_ArticleStats', () =>
-  getArticleList({ page: 1, pageSize: 1, client: true }),
+/** 与 ArticleList 默认 asyncDataKey 共用，避免首页再打一遍 list 只为取 total */
+const { data: indexArticleData } = await useAsyncData('index_GetList', () =>
+  getArticleList({
+    page: 1,
+    pageSize: 12,
+    client: true,
+    sort: 'DESC',
+    category: '',
+    tags: [],
+    title: '',
+    description: '',
+    content: '',
+  }),
 );
 
-const articleTotal = computed(() => articleStats.value?.pagination?.total ?? 0);
+const articleTotal = computed(() => indexArticleData.value?.pagination?.total ?? 0);
 const articleTotalLabel = computed(() =>
   articleTotal.value > 0 ? `${articleTotal.value}+` : '100+',
 );

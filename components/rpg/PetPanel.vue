@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ItemConfigView } from '~~/types/rpg';
-import { useCyberModal } from '~~/composables/use-cyber-modal';
+import { useRpgModal } from '~~/composables/use-rpg-modal';
 
 const props = defineProps<{
   pets: any[];
@@ -18,7 +18,7 @@ const emit = defineEmits<{
   rename: [id: number, nickname: string];
 }>();
 
-const { confirm } = useCyberModal();
+const { confirm } = useRpgModal();
 
 const ownedPetCodes = computed(
   () => new Set((props.pets || []).map((p: any) => p.petCode).filter(Boolean)),
@@ -185,7 +185,7 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
       </div>
     </template>
 
-    <dialog class="modal" :class="{ 'modal-open': showRenameModal }">
+    <dialog class="modal rpg-theme" :class="{ 'modal-open': showRenameModal }">
       <div class="modal-box max-w-sm">
         <h3 class="font-bold text-lg mb-1">
           宠物改名
@@ -200,12 +200,17 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
           placeholder="输入新昵称"
           @keyup.enter="saveRename"
         >
-        <div class="modal-action">
-          <button class="btn btn-ghost btn-sm" @click="closeRenameModal">
+        <div class="rpg-modal-actions">
+          <button
+            type="button"
+            class="rpg-modal-btn rpg-modal-btn--secondary rpg-modal-btn--sm"
+            @click="closeRenameModal"
+          >
             取消
           </button>
           <button
-            class="btn btn-primary btn-sm"
+            type="button"
+            class="rpg-modal-btn rpg-modal-btn--primary rpg-modal-btn--sm"
             :disabled="!renamePetName.trim()"
             @click="saveRename"
           >

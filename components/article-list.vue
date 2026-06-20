@@ -301,13 +301,8 @@ const categoryMouseenter = (e: any, item: any) => {
 const categoryMouseleave = (e: any) => {
   e.target.style.backgroundColor = '';
 };
-  // 天气
-const weatherData = ref<any>({});
-const userInfo = useUserInfo();
 const weatherUrl
   = 'https://jiang-xia.top/x-api/blog-server/static/uploads/2026-06/7647b28bf00d49c5915d27aa1cafa9ef.webp';
-
-// 'https://api.vvhan.com/api/ipCard?tip=Hello ' + (userInfo.value.nickname || '亲爱的路人！');
 
 onMounted(
   /* async */ () => {

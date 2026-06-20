@@ -5,6 +5,7 @@
 const STORAGE_KEY = 'rpg-onboarding-v1';
 
 const route = useRoute();
+const { playSfx } = useRpgAudio();
 const visible = ref(false);
 const step = ref(0);
 
@@ -61,7 +62,14 @@ const next = () => {
     close(true);
     return;
   }
+  void playSfx('tabSwitch');
   step.value += 1;
+};
+
+const prev = () => {
+  if (step.value <= 0) return;
+  void playSfx('tabSwitch');
+  step.value -= 1;
 };
 
 const skip = () => close(true);
@@ -122,11 +130,20 @@ defineExpose({ open });
         </div>
       </div>
 
-      <div class="modal-action px-6 pb-6 pt-4">
-        <button v-if="step > 0" type="button" class="btn btn-ghost btn-sm" @click="step -= 1">
+      <div class="rpg-modal-actions px-6 pb-6 pt-4">
+        <button
+          v-if="step > 0"
+          type="button"
+          class="rpg-modal-btn rpg-modal-btn--secondary rpg-modal-btn--sm"
+          @click="prev"
+        >
           上一步
         </button>
-        <button type="button" class="btn btn-primary btn-sm" @click="next">
+        <button
+          type="button"
+          class="rpg-modal-btn rpg-modal-btn--primary rpg-modal-btn--sm"
+          @click="next"
+        >
           {{ isLast ? '开始冒险' : '下一步' }}
         </button>
       </div>

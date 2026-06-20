@@ -45,9 +45,6 @@ export const getRpgBanStatus = () =>
 export const getMyAchievements = () =>
   rpgDedupedGet('my-achievements', () => request.get('/rpg/my-achievements'));
 
-/** 获取每日任务列表（公开） */
-export const getQuests = () => rpgDedupedGet('quests', () => request.get('/rpg/quests'));
-
 /** 获取我的任务进度（需登录） */
 export const getMyQuests = () => rpgDedupedGet('my-quests', () => request.get('/rpg/my-quests'));
 
@@ -134,9 +131,6 @@ export const listGuilds = (page = 1, keyword?: string) =>
   rpgDedupedGet(`guilds:${page}:${keyword ?? ''}`, () =>
     request.get('/rpg/guilds', { page, pageSize: 20, keyword }),
   );
-
-export const getGuildDetail = (id: number) =>
-  rpgDedupedGet(`guild:${id}`, () => request.get(`/rpg/guild/${id}`));
 
 export const createGuild = (name: string, announcement?: string) =>
   afterRpgMutationWithPrefixes(['guild/my'], ['guilds:'], () =>
