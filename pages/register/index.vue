@@ -15,6 +15,12 @@ import { debounce } from '~~/utils/index';
 import { rsaEncrypt as rsaEncryptUtil } from '~~/utils/jsencrypt';
 import { loadRsaScript } from '~/utils/script-loader';
 import { shouldRefreshGraphicCaptcha } from '~~/utils/graphic-captcha-error';
+import {
+  createEmailVerificationCodeInputBinding,
+  createGraphicCaptchaInputBinding,
+  emailVerificationCodeNativeInputAttrs,
+  graphicCaptchaNativeInputAttrs,
+} from '~~/utils/captcha-input';
 import { USERNAME_MAX_LENGTH, validateUsernameForRegister } from '~~/utils/username';
 
 let rsaEncrypt: any;
@@ -53,6 +59,18 @@ const form: formState = reactive({
   authCode: '',
   verificationCode: '',
 });
+const graphicCaptchaInput = createGraphicCaptchaInputBinding(
+  () => form.authCode,
+  (value) => {
+    form.authCode = value;
+  },
+);
+const emailVerificationCodeInput = createEmailVerificationCodeInputBinding(
+  () => form.verificationCode,
+  (value) => {
+    form.verificationCode = value;
+  },
+);
 const authCodeUrl = ref('');
 const authCodeLoadError = ref(false);
 const captchaId = ref('');
@@ -348,7 +366,12 @@ if (import.meta.client) {
           </label>
           <label class="login-input input">
             <xia-icon icon="blog-yanzhengma" />
-            <input v-model="form.authCode" maxlength="4" placeholder="验证码">
+            <input
+              :value="form.authCode"
+              placeholder="验证码"
+              v-bind="graphicCaptchaNativeInputAttrs"
+              v-on="graphicCaptchaInput"
+            >
             <ClientOnly>
               <img
                 v-if="authCodeUrl && !authCodeLoadError"
@@ -420,7 +443,12 @@ if (import.meta.client) {
           </label>
           <label class="login-input input">
             <xia-icon icon="blog-yanzhengma" />
-            <input v-model="form.verificationCode" maxlength="6" placeholder="邮箱验证码">
+            <input
+              :value="form.verificationCode"
+              placeholder="邮箱验证码"
+              v-bind="emailVerificationCodeNativeInputAttrs"
+              v-on="emailVerificationCodeInput"
+            >
             <button
               type="button"
               class="btn btn-primary btn-sm mr-1"

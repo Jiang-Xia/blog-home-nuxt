@@ -82,42 +82,41 @@ const getEffectText = (buff: UserBuff): string => {
       暂无激活的增益，签到有概率获得哦~
     </div>
 
-    <div v-else class="buff-list">
-      <div
-        v-for="buff in buffs"
-        :key="buff.id"
-        class="buff-item"
-        :style="{ borderColor: BUFF_TYPE_MAP[buff.buffType]?.color || '#ccc' }"
-      >
-        <div
-          class="buff-icon"
-          :style="{ backgroundColor: BUFF_TYPE_MAP[buff.buffType]?.color + '20' }"
-        >
-          {{ BUFF_TYPE_MAP[buff.buffType]?.icon || '✨' }}
+    <div v-else class="rpg-loot-grid buff-list">
+      <div v-for="buff in buffs" :key="buff.id" class="rpg-loot-card rpg-loot-card--buff">
+        <div class="rpg-loot-card-head">
+          <div
+            class="rpg-loot-icon rpg-loot-icon--tinted"
+            :style="{ background: BUFF_TYPE_MAP[buff.buffType]?.color || '#8b5cf6' }"
+          >
+            {{ BUFF_TYPE_MAP[buff.buffType]?.icon || '✨' }}
+          </div>
+          <span class="rpg-loot-status rpg-loot-status--done">激活中</span>
         </div>
-        <div class="buff-info">
-          <div class="buff-name">
-            {{ buff.name }}
-          </div>
-          <div class="buff-effect">
-            {{ getEffectText(buff) }}
-          </div>
-          <div class="buff-timer">
-            <div class="timer-bar">
-              <div
-                class="timer-bar-fill"
-                :style="{
-                  width: getRemainingPercent(buff) + '%',
-                  backgroundColor: BUFF_TYPE_MAP[buff.buffType]?.color || '#ccc',
-                }"
-              />
-            </div>
-            <span class="timer-text">{{ getRemainingText(buff.expireAt) }}</span>
+        <div class="rpg-loot-name">
+          {{ buff.name }}
+        </div>
+        <div class="rpg-loot-desc">
+          {{ getEffectText(buff) }}
+        </div>
+        <div class="rpg-loot-progress">
+          <div
+            class="rpg-loot-progress__fill"
+            :style="{
+              width: getRemainingPercent(buff) + '%',
+              background: BUFF_TYPE_MAP[buff.buffType]?.color || '#8b5cf6',
+              boxShadow: `0 0 8px ${BUFF_TYPE_MAP[buff.buffType]?.color || '#8b5cf6'}55`,
+            }"
+          />
+        </div>
+        <div class="rpg-loot-footer">
+          <div class="rpg-loot-meta">
+            <span class="rpg-loot-progress-text">{{ getRemainingText(buff.expireAt) }}</span>
           </div>
           <button
             v-if="(buff as any).triggerMode === 'manual'"
-            class="btn btn-xs mt-1"
-            :class="(buff as any).isActive ? 'btn-ghost' : 'btn-primary'"
+            class="rpg-loot-claim-btn"
+            :class="{ 'opacity-70': (buff as any).isActive }"
             @click="toggleBuff(buff as any)"
           >
             {{ (buff as any).isActive ? '停用' : '激活' }}
@@ -162,82 +161,7 @@ const getEffectText = (buff: UserBuff): string => {
     border: 1px dashed var(--rpg-empty-border);
   }
 
-  .buff-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
-    gap: 10px;
-  }
-
-  .buff-item {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 10px;
-    border-radius: 10px;
-    background: var(--rpg-surface);
-    border: 1.5px solid;
-    transition: transform 0.2s;
-    min-height: 120px;
-  }
-
-  .buff-item:hover {
-    transform: translateY(-1px);
-  }
-
-  .buff-icon {
-    flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-  }
-
-  .buff-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .buff-name {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--rpg-text);
-  }
-
-  .buff-effect {
-    font-size: 11px;
-    color: var(--rpg-text-secondary);
-    margin-top: 1px;
-  }
-
-  .buff-timer {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 4px;
-  }
-
-  .timer-bar {
-    flex: 1;
-    height: 4px;
-    background: var(--rpg-track);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .timer-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 1s linear;
-  }
-
-  .timer-text {
-    font-size: 10px;
-    color: var(--rpg-text-muted);
-    white-space: nowrap;
-    min-width: 60px;
-    text-align: right;
+  .buff-list .rpg-loot-card {
+    min-height: 132px;
   }
 </style>

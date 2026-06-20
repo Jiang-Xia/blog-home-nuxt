@@ -1,10 +1,12 @@
 <script setup lang="ts">
 /**
    * 用户名片卡片 - 展示基础资料，提供进入 RPG 冒险模块入口
+   * 进入冒险：点击时播放 uiClick（与 RpgNavHud 一致）
    */
 import { messageDanger, messageSuccess } from '@/utils/toast';
 
 const userInfo = useUserInfo();
+const { playSfx } = useRpgAudio();
 const editing = ref(false);
 const { frame: avatarFrame } = useEquippedAvatarFrame();
 
@@ -42,6 +44,11 @@ const startEdit = () => {
 
 const finishEdit = () => {
   editing.value = false;
+};
+
+/** 进入 RPG 冒险前的轻反馈音 */
+const onEnterRpg = () => {
+  void playSfx('uiClick');
 };
 </script>
 
@@ -180,6 +187,7 @@ const finishEdit = () => {
         <NuxtLink
           to="/rpg"
           class="flex items-center gap-3 w-full p-3.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-primary-content no-underline shadow-md shadow-primary/30 transition hover:-translate-y-px hover:shadow-lg hover:shadow-primary/35"
+          @click="onEnterRpg"
         >
           <span class="text-xl shrink-0" aria-hidden="true">⚔️</span>
           <span class="flex-1 flex flex-col items-start gap-0.5 text-left">

@@ -22,7 +22,8 @@ const emit = defineEmits<{
   finished: [results: DrawResult[]];
 }>();
 
-const drawCurrency = ref<'ticket' | 'currency'>('ticket');
+const drawCurrency = ref<'ticket' | 'currency'>('currency');
+const { openRechargeModal } = useRpgRecharge();
 const drawResults = ref<DrawResult[]>([]);
 const drawPhase = ref<LotteryDrawPhase | 'idle'>('idle');
 const pendingCount = ref(1);
@@ -49,6 +50,13 @@ const canDraw = (count: number) => {
   return props.lotteryTickets >= count;
 };
 
+/** 抽奖按钮是否禁用：钻石不足仍可点击（弹充值），仅抽奖券不足时禁用 */
+const isDrawDisabled = (count: number) => {
+  if (props.drawing || isAnimating.value) return true;
+  if (drawCurrency.value === 'ticket') return !canDraw(count);
+  return false;
+};
+
 /** 进入揭晓或汇总阶段 */
 const goToResultPhase = () => {
   drawPhase.value = pendingCount.value > 1 ? 'summary' : 'reveal';
@@ -69,6 +77,10 @@ const finishDrawAnimation = () => {
 /** 发起抽奖：进入蓄力阶段并播放 uiClick */
 const handleDraw = (count = 1) => {
   if (props.drawing || isAnimating.value) return;
+  if (drawCurrency.value === 'currency' && !canDraw(count)) {
+    openRechargeModal();
+    return;
+  }
   if (!canDraw(count)) return;
 
   pendingCount.value = count;
@@ -122,17 +134,17 @@ const toggleHistory = () => {
     <div v-if="rpgStatus?.lotteryPityCounter != null" class="text-xs text-base-content/60 mb-2">
       保底进度 {{ rpgStatus.lotteryPityCounter }} / 90
     </div>
-    <div class="flex gap-2 mb-3">
+    <div class="flex gap-2 mb-3 rpg-panel-tabs !mb-3">
       <button
-        class="btn btn-xs"
-        :class="{ 'btn-primary': drawCurrency === 'ticket' }"
+        class="rpg-panel-tab"
+        :class="{ active: drawCurrency === 'ticket' }"
         @click="setDrawCurrency('ticket')"
       >
         抽奖券
       </button>
       <button
-        class="btn btn-xs"
-        :class="{ 'btn-primary': drawCurrency === 'currency' }"
+        class="rpg-panel-tab"
+        :class="{ active: drawCurrency === 'currency' }"
         @click="setDrawCurrency('currency')"
       >
         钻石(10/抽)
@@ -164,16 +176,12 @@ const toggleHistory = () => {
       </div>
 
       <div class="draw-actions">
-        <button
-          class="draw-btn"
-          :disabled="!canDraw(1) || drawing || isAnimating"
-          @click="handleDraw(1)"
-        >
+        <button class="draw-btn" :disabled="isDrawDisabled(1)" @click="handleDraw(1)">
           单抽 x1
         </button>
         <button
           class="draw-btn draw-btn-multi"
-          :disabled="!canDraw(5) || drawing || isAnimating"
+          :disabled="isDrawDisabled(5)"
           @click="handleDraw(5)"
         >
           五连 x5
@@ -195,21 +203,21 @@ const toggleHistory = () => {
       <div class="pool-title">
         奖池一览
       </div>
-      <div class="pool-grid">
+      <div class="rpg-pool-grid">
         <div
           v-for="item in lotteryPool"
           :key="item.id"
-          class="pool-item"
-          :style="{ borderColor: item.rarityColor || '#ccc' }"
+          class="rpg-pool-chip"
+          :style="{ borderColor: item.rarityColor || 'var(--rpg-loot-border)' }"
         >
           <RpgRarityBadge
-            class="pool-rarity-badge"
+            class="rpg-pool-chip__badge"
             :rarity="item.rarity"
             :rarity-label="item.rarityLabel"
             :rarity-color="item.rarityColor"
             :rarity-icon="item.rarityIcon"
           />
-          <span class="pool-name">{{ item.name }}</span>
+          <span class="rpg-pool-chip__name">{{ item.name }}</span>
         </div>
       </div>
     </div>
@@ -219,10 +227,14 @@ const toggleHistory = () => {
         📜 抽奖记录 <span class="toggle-icon">{{ showHistory ? '▼' : '▶' }}</span>
       </div>
       <div v-if="showHistory" class="history-list">
-        <div v-if="lotteryHistory.length === 0" class="history-empty">
+        <div v-if="lotteryHistory.length === 0" class="rpg-empty-inline !py-2">
           暂无记录
         </div>
-        <div v-for="record in lotteryHistory" :key="record.id" class="history-item">
+        <div
+          v-for="record in lotteryHistory"
+          :key="record.id"
+          class="rpg-rank-row rpg-rank-row--compact"
+        >
           <RpgRarityBadge
             class="history-rarity-badge"
             :rarity="record.poolRarity"
@@ -277,8 +289,9 @@ const toggleHistory = () => {
     width: 108px;
     height: 108px;
     border-radius: 18px;
-    background: var(--rpg-amber-bg-gradient);
-    border: 3px solid var(--rpg-amber);
+    background: var(--rpg-loot-bg);
+    border: 2px solid var(--rpg-amber-border);
+    box-shadow: var(--rpg-loot-shadow), var(--rpg-loot-inset);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -406,34 +419,7 @@ const toggleHistory = () => {
     font-size: 12px;
     font-weight: 600;
     color: var(--rpg-text-label);
-    margin-bottom: 6px;
-  }
-
-  .pool-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    gap: 6px;
-  }
-
-  .pool-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    padding: 5px 8px;
-    border-radius: 6px;
-    border: 1.5px solid;
-    background: var(--rpg-surface);
-    font-size: 11px;
-  }
-
-  .pool-rarity-badge {
-    flex-shrink: 0;
-  }
-
-  .pool-name {
-    color: var(--rpg-text-body);
-    font-weight: 500;
+    margin-bottom: 8px;
   }
 
   .history-toggle {
@@ -457,23 +443,9 @@ const toggleHistory = () => {
   .history-list {
     max-height: 200px;
     overflow-y: auto;
-  }
-
-  .history-empty {
-    font-size: 11px;
-    color: var(--rpg-text-muted);
-    padding: 8px;
-  }
-
-  .history-item {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 8px;
-    border-radius: 5px;
-    background: var(--rpg-surface);
-    margin-bottom: 3px;
-    border: 1px solid var(--rpg-border-subtle);
+    flex-direction: column;
+    gap: 4px;
   }
 
   .history-rarity-badge {

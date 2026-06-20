@@ -164,8 +164,8 @@ Helper：
 | phase | 音频 |
 |-------|------|
 | `charging` | `lotteryCharge` |
-| `spinning` | `playSfxLoop('lotterySpin')`；`Reel` 落格 `lotteryTick` |
-| 离开 spinning | `stopSfx('lotterySpin')` |
+| `spinning` | `playSfxLoop('lotterySpin', { durationMs })` 与 Reel 同长；tick 先快后慢；Reel 落格 `lotteryTick` 并停循环 |
+| 离开 spinning | `stopSfx('lotterySpin')`（落格时已提前停） |
 | `reveal` / `summary` | `lotteryRevealSfxKey(...)` |
 
 关闭 overlay 时立即停止循环/蓄力音。
