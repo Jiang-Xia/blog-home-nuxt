@@ -3,6 +3,7 @@
 import { resolveStaticUrl } from '@/utils/static-url';
 import { SiteTitle } from '@/utils/constant';
 import { getPublicArticles, getPublicCollects, getPublicLikes } from '@/api/profile';
+import { coverAspectRatio } from '@/utils/image-compress';
 
 const route = useRoute();
 const uid = computed(() => route.params.uid as string);
@@ -155,6 +156,7 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
             :alt="profile.nickname"
             :frame="publicAvatarFrame"
             :size="80"
+            previewable
           />
           <div class="min-w-0 flex-1">
             <h2 class="text-xl font-bold text-tech">
@@ -312,8 +314,8 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
 
   .article-cover {
     flex-shrink: 0;
-    width: 72px;
-    height: 72px;
+    width: 100px;
+    aspect-ratio: v-bind(coverAspectRatio);
     border-radius: 8px;
     overflow: hidden;
     background: var(--tech-input-bg);
@@ -323,6 +325,7 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
   }
 
   .article-body {

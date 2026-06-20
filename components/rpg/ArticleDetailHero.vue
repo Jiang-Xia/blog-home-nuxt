@@ -2,6 +2,7 @@
 import defaultImg from '@/assets/images/create.webp';
 import { formactDate } from '@/utils/common';
 import { resolveStaticUrl } from '@/utils/static-url';
+import { isDarkTheme, useTheme } from '@/composables/use-home';
 import { colorRgb } from '~~/utils/color';
 
 const props = defineProps<{
@@ -11,6 +12,9 @@ const props = defineProps<{
   authorUid?: number;
   articleId?: number | string;
 }>();
+
+const theme = useTheme();
+const isLightHero = computed(() => !isDarkTheme(theme.value));
 
 const toRgb = (color: string, alpha = 0.24) => {
   if (!color) return 'transparent';
@@ -23,13 +27,13 @@ const metaBadgeStyle = (color?: string) => {
     return {
       borderColor: 'var(--rpg-border)',
       color: 'var(--rpg-text-label)',
-      backgroundColor: 'var(--rpg-surface)',
+      backgroundColor: 'var(--rpg-hero-meta-solid-bg)',
     };
   }
   return {
     borderColor: color,
     color,
-    backgroundColor: toRgb(color),
+    backgroundColor: isLightHero.value ? 'var(--rpg-hero-meta-solid-bg)' : toRgb(color),
   };
 };
 
@@ -49,7 +53,13 @@ const hasRpgHighlights = computed(
 <template>
   <section class="article-detail-hero rpg-theme">
     <div class="hero-bg" aria-hidden="true">
-      <img :src="coverSrc" :alt="article.category?.label || '文章封面'" class="hero-bg-img">
+      <img
+        :src="coverSrc"
+        :alt="article.category?.label || '文章封面'"
+        class="hero-bg-img"
+        fetchpriority="high"
+        decoding="async"
+      >
     </div>
     <div class="hero-overlay" aria-hidden="true" />
     <div class="hero-glow" aria-hidden="true" />
@@ -176,8 +186,8 @@ const hasRpgHighlights = computed(
     height: 100%;
     object-fit: cover;
     transform: scale(1.04);
-    filter: blur(10px) saturate(1.1);
-    opacity: 0.72;
+    filter: blur(10px) saturate(var(--rpg-hero-bg-saturate, 1.1));
+    opacity: var(--rpg-hero-bg-opacity, 0.72);
   }
 
   .hero-overlay {
@@ -185,9 +195,9 @@ const hasRpgHighlights = computed(
     inset: 0;
     background: linear-gradient(
       180deg,
-      color-mix(in oklch, var(--color-base-100) 28%, transparent) 0%,
-      color-mix(in oklch, var(--color-base-100) 42%, transparent) 45%,
-      color-mix(in oklch, var(--color-base-100) 58%, transparent) 100%
+      var(--rpg-hero-overlay-1) 0%,
+      var(--rpg-hero-overlay-2) 45%,
+      var(--rpg-hero-overlay-3) 100%
     );
   }
 
@@ -195,6 +205,7 @@ const hasRpgHighlights = computed(
     position: absolute;
     inset: 0;
     pointer-events: none;
+    opacity: var(--rpg-hero-glow-opacity, 1);
     background:
       radial-gradient(ellipse 55% 45% at 88% 12%, rgb(245 158 11 / 0.18), transparent 60%),
       radial-gradient(ellipse 45% 40% at 8% 88%, rgb(139 92 246 / 0.14), transparent 55%);
@@ -234,7 +245,8 @@ const hasRpgHighlights = computed(
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     border: 1px solid var(--rpg-amber-border);
-    background: var(--rpg-amber-bg-faint);
+    background: var(--rpg-hero-eyebrow-bg, var(--rpg-amber-bg-faint));
+    box-shadow: var(--rpg-hero-eyebrow-shadow, none);
     font-size: 0.6875rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -272,7 +284,8 @@ const hasRpgHighlights = computed(
     padding: 0.2rem 0.55rem;
     border-radius: 0.375rem;
     border: 1px solid var(--rpg-border);
-    background: var(--rpg-diamond-bg);
+    background: var(--rpg-hero-tip-bg, var(--rpg-diamond-bg));
+    box-shadow: var(--rpg-hero-tip-shadow, none);
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--rpg-diamond-text);
@@ -294,9 +307,10 @@ const hasRpgHighlights = computed(
     min-width: 5.5rem;
     padding: 0.45rem 0.75rem;
     border-radius: 0.75rem;
-    border: 1px solid var(--rpg-border-subtle);
-    background: color-mix(in oklch, var(--rpg-surface) 88%, transparent);
-    backdrop-filter: blur(8px);
+    border: 1px solid var(--rpg-hero-card-border, var(--rpg-border-subtle));
+    background: var(--rpg-hero-card-bg);
+    backdrop-filter: var(--rpg-hero-card-backdrop, blur(8px));
+    box-shadow: var(--rpg-hero-card-shadow, none);
     font-size: 0.8125rem;
     color: var(--rpg-text-body);
     line-height: 1.25;
@@ -319,8 +333,13 @@ const hasRpgHighlights = computed(
   }
 
   .hero-stat--tip {
-    border-color: color-mix(in oklch, var(--rpg-primary) 35%, var(--rpg-border-subtle));
-    background: var(--rpg-diamond-bg);
+    border-color: color-mix(
+      in oklch,
+      var(--rpg-primary) 35%,
+      var(--rpg-hero-card-border, var(--rpg-border-subtle))
+    );
+    background: var(--rpg-hero-tip-bg, var(--rpg-diamond-bg));
+    box-shadow: var(--rpg-hero-tip-shadow, none);
   }
 
   .hero-stat-icon-wrap {
@@ -410,7 +429,12 @@ const hasRpgHighlights = computed(
   .hero-meta-badge--neutral {
     border-color: var(--rpg-border);
     color: var(--rpg-text-label);
-    background: var(--rpg-surface);
+    background: var(--rpg-hero-meta-solid-bg, var(--rpg-surface));
+    box-shadow: var(--rpg-hero-meta-solid-shadow, none);
+  }
+
+  .hero-meta-badge:not(.hero-meta-badge--neutral) {
+    box-shadow: var(--rpg-hero-meta-solid-shadow, none);
   }
 
   .hero-rpg-strip {
@@ -422,11 +446,8 @@ const hasRpgHighlights = computed(
     padding: 0.75rem 1rem;
     border-radius: 0.875rem;
     border: 1px solid var(--rpg-banner-border);
-    background: linear-gradient(
-      135deg,
-      color-mix(in oklch, var(--rpg-banner-bg) 90%, var(--rpg-amber-bg-faint)),
-      var(--rpg-banner-bg)
-    );
+    background: var(--rpg-hero-strip-bg);
+    box-shadow: var(--rpg-hero-strip-shadow, none);
     text-align: left;
   }
 
@@ -480,22 +501,5 @@ const hasRpgHighlights = computed(
     .hero-rpg-link {
       align-self: center;
     }
-  }
-</style>
-
-<style>
-  /* cyber-light：统计/标签去掉毛玻璃发糊 */
-  html.tech-shell[data-theme='cyber-light'] .article-detail-hero .hero-stat {
-    backdrop-filter: none;
-    background: rgb(255 255 255 / 0.92);
-    border-color: var(--rpg-border);
-  }
-
-  html.tech-shell[data-theme='cyber-light'] .article-detail-hero .hero-meta-badge {
-    background-color: rgb(255 255 255 / 0.92);
-  }
-
-  html.tech-shell[data-theme='cyber-light'] .article-detail-hero .hero-meta-badge--neutral {
-    background: rgb(255 255 255 / 0.92);
   }
 </style>

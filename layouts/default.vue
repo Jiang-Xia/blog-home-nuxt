@@ -154,6 +154,7 @@ const needsRpgGlobal = computed(() => {
       <xia-icon icon="blog-rocket4" width="34px" height="34px" />
     </xia-backtop>
     <RpgGlobalInit v-if="needsRpgGlobal" />
+    <BaseImagePreviewHost />
   </div>
 </template>
 
