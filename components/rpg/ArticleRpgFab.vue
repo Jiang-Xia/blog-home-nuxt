@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+   * 文章详情浮动操作：点赞 / 收藏 / 打赏入口
+   * 点赞与收藏成功播放 uiClick；打赏由 ArticleTipPanel 播放 socialTip
+   */
 import { useScroll } from '@vueuse/core';
 import { toggleCollect, checkCollected } from '@/api/article';
 import { updateLikesHandle, xBLogStore } from '@/utils/common';
@@ -6,6 +10,7 @@ import { messageError, messageSuccess } from '@/utils/toast';
 import { useRpg } from '~~/composables/use-rpg';
 
 const { fetchQuests } = useRpg();
+const { playSfx } = useRpgAudio();
 
 const props = defineProps<{
   articleId: string | number;
@@ -46,13 +51,16 @@ const syncLikeState = () => {
   isLiked.value = xBLogStore.value.likes.includes(props.articleId as never);
 };
 
+/** 点赞成功：轻点击音 + 刷新任务 */
 const handleLike = async () => {
   if (!(await ensureLogin())) return;
   await updateLikesHandle({ ...props.article, id: props.article.id ?? props.articleId });
   syncLikeState();
+  void playSfx('uiClick');
   await fetchQuests();
 };
 
+/** 收藏切换成功：轻点击音 */
 const handleCollect = async () => {
   if (!(await ensureLogin())) return;
   if (collectLoading.value) return;
@@ -60,6 +68,7 @@ const handleCollect = async () => {
   try {
     const res = await toggleCollect(props.articleId);
     collected.value = !!res?.collected;
+    void playSfx('uiClick');
     messageSuccess(collected.value ? '收藏成功' : '已取消收藏');
     if (collected.value) await fetchQuests();
   }

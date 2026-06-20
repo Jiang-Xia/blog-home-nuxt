@@ -13,6 +13,8 @@ const emit = defineEmits<{
   unequip: [slot: string];
 }>();
 
+const { playSfx } = useRpgAudio();
+
 const activeType = ref<string>('all');
 
 const typeTabs = computed(() => {
@@ -57,6 +59,12 @@ const toggleEquip = (item: InventoryItem) => {
     emit('equip', getEquipSlot(item), item.itemCode);
   }
 };
+
+/** 切换背包类型 Tab，变更时播放 tabSwitch */
+const switchTypeTab = (key: string) => {
+  if (key !== activeType.value) void playSfx('tabSwitch');
+  activeType.value = key;
+};
 </script>
 
 <template>
@@ -77,7 +85,7 @@ const toggleEquip = (item: InventoryItem) => {
           :key="tab.key"
           class="type-tab"
           :class="{ 'type-tab--active': activeType === tab.key }"
-          @click="activeType = tab.key"
+          @click="switchTypeTab(tab.key)"
         >
           {{ tab.label }}
         </button>

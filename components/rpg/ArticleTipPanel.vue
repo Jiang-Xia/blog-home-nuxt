@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+   * 文章打赏面板（发送方）；收方音效由 WS tipReceived 弹窗播放
+   */
 import { tipArticle } from '~~/api/rpg';
 import { messageSuccess, messageError } from '~~/utils/toast';
 import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
@@ -8,7 +11,9 @@ const emit = defineEmits<{ tipped: [] }>();
 const userInfo = useUserInfo();
 const amount = ref(50);
 const loading = ref(false);
+const { playSfx } = useRpgAudio();
 
+/** 提交打赏：发送方播放 socialTip */
 const submit = async () => {
   if (!userInfo.value?.uid) {
     messageError('请先登录');
@@ -21,6 +26,7 @@ const submit = async () => {
   loading.value = true;
   try {
     await tipArticle(props.articleId, amount.value);
+    void playSfx('socialTip');
     messageSuccess(`打赏 ${amount.value} 钻石成功`);
     emit('tipped');
   }

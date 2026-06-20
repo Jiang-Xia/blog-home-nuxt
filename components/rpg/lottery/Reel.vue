@@ -34,6 +34,8 @@ const emit = defineEmits<{
   landed: [];
 }>();
 
+const { playSfx } = useRpgAudio();
+
 const viewportRef = ref<HTMLElement | null>(null);
 const stripRef = ref<HTMLElement | null>(null);
 const offsetPx = ref(0);
@@ -96,11 +98,13 @@ const settleAtTarget = (target: number) => {
   isMoving.value = false;
 };
 
+/** 滚轮落格：对齐目标位并播放 tick 音 */
 const finishSpin = (token: string, target: number) => {
   if (activeSpinToken !== token || hasLanded.value) return;
   clearLandTimer();
   settleAtTarget(target);
   hasLanded.value = true;
+  void playSfx('lotteryTick');
   emit('landed');
 };
 

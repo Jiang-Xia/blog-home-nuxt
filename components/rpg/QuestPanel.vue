@@ -16,6 +16,8 @@ const emit = defineEmits<{
   claim: [questCode: string];
 }>();
 
+const { playSfx } = useRpgAudio();
+
 type QuestTab = 'daily' | 'bounty' | 'special';
 const activeTab = ref<QuestTab>('daily');
 
@@ -37,6 +39,12 @@ const handleClaim = async (questCode: string) => {
   finally {
     claimingCode.value = null;
   }
+};
+
+/** 切换任务子 Tab（日常 / 悬赏 / 特殊） */
+const switchQuestTab = (key: QuestTab) => {
+  if (key !== activeTab.value) void playSfx('tabSwitch');
+  activeTab.value = key;
 };
 
 const QUEST_ICON_MAP: Record<string, string> = {
@@ -61,7 +69,7 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
         :key="opt.key"
         class="type-tab"
         :class="{ active: activeTab === opt.key }"
-        @click="activeTab = opt.key"
+        @click="switchQuestTab(opt.key)"
       >
         {{ opt.label }}
       </button>

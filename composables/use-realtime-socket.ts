@@ -3,6 +3,7 @@ import { createSharedComposable } from '@vueuse/core';
 import { io, type Socket } from 'socket.io-client';
 import { originUrl } from '~~/config';
 import { getToken } from '@/utils/cookie';
+import { canUseRpgDevMock } from '~~/utils/rpg-dev-mock-guard';
 import type { LevelUpResult } from '~~/types/rpg';
 
 /**
@@ -338,6 +339,12 @@ function useRealtimeSocketCore() {
     connected.value = false;
   };
 
+  /** 开发/测试页：本地注入 WS 事件，走与真推送相同的 on() 监听链 */
+  const dispatchLocalEvent = (event: RealtimeSocketEvent, data: unknown) => {
+    if (!canUseRpgDevMock()) return;
+    emitToListeners(event, data);
+  };
+
   return {
     socket,
     connected,
@@ -346,6 +353,7 @@ function useRealtimeSocketCore() {
     on,
     onDataRefresh,
     notifyDataRefresh,
+    dispatchLocalEvent,
   };
 }
 

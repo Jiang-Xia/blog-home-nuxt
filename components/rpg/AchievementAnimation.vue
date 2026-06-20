@@ -2,7 +2,7 @@
 /**
    * 成就达成弹窗
    */
-defineProps<{
+const props = defineProps<{
   visible: boolean;
   name: string;
   expReward?: number;
@@ -11,6 +11,16 @@ defineProps<{
 const emit = defineEmits<{
   close: [];
 }>();
+
+const { playSfx } = useRpgAudio();
+
+/** 成就弹窗展示时播放庆祝音 */
+watch(
+  () => props.visible,
+  (v) => {
+    if (v) void playSfx('achievement');
+  },
+);
 
 const handleClose = () => {
   emit('close');

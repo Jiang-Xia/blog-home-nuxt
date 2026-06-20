@@ -28,6 +28,15 @@ const drawPhase = ref<LotteryDrawPhase | 'idle'>('idle');
 const pendingCount = ref(1);
 const showHistory = ref(false);
 
+const { playSfx } = useRpgAudio();
+
+/** 切换抽奖支付方式（券 / 钻石） */
+const setDrawCurrency = (currency: 'ticket' | 'currency') => {
+  if (drawCurrency.value === currency) return;
+  void playSfx('tabSwitch');
+  drawCurrency.value = currency;
+};
+
 const showOverlay = computed(() => drawPhase.value !== 'idle');
 const isAnimating = computed(() => drawPhase.value !== 'idle');
 const overlayPhase = computed(() => (drawPhase.value === 'idle' ? 'charging' : drawPhase.value));
@@ -57,6 +66,7 @@ const finishDrawAnimation = () => {
    * 触发抽奖：先进入蓄力阶段，再 emit 给父组件调 API。
    * 结果展示由父组件调用 showDrawResults 驱动滚轮与揭晓。
    */
+/** 发起抽奖：进入蓄力阶段并播放 uiClick */
 const handleDraw = (count = 1) => {
   if (props.drawing || isAnimating.value) return;
   if (!canDraw(count)) return;
@@ -64,6 +74,7 @@ const handleDraw = (count = 1) => {
   pendingCount.value = count;
   drawResults.value = [];
   drawPhase.value = 'charging';
+  void playSfx('uiClick');
   emit('draw', count, drawCurrency.value);
 };
 
@@ -114,14 +125,14 @@ const toggleHistory = () => {
       <button
         class="btn btn-xs"
         :class="{ 'btn-primary': drawCurrency === 'ticket' }"
-        @click="drawCurrency = 'ticket'"
+        @click="setDrawCurrency('ticket')"
       >
         抽奖券
       </button>
       <button
         class="btn btn-xs"
         :class="{ 'btn-primary': drawCurrency === 'currency' }"
-        @click="drawCurrency = 'currency'"
+        @click="setDrawCurrency('currency')"
       >
         钻石(10/抽)
       </button>

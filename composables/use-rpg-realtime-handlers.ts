@@ -30,6 +30,7 @@ import {
   LEADERBOARD_PERIOD_LABEL,
   SOCIAL_ACTION_LABEL,
 } from '~~/constants/rpg-ws-display';
+import { itemGrantedSfxKey } from '~~/constants/rpg-audio';
 import type { RpgSocialFeedbackData } from '~~/types/rpg';
 import { messageInfo, messageSuccess, messageWarning } from '@/utils/toast';
 
@@ -158,6 +159,7 @@ export function useRpgRealtimeHandlers() {
     const label = payload.questName ? `「${payload.questName}」` : '任务';
     const exp = payload.expReward;
     messageInfo(`✨ ${label} 奖励已发放${exp ? ` +${exp} EXP` : ''}`);
+    void useRpgAudio().playSfx('questReward');
     void Promise.all([fetchQuests(), fetchStatus()]);
     notifyDataRefresh('quests');
     notifyDataRefresh('status');
@@ -167,6 +169,7 @@ export function useRpgRealtimeHandlers() {
   on('buffGranted', (data) => {
     const payload = data as RpgBuffGrantedPayload;
     messageInfo(`✨ 获得增益：${payload.name}`);
+    void useRpgAudio().playSfx('buffActivate');
     void fetchBuffs();
     notifyDataRefresh('buffs');
   });
@@ -190,6 +193,7 @@ export function useRpgRealtimeHandlers() {
     notifyDataRefresh('status');
   });
 
+  /** 打开社交反馈全屏弹窗（收方由 WS 触发，非发送方页面操作） */
   const showSocialFeedback = (feedback: RpgSocialFeedbackData) => {
     socialFeedbackData.value = feedback;
     socialFeedbackVisible.value = true;
@@ -285,6 +289,10 @@ export function useRpgRealtimeHandlers() {
     const name = payload.config?.name || payload.itemCode;
     const rarity = payload.config?.rarityLabel ? ` [${payload.config.rarityLabel}]` : '';
     messageInfo(`🎁 获得 ${name}${rarity} x${payload.quantity}`);
+    // 抽奖流程已有揭晓音效，避免 itemGranted 重复播音
+    if (payload.source !== 'lottery') {
+      void useRpgAudio().playSfx(itemGrantedSfxKey(payload.config?.rarityLabel));
+    }
     notifyDataRefresh('inventory');
   });
 
@@ -299,10 +307,11 @@ export function useRpgRealtimeHandlers() {
     notifyDataRefresh('status');
   });
 
-  /** 宠物孵化：Toast → refresh pets */
+  /** 宠物孵化：Toast + 音效 → refresh pets */
   on('petHatched', (data) => {
     const payload = data as RpgPetHatchedPayload;
     messageInfo(`🐾 孵化成功：${payload.name} [${payload.rarityLabel}]`);
+    void useRpgAudio().playSfx('petHatch');
     notifyDataRefresh('pets');
   });
 
@@ -362,22 +371,26 @@ export function useRpgRealtimeHandlers() {
     notifyDataRefresh('buffs');
   });
 
+  /** 关闭升级全屏弹窗并清空 payload */
   const closeLevelUp = () => {
     levelUpVisible.value = false;
     levelUpData.value = null;
   };
 
+  /** 关闭成就全屏弹窗 */
   const closeAchievement = () => {
     achievementVisible.value = false;
     achievementName.value = '';
     achievementExpReward.value = 0;
   };
 
+  /** 关闭神作全屏弹窗 */
   const closeMasterpiece = () => {
     masterpieceVisible.value = false;
     masterpieceData.value = null;
   };
 
+  /** 关闭社交反馈全屏弹窗 */
   const closeSocialFeedback = () => {
     socialFeedbackVisible.value = false;
     socialFeedbackData.value = null;

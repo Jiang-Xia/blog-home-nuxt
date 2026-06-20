@@ -12,6 +12,20 @@ defineProps<{
 const activeType = defineModel<LeaderboardScoreType>('activeType', { default: 'exp' });
 const activePeriod = defineModel<LeaderboardPeriod>('activePeriod', { default: 'total' });
 
+const { playSfx } = useRpgAudio();
+
+/** 切换排行榜周期 Tab */
+const switchPeriod = (key: LeaderboardPeriod) => {
+  if (key !== activePeriod.value) void playSfx('tabSwitch');
+  activePeriod.value = key;
+};
+
+/** 切换排行榜维度 Tab */
+const switchType = (key: LeaderboardScoreType) => {
+  if (key !== activeType.value) void playSfx('tabSwitch');
+  activeType.value = key;
+};
+
 const typeOptions: { key: LeaderboardScoreType; label: string; icon: string }[] = [
   { key: 'exp', label: '经验', icon: '✨' },
   { key: 'reputation', label: '声望', icon: '🏅' },
@@ -54,7 +68,7 @@ const getScoreText = (entry: any) => {
         :key="opt.key"
         class="type-tab"
         :class="{ active: activePeriod === opt.key }"
-        @click="activePeriod = opt.key"
+        @click="switchPeriod(opt.key)"
       >
         {{ opt.label }}
       </button>
@@ -65,7 +79,7 @@ const getScoreText = (entry: any) => {
         :key="opt.key"
         class="type-tab"
         :class="{ active: activeType === opt.key }"
-        @click="activeType = opt.key"
+        @click="switchType(opt.key)"
       >
         {{ opt.icon }} {{ opt.label }}
       </button>

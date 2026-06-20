@@ -2,6 +2,7 @@
 /**
    * 留言板页
    * - 顶层留言分页（pageSize=30），子回复随父节点返回
+   * - 发表/回复成功播放 contentPost
    */
 import { reactive, ref, computed } from 'vue';
 import { messageDanger, messageSuccess, messageWarning } from '@/utils/toast';
@@ -74,6 +75,7 @@ const loadMoreMsgboard = async () => {
 };
 const userInfo = useUserInfo();
 const { isBanned } = useRpg();
+const { playSfx } = useRpgAudio();
 const submitting = ref(false);
 const showToast = ref(false);
 const guestNickname = () => getRandomNickname();
@@ -117,6 +119,7 @@ const confirmHandle = async () => {
     }
     submitting.value = true;
     await request.post('/msgboard', msgForm);
+    void playSfx('contentPost');
     messageSuccess('留言发表成功');
     keys.forEach((k) => {
       if (k === 'name') {
@@ -175,6 +178,7 @@ const okHandle = async () => {
     comment: replyForm.value.comment,
     avatar: userInfo.value.avatar,
   });
+  void playSfx('contentPost');
   dialog.value = false;
   replayModal.value?.close();
   getAllMsgboard();

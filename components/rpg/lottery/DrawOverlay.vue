@@ -5,6 +5,7 @@
    */
 import { formatRewardDetail } from '~~/types/rpg';
 import type { DrawResult, LotteryPoolItem } from '~~/types/rpg';
+import { lotteryRevealSfxKey } from '~~/constants/rpg-audio';
 import {
   getBestRarityTier,
   getCompactSpinDurationMs,
@@ -14,6 +15,8 @@ import {
   LOTTERY_PAUSE_MS_MULTI,
   type LotteryDrawPhase,
 } from '@/utils/lottery-reel';
+
+const { playSfx, playSfxLoop, stopSfx } = useRpgAudio();
 
 const props = defineProps<{
   visible: boolean;
@@ -104,30 +107,48 @@ watch(
   () => props.visible,
   (v) => {
     lockPageScroll(v);
-    if (!v) resetSpinState();
+    if (!v) {
+      resetSpinState();
+      // 关闭 overlay 时立即停止循环/蓄力音
+      void stopSfx('lotterySpin', 0);
+      void stopSfx('lotteryCharge', 0);
+    }
   },
   { immediate: true },
 );
 
+/** 抽奖阶段切换：蓄力 → 滚轮循环 → 揭晓按稀有度播音 */
 watch(
   () => props.phase,
-  (phase) => {
+  (phase, prev) => {
+    if (phase === 'charging') {
+      void playSfx('lotteryCharge');
+    }
     if (phase === 'spinning') {
       resetSpinState();
+      void stopSfx('lotteryCharge', 0);
+      void playSfxLoop('lotterySpin');
       const maxSpinMs = getSpinPhaseFallbackMs(props.results.length, isMulti.value);
       clearSpinFallback();
       spinFallbackTimer = window.setTimeout(() => {
         safeEmitSkip();
       }, maxSpinMs);
     }
+    else if (prev === 'spinning') {
+      void stopSfx('lotterySpin');
+    }
     else {
       clearSpinFallback();
     }
-    if (phase === 'reveal') {
+    if (phase === 'reveal' && currentResult.value) {
+      void playSfx(lotteryRevealSfxKey(currentResult.value.item.rarity));
       revealReady.value = false;
       window.setTimeout(() => {
         revealReady.value = true;
       }, 120);
+    }
+    if (phase === 'summary' && props.results.length) {
+      void playSfx(lotteryRevealSfxKey(getBestRarityTier(props.results)));
     }
   },
 );

@@ -3,7 +3,7 @@ import Delay from './components/Delay.vue';
 import Stream from './components/stream.vue';
 import Screenshot from './components/Screenshot.vue';
 import Uniapp from './components/uniapp.vue';
-import RpgModalLab from './components/RpgModalLab.vue';
+import RpgDevEventPanel from '~~/components/rpg/RpgDevEventPanel.vue';
 import ToastLab from './components/ToastLab.vue';
 import ThemeLab from './components/ThemeLab.vue';
 import CardGlowLab from './components/CardGlowLab.vue';
@@ -18,14 +18,15 @@ useHead({
 </script>
 
 <template>
-  <CyberPageContainer label="LAB" title="开发测试" subtitle="RPG 弹窗、UI 组件与工具链本地验证">
+  <CyberPageContainer label="LAB" title="开发测试" subtitle="RPG WS 挡板、UI 组件与工具链本地验证">
     <div class="test-page space-y-6">
-      <CyberToolCard title="RPG 弹窗实验室" width-class="w-full">
+      <CyberToolCard title="RPG WS 事件挡板" width-class="w-full">
         <p class="test-card-desc">
-          本地 mock 触发全屏弹框，无需登录或 WebSocket；组件与全站
-          <code class="test-code">RpgGlobalInit</code> 一致。
+          注入 <code class="test-code">/realtime</code> 事件（开发/生产均可用本页），走全站
+          <code class="test-code">use-rpg-realtime-handlers</code>
+          与站内通知监听链（Toast、全屏弹窗、角标）。需先登录。
         </p>
-        <RpgModalLab />
+        <RpgDevEventPanel />
       </CyberToolCard>
 
       <div class="test-grid">
