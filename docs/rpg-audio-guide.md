@@ -9,7 +9,8 @@
 | `composables/use-rpg-audio.ts` | 全站单例：路由合成/文件、BGM、音量/静音、localStorage |
 | `constants/rpg-audio.ts` | 音效键名、音量系数、稀有度映射 helper |
 | `utils/rpg-audio-synth.ts` | Web Audio 合成实现与 `lotterySpin` 循环 |
-| `components/rpg/RpgAudioControl.vue` | 静音 + BGM/SFX 滑条（冒险页 panel / 导航栏 nav 图标钮） |
+| `components/rpg/RpgAudioControl.vue` | 导航栏圆形静音钮 |
+| `pages/rpg/index.vue` | 冒险页内联工具条：静音 + BGM/SFX 滑条 + 新手引导 |
 | `public/audio/rpg/` | 仅 2 个必需 wav（见 `public/audio/rpg/README.md`） |
 | `scripts/generate-rpg-audio.mjs` | 重新生成占位 BGM / 传说 fanfare |
 
@@ -175,7 +176,7 @@ Helper：
 | `/rpg` + dev | `RpgDevEventPanel` — 22 种 WS 事件挡板、充值弹窗 |
 | `/rpg` + dev | `RpgLotteryDrawMockBar` — 抽奖后延迟注入弹窗测层叠 |
 | `/tool/test` | 同上 WS 挡板（需登录） |
-| `RpgAudioControl` | 静音/音量 |
+| `/rpg` 内联工具条 / 导航栏 `RpgAudioControl` | 静音/音量 |
 
 挡板实现：`utils/rpg-dev-mock.ts` → `dispatchLocalEvent` 走真 WS 监听链。
 

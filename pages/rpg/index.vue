@@ -13,7 +13,8 @@ import { triggerMockAfterLotteryDraw } from '~~/utils/rpg-dev-mock';
 
 const route = useRoute();
 const router = useRouter();
-const { playBgm, stopBgm, initAudio, playSfx } = useRpgAudio();
+const { playBgm, stopBgm, initAudio, playSfx, muted, bgmVolume, sfxVolume, toggleMute }
+  = useRpgAudio();
 const profileCardRef = ref<{ setSignInResult: (_result: any) => void } | null>(null);
 const lotteryBoxRef = ref<{
   showDrawResults: (_results: any[]) => void;
@@ -381,13 +382,35 @@ const onLeaveGuild = async () => {
         </div>
       </div>
 
-      <div v-else class="mb-3 flex items-center justify-between gap-2">
-        <RpgAudioControl />
+      <div v-else class="rpg-page-toolbar">
         <button
           type="button"
-          class="btn btn-ghost btn-xs text-[var(--rpg-text-muted)]"
-          @click="onboardingRef?.open()"
+          class="rpg-page-toolbar__mute"
+          :title="muted ? '开启音效' : '静音'"
+          :aria-label="muted ? '开启音效' : '静音'"
+          @click="toggleMute"
         >
+          {{ muted ? '🔇' : '🔊' }}
+        </button>
+        <template v-if="!muted">
+          <label class="rpg-page-toolbar__vol">
+            <span>BGM</span>
+            <input
+              v-model.number="bgmVolume" type="range" min="0"
+              max="1"
+              step="0.05"
+            >
+          </label>
+          <label class="rpg-page-toolbar__vol">
+            <span>SFX</span>
+            <input
+              v-model.number="sfxVolume" type="range" min="0"
+              max="1"
+              step="0.05"
+            >
+          </label>
+        </template>
+        <button type="button" class="rpg-page-toolbar__guide" @click="onboardingRef?.open()">
           📖 新手引导
         </button>
       </div>
@@ -581,6 +604,61 @@ const onLeaveGuild = async () => {
 </template>
 
 <style scoped>
+  .rpg-page-toolbar {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 0;
+    margin-bottom: 6px;
+  }
+
+  .rpg-page-toolbar__mute,
+  .rpg-page-toolbar__guide {
+    border: none;
+    background: transparent;
+    padding: 0;
+    line-height: 1;
+    font-size: 13px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.65));
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .rpg-page-toolbar__guide {
+    margin-left: auto;
+    font-size: 11px;
+  }
+
+  .rpg-page-toolbar__mute:hover,
+  .rpg-page-toolbar__guide:hover {
+    color: var(--rpg-text-body, oklch(var(--bc)));
+  }
+
+  .rpg-page-toolbar__vol {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    line-height: 1;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.65));
+    font-weight: 600;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .rpg-page-toolbar__vol span {
+    flex-shrink: 0;
+  }
+
+  .rpg-page-toolbar__vol input[type='range'] {
+    width: 56px;
+    height: 12px;
+    margin: 0;
+    accent-color: var(--rpg-violet, oklch(var(--p)));
+  }
+
   .rpg-page-tabs {
     display: flex;
     flex-wrap: nowrap;
