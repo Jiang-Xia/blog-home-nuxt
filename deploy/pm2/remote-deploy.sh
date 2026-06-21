@@ -1,10 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# blog-home-nuxt 远程部署脚本（Nuxt SSR + PM2）
-# 由本地 deploy.ps1 通过 SSH 调用
-#
-# 流程：备份 → 停 PM2 → 清 output → 解压 → npm ci → 启动 PM2
-# 线上产物目录为 output/（无点号），与 Nginx 静态 alias 一致
+# blog-home-nuxt 远程部署（方案 B：releases + current，零停机 pm2 reload）
 # =============================================================================
 
 set -euo pipefail
@@ -14,65 +10,97 @@ set -euo pipefail
 : "${DEPLOY_ECOSYSTEM_FILE:?}"
 : "${DEPLOY_TAR_PATH:?}"
 
-BACKUP_DIR="${DEPLOY_REMOTE_DIR}/releases/backups"
+source /tmp/release-lib.sh
+
 BACKUP_KEEP="${DEPLOY_BACKUP_KEEP:-5}"
 
+migrate_legacy_layout_if_needed() {
+  if [[ -L "$CURRENT_LINK" || -e "$CURRENT_LINK" ]]; then
+    return 0
+  fi
+  if [[ ! -d "${DEPLOY_REMOTE_DIR}/output" && ! -f "${DEPLOY_REMOTE_DIR}/package.json" ]]; then
+    return 0
+  fi
+
+  local ts rid item
+  ts="$(release_new_id)"
+  rid="$(release_dir_for "$ts")"
+  mkdir -p "$rid"
+
+  for item in output package.json package-lock.json "${DEPLOY_ECOSYSTEM_FILE}" node_modules; do
+    [[ -e "${DEPLOY_REMOTE_DIR}/${item}" ]] && mv "${DEPLOY_REMOTE_DIR}/${item}" "$rid/"
+  done
+
+  release_switch "$rid"
+  link_output_compat
+  echo "==> migrated legacy layout -> ${rid}"
+  if release_pm2 describe "${DEPLOY_PM2_APP}" >/dev/null 2>&1; then
+    echo "==> pm2 reload after legacy migration"
+    release_pm2_reload "${DEPLOY_PM2_APP}" "${DEPLOY_ECOSYSTEM_FILE}"
+  fi
+}
+
 backup_before_deploy() {
-  local items=()
-  [[ -d "${DEPLOY_REMOTE_DIR}/output" ]] && items+=(output)
-  [[ -f "${DEPLOY_REMOTE_DIR}/package.json" ]] && items+=(package.json)
-  [[ -f "${DEPLOY_REMOTE_DIR}/package-lock.json" ]] && items+=(package-lock.json)
-  [[ -f "${DEPLOY_REMOTE_DIR}/${DEPLOY_ECOSYSTEM_FILE}" ]] && items+=("${DEPLOY_ECOSYSTEM_FILE}")
+  local active items=()
+  active="$(release_get_active 2>/dev/null || true)"
+
+  if [[ -z "$active" || ! -d "$active" ]]; then
+    echo "==> skip backup (no active release)"
+    return 0
+  fi
+
+  [[ -d "${active}/output" ]] && items+=(output)
+  [[ -f "${active}/package.json" ]] && items+=(package.json)
+  [[ -f "${active}/package-lock.json" ]] && items+=(package-lock.json)
+  [[ -f "${active}/${DEPLOY_ECOSYSTEM_FILE}" ]] && items+=("${DEPLOY_ECOSYSTEM_FILE}")
 
   if ((${#items[@]} == 0)); then
-    echo "==> skip backup (no existing release)"
+    echo "==> skip backup (empty active release)"
     return 0
   fi
 
   mkdir -p "$BACKUP_DIR"
   local ts backup_file
-  ts=$(date +%Y%m%d-%H%M%S)
+  ts="$(release_new_id)"
   backup_file="${BACKUP_DIR}/backup-${ts}.tar.gz"
   echo "==> backup: ${backup_file}"
-  tar -czf "$backup_file" -C "${DEPLOY_REMOTE_DIR}" "${items[@]}"
-
-  ls -1t "$BACKUP_DIR"/backup-*.tar.gz 2>/dev/null | tail -n +$((BACKUP_KEEP + 1)) | while IFS= read -r f; do
-    [[ -n "$f" ]] && rm -f "$f"
-  done
+  tar -czf "$backup_file" -C "$active" "${items[@]}"
+  release_prune_backups
   echo "==> backup kept: latest ${BACKUP_KEEP}"
+}
+
+# 兼容已有 Nginx alias 指向 DEPLOY_REMOTE_DIR/output/
+link_output_compat() {
+  ln -sfn "${DEPLOY_REMOTE_DIR}/current/output" "${DEPLOY_REMOTE_DIR}/output"
 }
 
 source "$HOME/.nvm/nvm.sh"
 nvm use default
 
-mkdir -p "${DEPLOY_REMOTE_DIR}/logs"
+mkdir -p "$RELEASES_ROOT" "$BACKUP_DIR" "${DEPLOY_REMOTE_DIR}/logs"
 
+migrate_legacy_layout_if_needed
 backup_before_deploy
 
-echo "==> stop pm2: ${DEPLOY_PM2_APP}"
-pm2 stop "${DEPLOY_PM2_APP}" 2>/dev/null || true
+local_ts="$(release_new_id)"
+release_path="$(release_dir_for "$local_ts")"
+mkdir -p "$release_path"
 
-# output/public 供 Nginx 直出 _nuxt/；output/server 供 PM2 跑 SSR
-echo "==> clean stale output (tar only overwrites, never deletes removed files)"
-rm -rf "${DEPLOY_REMOTE_DIR}/output"
+echo "==> extract: ${DEPLOY_TAR_PATH} -> ${release_path}"
+tar -xzf "${DEPLOY_TAR_PATH}" -C "$release_path"
 
-echo "==> extract: ${DEPLOY_TAR_PATH} -> ${DEPLOY_REMOTE_DIR}"
-tar -xzf "${DEPLOY_TAR_PATH}" -C "${DEPLOY_REMOTE_DIR}"
-
-cd "${DEPLOY_REMOTE_DIR}"
-
+cd "$release_path"
 echo "==> npm ci --omit=dev"
 npm ci --omit=dev --ignore-scripts
 
-echo "==> start pm2: ${DEPLOY_PM2_APP}"
-if pm2 describe "${DEPLOY_PM2_APP}" >/dev/null 2>&1; then
-  pm2 start "${DEPLOY_PM2_APP}"
-else
-  pm2 start "${DEPLOY_ECOSYSTEM_FILE}" --env production
-fi
+echo "==> activate release (zero-downtime reload)"
+release_switch "$release_path"
+link_output_compat
+release_prune_legacy_root
+release_pm2_reload "${DEPLOY_PM2_APP}" "${DEPLOY_ECOSYSTEM_FILE}"
+release_cleanup
 
-pm2 save
 rm -f "${DEPLOY_TAR_PATH}"
 
 echo "==> done"
-pm2 list | grep -E "name|${DEPLOY_PM2_APP}" || pm2 list
+release_pm2_verify "${DEPLOY_PM2_APP}"

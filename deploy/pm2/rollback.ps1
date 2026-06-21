@@ -10,6 +10,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'ssh-lib.ps1')
+Initialize-DeployConsoleEncoding
 
 $EnvFile = Join-Path $PSScriptRoot $EnvFileName
 $RemoteScript = Join-Path $PSScriptRoot 'remote-rollback.sh'
@@ -85,6 +86,7 @@ function Copy-ToRemote {
 }
 
 Copy-ToRemote $RemoteScript '/tmp/remote-rollback.sh'
+Copy-ToRemote (Join-Path $PSScriptRoot 'release-lib.sh') '/tmp/release-lib.sh'
 
 Assert-BackupFileName $BackupName
 $eRemoteDir = Escape-ShellSingleQuoted $RemoteDir
@@ -103,6 +105,6 @@ if ($BackupName) { Write-Host "==> Backup: $BackupName" } else { Write-Host '==>
 Invoke-Remote "chmod +x /tmp/remote-rollback.sh && ${envPrefix} bash /tmp/remote-rollback.sh${backupArg}"
 
 Write-Host '==> Verify'
-Invoke-Remote "source ~/.nvm/nvm.sh && pm2 describe '$ePm2App' | grep -E 'status|script path|exec cwd'"
+Invoke-Remote "source ~/.nvm/nvm.sh && DEPLOY_REMOTE_DIR='$eRemoteDir' source /tmp/release-lib.sh && release_pm2_verify '$ePm2App'"
 
 Write-Host '==> Rollback finished'

@@ -8,6 +8,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $ScriptDir = $PSScriptRoot
 . (Join-Path $ScriptDir 'ssh-lib.ps1')
+Initialize-DeployConsoleEncoding
 
 $Root = Split-Path -Parent (Split-Path -Parent $ScriptDir)
 $EnvFile = Join-Path $ScriptDir $EnvFileName
@@ -142,16 +143,18 @@ Write-Host '==> [3/5] Upload'
 $remoteTar = "/tmp/$TarName"
 Invoke-Remote "mkdir -p $RemoteDir"
 Copy-ToRemote $tarLocal $remoteTar
+Copy-ToRemote (Join-Path $ScriptDir 'release-lib.sh') '/tmp/release-lib.sh'
 Copy-ToRemote $RemoteScript '/tmp/remote-deploy.sh'
 
-Write-Host '==> [4/5] Remote: stop -> extract -> npm ci -> start'
+Write-Host '==> [4/5] Remote: release -> switch -> pm2 reload'
 $eRemoteDir = Escape-ShellSingleQuoted $RemoteDir
 $ePm2App = Escape-ShellSingleQuoted $Pm2App
+$eEcosystemFile = Escape-ShellSingleQuoted $EcosystemFile
 $eRemoteTar = Escape-ShellSingleQuoted $remoteTar
-$remoteCmd = "chmod +x /tmp/remote-deploy.sh && DEPLOY_REMOTE_DIR='$eRemoteDir' DEPLOY_PM2_APP='$ePm2App' DEPLOY_ECOSYSTEM_FILE='$EcosystemFile' DEPLOY_TAR_PATH='$eRemoteTar' bash /tmp/remote-deploy.sh"
+$remoteCmd = "chmod +x /tmp/remote-deploy.sh && DEPLOY_REMOTE_DIR='$eRemoteDir' DEPLOY_PM2_APP='$ePm2App' DEPLOY_ECOSYSTEM_FILE='$eEcosystemFile' DEPLOY_TAR_PATH='$eRemoteTar' bash /tmp/remote-deploy.sh"
 Invoke-Remote $remoteCmd
 
 Write-Host '==> [5/5] Verify'
-Invoke-Remote "source ~/.nvm/nvm.sh && pm2 describe '$ePm2App' | grep -E 'status|script path|exec cwd'"
+Invoke-Remote "source ~/.nvm/nvm.sh && DEPLOY_REMOTE_DIR='$eRemoteDir' source /tmp/release-lib.sh && release_pm2_verify '$ePm2App'"
 
 Write-Host '==> Deploy finished - https://jiang-xia.top/'

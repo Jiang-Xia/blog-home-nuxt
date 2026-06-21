@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# blog-home-nuxt 远程回滚脚本
+# blog-home-nuxt 远程回滚（方案 B：解压到新 release → 切 current → pm2 reload）
 # =============================================================================
 
 set -euo pipefail
@@ -9,7 +9,8 @@ set -euo pipefail
 : "${DEPLOY_PM2_APP:?}"
 
 DEPLOY_ECOSYSTEM_FILE="${DEPLOY_ECOSYSTEM_FILE:-ecosystem.config.cjs}"
-BACKUP_DIR="${DEPLOY_REMOTE_DIR}/releases/backups"
+source /tmp/release-lib.sh
+
 BACKUP_ARG="${1:-}"
 BACKUP_NAME_PATTERN='^backup-[0-9]{8}-[0-9]{6}\.tar\.gz$'
 
@@ -47,9 +48,17 @@ resolve_backup_file() {
   ls -1t "${BACKUP_DIR}"/backup-*.tar.gz 2>/dev/null | head -1
 }
 
+link_output_compat() {
+  ln -sfn "${DEPLOY_REMOTE_DIR}/current/output" "${DEPLOY_REMOTE_DIR}/output"
+}
+
 if [[ "${DEPLOY_ROLLBACK_LIST:-}" == "1" ]]; then
   echo "Available backups in ${BACKUP_DIR}:"
   ls -1t "${BACKUP_DIR}"/backup-*.tar.gz 2>/dev/null || echo "(none)"
+  echo ""
+  echo "Available releases in ${RELEASES_ROOT}:"
+  ls -1dt "${RELEASES_ROOT}"/*/ 2>/dev/null | grep -E '/[0-9]{8}-[0-9]{6}/$' || echo "(none)"
+  echo "Current -> $(readlink -f "$CURRENT_LINK" 2>/dev/null || echo '(not set)')"
   exit 0
 fi
 
@@ -63,30 +72,25 @@ assert_backup_in_dir "$BACKUP_FILE"
 source "$HOME/.nvm/nvm.sh"
 nvm use default
 
+mkdir -p "${DEPLOY_REMOTE_DIR}/logs"
+
 echo "==> rollback from: ${BACKUP_FILE}"
 
-echo "==> stop pm2: ${DEPLOY_PM2_APP}"
-pm2 stop "${DEPLOY_PM2_APP}" 2>/dev/null || true
+local_ts="$(release_new_id)"
+release_path="$(release_dir_for "$local_ts")"
+mkdir -p "$release_path"
 
-echo "==> clean output before restore"
-rm -rf "${DEPLOY_REMOTE_DIR}/output"
+echo "==> extract backup -> ${release_path}"
+tar -xzf "${BACKUP_FILE}" -C "$release_path"
 
-echo "==> extract backup -> ${DEPLOY_REMOTE_DIR}"
-tar -xzf "${BACKUP_FILE}" -C "${DEPLOY_REMOTE_DIR}"
-
-cd "${DEPLOY_REMOTE_DIR}"
-
+cd "$release_path"
 echo "==> npm ci --omit=dev"
 npm ci --omit=dev --ignore-scripts
 
-echo "==> start pm2: ${DEPLOY_PM2_APP}"
-if pm2 describe "${DEPLOY_PM2_APP}" >/dev/null 2>&1; then
-  pm2 start "${DEPLOY_PM2_APP}"
-else
-  pm2 start "${DEPLOY_ECOSYSTEM_FILE}" --env production
-fi
-
-pm2 save
+echo "==> activate rollback release (zero-downtime reload)"
+release_switch "$release_path"
+link_output_compat
+release_pm2_reload "${DEPLOY_PM2_APP}" "${DEPLOY_ECOSYSTEM_FILE}"
 
 echo "==> rollback done"
-pm2 list | grep -E "name|${DEPLOY_PM2_APP}" || pm2 list
+release_pm2_verify "${DEPLOY_PM2_APP}"
