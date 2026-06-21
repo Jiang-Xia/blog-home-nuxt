@@ -47,9 +47,9 @@ let landTimer: ReturnType<typeof setTimeout> | null = null;
 let activeAnimation: Animation | null = null;
 let activeSpinToken = '';
 
-const itemWidth = computed(() => (props.compact ? 72 : LOTTERY_REEL_ITEM_WIDTH));
-const itemGap = computed(() => (props.compact ? 6 : LOTTERY_REEL_ITEM_GAP));
-const itemHeight = computed(() => (props.compact ? 64 : 80));
+const itemWidth = computed(() => (props.compact ? 56 : LOTTERY_REEL_ITEM_WIDTH));
+const itemGap = computed(() => (props.compact ? 4 : LOTTERY_REEL_ITEM_GAP));
+const itemHeight = computed(() => (props.compact ? 48 : 80));
 
 const stripStyle = computed(() =>
   isMoving.value ? undefined : { transform: `translateX(-${offsetPx.value}px)` },
@@ -262,8 +262,8 @@ onUnmounted(() => {
   }
 
   .lottery-reel.compact {
-    padding: 6px 0;
-    border-radius: 10px;
+    padding: 4px 0;
+    border-radius: 8px;
   }
 
   .reel-viewport {

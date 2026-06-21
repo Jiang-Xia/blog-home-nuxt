@@ -333,7 +333,7 @@ const toggleHitRecords = () => {
 <style scoped>
   .rpg-card {
     width: 100%;
-    padding: 16px;
+    padding: 12px;
     border-radius: 14px;
     background: var(--rpg-loot-bg);
     border: 1px solid var(--rpg-loot-border);
@@ -673,7 +673,7 @@ const toggleHitRecords = () => {
   }
 
   .rpg-panel {
-    padding: 10px;
+    padding: 6px;
     border-radius: 12px;
     background: var(--rpg-bg-alt);
     border: 1px solid var(--rpg-border-subtle);

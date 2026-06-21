@@ -485,8 +485,8 @@ const onLeaveGuild = async () => {
 
         <template v-else>
           <div v-if="activeTab === 'status'">
-            <div class="cyber-glass-card p-5">
-              <div class="card-body p-4 sm:p-5">
+            <div class="cyber-glass-card p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <RpgProfileCard
                   v-if="!statusLoading && rpgStatus"
                   ref="profileCardRef"
@@ -509,8 +509,8 @@ const onLeaveGuild = async () => {
                 <RpgPanelLoading v-else compact />
               </div>
             </div>
-            <div class="cyber-glass-card mt-5 p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card mt-5 p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <RpgLevelRewardsPanel
                   :rpg-status="rpgStatus"
                   :level-rewards="levelRewards"
@@ -518,8 +518,8 @@ const onLeaveGuild = async () => {
                 />
               </div>
             </div>
-            <div class="cyber-glass-card mt-5 p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card mt-5 p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <RpgDevEventPanel v-if="isDev" compact :context="{ status: rpgStatus }" />
                 <RpgLotteryDrawMockBar v-if="isDev" :status="rpgStatus" />
                 <RpgLotteryBox
@@ -538,8 +538,8 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'inventory'">
-            <div class="cyber-glass-card p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <RpgInventoryPanel
                   :items="inventoryItems"
                   :loadout="loadout"
@@ -552,8 +552,8 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'pet'">
-            <div class="cyber-glass-card p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <RpgPetPanel
                   :pets="pets"
                   :eggs="petEggs"
@@ -571,8 +571,8 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'guild'">
-            <div class="cyber-glass-card p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <RpgGuildPanel
                   :my-guild="myGuild"
                   :guild-list="guildList"
@@ -586,8 +586,8 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'leaderboard'">
-            <div class="cyber-glass-card p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <h3 class="card-title text-base mb-3">
                   冒险排行榜
                 </h3>
@@ -671,32 +671,71 @@ const onLeaveGuild = async () => {
     border-radius: 12px;
     border: 1px solid var(--rpg-border, oklch(var(--b3)));
     background: var(--rpg-surface, oklch(var(--b1)));
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .rpg-page-tabs::-webkit-scrollbar {
+    display: none;
   }
 
   .rpg-page-tab {
-    flex: 1;
-    min-width: 72px;
-    padding: 8px 12px;
-    border: none;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid transparent;
     border-radius: 8px;
     background: transparent;
     font-size: 13px;
-    font-weight: 500;
-    color: var(--rpg-text-muted, oklch(var(--bc) / 0.65));
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--rpg-text-secondary, oklch(var(--bc) / 0.72));
     cursor: pointer;
     transition:
       background-color 0.2s,
-      color 0.2s;
+      color 0.2s,
+      border-color 0.2s;
   }
 
   .rpg-page-tab:hover {
     background: var(--rpg-bg-alt, oklch(var(--b2)));
+    color: var(--rpg-text-heading, oklch(var(--bc)));
   }
 
   .rpg-page-tab.active {
     background: var(--rpg-violet-bg, oklch(var(--p) / 0.12));
     color: var(--rpg-violet, oklch(var(--p)));
     font-weight: 700;
-    box-shadow: inset 0 0 0 1px var(--rpg-violet, oklch(var(--p) / 0.35));
+    border-color: color-mix(in oklch, var(--rpg-violet, oklch(var(--p))) 45%, transparent);
+    box-shadow: inset 0 0 0 1px
+      color-mix(in oklch, var(--rpg-violet, oklch(var(--p))) 35%, transparent);
+  }
+
+  @media (max-width: 639px) {
+    .rpg-page-tabs {
+      gap: 4px;
+      padding: 5px;
+    }
+
+    .rpg-page-tab {
+      flex: 0 0 auto;
+      min-width: auto;
+      padding: 7px 11px;
+      font-size: 12px;
+    }
+  }
+
+  :global(html.tech-shell[data-theme='cyber-light']) .rpg-page-tab:not(.active) {
+    color: var(--rpg-text-label, #475569);
+    background: var(--rpg-bg-alt, #f1f5f9);
+    border-color: var(--rpg-border, #e2e8f0);
+  }
+
+  :global(html.tech-shell[data-theme='cyber-light']) .rpg-page-tab.active {
+    background: rgb(139 92 246 / 0.1);
+    color: #6d28d9;
+    border-color: rgb(139 92 246 / 0.45);
+    box-shadow: inset 0 0 0 1px rgb(139 92 246 / 0.28);
   }
 </style>

@@ -12,7 +12,8 @@ import {
   loadTagOptions,
   tagsOptions,
   updateLikesHandle,
-  xBLogStore,
+  isArticleLiked,
+  syncUserLikes,
   resolveStaticUrl,
 } from '@/utils/common';
 import { colorRgb } from '~~/utils/color';
@@ -289,9 +290,7 @@ const tagFilterStyle = (item: any) =>
 // 客户端执行
 // 本地点赞：hydration 后再读 localStorage，避免 SSR/客户端图标不一致
 const likesHydrated = ref(false);
-const localLikes = computed<number[]>(() => xBLogStore.value.likes);
-const isItemLiked = (id: string | number) =>
-  likesHydrated.value && localLikes.value.includes(id as never);
+const isItemLiked = (id: string | number) => likesHydrated.value && isArticleLiked(id);
 
 // 分类标签设置hover样式
 const categoryMouseenter = (e: any, item: any) => {
@@ -307,6 +306,7 @@ const weatherUrl
 onMounted(
   /* async */ () => {
     likesHydrated.value = true;
+    void syncUserLikes();
     document.addEventListener('click', closeFilterDropdowns);
     void loadSidebarComments();
     if (props.presetCategory) {
@@ -607,7 +607,7 @@ watch(articleList, syncAuthorLevels, { immediate: true });
           <div
             v-for="item in articleList"
             :key="item.id"
-            class="article-item cyber-glass-card cyber-glass-card--hover mb-5 overflow-hidden transition-all"
+            class="article-item cyber-glass-card cyber-glass-card--hover mb-3 sm:mb-5 overflow-hidden transition-all"
             role="article"
           >
             <figure class="article-item-cover m-0">
@@ -620,7 +620,6 @@ watch(articleList, syncAuthorLevels, { immediate: true });
                   v-if="isDark"
                   :pic="resolveStaticUrl(item.cover)"
                   class="article-item-cover-border"
-                  style="--border-size: 8px; --pic-inset: 8px"
                 />
                 <xia-image
                   v-else
@@ -1182,6 +1181,12 @@ watch(articleList, syncAuthorLevels, { immediate: true });
           padding: 12px;
           display: flex;
 
+          .article-item-cover-border {
+            --border-size: 8px;
+            --pic-inset: 8px;
+            width: 100%;
+          }
+
           :deep(.card-container) {
             width: 100%;
             aspect-ratio: v-bind(coverAspectRatio);
@@ -1233,6 +1238,37 @@ watch(articleList, syncAuthorLevels, { immediate: true });
     @media (min-width: 1780px) {
       .info-tool {
         // right: 100px;
+      }
+    }
+
+    @media (max-width: 639px) {
+      padding-top: 12px;
+
+      .article-item-wrap {
+        gap: 0.75rem;
+      }
+
+      .article-item {
+        .article-item-cover {
+          padding: 6px;
+
+          .article-item-cover-border {
+            --border-size: 4px;
+            --pic-inset: 4px;
+          }
+        }
+
+        .card-body {
+          padding: 0 6px 8px;
+        }
+      }
+
+      .condition-card-wrap :deep(.card-wrap > h4) {
+        padding: 0 10px;
+      }
+
+      .condition-card-wrap :deep(.card-content.padding) {
+        padding: 0 10px;
       }
     }
 

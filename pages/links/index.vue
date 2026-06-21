@@ -88,7 +88,9 @@ useHead({
     <input id="link-add-modal" v-model="modalOpen" type="checkbox" class="modal-toggle">
     <div class="modal rpg-theme">
       <div class="modal-box max-w-md">
-        <label for="link-add-modal" class="rpg-modal-close">✕</label>
+        <button type="button" class="rpg-modal-close" aria-label="关闭" @click="modalOpen = false">
+          ✕
+        </button>
         <h3 class="text-lg font-bold">
           申请外链
         </h3>

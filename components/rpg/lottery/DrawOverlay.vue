@@ -394,6 +394,18 @@ const handleConfirm = () => {
 
   .multi .draw-panel {
     width: min(94vw, 480px);
+    padding: 14px 12px 16px;
+  }
+
+  @media (max-width: 639px) {
+    .multi .draw-panel {
+      width: min(96vw, 480px);
+      padding: 12px 10px 14px;
+    }
+
+    .multi-reels {
+      gap: 3px;
+    }
   }
 
   .panel-header {
@@ -502,10 +514,8 @@ const handleConfirm = () => {
   .multi-reels {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    max-height: 280px;
-    overflow-y: auto;
-    padding-right: 2px;
+    gap: 4px;
+    overflow: visible;
   }
 
   .multi-reel {

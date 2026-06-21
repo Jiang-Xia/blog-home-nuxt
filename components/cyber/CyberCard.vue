@@ -12,7 +12,7 @@ const props = withDefaults(
     class?: string;
   }>(),
   {
-    padding: 'p-6',
+    padding: 'p-3 sm:p-4 md:p-6',
     hover: false,
     class: '',
   },

@@ -23,6 +23,8 @@ onBeforeUnmount(() => {
     :images="state.images"
     :initial-index="state.initialIndex"
     :simple="state.mode === 'simple'"
+    :file-names="state.fileNames"
+    :on-download="state.onDownload"
     @close="close"
   />
 </template>

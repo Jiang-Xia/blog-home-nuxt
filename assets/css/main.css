@@ -337,6 +337,14 @@ html.tech-shell[data-theme='cyber-light'] {
     animation: cyber-logo-breathe 3s ease-in-out infinite;
   }
 
+  .site-logo-badge {
+    border-color: color-mix(in oklch, var(--color-primary) 24%, var(--rpg-amber-border) 18%);
+    background-color: color-mix(in oklch, var(--color-primary) 8%, var(--rpg-amber-bg-faint) 40%);
+    box-shadow:
+      0 0 20px color-mix(in oklch, var(--color-primary) 18%, transparent),
+      0 0 12px color-mix(in oklch, var(--rpg-amber) 12%, transparent);
+  }
+
   .cyber-logo-badge .cyber-gradient-text {
     animation: cyber-logo-text-glow 3s ease-in-out infinite;
   }
@@ -825,4 +833,27 @@ html.tech-shell :where(.app-layout) {
   50% {
     opacity: 0;
   }
+}
+
+/* 写文章页：不用 backdrop-filter，避免 md-editor fixed 全屏被父级 stacking context 困住 */
+.article-edit-shell {
+  border-radius: 1.5rem;
+  border: 1px solid var(--tech-border);
+  background-color: var(--tech-glass);
+  color: var(--tech-fg);
+}
+
+/* md-editor 网页全屏：层级高于顶栏，并临时隐藏站点 chrome */
+.md-editor.md-editor-fullscreen {
+  z-index: 10150 !important;
+}
+
+body.article-editor-page-fs .app-layout-header,
+body.article-editor-page-fs .app-layout-footer {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body.article-editor-page-fs .app-layout-body {
+  padding-top: 0 !important;
 }

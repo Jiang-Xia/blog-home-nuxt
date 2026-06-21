@@ -117,8 +117,8 @@ export const LOTTERY_REEL_ITEM_GAP = DEFAULT_ITEM_GAP;
 
 /** 电商抽奖节奏：滚动约 2~2.5s，停稳后停留 0.8~1s */
 export const LOTTERY_SPIN_MS = 2200;
-export const LOTTERY_SPIN_MS_COMPACT_BASE = 1900;
-export const LOTTERY_SPIN_MS_COMPACT_STAGGER = 120;
+export const LOTTERY_SPIN_MS_COMPACT_BASE = 1200;
+export const LOTTERY_SPIN_MS_COMPACT_STAGGER = 380;
 export const LOTTERY_PAUSE_MS = 900;
 export const LOTTERY_PAUSE_MS_MULTI = 1000;
 export const LOTTERY_SPIN_LOOPS = 28;

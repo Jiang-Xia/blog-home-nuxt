@@ -1,5 +1,7 @@
 
 #!/usr/bin/env sh
 
-echo "pre-commit";
-npm run lint-staged;
+echo "pre-commit"
+# ESLint 依赖 .nuxt/eslint.config.mjs（不在 git 中），提交前确保已生成
+npx nuxt prepare >/dev/null 2>&1
+npm run lint-staged
