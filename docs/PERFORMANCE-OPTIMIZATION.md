@@ -11,8 +11,8 @@
 
 ```bash
 # 路径必须与 jiang-xia.top.conf 中 alias 一致
-ls /opt/jxapp/server/blog-home-nuxt/.output/public/_nuxt/
-ls /opt/jxapp/server/blog-home-nuxt/.output/public/fonts/HarmonyOS_Sans_SC_Subset.woff2
+ls /opt/jxapp/server/blog-home-nuxt/current/output/public/_nuxt/
+ls /opt/jxapp/server/blog-home-nuxt/current/output/public/fonts/HarmonyOS_Sans_SC_Subset.woff2
 ls /opt/jxapp/server/blog-server/public/uploads/
 
 sudo nginx -t && sudo systemctl reload nginx

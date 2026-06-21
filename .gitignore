@@ -25,6 +25,10 @@ logs
 .env.*.local
 !.env.example
 
+# deploy
+deploy/pm2/deploy.local.env
+deploy/pm2/.pack/
+
 # Font subset build artifacts (source font ~4MB, regenerate via npm run font:subset)
 scripts/font/*.source.woff2
 scripts/font/subset-charset.txt

@@ -268,14 +268,20 @@ docker build -t blog-home-nuxt .
 docker run -p 3000:3000 blog-home-nuxt
 ```
 
-### PM2 部署
+### PM2 一键部署（生产）
+
+```powershell
+# 本地 build → 打包 .output → 上传 → 远程 pm2 重启
+npm run deploy
+```
+
+配置说明见 [`deploy/pm2/README.md`](./deploy/pm2/README.md)。Build 读根目录 `.env.production`（与 blog-admin 相同，无需单独 `deploy/pm2/env.production`）。
+
+### PM2 本地手动
 
 ```bash
-# 生产环境
-yarn pm2:prod
-
-# 开发环境
-yarn pm2:dev
+npm run pm2:prod   # 生产
+npm run pm2:dev    # 开发
 ```
 
 ## 🌐 在线预览
