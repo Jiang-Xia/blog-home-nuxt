@@ -14,8 +14,15 @@ const emit = defineEmits<{
 }>();
 
 const { playSfx } = useRpgAudio();
+const { openRechargeModal } = useRpgRecharge();
 
 const activeType = ref<string>('all');
+
+/** 钻石货币行（含历史 diamond code） */
+const isCurrencyItem = (item: InventoryItem) =>
+  item.itemCode === 'currency'
+  || item.itemCode === 'diamond'
+  || item.config?.itemType === 'currency';
 
 const typeTabs = computed(() => {
   const typeMap = new Map<string, string>();
@@ -121,7 +128,15 @@ const switchTypeTab = (key: string) => {
             </span>
           </div>
           <button
-            v-if="isEquippable(item)"
+            v-if="isCurrencyItem(item)"
+            type="button"
+            class="rpg-loot-card-strip rpg-loot-card-strip--recharge"
+            @click="openRechargeModal"
+          >
+            💎 充值
+          </button>
+          <button
+            v-else-if="isEquippable(item)"
             type="button"
             class="rpg-loot-card-strip"
             :class="{ 'rpg-loot-card-strip--active': isEquipped(item) }"
@@ -159,5 +174,15 @@ const switchTypeTab = (key: string) => {
     border-radius: 50%;
     background: var(--rpg-violet-light);
     box-shadow: 0 0 6px color-mix(in oklch, var(--rpg-violet-light) 60%, transparent);
+  }
+
+  .rpg-loot-card-strip--recharge {
+    color: var(--rpg-violet-light);
+    font-weight: 600;
+  }
+
+  .rpg-loot-card-strip--recharge:hover {
+    color: var(--rpg-violet);
+    background: color-mix(in oklch, var(--rpg-violet) 12%, transparent);
   }
 </style>

@@ -15,6 +15,8 @@ definePageMeta({
 useHead({
   title: '开发测试',
 });
+
+const { openRechargeModal, openLegacyRechargeModal } = useRpgRecharge();
 </script>
 
 <template>
@@ -33,6 +35,21 @@ useHead({
           与站内通知监听链（Toast、全屏弹窗、角标）。需先登录。
         </p>
         <RpgDevEventPanel />
+      </CyberToolCard>
+
+      <CyberToolCard title="RPG 钻石充值弹窗" width-class="w-full max-w-md">
+        <p class="test-card-desc">
+          全站钻石不足默认弹出<strong>动态小程序码</strong>（建单 → 扫码 → WS 到账）。
+          旧版静态码已下线，本页可预览归档组件；线上请走支付宝小程序 all-pay 并透传 out_trade_no。
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="btn btn-sm btn-primary" @click="openRechargeModal">
+            动态小程序码
+          </button>
+          <button type="button" class="btn btn-sm btn-outline" @click="openLegacyRechargeModal">
+            预览归档静态码
+          </button>
+        </div>
       </CyberToolCard>
 
       <div class="test-grid">

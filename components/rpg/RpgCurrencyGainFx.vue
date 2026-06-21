@@ -4,6 +4,7 @@
    * 非模态浮层，钻石粒子上升 + 中央数额；音效 currencyGain
    */
 import type { RpgCurrencyChangePayload } from '~~/composables/use-realtime-socket';
+import { formatRpgCurrencyReasonLabel } from '~~/utils/rpg-currency';
 
 const props = defineProps<{
   tick: number;
@@ -69,7 +70,9 @@ watch(
 
 onUnmounted(clearDoneTimer);
 
-const reasonLabel = computed(() => props.data?.reasonLabel || props.data?.reason || '钻石奖励');
+const reasonLabel = computed(() =>
+  formatRpgCurrencyReasonLabel(props.data?.reason, props.data?.reasonLabel),
+);
 </script>
 
 <template>
@@ -99,7 +102,8 @@ const reasonLabel = computed(() => props.data?.reasonLabel || props.data?.reason
   .currency-gain-fx {
     position: fixed;
     inset: 0;
-    z-index: 10070;
+    /* 高于充值弹窗(10080)，庆祝层须全屏可见 */
+    z-index: 10082;
     pointer-events: none;
     overflow: hidden;
   }

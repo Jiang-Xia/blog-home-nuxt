@@ -24,6 +24,7 @@ export type RealtimeSocketEvent
     | 'articleLevelUp'
     | 'masterpiece'
     | 'currencyChange'
+    | 'rechargeComplete'
     | 'itemGranted'
     | 'lotteryTicketChange'
     | 'petHatched'
@@ -140,6 +141,14 @@ export interface RpgCurrencyChangePayload {
   reasonLabel: string;
 }
 
+/** rechargeComplete 事件（充值弹窗 WS 关单） */
+export interface RpgRechargeCompletePayload {
+  outTradeNo: string;
+  diamonds: number;
+  balance: number;
+  amountYuan: number;
+}
+
 /** itemGranted 事件（config 由服务端 enrich） */
 export interface RpgItemGrantedPayload {
   itemCode: string;
@@ -241,6 +250,7 @@ const ALL_EVENTS: RealtimeSocketEvent[] = [
   'articleLevelUp',
   'masterpiece',
   'currencyChange',
+  'rechargeComplete',
   'itemGranted',
   'lotteryTicketChange',
   'petHatched',

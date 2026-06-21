@@ -39,16 +39,24 @@ html.tech-shell {
   --rpg-level-badge-gradient: linear-gradient(135deg, #fbbf24, #d97706);
   --rpg-level-shadow: rgba(217, 119, 6, 0.3);
 
-  --rpg-primary: #3b82f6;
-  --rpg-primary-dark: #2563eb;
-  --rpg-primary-gradient: linear-gradient(135deg, #3b82f6, #2563eb);
-  --rpg-diamond-bg: #eff6ff;
-  --rpg-diamond-text: #1d4ed8;
+  --rpg-primary: var(--color-primary);
+  --rpg-primary-dark: color-mix(in oklch, var(--color-primary) 82%, var(--color-base-content));
+  --rpg-primary-gradient: linear-gradient(
+    135deg,
+    var(--color-primary),
+    color-mix(in oklch, var(--color-primary) 72%, var(--color-accent))
+  );
+  --rpg-diamond-bg: color-mix(in oklch, var(--color-primary) 12%, var(--color-base-100));
+  --rpg-diamond-text: color-mix(in oklch, var(--color-primary) 78%, var(--color-base-content));
 
-  --rpg-violet: #7c3aed;
-  --rpg-violet-light: #8b5cf6;
-  --rpg-violet-bg: #ede9fe;
-  --rpg-violet-gradient: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  --rpg-violet: var(--color-secondary);
+  --rpg-violet-light: color-mix(in oklch, var(--color-secondary) 88%, var(--color-base-100));
+  --rpg-violet-bg: color-mix(in oklch, var(--color-secondary) 14%, var(--color-base-100));
+  --rpg-violet-gradient: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--color-secondary) 92%, var(--color-base-100)),
+    var(--color-secondary)
+  );
 
   --rpg-success: #16a34a;
   --rpg-success-bg: #f0fdf4;
@@ -156,10 +164,10 @@ html.tech-shell[data-theme='cyber'] {
   --rpg-amber-border: rgb(245 158 11 / 0.35);
   --rpg-level-shadow: rgba(245, 158, 11, 0.35);
 
-  --rpg-diamond-bg: rgb(59 130 246 / 0.15);
-  --rpg-diamond-text: #93c5fd;
+  --rpg-diamond-bg: color-mix(in oklch, var(--color-primary) 18%, transparent);
+  --rpg-diamond-text: color-mix(in oklch, var(--color-primary) 72%, var(--color-base-100));
 
-  --rpg-violet-bg: rgb(139 92 246 / 0.18);
+  --rpg-violet-bg: color-mix(in oklch, var(--color-secondary) 22%, transparent);
 
   --rpg-success-bg: rgb(34 197 94 / 0.12);
   --rpg-success-border: rgb(34 197 94 / 0.28);
