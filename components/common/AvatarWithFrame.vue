@@ -10,13 +10,18 @@ const props = withDefaults(
     alt?: string;
     size?: number | string;
     frame?: AvatarFrameInfo | null;
+    /** 点击头像弹框查看大图 */
+    previewable?: boolean;
   }>(),
   {
     avatar: '',
     alt: '',
     size: 32,
+    previewable: false,
   },
 );
+
+const { open: openImagePreview } = useImagePreview();
 
 const sizePx = computed(() => {
   if (typeof props.size === 'number') return `${props.size}px`;
@@ -37,14 +42,30 @@ const wrapperStyle = computed(() => {
   }
   return base;
 });
+
+const onAvatarClick = (event: Event) => {
+  if (!props.previewable || !props.avatar) return;
+  event.preventDefault();
+  event.stopPropagation();
+  openImagePreview(props.avatar, { mode: 'simple' });
+};
 </script>
 
 <template>
   <div
     class="avatar-with-frame inline-flex shrink-0 items-center justify-center rounded-full overflow-hidden bg-base-300"
-    :class="{ 'has-frame': frameColor, 'ring-2 ring-primary/20': !frameColor }"
+    :class="{
+      'has-frame': frameColor,
+      'ring-2 ring-primary/20': !frameColor,
+      'cursor-zoom-in': previewable && avatar,
+    }"
     :style="wrapperStyle"
-    :title="frame?.name || alt"
+    :title="previewable && avatar ? `查看头像：${alt || frame?.name || ''}` : frame?.name || alt"
+    :role="previewable && avatar ? 'button' : undefined"
+    :tabindex="previewable && avatar ? 0 : undefined"
+    @click="onAvatarClick"
+    @keydown.enter.prevent="onAvatarClick"
+    @keydown.space.prevent="onAvatarClick"
   >
     <img v-if="avatar" :src="avatar" :alt="alt" class="h-full w-full object-cover">
     <slot v-else name="fallback" />

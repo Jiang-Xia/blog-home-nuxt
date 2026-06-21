@@ -12,18 +12,17 @@ if (ViteEnv.MODE === 'production') {
   adminUrl = ViteEnv.VITE_NUXT_ADMIN_URL;
 }
 else {
-  // 开代理本地报错非常多
   originUrl = ViteEnv.VITE_NUXT_ORIGIN_URL;
   apiPrefix = ViteEnv.VITE_NUXT_API_PREFIX;
-  baseUrl = originUrl + apiPrefix;
+  const prefixPath = ViteEnv.VITE_NUXT_PREFIX_PATH || '/blog-api';
+  // 开发：浏览器走 Nitro devProxy（/blog-api → blog-server）；SSR 内部 $fetch 不经 devProxy，需直连 backend
+  baseUrl = import.meta.server ? `${originUrl}${apiPrefix}` : prefixPath;
   adminUrl = ViteEnv.VITE_NUXT_ADMIN_URL;
 }
 
-/** 静态资源域名（开发直连 blog-server，生产走网关前缀） */
+/** 静态资源域名（开发走 Nuxt /static 代理；生产走网关前缀） */
 const staticOriginUrl = ViteEnv.VITE_NUXT_STATIC_ORIGIN_URL || 'https://jiang-xia.top';
-const staticBaseUrl = isEnv
-  ? ViteEnv.VITE_NUXT_STATIC_ORIGIN_URL || originUrl
-  : `${staticOriginUrl}/x-api/blog-server`;
+const staticBaseUrl = isEnv ? '' : `${staticOriginUrl}/x-api/blog-server`;
 
 const scripts = [
   // 百度统计脚本 - 仅保留首页必需的统计脚本

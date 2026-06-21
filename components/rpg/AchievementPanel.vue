@@ -9,6 +9,8 @@ const props = defineProps<{
   achievements: UserAchievementProgress[];
 }>();
 
+const { playSfx } = useRpgAudio();
+
 // 按分类分组
 const groupedAchievements = computed(() => {
   const groups: Record<string, UserAchievementProgress[]> = {};
@@ -28,6 +30,12 @@ const completionPercent = computed(() =>
 
 // 当前选中的分类
 const activeCategory = ref<string>('all');
+
+/** 切换成就分类 Tab，变更时播放 tabSwitch */
+const switchCategory = (key: string) => {
+  if (key !== activeCategory.value) void playSfx('tabSwitch');
+  activeCategory.value = key;
+};
 
 const filteredAchievements = computed(() => {
   if (activeCategory.value === 'all') return props.achievements;
@@ -80,21 +88,20 @@ const categories = computed(() => {
       </div>
     </div>
 
-    <!-- 分类标签 -->
-    <div class="ach-tabs">
+    <div class="rpg-panel-tabs ach-tabs">
       <button
-        class="ach-tab"
+        class="rpg-panel-tab rpg-panel-tab--amber"
         :class="{ active: activeCategory === 'all' }"
-        @click="activeCategory = 'all'"
+        @click="switchCategory('all')"
       >
         全部
       </button>
       <button
         v-for="cat in categories"
         :key="cat.key"
-        class="ach-tab"
+        class="rpg-panel-tab rpg-panel-tab--amber"
         :class="{ active: activeCategory === cat.key }"
-        @click="activeCategory = cat.key"
+        @click="switchCategory(cat.key)"
       >
         {{ cat.label }}
         <span class="tab-count">{{ cat.completed }}/{{ cat.count }}</span>
@@ -102,36 +109,47 @@ const categories = computed(() => {
     </div>
 
     <!-- 成就列表 -->
-    <div class="ach-list">
+    <div class="rpg-loot-grid rpg-loot-grid--compact ach-list">
       <div
         v-for="ach in filteredAchievements"
         :key="ach.code"
-        class="ach-card"
-        :class="{ completed: ach.completed }"
+        class="rpg-loot-card rpg-loot-card--achievement"
+        :class="{
+          'rpg-loot-card--gold': ach.completed,
+          'rpg-loot-card--locked': !ach.completed,
+        }"
       >
-        <div class="ach-card-head">
-          <div class="ach-icon" :style="{ background: ach.badge?.color || '#94a3b8' }">
+        <div class="rpg-loot-card-head">
+          <div
+            class="rpg-loot-icon rpg-loot-icon--tinted"
+            :style="{ background: ach.badge?.color || '#94a3b8' }"
+          >
             {{ ACHIEVEMENT_ICON_MAP[ach.icon] || '🏆' }}
           </div>
-          <span v-if="ach.completed" class="ach-done">✓</span>
+          <span v-if="ach.completed" class="rpg-loot-status rpg-loot-status--done">✓ 达成</span>
         </div>
-        <div class="ach-name">
+        <div class="rpg-loot-name">
           {{ ach.name }}
         </div>
-        <div class="ach-desc">
+        <div class="rpg-loot-desc">
           {{ ach.description }}
         </div>
-        <div v-if="ach.maxProgress > 1" class="ach-progress-bar">
+        <div v-if="ach.maxProgress > 1" class="rpg-loot-progress">
           <div
-            class="ach-progress-fill"
+            class="rpg-loot-progress__fill rpg-loot-progress__fill--exp"
             :style="{ width: Math.min(100, (ach.progress / ach.maxProgress) * 100) + '%' }"
           />
         </div>
-        <div class="ach-meta">
-          <span v-if="ach.maxProgress > 1" class="ach-progress-text">
-            {{ ach.progress }}/{{ ach.maxProgress }}
-          </span>
-          <span v-if="ach.expReward" class="ach-exp">+{{ ach.expReward }} 经验</span>
+        <div class="rpg-loot-footer">
+          <div class="rpg-loot-meta">
+            <span v-if="ach.maxProgress > 1" class="rpg-loot-progress-text">
+              {{ ach.progress }}/{{ ach.maxProgress }}
+            </span>
+            <span v-else class="rpg-loot-status rpg-loot-status--pending">单次成就</span>
+            <div v-if="ach.expReward" class="rpg-loot-rewards">
+              <span class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">⭐ +{{ ach.expReward }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -200,138 +218,16 @@ const categories = computed(() => {
   }
 
   .ach-tabs {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
     margin-bottom: 10px;
   }
 
-  .ach-tab {
-    padding: 4px 10px;
-    border-radius: 6px;
-    border: 1px solid var(--rpg-border);
-    background: var(--rpg-surface);
-    font-size: 12px;
-    color: var(--rpg-text-secondary);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .ach-tab.active {
-    background: var(--rpg-amber-bg);
-    border-color: var(--rpg-amber-light);
-    color: var(--rpg-amber-text);
-    font-weight: 600;
-  }
-
-  .tab-count {
-    margin-left: 4px;
-    opacity: 0.7;
-    font-size: 11px;
-  }
-
   .ach-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
-    gap: 10px;
     max-height: 360px;
     overflow-y: auto;
     padding-right: 2px;
   }
 
-  .ach-card {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 10px;
-    border-radius: 10px;
-    background: var(--rpg-surface);
-    border: 1px solid var(--rpg-border-subtle);
-    opacity: 0.72;
-    transition: all 0.2s;
-    min-height: 132px;
-  }
-
-  .ach-card.completed {
-    opacity: 1;
-    border-color: var(--rpg-amber-border);
-    background: var(--rpg-amber-bg-gradient);
-  }
-
-  .ach-card-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .ach-icon {
-    flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    color: white;
-  }
-
-  .ach-name {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--rpg-text-heading);
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .ach-done {
-    color: var(--rpg-success);
-    font-weight: 900;
-    font-size: 12px;
-  }
-
-  .ach-desc {
-    font-size: 10px;
-    color: var(--rpg-text-muted);
-    line-height: 1.35;
-    flex: 1;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .ach-progress-bar {
-    height: 3px;
-    background: var(--rpg-track);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .ach-progress-fill {
-    height: 100%;
-    background: var(--rpg-exp-gradient);
-    border-radius: 2px;
-    transition: width 0.3s ease;
-  }
-
-  .ach-meta {
-    display: flex;
-    justify-content: space-between;
-    gap: 4px;
-    font-size: 10px;
-    margin-top: auto;
-  }
-
-  .ach-progress-text {
-    color: var(--rpg-text-secondary);
-  }
-
-  .ach-exp {
-    color: var(--rpg-amber-dark);
-    font-weight: 600;
+  .ach-list .rpg-loot-card {
+    min-height: 136px;
   }
 </style>

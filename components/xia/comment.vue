@@ -2,6 +2,7 @@
 /**
    * 详情页评论/回复模块
    * - 创建评论/回复后根据 API 返回 status 提示待审核
+   * - 提交成功播放 contentPost（成就/任务奖励仍走 WS 音效）
    * - 支持加载更多（由父组件传入 hasMore / loadingMore）
    */
 import { computed, ref } from 'vue';
@@ -10,7 +11,7 @@ import { useRoute } from 'vue-router';
 import { beforeTimeNow } from '@/utils';
 import { addComment, addReply, delComment, delReply } from '@/api/article';
 
-import { messageDanger, messageSuccess, messageWarning } from '~~/utils/toast';
+import { messageDanger, messageSuccess, messageWarning, showToast } from '~~/utils/toast';
 import { useRpg } from '~~/composables/use-rpg';
 
 defineProps({
@@ -35,6 +36,7 @@ const emits = defineEmits(['commented', 'loadMore']);
 const userInfo = useUserInfo();
 const route = useRoute();
 const { isBanned, fetchQuests } = useRpg();
+const { playSfx } = useRpgAudio();
 const formactTime = (item: any) => {
   const time = new Date(item.createTime).getTime();
   return beforeTimeNow(time);
@@ -61,6 +63,7 @@ const addCommentHandle = async () => {
   };
   const res = await addComment(params);
   if (res) {
+    void playSfx('contentPost');
     // status 来自 POST /comment/create，pending 时不刷新列表（尚未公开展示）
     const status = typeof res === 'object' && res?.status ? res.status : 'approved';
     if (status === 'pending') {
@@ -84,15 +87,15 @@ const uid = computed(() => {
 });
 const tip = () => {
   if (!uid.value) {
-    const toast = useToast();
-    toast.add({
-      title: '提示',
+    showToast({
       description: '需要登录才能评论哦',
+      color: 'warning',
+      duration: 4000,
       actions: [
         {
-          icon: 'fe:paper-plane',
+          icon: 'i-lucide-log-in',
           label: '去登录',
-          color: 'error',
+          color: 'info',
           variant: 'outline',
           onClick: async () => {
             await goLogin();
@@ -163,6 +166,7 @@ const addReplytHandle = async (content: string) => {
     };
     const res = await addReply(params);
     const status = res?.status ?? 'approved';
+    void playSfx('contentPost');
     if (status === 'pending') {
       messageSuccess('回复已提交，审核通过后将展示');
     }

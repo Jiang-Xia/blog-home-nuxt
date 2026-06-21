@@ -1,3 +1,4 @@
+import { useRpgLotterySession } from '~~/composables/use-rpg-lottery-session';
 import {
   getRpgStatus,
   getRpgSignInfo,
@@ -56,6 +57,8 @@ import type {
  * 子组件通过 props 渲染，mutation 在本 composable 内完成并 refresh 对应 ref。
  */
 export function useRpgPage() {
+  const { lotteryDrawSessionActive, beginLotteryDrawSession, endLotteryDrawSession }
+    = useRpgLotterySession();
   const token = useToken();
   const rpgStatus = ref<RpgStatus | null>(null);
   const signInfo = ref<SignInfo | null>(null);
@@ -156,18 +159,25 @@ export function useRpgPage() {
     }
   };
 
-  /** mutation 后刷新：等级/签到/禁言/抽奖券等核心状态 */
+  /** mutation 后刷新：等级/签到/禁言/抽奖券等核心状态（并发调用自动合并） */
+  let reloadStatusCoreTask: Promise<void> | null = null;
   const reloadStatusCore = async () => {
-    const [status, sign, ban, ticketsRes] = await Promise.all([
-      getRpgStatus(),
-      getRpgSignInfo(),
-      getRpgBanStatus(),
-      getLotteryTickets(),
-    ]);
-    rpgStatus.value = status;
-    signInfo.value = sign;
-    banStatus.value = ban;
-    lotteryTickets.value = ticketsRes.tickets || 0;
+    if (reloadStatusCoreTask) return reloadStatusCoreTask;
+    reloadStatusCoreTask = (async () => {
+      const [status, sign, ban, ticketsRes] = await Promise.all([
+        getRpgStatus(),
+        getRpgSignInfo(),
+        getRpgBanStatus(),
+        getLotteryTickets(),
+      ]);
+      rpgStatus.value = status;
+      signInfo.value = sign;
+      banStatus.value = ban;
+      lotteryTickets.value = ticketsRes.tickets || 0;
+    })().finally(() => {
+      reloadStatusCoreTask = null;
+    });
+    return reloadStatusCoreTask;
   };
 
   /** 刷新成就列表（WebSocket 推送或领奖后） */
@@ -385,15 +395,41 @@ export function useRpgPage() {
   ): Promise<DrawResult[]> => {
     drawing.value = true;
     try {
-      const results = await lotteryDraw(count, currency);
-      await Promise.all([
-        reloadStatusCore(),
-        loadedTabs.value.has('inventory') ? reloadInventory() : Promise.resolve(),
-      ]);
-      return results;
+      return await lotteryDraw(count, currency);
     }
     finally {
       drawing.value = false;
+    }
+  };
+
+  const LOTTERY_INVENTORY_GRANT_TYPES = new Set([
+    'item',
+    'cosmetic',
+    'consumable',
+    'pet',
+    'avatar_frame',
+    'title',
+  ]);
+
+  const refreshAfterDraw = async (results: DrawResult[] = []) => {
+    try {
+      await reloadStatusCore();
+
+      const needsInventory = results.some(r => LOTTERY_INVENTORY_GRANT_TYPES.has(r.item.type));
+      const needsBuffs = results.some(r => r.item.type === 'buff');
+      const reloads: Promise<unknown>[] = [];
+      if (needsInventory && loadedTabs.value.has('inventory')) {
+        reloads.push(reloadInventory());
+      }
+      if (needsBuffs) {
+        reloads.push(reloadBuffs());
+      }
+      if (reloads.length) {
+        await Promise.all(reloads);
+      }
+    }
+    finally {
+      endLotteryDrawSession();
     }
   };
 
@@ -475,6 +511,9 @@ export function useRpgPage() {
     scope: import('~~/composables/use-realtime-socket').RpgRefreshScope,
   ) => {
     if (!token.value) return;
+    if (lotteryDrawSessionActive.value && (scope === 'status' || scope === 'inventory')) {
+      return;
+    }
     if (scope === 'status') await reloadStatusCore();
     else if (scope === 'achievements') await reloadAchievements();
     else if (scope === 'quests') await reloadQuests();
@@ -529,6 +568,8 @@ export function useRpgPage() {
     handleEquipLoadout,
     handleUnequipLoadout,
     handleDraw,
+    beginLotteryDrawSession,
+    refreshAfterDraw,
     handleToggleBuff,
     handleInventoryEquip,
     handleInventoryUnequip,

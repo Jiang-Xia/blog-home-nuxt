@@ -2,6 +2,7 @@
 /**
    * 留言板页
    * - 顶层留言分页（pageSize=30），子回复随父节点返回
+   * - 发表/回复成功播放 contentPost
    */
 import { reactive, ref, computed } from 'vue';
 import { messageDanger, messageSuccess, messageWarning } from '@/utils/toast';
@@ -17,7 +18,7 @@ interface MsgInterFace {
   address: string;
   comment: string;
 }
-const { data: initialMsgData, refresh } = await useAsyncData('msgboard_Get', () =>
+const { data: initialMsgData } = await useAsyncData('msgboard_Get', () =>
   request.get('/msgboard', { page: 1, pageSize: 30 }),
 );
 const flatMsgList = ref<any[]>(initialMsgData.value?.list ?? []);
@@ -74,8 +75,8 @@ const loadMoreMsgboard = async () => {
 };
 const userInfo = useUserInfo();
 const { isBanned } = useRpg();
+const { playSfx } = useRpgAudio();
 const submitting = ref(false);
-const showToast = ref(false);
 const guestNickname = () => getRandomNickname();
 const resolveFormName = () => (userInfo.value?.uid ? userInfo.value.nickname : guestNickname());
 const msgForm: MsgInterFace = reactive({
@@ -84,12 +85,6 @@ const msgForm: MsgInterFace = reactive({
   address: '',
   comment: '',
 });
-const showTip = () => {
-  showToast.value = true;
-  setTimeout(() => {
-    showToast.value = false;
-  }, 1500);
-};
 onMounted(() => {
   document.addEventListener('click', () => {
     dialog.value = false;
@@ -107,7 +102,7 @@ const confirmHandle = async () => {
     }
     const keys = Object.keys(msgForm);
     if (keys.some(k => !msgForm[k as keyof MsgInterFace])) {
-      showTip();
+      messageWarning('请填写完整信息哦！');
       return;
     }
     const eamilRegx = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
@@ -117,6 +112,7 @@ const confirmHandle = async () => {
     }
     submitting.value = true;
     await request.post('/msgboard', msgForm);
+    void playSfx('contentPost');
     messageSuccess('留言发表成功');
     keys.forEach((k) => {
       if (k === 'name') {
@@ -175,6 +171,7 @@ const okHandle = async () => {
     comment: replyForm.value.comment,
     avatar: userInfo.value.avatar,
   });
+  void playSfx('contentPost');
   dialog.value = false;
   replayModal.value?.close();
   getAllMsgboard();
@@ -203,10 +200,6 @@ useHead({
     </h1>
 
     <CyberCard class="mx-auto mb-6 max-w-3xl !p-4 md:!p-6">
-      <CyberAlert v-show="showToast" variant="warning" class="mb-4">
-        <p>请填写完整信息哦！</p>
-      </CyberAlert>
-
       <p class="cyber-section-label mb-4">
         发表留言
       </p>
@@ -378,14 +371,14 @@ useHead({
       </div>
     </div>
 
-    <dialog id="replay_modal" ref="replayModal" class="modal">
-      <div class="modal-box cyber-glass-card border border-tech">
+    <dialog id="replay_modal" ref="replayModal" class="modal rpg-theme">
+      <div class="modal-box max-w-md">
         <form method="dialog">
-          <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+          <button type="button" class="rpg-modal-close">
             ✕
           </button>
         </form>
-        <h3 class="text-lg font-bold text-tech">
+        <h3 class="text-lg font-bold">
           回复
         </h3>
         <div class="mt-4 space-y-4">
@@ -408,10 +401,10 @@ useHead({
               maxlength="300"
             />
           </label>
-          <div class="modal-action">
-            <CyberButton variant="primary" @click="okHandle">
+          <div class="rpg-modal-actions">
+            <button type="button" class="rpg-modal-btn rpg-modal-btn--primary" @click="okHandle">
               确 认
-            </CyberButton>
+            </button>
           </div>
         </div>
       </div>

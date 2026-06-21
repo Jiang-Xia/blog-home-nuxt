@@ -5,20 +5,23 @@
 <template>
   <div class="mx-auto w-full max-w-3xl space-y-4">
     <CyberToolCard title="批量加水印" desc="选择多张图片，添加自定义文字与时间水印，预览后打包下载">
-      <div class="join w-full pb-2">
-        <select v-model="timeMark" class="select select-bordered login-input join-item">
-          <option value="no">
-            无时间水印
-          </option>
-          <option value="yes">
-            有时间水印
-          </option>
-        </select>
-        <input
-          v-model="customMark"
-          class="input input-bordered login-input join-item min-w-0 flex-1"
-          placeholder="输入自定义水印描述（可选）"
-        >
+      <div class="grid gap-2 pb-2 sm:grid-cols-2">
+        <label class="form-control w-full">
+          <span class="label py-1 text-xs text-tech-muted">自定义水印文字</span>
+          <input
+            v-model="customMark"
+            class="input input-bordered login-input w-full"
+            placeholder="我的水印"
+          >
+        </label>
+
+        <label class="form-control w-full">
+          <span class="label py-1 text-xs text-tech-muted">时间水印</span>
+          <select v-model="timeMark" class="select select-bordered login-input w-full">
+            <option value="no"> 无时间水印 </option>
+            <option value="yes"> 有时间水印 </option>
+          </select>
+        </label>
       </div>
 
       <div class="grid gap-2 pb-2 sm:grid-cols-2">
@@ -34,6 +37,26 @@
           </select>
         </label>
 
+        <label class="form-control w-full">
+          <span class="label py-1 text-xs text-tech-muted">字体</span>
+          <select
+            v-model="watermarkFont"
+            class="select select-bordered login-input w-full"
+            :style="{ fontFamily: selectedFontFamily }"
+          >
+            <option
+              v-for="opt in WATERMARK_FONT_OPTIONS"
+              :key="opt.value"
+              :value="opt.value"
+              :style="{ fontFamily: opt.family }"
+            >
+              {{ opt.label }}
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <div class="grid gap-2 pb-2 sm:grid-cols-2">
         <label class="form-control w-full">
           <span class="label py-1 text-xs text-tech-muted">字号</span>
           <div class="join w-full">
@@ -60,20 +83,25 @@
       <div class="grid gap-2 pb-2 sm:grid-cols-2">
         <label class="form-control w-full">
           <span class="label py-1 text-xs text-tech-muted">文字颜色</span>
-          <div class="join w-full">
+          <div class="flex w-full overflow-hidden rounded-lg border border-tech">
             <select
               v-model="watermarkColorMode"
-              class="select select-bordered login-input join-item w-auto min-w-[7rem]"
+              class="select select-bordered login-input h-12 min-h-12 w-auto min-w-[7rem] shrink-0 rounded-none border-0 border-r border-tech"
             >
               <option value="white"> 白色 </option>
               <option value="black"> 黑色 </option>
               <option value="custom"> 自定义 </option>
             </select>
             <input
-              v-model="customWatermarkColor"
+              :value="displayWatermarkColor"
               type="color"
-              class="h-12 min-w-0 flex-1 cursor-pointer rounded-r-lg border border-tech bg-[var(--tech-input-bg)] px-1"
-              :disabled="watermarkColorMode !== 'custom'"
+              class="h-12 min-h-12 min-w-0 flex-1 cursor-pointer border-0 bg-[var(--tech-input-bg)] p-1"
+              :class="
+                watermarkColorMode === 'custom'
+                  ? 'cursor-pointer'
+                  : 'cursor-default pointer-events-none'
+              "
+              @input="onWatermarkColorInput"
             >
           </div>
         </label>
@@ -237,13 +265,6 @@
         </div>
       </div>
     </CyberToolCard>
-
-    <BaseImageViewer
-      v-if="isViewerOpen"
-      :images="viewerImages"
-      :initial-index="initialIndex"
-      @close="isViewerOpen = false"
-    />
   </div>
 </template>
 
@@ -251,6 +272,8 @@
 import { messageDanger, messageSuccess } from '@/utils/toast';
 import { debounce } from '@/utils/index';
 import { loadWatermarkScripts } from '~/utils/script-loader';
+
+const { open: openImagePreview } = useImagePreview();
 
 const MAX_PHOTOS = 50;
 
@@ -266,6 +289,22 @@ type WatermarkPosition = 'bottom' | 'top' | 'center' | 'bottom-left' | 'bottom-r
 type FontSizeMode = 'auto' | 'manual';
 type WatermarkColorMode = 'white' | 'black' | 'custom';
 type ExportFormat = 'png' | 'jpeg';
+type WatermarkFontKey = 'harmony' | 'pingfang' | 'yahei' | 'song' | 'kaiti' | 'mono';
+
+interface WatermarkFontOption {
+  value: WatermarkFontKey;
+  label: string;
+  family: string;
+}
+
+const WATERMARK_FONT_OPTIONS: WatermarkFontOption[] = [
+  { value: 'harmony', label: '鸿蒙 Sans（推荐）', family: 'HarmonyOS-Sans, sans-serif' },
+  { value: 'pingfang', label: '苹方', family: '"PingFang SC", "Hiragino Sans GB", sans-serif' },
+  { value: 'yahei', label: '微软雅黑', family: '"Microsoft YaHei", sans-serif' },
+  { value: 'song', label: '宋体', family: '"Songti SC", SimSun, serif' },
+  { value: 'kaiti', label: '楷体', family: '"Kaiti SC", KaiTi, STKaiti, serif' },
+  { value: 'mono', label: '等宽', family: 'ui-monospace, "SF Mono", Consolas, monospace' },
+];
 
 interface WatermarkStyle {
   position: WatermarkPosition;
@@ -275,6 +314,7 @@ interface WatermarkStyle {
   colorMode: WatermarkColorMode;
   customColor: string;
   rotation: number;
+  fontFamily: WatermarkFontKey;
 }
 
 interface ExportOptions {
@@ -287,7 +327,7 @@ interface WatermarkColors {
   shadow: string;
 }
 
-const customMark = ref('');
+const customMark = ref('我的水印');
 const timeMark = ref<TimeMark>('yes');
 const watermarkPosition = ref<WatermarkPosition>('bottom');
 const watermarkOpacity = ref(85);
@@ -296,6 +336,7 @@ const customFontSize = ref(30);
 const watermarkColorMode = ref<WatermarkColorMode>('white');
 const customWatermarkColor = ref('#ffffff');
 const watermarkRotation = ref(0);
+const watermarkFont = ref<WatermarkFontKey>('harmony');
 const appendMode = ref(false);
 const exportFormat = ref<ExportFormat>('png');
 const jpegQuality = ref(90);
@@ -309,10 +350,63 @@ const isDragging = ref(false);
 const downloadingId = ref('');
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
-const isViewerOpen = ref(false);
-const initialIndex = ref(0);
 
 const viewerImages = computed(() => items.value.map(item => item.previewSrc));
+
+const displayWatermarkColor = computed(() => {
+  if (watermarkColorMode.value === 'black') {
+    return '#000000';
+  }
+  if (watermarkColorMode.value === 'custom') {
+    return customWatermarkColor.value;
+  }
+  return '#ffffff';
+});
+
+watch(watermarkColorMode, (mode) => {
+  if (mode === 'white') {
+    customWatermarkColor.value = '#ffffff';
+  }
+  else if (mode === 'black') {
+    customWatermarkColor.value = '#000000';
+  }
+});
+
+function onWatermarkColorInput(event: Event) {
+  const value = (event.target as HTMLInputElement).value;
+  watermarkColorMode.value = 'custom';
+  customWatermarkColor.value = value;
+}
+
+const selectedFontFamily = computed(
+  () =>
+    WATERMARK_FONT_OPTIONS.find(opt => opt.value === watermarkFont.value)?.family
+    ?? WATERMARK_FONT_OPTIONS[0]!.family,
+);
+
+function resolveFontFamily(style: WatermarkStyle): string {
+  return (
+    WATERMARK_FONT_OPTIONS.find(opt => opt.value === style.fontFamily)?.family
+    ?? WATERMARK_FONT_OPTIONS[0]!.family
+  );
+}
+
+function buildCanvasFont(fontSize: number, style: WatermarkStyle): string {
+  return `${fontSize}px ${resolveFontFamily(style)}`;
+}
+
+async function ensureWatermarkFont(style: WatermarkStyle, fontSize: number): Promise<void> {
+  if (!document.fonts) {
+    return;
+  }
+  try {
+    await document.fonts.load(buildCanvasFont(fontSize, style));
+    await document.fonts.ready;
+  }
+  catch {
+    // 系统字体或已加载字体失败时仍尝试绘制
+  }
+}
 
 function getWatermarkStyle(): WatermarkStyle {
   return {
@@ -323,6 +417,7 @@ function getWatermarkStyle(): WatermarkStyle {
     colorMode: watermarkColorMode.value,
     customColor: customWatermarkColor.value,
     rotation: watermarkRotation.value,
+    fontFamily: watermarkFont.value,
   };
 }
 
@@ -431,7 +526,7 @@ function drawSingleWatermark(
   const colors = getWatermarkColors(style);
   const rotationRad = (resolveRotationDeg(style) * Math.PI) / 180;
 
-  ctx.font = `${fontSize}px Arial, sans-serif`;
+  ctx.font = buildCanvasFont(fontSize, style);
   ctx.textBaseline = 'middle';
 
   let x = width / 2;
@@ -479,7 +574,7 @@ function drawTiledWatermark(
   const rotationRad = (resolveRotationDeg(style) * Math.PI) / 180;
 
   ctx.save();
-  ctx.font = `${fontSize}px Arial, sans-serif`;
+  ctx.font = buildCanvasFont(fontSize, style);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
@@ -565,7 +660,7 @@ function renderWatermarkedCanvas(
 ): Promise<HTMLCanvasElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => {
+    img.onload = async () => {
       const canvas = document.createElement('canvas');
       canvas.width = img.width;
       canvas.height = img.height;
@@ -577,6 +672,8 @@ function renderWatermarkedCanvas(
       }
 
       ctx.drawImage(img, 0, 0);
+      const fontSize = resolveFontSize(canvas.width, canvas.height, style);
+      await ensureWatermarkFont(style, fontSize);
       drawWatermarkLayer(ctx, canvas.width, canvas.height, style);
       resolve(canvas);
     };
@@ -719,6 +816,7 @@ watch(
     watermarkColorMode,
     customWatermarkColor,
     watermarkRotation,
+    watermarkFont,
   ],
   () => {
     if (items.value.length) {
@@ -750,9 +848,6 @@ const clearAll = () => {
 
 const removeItem = (index: number) => {
   items.value.splice(index, 1);
-  if (isViewerOpen.value && initialIndex.value >= items.value.length) {
-    isViewerOpen.value = false;
-  }
 };
 
 const downloadSingle = async (item: WatermarkItem) => {
@@ -777,8 +872,21 @@ const downloadSingle = async (item: WatermarkItem) => {
 };
 
 const openViewer = (index: number) => {
-  initialIndex.value = index;
-  isViewerOpen.value = true;
+  if (!items.value.length || processing.value) {
+    return;
+  }
+
+  openImagePreview(viewerImages.value, {
+    index,
+    mode: 'full',
+    fileNames: items.value.map(item => item.name),
+    onDownload: (downloadIndex) => {
+      const item = items.value[downloadIndex];
+      if (item) {
+        return downloadSingle(item);
+      }
+    },
+  });
 };
 
 const downloadAllImages = async () => {

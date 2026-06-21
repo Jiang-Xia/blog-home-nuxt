@@ -11,6 +11,7 @@ const props = defineProps<{
 }>();
 
 const userInfo = useUserInfo();
+const { playSfx } = useRpgAudio();
 const sharing = ref(false);
 const posterRef = ref<HTMLElement>();
 const qrContainerRef = ref<HTMLElement>();
@@ -102,6 +103,7 @@ const handleShare = async () => {
   try {
     const res = await shareSeasonPoster();
     await downloadPosterImage(res);
+    void playSfx('uiClick');
     messageSuccess('海报已下载');
   }
   catch (e: any) {

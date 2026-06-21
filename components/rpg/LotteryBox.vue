@@ -2,8 +2,9 @@
 /**
    * 抽奖宝箱
    * 稀有度展示用 API 的 rarityLabel/rarityColor/rarityIcon，不用 RARITY_MAP
+   * 动画分阶段：蓄力 → 滚轮 → 揭晓/汇总（见 components/rpg/lottery/）
    */
-import { formatRewardDetail } from '~~/types/rpg';
+import type { LotteryDrawPhase } from '@/utils/lottery-reel';
 import type { DrawResult, LotteryPoolItem, LotteryRecord, RpgStatus } from '~~/types/rpg';
 import { formactDate } from '@/utils/common';
 
@@ -18,14 +19,28 @@ const props = defineProps<{
 const emit = defineEmits<{
   draw: [count: number, currency: 'ticket' | 'currency'];
   loadHistory: [];
+  finished: [results: DrawResult[]];
 }>();
 
-const drawCurrency = ref<'ticket' | 'currency'>('ticket');
-const showResult = ref(false);
+const drawCurrency = ref<'ticket' | 'currency'>('currency');
+const { openRechargeModal } = useRpgRecharge();
 const drawResults = ref<DrawResult[]>([]);
-const currentResultIndex = ref(0);
-const isAnimating = ref(false);
+const drawPhase = ref<LotteryDrawPhase | 'idle'>('idle');
+const pendingCount = ref(1);
 const showHistory = ref(false);
+
+const { playSfx } = useRpgAudio();
+
+/** 切换抽奖支付方式（券 / 钻石） */
+const setDrawCurrency = (currency: 'ticket' | 'currency') => {
+  if (drawCurrency.value === currency) return;
+  void playSfx('tabSwitch');
+  drawCurrency.value = currency;
+};
+
+const showOverlay = computed(() => drawPhase.value !== 'idle');
+const isAnimating = computed(() => drawPhase.value !== 'idle');
+const overlayPhase = computed(() => (drawPhase.value === 'idle' ? 'charging' : drawPhase.value));
 
 /** 判断是否可抽奖（券或钻石） */
 const canDraw = (count: number) => {
@@ -35,53 +50,75 @@ const canDraw = (count: number) => {
   return props.lotteryTickets >= count;
 };
 
-/**
-   * 触发抽奖：先播开箱动画，再 emit 给父组件调 API。
-   * 结果展示由父组件调用 showDrawResults 回填。
-   */
-const handleDraw = async (count = 1) => {
-  if (props.drawing || isAnimating.value) return;
-  if (!canDraw(count)) return;
-
-  isAnimating.value = true;
-  await new Promise(resolve => setTimeout(resolve, 600));
-  emit('draw', count, drawCurrency.value);
-  isAnimating.value = false;
+/** 抽奖按钮是否禁用：钻石不足仍可点击（弹充值），仅抽奖券不足时禁用 */
+const isDrawDisabled = (count: number) => {
+  if (props.drawing || isAnimating.value) return true;
+  if (drawCurrency.value === 'ticket') return !canDraw(count);
+  return false;
 };
 
-/** 父组件抽奖成功后调用，展示结果弹窗 */
+/** 进入揭晓或汇总阶段 */
+const goToResultPhase = () => {
+  drawPhase.value = pendingCount.value > 1 ? 'summary' : 'reveal';
+};
+
+/** 结束整轮抽奖动画 */
+const finishDrawAnimation = () => {
+  const results = [...drawResults.value];
+  drawPhase.value = 'idle';
+  drawResults.value = [];
+  emit('finished', results);
+};
+
+/**
+   * 触发抽奖：先进入蓄力阶段，再 emit 给父组件调 API。
+   * 结果展示由父组件调用 showDrawResults 驱动滚轮与揭晓。
+   */
+/** 发起抽奖：进入蓄力阶段并播放 uiClick */
+const handleDraw = (count = 1) => {
+  if (props.drawing || isAnimating.value) return;
+  if (drawCurrency.value === 'currency' && !canDraw(count)) {
+    openRechargeModal();
+    return;
+  }
+  if (!canDraw(count)) return;
+
+  pendingCount.value = count;
+  drawResults.value = [];
+  drawPhase.value = 'charging';
+  void playSfx('uiClick');
+  emit('draw', count, drawCurrency.value);
+};
+
+/** 父组件抽奖成功后调用，进入滚轮阶段 */
 defineExpose({
   showDrawResults: (results: DrawResult[]) => {
+    if (!results.length) {
+      finishDrawAnimation();
+      return;
+    }
     drawResults.value = results;
-    currentResultIndex.value = 0;
-    showResult.value = true;
+    drawPhase.value = 'spinning';
+  },
+  cancelDrawAnimation: () => {
+    finishDrawAnimation();
   },
 });
 
-const nextResult = () => {
-  if (currentResultIndex.value < drawResults.value.length - 1) {
-    currentResultIndex.value++;
-  }
-  else {
-    showResult.value = false;
+const onOverlaySkip = () => {
+  if (drawPhase.value === 'spinning') {
+    goToResultPhase();
   }
 };
 
-const currentResult = computed(() => drawResults.value[currentResultIndex.value]);
-
-const getRarityGlow = (rarity: string): string => {
-  const map: Record<string, string> = {
-    common: '0 0 20px rgba(148, 163, 184, 0.3)',
-    rare: '0 0 30px rgba(59, 130, 246, 0.5)',
-    epic: '0 0 40px rgba(139, 92, 246, 0.6)',
-    legendary: '0 0 50px rgba(245, 158, 11, 0.8)',
-  };
-  return map[rarity] || map.common || '';
+const onOverlayClose = () => {
+  finishDrawAnimation();
 };
 
-/** 展开抽奖记录时懒加载（首次展开 emit 给父组件） */
+/** 展开/收起抽奖记录；变更时播放 tabSwitch */
 const toggleHistory = () => {
   showHistory.value = !showHistory.value;
+  void playSfx('tabSwitch');
   if (showHistory.value && props.lotteryHistory.length === 0) {
     emit('loadHistory');
   }
@@ -97,18 +134,18 @@ const toggleHistory = () => {
     <div v-if="rpgStatus?.lotteryPityCounter != null" class="text-xs text-base-content/60 mb-2">
       保底进度 {{ rpgStatus.lotteryPityCounter }} / 90
     </div>
-    <div class="flex gap-2 mb-3">
+    <div class="flex gap-2 mb-3 rpg-panel-tabs !mb-3">
       <button
-        class="btn btn-xs"
-        :class="{ 'btn-primary': drawCurrency === 'ticket' }"
-        @click="drawCurrency = 'ticket'"
+        class="rpg-panel-tab"
+        :class="{ active: drawCurrency === 'ticket' }"
+        @click="setDrawCurrency('ticket')"
       >
         抽奖券
       </button>
       <button
-        class="btn btn-xs"
-        :class="{ 'btn-primary': drawCurrency === 'currency' }"
-        @click="drawCurrency = 'currency'"
+        class="rpg-panel-tab"
+        :class="{ active: drawCurrency === 'currency' }"
+        @click="setDrawCurrency('currency')"
       >
         钻石(10/抽)
       </button>
@@ -117,26 +154,34 @@ const toggleHistory = () => {
     <div class="chest-area">
       <div
         class="chest"
-        :class="{ shaking: isAnimating, opened: showResult }"
-        @click="!showResult && !drawing && handleDraw(1)"
+        :class="{
+          charging: drawPhase === 'charging',
+          spinning: drawPhase === 'spinning',
+          disabled: isAnimating || drawing,
+        }"
+        @click="!isAnimating && !drawing && handleDraw(1)"
       >
+        <span v-if="drawPhase === 'charging'" class="chest-aura" aria-hidden="true" />
+        <span v-if="drawPhase === 'charging'" class="chest-spark chest-spark--1" aria-hidden="true">✦</span>
+        <span v-if="drawPhase === 'charging'" class="chest-spark chest-spark--2" aria-hidden="true">✦</span>
         <div class="chest-body">
-          <span class="chest-icon">{{ showResult ? '📦' : isAnimating ? '✨' : '🎁' }}</span>
-          <span v-if="!showResult" class="chest-label">点击开启</span>
+          <span class="chest-icon">
+            {{ drawPhase === 'charging' ? '✨' : drawPhase === 'spinning' ? '🎲' : '🎁' }}
+          </span>
+          <span v-if="!isAnimating" class="chest-label">点击开启</span>
+          <span v-else class="chest-label chest-label--active">
+            {{ drawPhase === 'charging' ? '开启中…' : '抽奖中…' }}
+          </span>
         </div>
       </div>
 
       <div class="draw-actions">
-        <button
-          class="draw-btn"
-          :disabled="!canDraw(1) || drawing || isAnimating"
-          @click="handleDraw(1)"
-        >
+        <button class="draw-btn" :disabled="isDrawDisabled(1)" @click="handleDraw(1)">
           单抽 x1
         </button>
         <button
           class="draw-btn draw-btn-multi"
-          :disabled="!canDraw(5) || drawing || isAnimating"
+          :disabled="isDrawDisabled(5)"
           @click="handleDraw(5)"
         >
           五连 x5
@@ -144,59 +189,35 @@ const toggleHistory = () => {
       </div>
     </div>
 
-    <Teleport to="body">
-      <div v-if="showResult && currentResult" class="result-overlay" @click="nextResult">
-        <div
-          class="result-card"
-          :style="{ '--rarity-glow': getRarityGlow(currentResult.item.rarity) }"
-          @click.stop
-        >
-          <RpgRarityBadge
-            class="result-rarity"
-            :rarity="currentResult.item.rarity"
-            :rarity-label="currentResult.item.rarityLabel"
-            :rarity-color="currentResult.item.rarityColor"
-            :rarity-icon="currentResult.item.rarityIcon"
-          />
-          <div class="result-name">
-            {{ currentResult.item.name }}
-          </div>
-          <div class="result-desc">
-            {{ currentResult.item.description }}
-          </div>
-          <div v-if="currentResult.rewardDetail" class="result-reward">
-            {{ formatRewardDetail(currentResult.rewardDetail) }}
-          </div>
-          <div class="result-hint">
-            {{
-              drawResults.length > 1 && currentResultIndex < drawResults.length - 1
-                ? '点击查看下一个 →'
-                : '点击关闭'
-            }}
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <RpgLotteryDrawOverlay
+      :visible="showOverlay"
+      :phase="overlayPhase"
+      :pool="lotteryPool"
+      :results="drawResults"
+      :draw-count="pendingCount"
+      @skip="onOverlaySkip"
+      @close="onOverlayClose"
+    />
 
     <div class="pool-preview">
       <div class="pool-title">
         奖池一览
       </div>
-      <div class="pool-grid">
+      <div class="rpg-pool-grid">
         <div
           v-for="item in lotteryPool"
           :key="item.id"
-          class="pool-item"
-          :style="{ borderColor: item.rarityColor || '#ccc' }"
+          class="rpg-pool-chip"
+          :style="{ borderColor: item.rarityColor || 'var(--rpg-loot-border)' }"
         >
           <RpgRarityBadge
-            class="pool-rarity-badge"
+            class="rpg-pool-chip__badge"
             :rarity="item.rarity"
             :rarity-label="item.rarityLabel"
             :rarity-color="item.rarityColor"
             :rarity-icon="item.rarityIcon"
           />
-          <span class="pool-name">{{ item.name }}</span>
+          <span class="rpg-pool-chip__name">{{ item.name }}</span>
         </div>
       </div>
     </div>
@@ -206,10 +227,14 @@ const toggleHistory = () => {
         📜 抽奖记录 <span class="toggle-icon">{{ showHistory ? '▼' : '▶' }}</span>
       </div>
       <div v-if="showHistory" class="history-list">
-        <div v-if="lotteryHistory.length === 0" class="history-empty">
+        <div v-if="lotteryHistory.length === 0" class="rpg-empty-inline !py-2">
           暂无记录
         </div>
-        <div v-for="record in lotteryHistory" :key="record.id" class="history-item">
+        <div
+          v-for="record in lotteryHistory"
+          :key="record.id"
+          class="rpg-rank-row rpg-rank-row--compact"
+        >
           <RpgRarityBadge
             class="history-rarity-badge"
             :rarity="record.poolRarity"
@@ -261,49 +286,84 @@ const toggleHistory = () => {
   }
 
   .chest {
-    width: 100px;
-    height: 100px;
-    border-radius: 16px;
-    background: var(--rpg-amber-bg-gradient);
-    border: 3px solid var(--rpg-amber);
+    width: 108px;
+    height: 108px;
+    border-radius: 18px;
+    background: var(--rpg-loot-bg);
+    border: 2px solid var(--rpg-amber-border);
+    box-shadow: var(--rpg-loot-shadow), var(--rpg-loot-inset);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition:
+      transform 0.2s,
+      box-shadow 0.25s;
     position: relative;
+    overflow: visible;
   }
 
-  .chest:hover:not(.opened) {
+  .chest:hover:not(.disabled) {
     transform: scale(1.05);
+    box-shadow: 0 8px 28px rgb(245 158 11 / 0.28);
   }
 
-  .chest.shaking {
-    animation: shake 0.1s infinite alternate;
+  .chest.charging {
+    animation: chestCharge 0.14s infinite alternate;
+    box-shadow: 0 0 32px rgb(251 191 36 / 0.45);
   }
 
-  .chest.opened {
-    opacity: 0.5;
+  .chest.spinning {
+    box-shadow: 0 0 24px rgb(139 92 246 / 0.35);
+  }
+
+  .chest.disabled {
     cursor: default;
+    opacity: 0.88;
   }
 
-  @keyframes shake {
-    from {
-      transform: rotate(-3deg) scale(1.05);
-    }
-    to {
-      transform: rotate(3deg) scale(1.05);
-    }
+  .chest-aura {
+    position: absolute;
+    inset: -10px;
+    border-radius: 22px;
+    background: radial-gradient(circle, rgb(251 191 36 / 0.5), transparent 70%);
+    animation: auraPulse 1s ease-in-out infinite;
+  }
+
+  .chest-spark {
+    position: absolute;
+    font-size: 12px;
+    color: var(--rpg-amber-light);
+    animation: sparkOrbit 1.6s linear infinite;
+    text-shadow: 0 0 8px rgb(251 191 36 / 0.8);
+  }
+
+  .chest-spark--1 {
+    top: 6px;
+    right: 10px;
+  }
+
+  .chest-spark--2 {
+    bottom: 8px;
+    left: 10px;
+    animation-delay: 0.8s;
   }
 
   .chest-body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    z-index: 1;
   }
 
   .chest-icon {
-    font-size: 36px;
+    font-size: 38px;
+    transition: transform 0.2s;
+  }
+
+  .chest.charging .chest-icon {
+    animation: iconPulse 0.8s ease-in-out infinite;
   }
 
   .chest-label {
@@ -311,6 +371,11 @@ const toggleHistory = () => {
     color: var(--rpg-amber-text);
     font-weight: 600;
     margin-top: 2px;
+  }
+
+  .chest-label--active {
+    color: var(--rpg-amber-dark);
+    animation: labelBlink 1s ease-in-out infinite;
   }
 
   .draw-actions {
@@ -327,7 +392,9 @@ const toggleHistory = () => {
     font-weight: 700;
     font-size: 13px;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition:
+      opacity 0.2s,
+      transform 0.2s;
   }
 
   .draw-btn:disabled {
@@ -337,88 +404,11 @@ const toggleHistory = () => {
 
   .draw-btn:not(:disabled):hover {
     opacity: 0.9;
+    transform: translateY(-1px);
   }
 
   .draw-btn-multi {
     background: var(--rpg-level-badge-gradient);
-  }
-
-  .result-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--rpg-overlay);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10050;
-    animation: fadeIn 0.2s ease;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  .result-card {
-    background: var(--rpg-modal-surface, var(--rpg-surface));
-    border: 1.5px solid var(--rpg-border);
-    border-radius: 16px;
-    padding: 32px 32px 28px;
-    text-align: center;
-    min-width: 280px;
-    max-width: 320px;
-    box-shadow:
-      var(--rarity-glow, 0 0 24px rgb(148 163 184 / 0.25)),
-      0 0 0 1px rgb(255 255 255 / 0.06),
-      0 24px 64px rgb(0 0 0 / 0.55);
-    animation: popIn 0.3s ease;
-  }
-
-  @keyframes popIn {
-    from {
-      transform: scale(0.7);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  .result-rarity {
-    margin-bottom: 14px;
-  }
-
-  .result-name {
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--rpg-text);
-    margin-bottom: 6px;
-  }
-
-  .result-desc {
-    font-size: 13px;
-    color: var(--rpg-text-secondary);
-    margin-bottom: 10px;
-  }
-
-  .result-reward {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--rpg-success);
-    margin-bottom: 12px;
-  }
-
-  .result-hint {
-    font-size: 11px;
-    color: var(--rpg-text-muted);
-    margin-top: 4px;
   }
 
   .pool-preview {
@@ -429,34 +419,7 @@ const toggleHistory = () => {
     font-size: 12px;
     font-weight: 600;
     color: var(--rpg-text-label);
-    margin-bottom: 6px;
-  }
-
-  .pool-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    gap: 6px;
-  }
-
-  .pool-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    padding: 5px 8px;
-    border-radius: 6px;
-    border: 1.5px solid;
-    background: var(--rpg-surface);
-    font-size: 11px;
-  }
-
-  .pool-rarity-badge {
-    flex-shrink: 0;
-  }
-
-  .pool-name {
-    color: var(--rpg-text-body);
-    font-weight: 500;
+    margin-bottom: 8px;
   }
 
   .history-toggle {
@@ -480,23 +443,9 @@ const toggleHistory = () => {
   .history-list {
     max-height: 200px;
     overflow-y: auto;
-  }
-
-  .history-empty {
-    font-size: 11px;
-    color: var(--rpg-text-muted);
-    padding: 8px;
-  }
-
-  .history-item {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 8px;
-    border-radius: 5px;
-    background: var(--rpg-surface);
-    margin-bottom: 3px;
-    border: 1px solid var(--rpg-border-subtle);
+    flex-direction: column;
+    gap: 4px;
   }
 
   .history-rarity-badge {
@@ -509,8 +458,62 @@ const toggleHistory = () => {
     font-weight: 500;
     flex: 1;
   }
+
   .history-time {
     font-size: 10px;
     color: var(--rpg-text-muted);
+  }
+
+  @keyframes chestCharge {
+    from {
+      transform: rotate(-2deg) scale(1.03);
+    }
+    to {
+      transform: rotate(2deg) scale(1.06);
+    }
+  }
+
+  @keyframes auraPulse {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+  }
+
+  @keyframes sparkOrbit {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+      opacity: 0.6;
+    }
+    50% {
+      transform: translateY(-6px) scale(1.2);
+      opacity: 1;
+    }
+  }
+
+  @keyframes iconPulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.12);
+    }
+  }
+
+  @keyframes labelBlink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
   }
 </style>

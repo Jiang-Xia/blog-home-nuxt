@@ -2,23 +2,7 @@
 /* / 路径显示的默认页面 */
 import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
-import { dailyImage } from '~~/api/article.js';
 import { originUrl } from '~/config';
-
-/* 获取全局banner数据 */
-const banners = useBanners();
-const { data: imagesData } = await useAsyncData('index_GetIMG', () => dailyImage(7));
-if (imagesData.value) {
-  banners.value = imagesData.value.images.map((v: any) => {
-    const { copyright, copyrightlink, title } = v;
-    return {
-      copyright,
-      copyrightlink,
-      title,
-      url: 'https://cn.bing.com' + v.url,
-    };
-  });
-}
 
 onMounted(() => {
   if (!Cookies.get('browserId')) {
@@ -103,6 +87,8 @@ const route = useRoute();
 const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
 const needsRpgGlobal = computed(() => {
   const path = route.path;
+  // 测试页需挂载 RpgGlobalInit，线上 /tool/test 挡板才能走 handlers + 全屏弹窗
+  if (path.startsWith('/tool/test')) return true;
   return (
     path === '/'
     || path.startsWith('/rpg')
@@ -154,6 +140,7 @@ const needsRpgGlobal = computed(() => {
       <xia-icon icon="blog-rocket4" width="34px" height="34px" />
     </xia-backtop>
     <RpgGlobalInit v-if="needsRpgGlobal" />
+    <BaseImagePreviewHost />
   </div>
 </template>
 
@@ -167,6 +154,8 @@ const needsRpgGlobal = computed(() => {
     // background: var(--main-bgc);
     // color: var(--text-color);
     min-height: 100vh;
+    /* 防止子元素光晕/负边距导致横向滚动，左滑露出 Cyber 网格底 */
+    overflow-x: clip;
 
     // 会编译成和 & 同级类名即 app-layout-header
     &-header {

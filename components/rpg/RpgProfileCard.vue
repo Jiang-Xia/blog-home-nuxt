@@ -94,17 +94,23 @@ defineExpose({
   },
 });
 
+const { playSfx } = useRpgAudio();
+
 type RpgTab = 'quests' | 'achievements' | 'buffs';
 const activeTab = ref<RpgTab>('quests');
+
+/** 切换成就 / 任务 / 增益 Tab，变更时播放 tabSwitch */
 const switchTab = (tab: RpgTab) => {
+  if (tab !== activeTab.value) void playSfx('tabSwitch');
   activeTab.value = tab;
 };
 
 const showHitRecords = ref(false);
 
-/** 展开敏感词记录时懒加载（首次展开 emit 给父组件请求） */
+/** 展开/收起敏感词记录；变更时播放 tabSwitch */
 const toggleHitRecords = () => {
   showHitRecords.value = !showHitRecords.value;
+  void playSfx('tabSwitch');
   if (showHitRecords.value && props.hitRecords.length === 0) {
     emit('loadHitRecords');
   }
@@ -165,17 +171,29 @@ const toggleHitRecords = () => {
     </div>
 
     <!-- 签到区域 -->
-    <div class="sign-row">
-      <button
-        class="sign-btn"
-        :disabled="signInfo?.signedToday || signingIn || isBanned"
-        @click="emit('signIn')"
-      >
-        {{ signInfo?.signedToday ? '✓ 已签到' : signingIn ? '...' : '签到 +10经验' }}
-      </button>
-      <div class="sign-stats">
-        <span class="stat">📅 {{ signInfo?.totalSignDays ?? 0 }}天</span>
-        <span v-if="signInfo?.consecutiveSignDays" class="stat streak">🔥 {{ signInfo.consecutiveSignDays }}天</span>
+    <div class="sign-section">
+      <div class="sign-main">
+        <button
+          class="sign-btn"
+          :disabled="signInfo?.signedToday || signingIn || isBanned"
+          @click="emit('signIn')"
+        >
+          {{ signInfo?.signedToday ? '✓ 已签到' : signingIn ? '签到中…' : '签到 +10经验' }}
+        </button>
+        <div class="sign-stats">
+          <span class="sign-chip" title="累计签到天数">
+            <span class="chip-icon" aria-hidden="true">📅</span>
+            <span class="chip-text">
+              累计 <strong class="chip-num">{{ signInfo?.totalSignDays ?? 0 }}</strong> 天
+            </span>
+          </span>
+          <span v-if="signInfo?.consecutiveSignDays" class="sign-chip streak" title="连续签到天数">
+            <span class="chip-icon" aria-hidden="true">🔥</span>
+            <span class="chip-text">
+              连续 <strong class="chip-num">{{ signInfo.consecutiveSignDays }}</strong> 天
+            </span>
+          </span>
+        </div>
       </div>
       <div
         v-if="lastSignInResult?.bonusExp || lastSignInResult?.lifeRecovered"
@@ -315,10 +333,13 @@ const toggleHitRecords = () => {
 <style scoped>
   .rpg-card {
     width: 100%;
-    padding: 16px;
-    border-radius: 16px;
-    background: var(--rpg-card-gradient);
-    border: 1px solid var(--rpg-border);
+    padding: 12px;
+    border-radius: 14px;
+    background: var(--rpg-loot-bg);
+    border: 1px solid var(--rpg-loot-border);
+    box-shadow: var(--rpg-loot-shadow), var(--rpg-loot-inset);
+    backdrop-filter: var(--rpg-loot-backdrop);
+    -webkit-backdrop-filter: var(--rpg-loot-backdrop);
   }
 
   .role-badge {
@@ -461,24 +482,30 @@ const toggleHitRecords = () => {
   }
 
   /* Sign */
-  .sign-row {
+  .sign-section {
+    margin-bottom: 12px;
+  }
+
+  .sign-main {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
   }
 
   .sign-btn {
-    padding: 6px 16px;
+    flex-shrink: 0;
+    height: 32px;
+    padding: 0 14px;
     border-radius: 8px;
     background: var(--rpg-primary-gradient);
     color: white;
     font-weight: 700;
     font-size: 13px;
+    line-height: 1;
     border: none;
     cursor: pointer;
     transition: opacity 0.2s;
+    white-space: nowrap;
   }
 
   .sign-btn:disabled {
@@ -491,22 +518,61 @@ const toggleHitRecords = () => {
 
   .sign-stats {
     display: flex;
-    gap: 10px;
-    font-size: 12px;
-    color: var(--rpg-text-secondary);
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-end;
   }
 
-  .stat.streak {
+  .sign-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1;
+    color: var(--rpg-text-secondary);
+    background: var(--rpg-surface);
+    border: 1px solid var(--rpg-border-subtle);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .sign-chip.streak {
     background: var(--rpg-amber-bg);
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-weight: 600;
+    border-color: color-mix(in oklch, var(--rpg-amber) 25%, transparent);
     color: var(--rpg-amber-text-soft);
+  }
+
+  .chip-icon {
+    flex-shrink: 0;
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .chip-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .chip-num {
+    font-weight: 800;
+    color: var(--rpg-text);
+  }
+
+  .sign-chip.streak .chip-num {
+    color: var(--rpg-amber-text);
   }
 
   .sign-result-tip {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
+    margin-top: 8px;
     font-size: 11px;
     animation: fadeInTip 0.4s ease;
   }
@@ -607,10 +673,10 @@ const toggleHitRecords = () => {
   }
 
   .rpg-panel {
-    padding: 10px;
-    border-radius: 10px;
-    background: var(--rpg-surface);
-    border: 1px solid var(--rpg-border);
+    padding: 6px;
+    border-radius: 12px;
+    background: var(--rpg-bg-alt);
+    border: 1px solid var(--rpg-border-subtle);
   }
 
   /* Collections */
@@ -639,12 +705,14 @@ const toggleHitRecords = () => {
   }
 
   .collection-tag {
-    padding: 2px 8px;
-    border-radius: 5px;
-    border: 1.5px solid;
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid;
     font-size: 11px;
     font-weight: 600;
     cursor: default;
+    background: var(--rpg-loot-bg);
+    box-shadow: var(--rpg-loot-inset);
 
     &.clickable {
       cursor: pointer;
@@ -656,7 +724,9 @@ const toggleHitRecords = () => {
     }
 
     &.equipped {
-      box-shadow: 0 0 0 2px currentColor;
+      box-shadow:
+        var(--rpg-loot-inset),
+        0 0 0 2px color-mix(in oklch, currentColor 35%, transparent);
     }
 
     .equipped-badge {
@@ -664,8 +734,6 @@ const toggleHitRecords = () => {
       font-size: 10px;
       opacity: 0.8;
     }
-
-    background: var(--rpg-surface);
   }
 
   .title-tag {
@@ -698,6 +766,9 @@ const toggleHitRecords = () => {
   .hits-list {
     max-height: 180px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .hits-empty {
@@ -707,11 +778,11 @@ const toggleHitRecords = () => {
   }
 
   .hit-item {
-    padding: 6px;
-    border-radius: 5px;
-    background: var(--rpg-surface);
-    margin-bottom: 3px;
-    border: 1px solid var(--rpg-border-subtle);
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--rpg-loot-bg);
+    border: 1px solid var(--rpg-loot-border);
+    box-shadow: var(--rpg-loot-inset);
   }
 
   .hit-content {
@@ -727,11 +798,5 @@ const toggleHitRecords = () => {
     font-size: 9px;
     color: var(--rpg-text-muted);
     margin-top: 1px;
-  }
-
-  .rpg-loading {
-    padding: 24px;
-    text-align: center;
-    color: var(--rpg-text-muted);
   }
 </style>

@@ -2,6 +2,14 @@
 /**
    * 未登录访客 RPG 试玩预览 — 动效演示玩法闭环
    */
+withDefaults(
+  defineProps<{
+    /** 首页首屏紧凑展示，降低卡片总高度 */
+    dense?: boolean;
+  }>(),
+  { dense: false },
+);
+
 const demoLevel = ref(1);
 const demoExp = ref(35);
 const demoQuestDone = ref(1);
@@ -44,18 +52,20 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="rpg-preview-demo rpg-theme relative overflow-hidden rounded-2xl border border-[var(--rpg-violet-bg)] bg-[var(--rpg-surface)] p-4 shadow-lg"
+    class="rpg-preview-demo rpg-theme relative overflow-hidden rounded-2xl border border-[var(--rpg-violet-bg)] bg-[var(--rpg-surface)] shadow-lg"
+    :class="dense ? 'p-3' : 'p-4'"
   >
-    <div class="mb-3 flex items-center justify-between gap-2">
+    <div class="flex items-center justify-between gap-2" :class="dense ? 'mb-2' : 'mb-3'">
       <span class="badge badge-sm border-0 bg-[var(--rpg-violet-bg)] text-[var(--rpg-violet)]">
         试玩预览
       </span>
       <span class="text-[10px] text-[var(--rpg-text-muted)]">登录后数据实时同步</span>
     </div>
 
-    <div class="mb-4 flex items-center gap-3">
+    <div class="flex items-center gap-3" :class="dense ? 'mb-2.5' : 'mb-4'">
       <div
-        class="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--rpg-amber-bg-faint)] text-2xl"
+        class="flex items-center justify-center rounded-xl bg-[var(--rpg-amber-bg-faint)] text-2xl"
+        :class="dense ? 'h-10 w-10 text-xl' : 'h-12 w-12'"
       >
         🧙
       </div>
@@ -78,7 +88,8 @@ onUnmounted(() => {
     </div>
 
     <div
-      class="mb-3 rounded-xl border border-[var(--rpg-border-subtle)] bg-[var(--rpg-bg-alt)] p-3"
+      class="rounded-xl border border-[var(--rpg-border-subtle)] bg-[var(--rpg-bg-alt)]"
+      :class="dense ? 'mb-2 p-2.5' : 'mb-3 p-3'"
     >
       <div class="mb-1 flex items-center justify-between text-xs">
         <span class="font-medium text-[var(--rpg-text-body)]">每日任务</span>
@@ -98,27 +109,31 @@ onUnmounted(() => {
     <Transition name="rpg-phase" mode="out-in">
       <div
         :key="demoPhase"
-        class="flex items-center gap-2 rounded-lg bg-[var(--rpg-amber-bg-faint)] px-3 py-2 text-sm text-[var(--rpg-amber-text)]"
+        class="flex items-center gap-2 rounded-lg bg-[var(--rpg-amber-bg-faint)] text-[var(--rpg-amber-text)]"
+        :class="dense ? 'px-2.5 py-1.5 text-xs' : 'px-3 py-2 text-sm'"
       >
-        <span class="text-lg">{{ phases[demoPhase].icon }}</span>
+        <span :class="dense ? 'text-base' : 'text-lg'">{{ phases[demoPhase].icon }}</span>
         <span>{{ phases[demoPhase].text }}</span>
       </div>
     </Transition>
 
-    <div class="mt-4 grid grid-cols-3 gap-2 text-center text-[10px] text-[var(--rpg-text-muted)]">
-      <div class="rounded-lg bg-[var(--rpg-empty-bg)] py-2">
+    <div
+      class="grid grid-cols-3 gap-2 text-center text-[10px] text-[var(--rpg-text-muted)]"
+      :class="dense ? 'mt-2.5' : 'mt-4'"
+    >
+      <div class="rounded-lg bg-[var(--rpg-empty-bg)]" :class="dense ? 'py-1.5' : 'py-2'">
         <div class="text-base">
           💎
         </div>
         <div>打赏</div>
       </div>
-      <div class="rounded-lg bg-[var(--rpg-empty-bg)] py-2">
+      <div class="rounded-lg bg-[var(--rpg-empty-bg)]" :class="dense ? 'py-1.5' : 'py-2'">
         <div class="text-base">
           🐾
         </div>
         <div>宠物</div>
       </div>
-      <div class="rounded-lg bg-[var(--rpg-empty-bg)] py-2">
+      <div class="rounded-lg bg-[var(--rpg-empty-bg)]" :class="dense ? 'py-1.5' : 'py-2'">
         <div class="text-base">
           🏆
         </div>

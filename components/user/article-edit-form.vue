@@ -2,9 +2,9 @@
 /**
    * 用户文章编辑表单 - 新增与编辑共用
    * - 草稿 localStorage autosave（debounce 3s）
-   * - 发布成功展示 Cyber 结果面板；离开页 CyberModal 确认
+   * - 发布成功展示 Cyber 结果面板；离开页 RPG 确认弹窗
    */
-import { computed, onMounted, reactive, ref, watch, onBeforeUnmount } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref, watch, onBeforeUnmount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { useDebounceFn } from '@vueuse/core';
 import { MdEditor } from 'md-editor-v3';
@@ -15,7 +15,8 @@ import { getAllTag } from '@/api/tag';
 import { uploadCover, parseUploadedUrl } from '@/api/resources';
 import { resolveStaticUrl } from '@/utils/common';
 import { messageDanger, messageSuccess } from '@/utils/toast';
-import { useCyberModal } from '@/composables/use-cyber-modal';
+import { useRpgModal } from '@/composables/use-rpg-modal';
+import { COVER_IMAGE, coverAspectRatio } from '@/utils/image-compress';
 
 const props = defineProps<{
   articleId?: string;
@@ -26,7 +27,8 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
-const { confirm } = useCyberModal();
+const { confirm } = useRpgModal();
+const { playSfx } = useRpgAudio();
 const mdEditorTheme = useMdEditorTheme();
 const loading = ref(false);
 const submitting = ref(false);
@@ -37,6 +39,27 @@ const coverUploading = ref(false);
 const publishSuccess = ref<{ id: number; title: string } | null>(null);
 const draftRestored = ref(false);
 const isDirty = ref(false);
+const mdEditorRef = ref<{ $el?: HTMLElement } | null>(null);
+let mdEditorFullscreenObserver: MutationObserver | null = null;
+
+/** 同步 md-editor 网页全屏状态，全屏时隐藏站点顶栏避免遮挡工具栏 */
+function syncArticleEditorPageFullscreen() {
+  if (!import.meta.client) return;
+  const root = mdEditorRef.value?.$el;
+  const active = Boolean(root?.classList?.contains('md-editor-fullscreen'));
+  document.body.classList.toggle('article-editor-page-fs', active);
+}
+
+function bindMdEditorFullscreenObserver() {
+  mdEditorFullscreenObserver?.disconnect();
+  const root = mdEditorRef.value?.$el;
+  if (!root) return;
+  syncArticleEditorPageFullscreen();
+  mdEditorFullscreenObserver = new MutationObserver(syncArticleEditorPageFullscreen);
+  mdEditorFullscreenObserver.observe(root, { attributes: true, attributeFilter: ['class'] });
+}
+
+watch(mdEditorRef, () => nextTick(bindMdEditorFullscreenObserver));
 
 /** localStorage 草稿 key；新建与编辑分 key 存储 */
 const draftStorageKey = computed(() => `draft:${props.articleId || 'new'}`);
@@ -205,6 +228,13 @@ const validateForm = () => {
   return true;
 };
 
+/** 即时发布成功时播放 contentPost（推进发文任务） */
+const playPublishSfxIfNeeded = () => {
+  if (formState.status === 'publish') {
+    void playSfx('contentPost');
+  }
+};
+
 const handleSubmit = async () => {
   if (!validateForm()) return;
 
@@ -231,6 +261,7 @@ const handleSubmit = async () => {
       messageSuccess('文章更新成功');
       // 即时发布：展示成功面板，不跳转 profile
       if (formState.status === 'publish') {
+        playPublishSfxIfNeeded();
         publishSuccess.value = { id: Number(props.articleId), title: formState.title.trim() };
         clearLocalDraft();
         isDirty.value = false;
@@ -243,6 +274,7 @@ const handleSubmit = async () => {
       messageSuccess('文章创建成功');
       // 新建并发布：展示成功面板，保留在当前页便于复制链接
       if (formState.status === 'publish' && newId) {
+        playPublishSfxIfNeeded();
         publishSuccess.value = { id: Number(newId), title: formState.title.trim() };
         clearLocalDraft();
         isDirty.value = false;
@@ -332,12 +364,15 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  mdEditorFullscreenObserver?.disconnect();
+  mdEditorFullscreenObserver = null;
   if (import.meta.client) {
     window.removeEventListener('beforeunload', onBeforeUnload);
+    document.body.classList.remove('article-editor-page-fs');
   }
 });
 
-/** 站内路由离开：未保存时用 CyberModal 确认 */
+/** 站内路由离开：未保存时用 RPG 确认弹窗 */
 onBeforeRouteLeave(async () => {
   if (isDirty.value && !submitting.value && !publishSuccess.value) {
     return await confirm({
@@ -516,7 +551,8 @@ const copyPublishedLink = async () => {
                   >
                 </label>
               </div>
-              <span class="block mt-1.5 text-[0.6875rem] text-base-content/45">建议 16:9，上传后自动压缩</span>
+              <span class="block mt-1.5 text-[0.6875rem] text-base-content/45">建议 {{ COVER_IMAGE.maxWidth }}×{{ COVER_IMAGE.maxHeight }}（Open Graph
+                分享图），上传后自动裁剪压缩</span>
             </label>
             <figure
               class="cover-thumb rounded-lg overflow-hidden shrink-0 border border-dashed transition-colors"
@@ -590,8 +626,9 @@ const copyPublishedLink = async () => {
             正文内容
           </h2>
           <ClientOnly>
-            <div class="rounded-lg overflow-hidden border border-base-300 shadow-inner">
+            <div class="article-md-editor-wrap rounded-lg border border-base-300 shadow-inner">
               <MdEditor
+                ref="mdEditorRef"
                 v-model="formState.content"
                 class="x-md-editor article-md-editor"
                 :theme="mdEditorTheme"
@@ -689,7 +726,7 @@ const copyPublishedLink = async () => {
 
   .cover-thumb {
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: v-bind(coverAspectRatio);
   }
 
   @media (min-width: 640px) {
@@ -699,13 +736,28 @@ const copyPublishedLink = async () => {
   }
 
   .article-md-editor {
-    min-height: 360px;
+    height: 400px;
     border: none !important;
+  }
+
+  @media (min-width: 768px) {
+    .article-md-editor {
+      height: min(680px, calc(100vh - 300px));
+      min-height: 520px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .article-md-editor {
+      height: min(760px, calc(100vh - 280px));
+      min-height: 560px;
+    }
   }
 
   .article-md-editor :deep(.md-editor) {
     border: none;
     border-radius: 0;
+    height: 100%;
   }
 
   .article-md-editor :deep(.md-editor-toolbar-wrapper) {

@@ -29,51 +29,39 @@ export interface UpdateUserProfileParams {
 export const updateUserProfile = (params: UpdateUserProfileParams) => {
   return request.patch('/user/edit', params);
 };
-// 古诗词
-export const gushici = async () => {
-  return await request
-    .http(originUrl + '/x-zone/api/v1/third/gushici', {
-      method: 'GET',
-    })
-    .then(res => res.data);
-};
-// 获取天气
-export const getWeather = () => {
-  return request.get('/resources/weather');
+// 古诗词 — 本地 dev 无 x-zone 网关时回退线上或内置诗词
+const GUSHICI_FALLBACK = {
+  content: '黄河远上白云间，一片孤城万仞山。',
+  author: '王之涣',
+  origin: '凉州词二首·其一',
 };
 
+export const gushici = async () => {
+  const urls = import.meta.dev
+    ? [
+        `${originUrl}/x-zone/api/v1/third/gushici`,
+        'https://jiang-xia.top/x-zone/api/v1/third/gushici',
+      ]
+    : [`${originUrl}/x-zone/api/v1/third/gushici`];
+
+  for (const url of urls) {
+    try {
+      const res = await request.http(url, { method: 'GET', silent: true });
+      const data = res?.data;
+      if (data?.content?.trim()) {
+        return data;
+      }
+    }
+    catch {
+      /* 尝试下一个 endpoint */
+    }
+  }
+
+  return GUSHICI_FALLBACK;
+};
 /** 注册页可选头像（公开，无需登录） */
 export const getRegisterAvatars = (): Promise<{ avatars: string[] }> => {
   return request.get('/resources/register-avatars');
-};
-
-// 发送邮箱验证码
-export const sendEmailCode = (email: string, type: 'login' | 'register') => {
-  return request.post('/user/sendEmailCode', { email, type });
-};
-
-// 邮箱登录
-export const emailLogin = (email: string, password: string, emailCode: string) => {
-  return request.post('/user/login', {
-    email,
-    password,
-    emailCode,
-    loginType: 'email',
-  });
-};
-
-// 邮箱注册
-export const emailRegister = (params: {
-  email: string;
-  password: string;
-  nickname: string;
-  avatar?: string;
-  emailCode: string;
-}) => {
-  return request.post('/user/register', {
-    ...params,
-    registerType: 'email',
-  });
 };
 
 const api = {
@@ -83,11 +71,7 @@ const api = {
   getUserInfo,
   updateUserProfile,
   gushici,
-  getWeather,
   getRegisterAvatars,
-  sendEmailCode,
-  emailLogin,
-  emailRegister,
 };
 // https://gitee.com/api/v5/repos/jiang-xia/blog-home-nuxt/commits?access_token=53db1802db341bf994093cace04c275b&page=1&per_page=20
 export default api;

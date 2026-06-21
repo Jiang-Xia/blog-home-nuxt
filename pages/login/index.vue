@@ -13,6 +13,12 @@ import { setToken, TokenKey, RefreshTokenKey } from '@/utils/cookie';
 import { rsaEncrypt as rsaEncryptUtil } from '~~/utils/jsencrypt';
 import { loadRsaScript } from '~/utils/script-loader';
 import { shouldRefreshGraphicCaptcha } from '~~/utils/graphic-captcha-error';
+import {
+  createEmailVerificationCodeInputBinding,
+  createGraphicCaptchaInputBinding,
+  emailVerificationCodeNativeInputAttrs,
+  graphicCaptchaNativeInputAttrs,
+} from '~~/utils/captcha-input';
 import { LOGIN_ACCOUNT_MAX_LENGTH, validateUsernameForLogin } from '~~/utils/username';
 
 let rsaEncrypt: any;
@@ -58,6 +64,18 @@ const form: formState = reactive({
   authCode: '',
   verificationCode: '',
 });
+const graphicCaptchaInput = createGraphicCaptchaInputBinding(
+  () => form.authCode,
+  (value) => {
+    form.authCode = value;
+  },
+);
+const emailVerificationCodeInput = createEmailVerificationCodeInputBinding(
+  () => form.verificationCode,
+  (value) => {
+    form.verificationCode = value;
+  },
+);
   /* 登录 */
 const okHandle = async () => {
   if (submitting.value) {
@@ -112,8 +130,10 @@ const okHandle = async () => {
     res = await request.post(url, params);
     persistLoginTokens(res.info.accessToken, res.info.refreshToken);
     await refreshUserInfo();
-    await navigateTo(resolveRedirectPath(route.query.redirect as string));
+    await syncUserLikes();
+    void useRpgAudio().playSfx('uiClick');
     messageSuccess('登录成功');
+    await navigateTo(resolveRedirectPath(route.query.redirect as string));
   }
   catch (err: any) {
     console.error(err);
@@ -201,6 +221,8 @@ const exchangeOAuthTicket = async (ticket: string) => {
     const res: any = await request.post('/user/auth/ticket/exchange', { ticket });
     persistLoginTokens(res.info.accessToken, res.info.refreshToken);
     await refreshUserInfo();
+    await syncUserLikes();
+    void useRpgAudio().playSfx('uiClick');
     messageSuccess('登录成功');
     history.replaceState({}, '', route.path);
     await navigateTo(resolveRedirectPath(route.query.redirect as string));
@@ -313,11 +335,11 @@ onMounted(() => {
             <label class="login-input input">
               <xia-icon icon="blog-yanzhengma" />
               <input
-                v-model="form.authCode"
+                :value="form.authCode"
                 name="login_auth_code"
-                autocomplete="off"
-                maxlength="4"
                 placeholder="验证码"
+                v-bind="graphicCaptchaNativeInputAttrs"
+                v-on="graphicCaptchaInput"
               >
               <ClientOnly>
                 <img
@@ -364,11 +386,11 @@ onMounted(() => {
             <label class="login-input input">
               <xia-icon icon="blog-yanzhengma" />
               <input
-                v-model="form.verificationCode"
+                :value="form.verificationCode"
                 name="login_verification_code"
-                autocomplete="one-time-code"
-                maxlength="6"
                 placeholder="邮箱验证码"
+                v-bind="emailVerificationCodeNativeInputAttrs"
+                v-on="emailVerificationCodeInput"
               >
               <button
                 type="button"

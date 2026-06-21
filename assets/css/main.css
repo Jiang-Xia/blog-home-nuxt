@@ -103,6 +103,7 @@ html.tech-shell {
   --tech-primary-glow: color-mix(in oklch, var(--color-primary) 35%, transparent);
   --tech-primary-glow-hover: color-mix(in oklch, var(--color-primary) 50%, transparent);
   --tech-dropdown-bg: color-mix(in oklch, var(--color-base-200) 94%, var(--color-base-100));
+  --tech-color-scheme: light;
 }
 
 /* cyber 专用微调（优先级高于上方通用规则） */
@@ -132,6 +133,7 @@ html.tech-shell[data-theme='cyber'] {
   --tech-primary-glow: rgba(34, 211, 238, 0.35);
   --tech-primary-glow-hover: rgba(34, 211, 238, 0.5);
   --tech-dropdown-bg: rgb(17 24 39 / 0.96);
+  --tech-color-scheme: dark;
 }
 
 html.tech-shell[data-theme='cyber-light'] {
@@ -160,6 +162,7 @@ html.tech-shell[data-theme='cyber-light'] {
   --tech-primary-glow: rgba(6, 182, 212, 0.25);
   --tech-primary-glow-hover: rgba(6, 182, 212, 0.38);
   --tech-dropdown-bg: rgb(255 255 255 / 0.98);
+  --tech-color-scheme: light;
 }
 @layer components {
   .bg-tech-shell {
@@ -332,6 +335,14 @@ html.tech-shell[data-theme='cyber-light'] {
     background-color: color-mix(in oklch, var(--color-primary) 10%, transparent);
     box-shadow: 0 0 20px color-mix(in oklch, var(--color-primary) 22%, transparent);
     animation: cyber-logo-breathe 3s ease-in-out infinite;
+  }
+
+  .site-logo-badge {
+    border-color: color-mix(in oklch, var(--color-primary) 24%, var(--rpg-amber-border) 18%);
+    background-color: color-mix(in oklch, var(--color-primary) 8%, var(--rpg-amber-bg-faint) 40%);
+    box-shadow:
+      0 0 20px color-mix(in oklch, var(--color-primary) 18%, transparent),
+      0 0 12px color-mix(in oklch, var(--rpg-amber) 12%, transparent);
   }
 
   .cyber-logo-badge .cyber-gradient-text {
@@ -822,4 +833,27 @@ html.tech-shell :where(.app-layout) {
   50% {
     opacity: 0;
   }
+}
+
+/* 写文章页：不用 backdrop-filter，避免 md-editor fixed 全屏被父级 stacking context 困住 */
+.article-edit-shell {
+  border-radius: 1.5rem;
+  border: 1px solid var(--tech-border);
+  background-color: var(--tech-glass);
+  color: var(--tech-fg);
+}
+
+/* md-editor 网页全屏：层级高于顶栏，并临时隐藏站点 chrome */
+.md-editor.md-editor-fullscreen {
+  z-index: 10150 !important;
+}
+
+body.article-editor-page-fs .app-layout-header,
+body.article-editor-page-fs .app-layout-footer {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body.article-editor-page-fs .app-layout-body {
+  padding-top: 0 !important;
 }

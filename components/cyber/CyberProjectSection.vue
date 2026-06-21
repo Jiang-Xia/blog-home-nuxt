@@ -3,7 +3,7 @@
     :class="['cyber-project-section cyber-glass-card overflow-hidden shadow-xl', props.class]"
   >
     <div class="cyber-project-section__titlebar border-b border-tech">
-      <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+      <div class="flex min-w-0 flex-1 basis-0 items-center gap-2 sm:gap-3">
         <div aria-hidden="true" class="hidden shrink-0 gap-1.5 sm:flex">
           <span class="cyber-project-section__dot cyber-project-section__dot--red" />
           <span class="cyber-project-section__dot cyber-project-section__dot--yellow" />
@@ -20,7 +20,7 @@
           </div>
         </label>
 
-        <div class="min-w-0 flex-1">
+        <div class="min-w-0">
           <p class="cyber-section-label mb-0.5">
             {{ label }}
           </p>
@@ -30,16 +30,16 @@
         </div>
       </div>
 
-      <div class="hidden min-w-0 flex-1 px-4 md:block">
+      <div class="cyber-project-section__address hidden md:block">
         <div
-          class="truncate rounded-lg border border-tech bg-[var(--tech-input-bg)] px-3 py-1.5 text-xs text-tech-muted"
+          class="truncate rounded-lg border border-tech bg-[var(--tech-input-bg)] px-3 py-1.5 text-center text-xs text-tech-muted"
           :title="displayUrl"
         >
           {{ displayUrl }}
         </div>
       </div>
 
-      <div class="shrink-0">
+      <div class="flex flex-1 basis-0 items-center justify-end">
         <CyberButton variant="secondary" class="!px-4 !py-2 text-sm" @click="handleGo">
           GO
         </CyberButton>
@@ -132,6 +132,12 @@ function handleGo() {
       gap: 0.75rem;
       padding: 0.875rem 1rem;
     }
+  }
+
+  .cyber-project-section__address {
+    flex: none;
+    width: min(100%, 28rem);
+    padding-inline: 0.75rem;
   }
 
   .cyber-project-section__dot {

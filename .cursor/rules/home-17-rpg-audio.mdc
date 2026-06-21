@@ -1,0 +1,92 @@
+---
+description: RPG 音效开发与接入规范（混合 howler + Web Audio，防 WS/页面重复播音）
+globs: components/rpg/**,composables/use-rpg-audio.ts,composables/use-rpg-realtime-handlers.ts,constants/rpg-audio.ts,utils/rpg-audio-synth.ts,pages/rpg/**,pages/msgboard/**,components/xia/comment.vue,public/audio/rpg/**
+alwaysApply: false
+---
+
+# RPG 音效开发
+
+完整说明见 `docs/rpg-audio-guide.md`；素材说明见 `public/audio/rpg/README.md`。
+
+## 架构（混合方案）
+
+| 类型 | 实现 | 配置 |
+|------|------|------|
+| BGM | howler 文件 | `RPG_BGM` |
+| 传说 fanfare 等长/高保真 SFX | howler 文件 | `RPG_FILE_SFX` |
+| 其余短 SFX | Web Audio 合成 | `RPG_SYNTH_SFX` + `rpg-audio-synth.ts` |
+
+**唯一入口**：`useRpgAudio()` — `playSfx` / `playSfxLoop` / `stopSfx` / `playBgm` / `stopBgm`。禁止组件内直接 `new Audio()` 或单独 import howler。
+
+音量与静音：`localStorage` 键 `rpg-audio-settings`；导航栏 `RpgAudioControl.vue`（圆形静音钮）；冒险页 `pages/rpg/index.vue` 内联工具条（静音 + BGM/SFX 滑条 + 新手引导）。
+
+## 新交互必须考虑音效
+
+新增 RPG **页面操作**（Tab、穿戴、提交、按钮确认等）或 **全屏反馈** 时：
+
+1. 判断是否有 **WS / Animation 已播音**（见下表）→ 有则页面/API 成功回调 **不要再播**
+2. 否则在 **用户主动操作成功** 后 `void playSfx('xxx')`（静音时 composable 自动跳过）
+3. 新增 key：改 `constants/rpg-audio.ts` → `rpg-audio-synth.ts`（或文件 SFX）→ 接入点 → 更新 `docs/rpg-audio-guide.md` 音效表
+
+## WS 与页面：谁播音（禁止重复）
+
+| 事件 / 场景 | 播音位置 | 页面/API 侧 |
+|-------------|----------|-------------|
+| `levelUp` | `LevelUpAnimation` watch visible | ❌ |
+| `achievementComplete` | `AchievementAnimation` | ❌ |
+| `masterpiece` | `RpgMasterpieceAnimation` | ❌ |
+| `socialReceived` / `tipReceived`（收方） | `RpgSocialFeedbackAnimation` | ❌ |
+| `petHatched` | `RpgPetHatchAnimation` reveal 阶段 | ❌ 孵化 API 成功 |
+| `itemGranted`（史诗/传说，非 lottery） | `RpgItemRevealAnimation` | ❌ |
+| `rankChange` | `RpgRankChangeAnimation` | ❌ |
+| `questReward` | `RpgQuestRewardAnimation` reveal 阶段 | ❌ 领奖按钮 |
+| `questComplete` | `RpgQuestCompleteBadge` | ❌ |
+| `lifeChange` / `shieldUsed` / `buffGranted` / `buffExpired` | `RpgScreenPulseFx` | ❌ |
+| `articleLevelUp` | `RpgArticleLevelUpBadge` | ❌ |
+| `currencyChange`（delta ≥ 50） | `RpgCurrencyGainFx` | ❌ |
+| `activityUpdate`（start） | `RpgActivityStartBanner` | ❌ |
+| `banStatus`（banned） | `RpgBanPunishAnimation` | ❌ |
+| Buff 冒险页手动开关 | 页面 handler `buffActivate`/`buffDeactivate` | ✅ |
+| `itemGranted`（普通/稀有，非 lottery） | WS handler | ❌ |
+| 发送社交（加油/鸡蛋/鲜花/打赏） | 发送方页面 `social*` | 收方走 WS 弹窗 |
+| Tab 切换、 equip、签到、公会、评论发表等 | 页面 handler | ✅ 仅此一处 |
+| `expGain` | 无音（仅 Toast） | ❌ 故意不播 |
+| `guildEvent` 广播 | 无音 | ❌ |
+
+## 常用 API
+
+```typescript
+const { playSfx, playSfxLoop, stopSfx, playBgm, stopBgm, initAudio } = useRpgAudio();
+
+void playSfx('uiClick');           // 一次性合成/文件
+void playSfxLoop('lotterySpin');   // 仅 lotterySpin 循环
+void stopSfx('lotterySpin', 120);  // 停止循环，可选淡出 ms
+void playBgm('adventure');         // 冒险页 BGM
+```
+
+- `/rpg`：`onMounted` → `initAudio`（BGM 默认关，`bgmVolume` 滑条 > 0 时 watch 触发 `playBgm`）；`onBeforeUnmount` → `stopBgm`
+- 循环音：`lotterySpin` 仅经 `playSfxLoop` / `stopSfx`，不经 `playSfx`
+
+## 新增合成音效 Checklist
+
+- [ ] `RpgSynthSfxKey` + `RPG_SYNTH_SFX` 音量系数
+- [ ] `rpg-audio-synth.ts`：`playXxx` + 注册 `SYNTH_PLAYERS`
+- [ ] 接入组件/handler；注明 WS 是否已有同事件音
+- [ ] 中文 JSDoc（`home-09`）
+- [ ] 更新 `docs/rpg-audio-guide.md` 音效表
+
+## 新增文件音效 / BGM
+
+- 文件放 `public/audio/rpg/`，更新 `RPG_FILE_SFX` 或 `RPG_BGM`
+- 占位生成：`node scripts/generate-rpg-audio.mjs`（仅 2 个 wav）
+- 更新 `public/audio/rpg/README.md`
+
+## 开发测试
+
+- `/rpg`（dev）→ `RpgDevEventPanel`：WS 事件挡板 + 覆盖统计
+- 抽奖层叠：`RpgLotteryDrawMockBar` + `triggerMockAfterLotteryDraw`
+- `/tool/test` → RPG WS 事件挡板（需登录 + `RpgGlobalInit`）
+
+## 文档同步
+
+见工作区 `feature-doc-sync.mdc` — RPG 音效变更须更新 `docs/rpg-audio-guide.md` 与 README RPG 特性一句。

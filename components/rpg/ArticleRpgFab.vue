@@ -1,7 +1,16 @@
 <script setup lang="ts">
+/**
+   * 文章详情浮动操作：点赞 / 收藏 / 打赏入口
+   * 点赞 uiClick 由 updateLikesHandle 统一播放；收藏由 toggleCollectHandle；打赏由 ArticleTipPanel 播放 socialTip
+   */
 import { useScroll } from '@vueuse/core';
-import { toggleCollect, checkCollected } from '@/api/article';
-import { updateLikesHandle, xBLogStore } from '@/utils/common';
+import { checkCollected } from '@/api/article';
+import {
+  toggleCollectHandle,
+  updateLikesHandle,
+  isArticleLiked,
+  syncUserLikes,
+} from '@/utils/common';
 import { messageError, messageSuccess } from '@/utils/toast';
 import { useRpg } from '~~/composables/use-rpg';
 
@@ -43,9 +52,10 @@ const ensureLogin = async () => {
 };
 
 const syncLikeState = () => {
-  isLiked.value = xBLogStore.value.likes.includes(props.articleId as never);
+  isLiked.value = isArticleLiked(props.articleId);
 };
 
+/** 点赞成功：uiClick 由 updateLikesHandle 统一播放 */
 const handleLike = async () => {
   if (!(await ensureLogin())) return;
   await updateLikesHandle({ ...props.article, id: props.article.id ?? props.articleId });
@@ -53,15 +63,16 @@ const handleLike = async () => {
   await fetchQuests();
 };
 
+/** 收藏切换：音效与任务刷新由 toggleCollectHandle 统一处理 */
 const handleCollect = async () => {
   if (!(await ensureLogin())) return;
   if (collectLoading.value) return;
   collectLoading.value = true;
   try {
-    const res = await toggleCollect(props.articleId);
-    collected.value = !!res?.collected;
+    const res = await toggleCollectHandle(props.articleId);
+    if (!res) return;
+    collected.value = !!res.collected;
     messageSuccess(collected.value ? '收藏成功' : '已取消收藏');
-    if (collected.value) await fetchQuests();
   }
   catch (e: any) {
     messageError(e?.message || '收藏操作失败');
@@ -92,14 +103,16 @@ const loadCollectState = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await syncUserLikes();
   syncLikeState();
   loadCollectState();
 });
 
 watch(
   () => userInfo.value?.uid,
-  () => {
+  async () => {
+    await syncUserLikes();
     syncLikeState();
     loadCollectState();
   },
@@ -170,8 +183,12 @@ watch(
         :author-uid="authorUid"
         @tipped="onTipped"
       />
-      <div class="modal-action">
-        <button class="btn btn-sm" @click="showTipModal = false">
+      <div class="rpg-modal-actions">
+        <button
+          type="button"
+          class="rpg-modal-btn rpg-modal-btn--secondary rpg-modal-btn--sm"
+          @click="showTipModal = false"
+        >
           关闭
         </button>
       </div>
@@ -185,8 +202,8 @@ watch(
 <style scoped>
   .article-rpg-fab-wrap {
     position: fixed;
-    bottom: 6rem;
-    right: 2.25rem;
+    right: 1rem;
+    bottom: max(5.5rem, calc(env(safe-area-inset-bottom, 0px) + 4.5rem));
     z-index: 40;
   }
 

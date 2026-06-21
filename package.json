@@ -30,6 +30,7 @@
     "copy-to-clipboard": "^3.3.3",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.20",
+    "howler": "^2.2.4",
     "js-cookie": "^3.0.5",
     "md-editor-v3": "^6.5.0",
     "modern-screenshot": "^4.7.0",

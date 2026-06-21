@@ -2,6 +2,14 @@
 /**
    * 首页 RPG 冒险引导区块 — 向所有访客展示玩法，强化参与感
    */
+const props = withDefaults(
+  defineProps<{
+    /** 首页首屏：贴底布局，未登录时预览卡片下边对齐视口下沿（不展示底部玩法宫格） */
+    firstScreen?: boolean;
+  }>(),
+  { firstScreen: false },
+);
+
 const token = useToken();
 const userInfo = useUserInfo();
 const { rpgStatus, signInfo, questProgressText, claimableQuests } = useRpg();
@@ -22,12 +30,31 @@ const ctaText = computed(() => {
   if (signInfo.value && !signInfo.value.signedToday) return '今日签到领 EXP';
   return '进入冒险大厅';
 });
+
+/** 首屏 compact 预览仅桌面端；移动端竖排用标准尺寸 */
+const isLgUp = ref(import.meta.client ? window.matchMedia('(min-width: 1024px)').matches : false);
+
+onMounted(() => {
+  const mq = window.matchMedia('(min-width: 1024px)');
+  const sync = () => {
+    isLgUp.value = mq.matches;
+  };
+  sync();
+  mq.addEventListener('change', sync);
+  onBeforeUnmount(() => mq.removeEventListener('change', sync));
+});
+
+const previewDense = computed(() => props.firstScreen && isLgUp.value);
 </script>
 
 <template>
-  <section class="rpg-home-banner rpg-theme mx-auto max-w-6xl px-4 pb-4">
+  <section
+    class="rpg-home-banner rpg-theme"
+    :class="firstScreen ? 'pb-0' : 'mx-auto max-w-6xl px-4 pb-4'"
+  >
     <div
-      class="relative overflow-hidden rounded-2xl border border-[var(--rpg-banner-border)] bg-[var(--rpg-banner-bg)] p-6 md:p-8"
+      class="relative overflow-hidden rounded-2xl border border-[var(--rpg-banner-border)] bg-[var(--rpg-banner-bg)]"
+      :class="firstScreen ? 'p-4 lg:p-5' : 'p-6 md:p-8'"
     >
       <div
         class="pointer-events-none absolute -right-8 -top-8 text-[120px] opacity-[0.07] select-none"
@@ -35,15 +62,27 @@ const ctaText = computed(() => {
         ⚔️
       </div>
 
-      <div class="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div
+        class="relative flex flex-col lg:flex-row lg:justify-between"
+        :class="[
+          firstScreen ? 'gap-4' : 'gap-6',
+          firstScreen && !isLoggedIn ? 'lg:items-end' : 'lg:items-center',
+        ]"
+      >
         <div class="max-w-xl">
-          <p class="rpg-banner-label mb-2 text-xs font-semibold uppercase tracking-widest">
+          <p class="rpg-banner-label mb-1.5 text-xs font-semibold uppercase tracking-widest">
             RPG ADVENTURE
           </p>
-          <h2 class="mb-3 text-2xl font-bold text-[var(--rpg-text-heading)] md:text-3xl">
+          <h2
+            class="font-bold text-[var(--rpg-text-heading)]"
+            :class="firstScreen ? 'mb-2 text-xl lg:text-2xl' : 'mb-3 text-2xl md:text-3xl'"
+          >
             把读博客变成<span class="text-[var(--rpg-amber-light)]">文字冒险</span>
           </h2>
-          <p class="mb-4 text-sm leading-relaxed text-[var(--rpg-text-secondary)] md:text-base">
+          <p
+            class="leading-relaxed text-[var(--rpg-text-secondary)]"
+            :class="firstScreen ? 'mb-3 text-sm lg:text-base' : 'mb-4 text-sm md:text-base'"
+          >
             不只是阅读——签到升级、做任务、抽卡开宝箱、养宠物、冲排行榜。
             每一次互动都在推进你的冒险进度。
           </p>
@@ -64,17 +103,29 @@ const ctaText = computed(() => {
             </span>
           </div>
 
-          <div class="flex flex-wrap gap-3">
-            <CyberButton variant="primary" :to="ctaTo" class="!px-6 !py-3">
+          <div class="flex flex-wrap gap-2.5">
+            <CyberButton
+              variant="primary"
+              :to="ctaTo"
+              :class="firstScreen ? '!px-5 !py-2.5 text-sm' : '!px-6 !py-3'"
+            >
               ⚔️ {{ ctaText }}
             </CyberButton>
-            <CyberButton variant="secondary" to="/rpg?tab=leaderboard" class="!px-6 !py-3">
+            <CyberButton
+              variant="secondary"
+              to="/rpg?tab=leaderboard"
+              :class="firstScreen ? '!px-5 !py-2.5 text-sm' : '!px-6 !py-3'"
+            >
               查看排行榜
             </CyberButton>
           </div>
         </div>
 
-        <RpgPreviewDemo v-if="!isLoggedIn" class="w-full shrink-0 lg:max-w-sm" />
+        <RpgPreviewDemo
+          v-if="!isLoggedIn"
+          :dense="previewDense"
+          class="w-full shrink-0 lg:max-w-sm"
+        />
 
         <div v-else class="grid min-w-0 flex-1 grid-cols-2 gap-3 sm:max-w-md lg:max-w-none">
           <div
@@ -95,7 +146,11 @@ const ctaText = computed(() => {
         </div>
       </div>
 
-      <div v-if="!isLoggedIn" class="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <!-- 首屏未登录：底部宫格会撑高 Banner，导致预览卡片无法贴齐视口下沿 -->
+      <div
+        v-if="!isLoggedIn && !firstScreen"
+        class="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4"
+      >
         <div
           v-for="step in gameplaySteps"
           :key="step.title"

@@ -235,6 +235,7 @@ function isNavActive(path: string) {
         @click="clickIcon"
         @keydown.enter="clickIcon"
       />
+      <RpgAudioControl class="hidden sm:inline-flex" />
       <XiaTheme />
 
       <ClientOnly>

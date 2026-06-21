@@ -3,22 +3,31 @@
    * RPG 冒险模块 - 冒险状态、等级奖励、抽奖与排行榜
    * 所有接口请求在本页统一发起，子组件仅负责渲染
    */
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { messageError, messageSuccess } from '~~/utils/toast';
 import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 import { useRpgPage } from '~~/composables/use-rpg-page';
 import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
+import type { DrawResult } from '~~/types/rpg';
+import { triggerMockAfterLotteryDraw } from '~~/utils/rpg-dev-mock';
 
 const route = useRoute();
 const router = useRouter();
+const { playBgm, stopBgm, initAudio, playSfx, muted, bgmVolume, sfxVolume, toggleMute }
+  = useRpgAudio();
 const profileCardRef = ref<{ setSignInResult: (_result: any) => void } | null>(null);
-const lotteryBoxRef = ref<{ showDrawResults: (_results: any[]) => void } | null>(null);
+const lotteryBoxRef = ref<{
+  showDrawResults: (_results: any[]) => void;
+  cancelDrawAnimation: () => void;
+} | null>(null);
 const onboardingRef = ref<{ open: () => void } | null>(null);
 
 const token = useToken();
 const isLoggedIn = computed(() => !!token.value);
 
 const activeTab = ref<'status' | 'inventory' | 'pet' | 'guild' | 'leaderboard'>('status');
+
+const isDev = import.meta.dev;
 
 const {
   rpgStatus,
@@ -61,6 +70,8 @@ const {
   handleEquipLoadout,
   handleUnequipLoadout,
   handleDraw,
+  beginLotteryDrawSession,
+  refreshAfterDraw,
   handleToggleBuff,
   handleInventoryEquip,
   handleInventoryUnequip,
@@ -84,6 +95,22 @@ definePageMeta({
 
 useHead({
   title: 'RPG 冒险',
+});
+
+onMounted(() => {
+  // 冒险页进入：初始化音频引擎；BGM 默认关闭，由工具条滑条手动开启
+  void initAudio();
+});
+
+/** BGM 滑条 > 0 且未静音时播放，归零或静音时停止 */
+watch([bgmVolume, muted], ([vol, isMuted]) => {
+  if (!isMuted && vol > 0) void playBgm('adventure');
+  else void stopBgm();
+});
+
+/** 离开冒险页时淡出 BGM，避免其他页面残留背景音乐 */
+onBeforeUnmount(() => {
+  void stopBgm();
 });
 
 /** 从 URL query.tab 同步 Tab 状态（支持深链进入背包/排行等） */
@@ -115,6 +142,7 @@ watch(isLoggedIn, (loggedIn) => {
 
 /** 切换 Tab 并同步 URL（status 时不带 query） */
 const switchTab = (tab: typeof activeTab.value) => {
+  if (tab !== activeTab.value) void playSfx('tabSwitch');
   activeTab.value = tab;
   const q = tab === 'status' ? {} : { tab };
   router.replace({ query: q });
@@ -131,6 +159,7 @@ const onSignIn = async () => {
   try {
     const result = await handleSignIn();
     profileCardRef.value?.setSignInResult(result);
+    void playSfx('signIn');
     if (result?.message) {
       messageSuccess(result.message);
     }
@@ -156,6 +185,7 @@ const onClaimQuest = async (questCode: string) => {
 const onEquipLoadout = async (slot: 'title' | 'avatar_frame', code: string) => {
   try {
     await handleEquipLoadout(slot, code);
+    void playSfx('equip');
     messageSuccess('穿戴成功');
   }
   catch (e: any) {
@@ -167,20 +197,30 @@ const onEquipLoadout = async (slot: 'title' | 'avatar_frame', code: string) => {
 const onUnequipLoadout = async (slot: 'title' | 'avatar_frame') => {
   try {
     await handleUnequipLoadout(slot);
+    void playSfx('unequip');
   }
   catch (e: any) {
     messageError(e?.message || '卸下失败');
   }
 };
 
+/** 抽奖动画结束后按结果增量刷新 */
+const onDrawFinished = (results: DrawResult[]) => {
+  void refreshAfterDraw(results);
+};
+
 /** 抽奖：API 完成后把结果交给 LotteryBox 展示动画 */
 const onDraw = async (count: number, currency: 'ticket' | 'currency') => {
+  beginLotteryDrawSession();
   try {
     const results = await handleDraw(count, currency);
+    // dev：抽奖 API 后延迟注入 WS 挡板，测与 DrawOverlay 层叠
+    triggerMockAfterLotteryDraw(rpgStatus.value);
     lotteryBoxRef.value?.showDrawResults(results);
     return results;
   }
   catch (e: any) {
+    lotteryBoxRef.value?.cancelDrawAnimation();
     handleRpgCurrencyError(e, '抽奖失败');
     return [];
   }
@@ -189,8 +229,10 @@ const onDraw = async (count: number, currency: 'ticket' | 'currency') => {
 /** 手动激活/停用 Buff */
 const onToggleBuff = async (buff: any) => {
   try {
+    const wasActive = buff.isActive;
     await handleToggleBuff(buff);
-    messageSuccess(buff.isActive ? '已停用' : '已激活');
+    void playSfx(wasActive ? 'buffDeactivate' : 'buffActivate');
+    messageSuccess(wasActive ? '已停用' : '已激活');
   }
   catch (e: any) {
     messageError(e?.message || '操作失败');
@@ -201,6 +243,7 @@ const onToggleBuff = async (buff: any) => {
 const onInventoryEquip = async (slot: string, itemCode: string) => {
   try {
     await handleInventoryEquip(slot, itemCode);
+    void playSfx('equip');
     messageSuccess('穿戴成功');
   }
   catch (e: any) {
@@ -212,6 +255,7 @@ const onInventoryEquip = async (slot: string, itemCode: string) => {
 const onInventoryUnequip = async (slot: string) => {
   try {
     await handleInventoryUnequip(slot);
+    void playSfx('unequip');
   }
   catch (e: any) {
     messageError(e?.message || '卸下失败');
@@ -233,6 +277,7 @@ const onHatchPet = async (itemCode: string) => {
 const onBuyPet = async (petCode: string) => {
   try {
     await handleBuyPet(petCode);
+    void playSfx('petBuy');
     messageSuccess('兑换成功');
   }
   catch (e: any) {
@@ -244,6 +289,7 @@ const onBuyPet = async (petCode: string) => {
 const onDeployPet = async (petId: number) => {
   try {
     await handleDeployPet(petId);
+    void playSfx('petDeploy');
     messageSuccess('宠物已出战');
   }
   catch (e: any) {
@@ -255,6 +301,7 @@ const onDeployPet = async (petId: number) => {
 const onRestPet = async () => {
   try {
     await handleRestPet();
+    void playSfx('petRest');
     messageSuccess('宠物已休息');
   }
   catch (e: any) {
@@ -266,6 +313,7 @@ const onRestPet = async () => {
 const onRenamePet = async (id: number, nickname: string) => {
   try {
     await handleRenamePet(id, nickname);
+    void playSfx('petRename');
   }
   catch (e: any) {
     messageError(e?.message || '改名失败');
@@ -276,6 +324,7 @@ const onRenamePet = async (id: number, nickname: string) => {
 const onCreateGuild = async (name: string) => {
   try {
     await handleCreateGuild(name);
+    void playSfx('guildCreate');
     messageSuccess('公会创建成功');
   }
   catch (e: any) {
@@ -287,6 +336,7 @@ const onCreateGuild = async (name: string) => {
 const onJoinGuild = async (guildId: number) => {
   try {
     await handleJoinGuild(guildId);
+    void playSfx('guildJoin');
     messageSuccess('加入成功');
   }
   catch (e: any) {
@@ -298,6 +348,7 @@ const onJoinGuild = async (guildId: number) => {
 const onLeaveGuild = async () => {
   try {
     await handleLeaveGuild();
+    void playSfx('guildLeave');
     messageSuccess('已退出公会');
   }
   catch (e: any) {
@@ -336,12 +387,35 @@ const onLeaveGuild = async () => {
         </div>
       </div>
 
-      <div v-else class="mb-3 flex justify-end">
+      <div v-else class="rpg-page-toolbar">
         <button
           type="button"
-          class="btn btn-ghost btn-xs text-[var(--rpg-text-muted)]"
-          @click="onboardingRef?.open()"
+          class="rpg-page-toolbar__mute"
+          :title="muted ? '开启音效' : '静音'"
+          :aria-label="muted ? '开启音效' : '静音'"
+          @click="toggleMute"
         >
+          {{ muted ? '🔇' : '🔊' }}
+        </button>
+        <template v-if="!muted">
+          <label class="rpg-page-toolbar__vol">
+            <span>BGM</span>
+            <input
+              v-model.number="bgmVolume" type="range" min="0"
+              max="1"
+              step="0.05"
+            >
+          </label>
+          <label class="rpg-page-toolbar__vol">
+            <span>SFX</span>
+            <input
+              v-model.number="sfxVolume" type="range" min="0"
+              max="1"
+              step="0.05"
+            >
+          </label>
+        </template>
+        <button type="button" class="rpg-page-toolbar__guide" @click="onboardingRef?.open()">
           📖 新手引导
         </button>
       </div>
@@ -411,8 +485,8 @@ const onLeaveGuild = async () => {
 
         <template v-else>
           <div v-if="activeTab === 'status'">
-            <div class="cyber-glass-card p-5">
-              <div class="card-body p-4 sm:p-5">
+            <div class="cyber-glass-card p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <RpgProfileCard
                   v-if="!statusLoading && rpgStatus"
                   ref="profileCardRef"
@@ -432,13 +506,11 @@ const onLeaveGuild = async () => {
                   @load-hit-records="loadHitRecords"
                   @toggle-buff="onToggleBuff"
                 />
-                <div v-else class="text-center text-tech-muted py-8">
-                  加载中...
-                </div>
+                <RpgPanelLoading v-else compact />
               </div>
             </div>
-            <div class="cyber-glass-card mt-5 p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card mt-5 p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <RpgLevelRewardsPanel
                   :rpg-status="rpgStatus"
                   :level-rewards="levelRewards"
@@ -446,8 +518,10 @@ const onLeaveGuild = async () => {
                 />
               </div>
             </div>
-            <div class="cyber-glass-card mt-5 p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card mt-5 p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
+                <RpgDevEventPanel v-if="isDev" compact :context="{ status: rpgStatus }" />
+                <RpgLotteryDrawMockBar v-if="isDev" :status="rpgStatus" />
                 <RpgLotteryBox
                   ref="lotteryBoxRef"
                   :lottery-pool="lotteryPool"
@@ -456,6 +530,7 @@ const onLeaveGuild = async () => {
                   :lottery-history="lotteryHistory"
                   :drawing="drawing"
                   @draw="onDraw"
+                  @finished="onDrawFinished"
                   @load-history="loadLotteryHistory"
                 />
               </div>
@@ -463,8 +538,8 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'inventory'">
-            <div class="cyber-glass-card p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <RpgInventoryPanel
                   :items="inventoryItems"
                   :loadout="loadout"
@@ -477,8 +552,8 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'pet'">
-            <div class="cyber-glass-card p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <RpgPetPanel
                   :pets="pets"
                   :eggs="petEggs"
@@ -496,8 +571,8 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'guild'">
-            <div class="cyber-glass-card p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <RpgGuildPanel
                   :my-guild="myGuild"
                   :guild-list="guildList"
@@ -511,8 +586,8 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'leaderboard'">
-            <div class="cyber-glass-card p-5">
-              <div class="card-body p-5">
+            <div class="cyber-glass-card p-3 sm:p-5">
+              <div class="card-body p-2 sm:p-5">
                 <h3 class="card-title text-base mb-3">
                   冒险排行榜
                 </h3>
@@ -532,6 +607,61 @@ const onLeaveGuild = async () => {
 </template>
 
 <style scoped>
+  .rpg-page-toolbar {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 0;
+    margin-bottom: 6px;
+  }
+
+  .rpg-page-toolbar__mute,
+  .rpg-page-toolbar__guide {
+    border: none;
+    background: transparent;
+    padding: 0;
+    line-height: 1;
+    font-size: 13px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.65));
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .rpg-page-toolbar__guide {
+    margin-left: auto;
+    font-size: 11px;
+  }
+
+  .rpg-page-toolbar__mute:hover,
+  .rpg-page-toolbar__guide:hover {
+    color: var(--rpg-text-body, oklch(var(--bc)));
+  }
+
+  .rpg-page-toolbar__vol {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    line-height: 1;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.65));
+    font-weight: 600;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .rpg-page-toolbar__vol span {
+    flex-shrink: 0;
+  }
+
+  .rpg-page-toolbar__vol input[type='range'] {
+    width: 56px;
+    height: 12px;
+    margin: 0;
+    accent-color: var(--rpg-violet, oklch(var(--p)));
+  }
+
   .rpg-page-tabs {
     display: flex;
     flex-wrap: nowrap;
@@ -541,32 +671,71 @@ const onLeaveGuild = async () => {
     border-radius: 12px;
     border: 1px solid var(--rpg-border, oklch(var(--b3)));
     background: var(--rpg-surface, oklch(var(--b1)));
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .rpg-page-tabs::-webkit-scrollbar {
+    display: none;
   }
 
   .rpg-page-tab {
-    flex: 1;
-    min-width: 72px;
-    padding: 8px 12px;
-    border: none;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid transparent;
     border-radius: 8px;
     background: transparent;
     font-size: 13px;
-    font-weight: 500;
-    color: var(--rpg-text-muted, oklch(var(--bc) / 0.65));
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--rpg-text-secondary, oklch(var(--bc) / 0.72));
     cursor: pointer;
     transition:
       background-color 0.2s,
-      color 0.2s;
+      color 0.2s,
+      border-color 0.2s;
   }
 
   .rpg-page-tab:hover {
     background: var(--rpg-bg-alt, oklch(var(--b2)));
+    color: var(--rpg-text-heading, oklch(var(--bc)));
   }
 
   .rpg-page-tab.active {
     background: var(--rpg-violet-bg, oklch(var(--p) / 0.12));
     color: var(--rpg-violet, oklch(var(--p)));
     font-weight: 700;
-    box-shadow: inset 0 0 0 1px var(--rpg-violet, oklch(var(--p) / 0.35));
+    border-color: color-mix(in oklch, var(--rpg-violet, oklch(var(--p))) 45%, transparent);
+    box-shadow: inset 0 0 0 1px
+      color-mix(in oklch, var(--rpg-violet, oklch(var(--p))) 35%, transparent);
+  }
+
+  @media (max-width: 639px) {
+    .rpg-page-tabs {
+      gap: 4px;
+      padding: 5px;
+    }
+
+    .rpg-page-tab {
+      flex: 0 0 auto;
+      min-width: auto;
+      padding: 7px 11px;
+      font-size: 12px;
+    }
+  }
+
+  :global(html.tech-shell[data-theme='cyber-light']) .rpg-page-tab:not(.active) {
+    color: var(--rpg-text-label, #475569);
+    background: var(--rpg-bg-alt, #f1f5f9);
+    border-color: var(--rpg-border, #e2e8f0);
+  }
+
+  :global(html.tech-shell[data-theme='cyber-light']) .rpg-page-tab.active {
+    background: rgb(139 92 246 / 0.1);
+    color: #6d28d9;
+    border-color: rgb(139 92 246 / 0.45);
+    box-shadow: inset 0 0 0 1px rgb(139 92 246 / 0.28);
   }
 </style>

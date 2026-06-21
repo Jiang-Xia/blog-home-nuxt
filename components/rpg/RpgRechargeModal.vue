@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
-   * 钻石不足时的充值引导弹窗
-   * 展示汇率说明、充值二维码与站长服务提示
+   * 【已下线 · 归档保留】旧版静态二维码充值弹窗
+   * 全站已改走 RpgRechargeDynamicModal；线上请用支付宝小程序 all-pay 并透传 out_trade_no
+   * 本组件仅 /tool/test 预览，勿再接入业务入口
    */
 import {
   RPG_RECHARGE_ALIPAY_HINT,
@@ -119,7 +120,7 @@ const handleClose = () => {
   .recharge-hint {
     font-size: 11px;
     color: var(--rpg-text-secondary, #94a3b8);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     line-height: 1.4;
   }
 

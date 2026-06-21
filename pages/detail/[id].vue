@@ -8,14 +8,22 @@ import { ref, reactive, computed, watch } from 'vue';
 import { MdPreview } from 'md-editor-v3';
 
 import { getArticleInfo, getComment } from '@/api/article';
-import { updateViews, xBLogStore, updateLikesHandle } from '@/utils/common';
+import {
+  updateViews,
+  xBLogStore,
+  updateLikesHandle,
+  isArticleLiked,
+  syncUserLikes,
+} from '@/utils/common';
 import { resolveStaticUrl } from '@/utils/static-url';
 import { resolvePublicAvatarFrame } from '@/composables/use-avatar-frame';
 import type { tocInter } from '@/utils';
 import Qie from '@/assets/images/animal/qie.svg';
 import { SiteTitle } from '@/utils/constant';
+import { coverAspectRatio } from '@/utils/image-compress';
 
 const mdEditorTheme = useMdEditorTheme();
+const { open: openImagePreview } = useImagePreview();
 interface FormState {
   [propName: string]: any;
 }
@@ -120,17 +128,26 @@ const themeList: any = ref([
 ]);
   // 为了客户端时重新渲染才能设置为缓存的暗黑模式，themeLocal 另设置一个变量会导致签署数据两次
 const mdKey = ref(new Date().getTime());
-const likes = ref([]);
-// 本地点赞记录
 
-onMounted(() => {
+const syncDetailLikeState = () => {
+  ArticleInfo.checked = isArticleLiked(ArticleInfo.id);
+};
+
+onMounted(async () => {
   scrollElement.value = document.documentElement;
   mdKey.value = new Date().getTime();
   recordArticleView(articleId.value);
-  // 点赞的
-  likes.value = xBLogStore.value.likes;
-  ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never);
+  await syncUserLikes();
+  syncDetailLikeState();
 });
+
+watch(
+  () => xBLogStore.value.likes,
+  () => {
+    syncDetailLikeState();
+  },
+  { deep: true },
+);
 
 /* 评论：顶层分页，回复仍随父评论返回 */
 const COMMENT_PAGE_SIZE = 20;
@@ -274,8 +291,8 @@ watch(
     recordArticleView(nextId);
 
     mdKey.value = new Date().getTime();
-    likes.value = xBLogStore.value.likes;
-    ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never);
+    await syncUserLikes();
+    syncDetailLikeState();
 
     await refreshCommentsFn();
     getCommentHandle();
@@ -297,57 +314,76 @@ watch(
       <div class="article-layout">
         <section class="main-content cyber-glass-card min-w-0 rounded-2xl p-3 md:p-5">
           <section class="module-wrap__detail article-info">
-            <div class="flex items-center">
-              <div class="flex items-center justify-between">
-                <NuxtLink
-                  v-if="ArticleInfo.uid"
-                  :to="`/user/${ArticleInfo.uid}`"
-                  class="author-profile-link group inline-flex items-center rounded-full py-1 pl-1 pr-3 transition-colors hover:bg-base-content/5"
-                  title="查看作者主页"
-                >
-                  <CommonAvatarWithFrame
-                    :avatar="authorAvatarSrc"
-                    :alt="ArticleInfo.userInfo.nickname"
-                    :frame="authorAvatarFrame"
-                    :size="40"
-                    class="transition-transform group-hover:scale-105"
-                  />
-                  <span class="font-bold ml-2 text-tech link link-hover link-primary">{{
-                    ArticleInfo.userInfo.nickname
-                  }}</span>
-                  <span
-                    class="ml-2 text-xs text-base-content/45 transition-colors group-hover:text-primary"
-                  >主页</span>
-                </NuxtLink>
-                <div v-else class="flex items-center">
-                  <CommonAvatarWithFrame
-                    :avatar="authorAvatarSrc"
-                    :alt="ArticleInfo.userInfo.nickname"
-                    :frame="authorAvatarFrame"
-                    :size="40"
-                  />
-                  <span class="ml-2 font-bold text-tech">{{ ArticleInfo.userInfo.nickname }}</span>
+            <div class="article-meta-bar flex items-center gap-3 mb-3">
+              <div class="flex min-w-0 flex-1 items-center">
+                <div class="flex items-center justify-between">
+                  <NuxtLink
+                    v-if="ArticleInfo.uid"
+                    :to="`/user/${ArticleInfo.uid}`"
+                    class="author-profile-link group inline-flex items-center rounded-full py-1 pl-1 pr-3 transition-colors hover:bg-base-content/5"
+                    title="查看作者主页"
+                  >
+                    <CommonAvatarWithFrame
+                      :avatar="authorAvatarSrc"
+                      :alt="ArticleInfo.userInfo.nickname"
+                      :frame="authorAvatarFrame"
+                      :size="40"
+                      class="transition-transform group-hover:scale-105"
+                    />
+                    <span class="font-bold ml-2 text-tech link link-hover link-primary">{{
+                      ArticleInfo.userInfo.nickname
+                    }}</span>
+                    <span
+                      class="ml-2 text-xs text-base-content/45 transition-colors group-hover:text-primary"
+                    >主页</span>
+                  </NuxtLink>
+                  <div v-else class="flex items-center">
+                    <CommonAvatarWithFrame
+                      :avatar="authorAvatarSrc"
+                      :alt="ArticleInfo.userInfo.nickname"
+                      :frame="authorAvatarFrame"
+                      :size="40"
+                    />
+                    <span class="ml-2 font-bold text-tech">{{
+                      ArticleInfo.userInfo.nickname
+                    }}</span>
+                  </div>
+                </div>
+                <div class="dropdown dropdown-bottom ml-6">
+                  <div
+                    tabindex="0"
+                    role="button"
+                    class="btn m-1 cyber-btn-secondary"
+                    aria-label="切换预览主题"
+                    @keydown.enter.prevent="($event.target as HTMLElement)?.click()"
+                  >
+                    主 题
+                  </div>
+                  <ul
+                    tabindex="0"
+                    class="dropdown-content z-[1] menu p-2 shadow border border-tech bg-[var(--tech-dropdown-bg)] rounded-box w-52 text-tech"
+                  >
+                    <li v-for="item of themeList" @click="previewThemeChange(item)">
+                      <a>{{ item }}</a>
+                    </li>
+                  </ul>
                 </div>
               </div>
-              <div class="dropdown dropdown-bottom ml-6">
-                <div
-                  tabindex="0"
-                  role="button"
-                  class="btn m-1 cyber-btn-secondary"
-                  aria-label="切换预览主题"
-                  @keydown.enter.prevent="($event.target as HTMLElement)?.click()"
+              <figure v-if="ArticleInfo.cover" class="article-cover-thumb shrink-0">
+                <button
+                  type="button"
+                  class="article-cover-thumb__btn"
+                  :aria-label="`查看封面：${ArticleInfo.title}`"
+                  @click="openImagePreview(coverUrl, { mode: 'simple' })"
                 >
-                  主 题
-                </div>
-                <ul
-                  tabindex="0"
-                  class="dropdown-content z-[1] menu p-2 shadow border border-tech bg-[var(--tech-dropdown-bg)] rounded-box w-52 text-tech"
-                >
-                  <li v-for="item of themeList" @click="previewThemeChange(item)">
-                    <a>{{ item }}</a>
-                  </li>
-                </ul>
-              </div>
+                  <img
+                    :src="coverUrl"
+                    :alt="ArticleInfo.title"
+                    class="article-cover-thumb__img"
+                    loading="lazy"
+                  >
+                </button>
+              </figure>
             </div>
             <MdPreview
               :key="mdKey"
@@ -471,6 +507,39 @@ watch(
       grid-template-columns: minmax(0, 1fr) 17.5rem;
       gap: 1.5rem;
     }
+  }
+
+  .article-cover-thumb {
+    width: 7rem;
+    aspect-ratio: v-bind(coverAspectRatio);
+    margin: 0;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    border: 1px solid color-mix(in oklch, var(--color-base-content) 10%, transparent);
+    background: color-mix(in oklch, var(--color-base-300) 40%, transparent);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+
+    @media (min-width: 768px) {
+      width: 8.5rem;
+    }
+  }
+
+  .article-cover-thumb__btn {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: zoom-in;
+  }
+
+  .article-cover-thumb__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
   }
 
   .aside-bar {

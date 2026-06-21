@@ -3,6 +3,7 @@ import { createSharedComposable } from '@vueuse/core';
 import { io, type Socket } from 'socket.io-client';
 import { originUrl } from '~~/config';
 import { getToken } from '@/utils/cookie';
+import { canUseRpgDevMock } from '~~/utils/rpg-dev-mock-guard';
 import type { LevelUpResult } from '~~/types/rpg';
 
 /**
@@ -23,6 +24,7 @@ export type RealtimeSocketEvent
     | 'articleLevelUp'
     | 'masterpiece'
     | 'currencyChange'
+    | 'rechargeComplete'
     | 'itemGranted'
     | 'lotteryTicketChange'
     | 'petHatched'
@@ -139,6 +141,14 @@ export interface RpgCurrencyChangePayload {
   reasonLabel: string;
 }
 
+/** rechargeComplete 事件（充值弹窗 WS 关单） */
+export interface RpgRechargeCompletePayload {
+  outTradeNo: string;
+  diamonds: number;
+  balance: number;
+  amountYuan: number;
+}
+
 /** itemGranted 事件（config 由服务端 enrich） */
 export interface RpgItemGrantedPayload {
   itemCode: string;
@@ -240,6 +250,7 @@ const ALL_EVENTS: RealtimeSocketEvent[] = [
   'articleLevelUp',
   'masterpiece',
   'currencyChange',
+  'rechargeComplete',
   'itemGranted',
   'lotteryTicketChange',
   'petHatched',
@@ -338,6 +349,12 @@ function useRealtimeSocketCore() {
     connected.value = false;
   };
 
+  /** 开发/测试页：本地注入 WS 事件，走与真推送相同的 on() 监听链 */
+  const dispatchLocalEvent = (event: RealtimeSocketEvent, data: unknown) => {
+    if (!canUseRpgDevMock()) return;
+    emitToListeners(event, data);
+  };
+
   return {
     socket,
     connected,
@@ -346,6 +363,7 @@ function useRealtimeSocketCore() {
     on,
     onDataRefresh,
     notifyDataRefresh,
+    dispatchLocalEvent,
   };
 }
 

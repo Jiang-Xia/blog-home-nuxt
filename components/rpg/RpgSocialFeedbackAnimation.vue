@@ -14,6 +14,26 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+const { playSfx } = useRpgAudio();
+
+/** 社交反馈 kind → 合成音效（收方弹窗，与发送方页面音区分） */
+const socialSfxMap = {
+  cheer: 'socialCheer',
+  flower: 'socialFlower',
+  egg: 'socialEgg',
+  tip: 'socialTip',
+} as const;
+
+/** 弹窗打开时按互动类型播放收方反馈音 */
+watch(
+  () => props.visible,
+  (v) => {
+    if (!v || !props.data?.kind) return;
+    const key = socialSfxMap[props.data.kind];
+    if (key) void playSfx(key);
+  },
+);
+
 const handleClose = () => {
   emit('close');
 };

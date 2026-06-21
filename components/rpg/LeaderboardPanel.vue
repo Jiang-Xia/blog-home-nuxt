@@ -12,6 +12,20 @@ defineProps<{
 const activeType = defineModel<LeaderboardScoreType>('activeType', { default: 'exp' });
 const activePeriod = defineModel<LeaderboardPeriod>('activePeriod', { default: 'total' });
 
+const { playSfx } = useRpgAudio();
+
+/** 切换排行榜周期 Tab */
+const switchPeriod = (key: LeaderboardPeriod) => {
+  if (key !== activePeriod.value) void playSfx('tabSwitch');
+  activePeriod.value = key;
+};
+
+/** 切换排行榜维度 Tab */
+const switchType = (key: LeaderboardScoreType) => {
+  if (key !== activeType.value) void playSfx('tabSwitch');
+  activeType.value = key;
+};
+
 const typeOptions: { key: LeaderboardScoreType; label: string; icon: string }[] = [
   { key: 'exp', label: '经验', icon: '✨' },
   { key: 'reputation', label: '声望', icon: '🏅' },
@@ -48,41 +62,39 @@ const getScoreText = (entry: any) => {
 
 <template>
   <div class="leaderboard-panel">
-    <div class="type-tabs">
+    <div class="rpg-panel-tabs">
       <button
         v-for="opt in periodOptions"
         :key="opt.key"
-        class="type-tab"
+        class="rpg-panel-tab"
         :class="{ active: activePeriod === opt.key }"
-        @click="activePeriod = opt.key"
+        @click="switchPeriod(opt.key)"
       >
         {{ opt.label }}
       </button>
     </div>
-    <div class="type-tabs">
+    <div class="rpg-panel-tabs">
       <button
         v-for="opt in typeOptions"
         :key="opt.key"
-        class="type-tab"
+        class="rpg-panel-tab"
         :class="{ active: activeType === opt.key }"
-        @click="activeType = opt.key"
+        @click="switchType(opt.key)"
       >
         {{ opt.icon }} {{ opt.label }}
       </button>
     </div>
 
-    <div v-if="loading" class="loading">
-      加载中...
-    </div>
-    <div v-else-if="leaderboard.length === 0" class="empty">
+    <RpgPanelLoading v-if="loading" />
+    <div v-else-if="leaderboard.length === 0" class="rpg-empty-inline">
       暂无排行数据
     </div>
     <div v-else class="rank-list">
       <div
         v-for="entry in leaderboard"
         :key="entry.uid"
-        class="rank-item"
-        :class="{ 'top-three': entry.rank <= 3 }"
+        class="rpg-rank-row"
+        :class="{ 'rpg-rank-row--top': entry.rank <= 3 }"
       >
         <span class="rank-num" :class="`rank-${entry.rank}`">
           {{ entry.rank <= 3 ? ['🥇', '🥈', '🥉'][entry.rank - 1] : entry.rank }}
@@ -108,57 +120,10 @@ const getScoreText = (entry: any) => {
     font-size: 14px;
   }
 
-  .type-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
-
-  .type-tab {
-    padding: 6px 14px;
-    border-radius: 8px;
-    border: 1px solid var(--rpg-border);
-    background: var(--rpg-surface);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--rpg-text-secondary);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .type-tab.active {
-    background: var(--rpg-primary-gradient);
-    color: white;
-    border-color: transparent;
-  }
-
-  .loading,
-  .empty {
-    text-align: center;
-    color: var(--rpg-text-muted);
-    padding: 32px 0;
-  }
-
   .rank-list {
     display: flex;
     flex-direction: column;
     gap: 6px;
-  }
-
-  .rank-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: var(--rpg-empty-bg);
-    border: 1px solid var(--rpg-border-subtle);
-  }
-
-  .rank-item.top-three {
-    background: var(--rpg-amber-bg-gradient);
-    border-color: var(--rpg-amber-border);
   }
 
   .rank-num {
@@ -176,6 +141,7 @@ const getScoreText = (entry: any) => {
     overflow: hidden;
     background: var(--rpg-track);
     flex-shrink: 0;
+    border: 1px solid var(--rpg-border-subtle);
   }
 
   .rank-avatar img {
@@ -217,7 +183,7 @@ const getScoreText = (entry: any) => {
 
   .rank-score {
     font-weight: 700;
-    color: var(--rpg-amber-dark);
+    color: var(--rpg-amber-text-soft);
     font-size: 13px;
     white-space: nowrap;
   }

@@ -3,6 +3,7 @@ import type { LocationQueryValue } from 'vue-router';
 import dayjs from 'dayjs';
 import { useStorage } from '@vueuse/core';
 import request from '@/api/request';
+import { toggleCollect, getMyLikedArticleIds } from '@/api/article';
 import { getAllCategory } from '@/api/category';
 import { getAllTag } from '@/api/tag';
 import { messageError } from '@/utils/toast';
@@ -14,7 +15,43 @@ const categoryOptions: any = ref([]);
 const tagsOptions: any = ref([]);
 const categoryLoaded = ref(false);
 const tagsLoaded = ref(false);
-export const xBLogStore = useStorage('x-blog-store', { likes: [] });
+export const xBLogStore = useStorage('x-blog-store', { likes: [] as number[] });
+
+/** 统一文章 ID 为 number，避免 localStorage 与 API 类型不一致导致 includes 失效 */
+export const normalizeArticleLikeId = (id: string | number | null | undefined): number => {
+  const n = Number(id);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+};
+
+/** 当前文章是否在本地点赞列表中 */
+export const isArticleLiked = (id: string | number | null | undefined): boolean => {
+  const normalized = normalizeArticleLikeId(id);
+  if (!normalized) return false;
+  return xBLogStore.value.likes.some(likedId => normalizeArticleLikeId(likedId) === normalized);
+};
+
+let syncUserLikesInflight: Promise<void> | null = null;
+
+/** 登录用户从服务端拉取已点赞文章 ID，写入 localStorage（与收藏 check 同理） */
+export const syncUserLikes = async () => {
+  if (!import.meta.client) return;
+  const { uid } = useUserInfo().value;
+  if (!uid) return;
+  if (syncUserLikesInflight) return syncUserLikesInflight;
+  syncUserLikesInflight = (async () => {
+    try {
+      const res = await getMyLikedArticleIds();
+      const serverIds = (res?.ids ?? []).map(normalizeArticleLikeId).filter(Boolean);
+      xBLogStore.value.likes = serverIds;
+    }
+    catch (e) {
+      console.error('[common] syncUserLikes failed:', e);
+    }
+  })().finally(() => {
+    syncUserLikesInflight = null;
+  });
+  return syncUserLikesInflight;
+};
 
 const loadCategoryOptions = async () => {
   if (categoryLoaded.value) return;
@@ -109,24 +146,33 @@ export const updateLikesHandle = async (item: any) => {
     await goLogin();
     return;
   }
-  const id = item.id as never;
+  const id = normalizeArticleLikeId(item.id);
+  if (!id) return;
   const send = {
-    articleId: item.id,
+    articleId: id,
     uid,
     status: 1,
   };
   const likes = xBLogStore.value.likes;
-  if (likes.includes(id)) {
+  const liked = isArticleLiked(id);
+  if (liked) {
     send.status = 0;
-    likes.splice(likes.indexOf(id), 1);
+    xBLogStore.value.likes = likes.filter(likedId => normalizeArticleLikeId(likedId) !== id);
     item.likes = --item.likes;
+    if ('checked' in item) item.checked = false;
   }
   else {
     send.status = 1;
-    !likes.includes(id) && likes.push(id);
+    if (!isArticleLiked(id)) {
+      xBLogStore.value.likes = [...likes, id];
+    }
     item.likes = ++item.likes;
+    if ('checked' in item) item.checked = true;
   }
   await updateLikes(send);
+  if (import.meta.client) {
+    void useRpgAudio().playSfx('uiClick');
+  }
   try {
     const { fetchQuests } = useRpg();
     await fetchQuests();
@@ -134,6 +180,32 @@ export const updateLikesHandle = async (item: any) => {
   catch {
     // 非组件上下文时忽略
   }
+};
+
+/** 收藏/取消收藏；成功时播放 uiClick，收藏后刷新任务进度 */
+export const toggleCollectHandle = async (
+  articleId: string | number,
+): Promise<{ collected: boolean } | null> => {
+  const { uid } = useUserInfo().value;
+  if (!uid) {
+    messageError('请先登录');
+    await goLogin();
+    return null;
+  }
+  const res = await toggleCollect(articleId);
+  if (import.meta.client) {
+    void useRpgAudio().playSfx('uiClick');
+  }
+  try {
+    if (res?.collected) {
+      const { fetchQuests } = useRpg();
+      await fetchQuests();
+    }
+  }
+  catch {
+    // 非组件上下文时忽略
+  }
+  return res;
 };
 
 export const formactDate = (str: string) => {

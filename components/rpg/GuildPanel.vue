@@ -24,42 +24,47 @@ const isLeader = computed(() => {
 
 <template>
   <div class="guild-panel">
-    <div v-if="loading" class="text-sm text-base-content/50">
-      加载中...
-    </div>
-    <div v-else-if="myGuild" class="guild-card guild-card--mine">
-      <div class="guild-card-head">
-        <h4 class="font-bold text-base">
+    <RpgPanelLoading v-if="loading" compact />
+    <div v-else-if="myGuild" class="rpg-loot-card rpg-loot-card--active guild-mine">
+      <div class="rpg-loot-card-head">
+        <div class="rpg-loot-name">
           {{ myGuild.name }}
-        </h4>
-        <span class="badge badge-sm badge-primary">我的公会</span>
+        </div>
+        <span class="rpg-loot-status rpg-loot-status--done">我的公会</span>
       </div>
-      <p class="text-sm text-base-content/60 mt-2">
+      <p class="rpg-loot-desc">
         {{ myGuild.announcement || '暂无公告' }}
       </p>
-      <p class="text-xs mt-2 text-base-content/50">
-        成员 {{ myGuild.memberCount }} 人
-      </p>
-      <div v-if="myGuild.members?.length" class="member-grid mt-3">
-        <div v-for="m in myGuild.members" :key="m.uid" class="member-card">
-          <div class="font-medium text-sm truncate">
+      <span class="rpg-chip-tag">👥 {{ myGuild.memberCount }} 人</span>
+      <div
+        v-if="myGuild.members?.length"
+        class="rpg-loot-grid rpg-loot-grid--compact member-grid mt-2"
+      >
+        <div v-for="m in myGuild.members" :key="m.uid" class="rpg-loot-card member-card">
+          <div class="rpg-loot-name truncate">
             {{ m.nickname }}
           </div>
-          <div class="text-[11px] text-base-content/50 mt-0.5">
+          <div class="rpg-loot-desc">
             {{ getGuildRoleLabel(m.role) }}
           </div>
         </div>
       </div>
-      <button v-if="!isLeader" class="btn btn-sm btn-outline mt-4 w-full" @click="emit('leave')">
-        退出公会
-      </button>
-      <button v-else class="btn btn-sm btn-outline mt-4 w-full" disabled>
-        会长不可直接退出
-      </button>
+      <div class="rpg-loot-footer mt-2">
+        <button
+          v-if="!isLeader"
+          class="rpg-loot-card-strip w-full rounded-b-[12px]"
+          @click="emit('leave')"
+        >
+          退出公会
+        </button>
+        <span v-else class="rpg-loot-status rpg-loot-status--pending w-full justify-center">
+          会长不可直接退出
+        </span>
+      </div>
     </div>
     <div v-else class="space-y-4">
-      <div class="guild-card">
-        <h4 class="text-sm font-semibold mb-2">
+      <div class="rpg-loot-card">
+        <h4 class="rpg-section-heading">
           创建公会
         </h4>
         <div class="flex gap-2">
@@ -69,7 +74,7 @@ const isLeader = computed(() => {
             placeholder="公会名称"
           >
           <button
-            class="btn btn-sm btn-primary"
+            class="rpg-loot-claim-btn !min-w-0"
             @click="
               emit('create', guildName);
               guildName = '';
@@ -80,27 +85,33 @@ const isLeader = computed(() => {
         </div>
       </div>
       <div>
-        <h4 class="text-sm font-semibold mb-2">
+        <h4 class="rpg-section-heading">
           加入公会
         </h4>
-        <div v-if="!guildList.length" class="text-sm text-base-content/50">
+        <div v-if="!guildList.length" class="rpg-empty-inline">
           暂无可加入的公会
         </div>
-        <div v-else class="guild-grid">
-          <div v-for="g in guildList" :key="g.id" class="guild-card guild-card--join">
-            <div class="guild-card-body">
-              <div class="font-medium text-sm">
+        <div v-else class="rpg-loot-grid">
+          <div v-for="g in guildList" :key="g.id" class="rpg-loot-card rpg-loot-card--stacked">
+            <div class="rpg-loot-card-body">
+              <div class="rpg-loot-card-head">
+                <div class="rpg-loot-icon">
+                  ⚔️
+                </div>
+                <span class="rpg-chip-tag">👥 {{ g.memberCount }}</span>
+              </div>
+              <div class="rpg-loot-name">
                 {{ g.name }}
               </div>
-              <p v-if="g.announcement" class="text-[11px] text-base-content/50 mt-1 line-clamp-2">
+              <p v-if="g.announcement" class="rpg-loot-desc">
                 {{ g.announcement }}
               </p>
-              <span class="text-xs text-base-content/60 mt-2 block">
-                👥 {{ g.memberCount }} 人
-              </span>
             </div>
-            <button class="btn btn-xs btn-primary w-full" @click="emit('join', g.id)">
-              加入
+            <button
+              class="rpg-loot-card-strip rpg-loot-card-strip--active"
+              @click="emit('join', g.id)"
+            >
+              加入公会
             </button>
           </div>
         </div>
@@ -110,48 +121,17 @@ const isLeader = computed(() => {
 </template>
 
 <style scoped>
-  .guild-grid,
-  .member-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
-    gap: 10px;
-  }
-
-  .guild-card {
+  .guild-mine {
     padding: 12px;
-    border-radius: 10px;
-    border: 1px solid var(--rpg-border-subtle, oklch(var(--b3)));
-    background: var(--rpg-surface, oklch(var(--b1)));
   }
 
-  .guild-card--mine {
-    border-color: var(--rpg-violet, oklch(var(--p) / 0.45));
-    background: var(--rpg-violet-bg, oklch(var(--p) / 0.06));
-  }
-
-  .guild-card--join {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-height: 120px;
-  }
-
-  .guild-card-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  .guild-card-body {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .member-card {
+  .member-grid .member-card {
+    min-height: 72px;
     padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid var(--rpg-border-subtle, oklch(var(--b3)));
-    background: oklch(var(--b1));
+    gap: 4px;
+  }
+
+  .member-grid .member-card::after {
+    display: none;
   }
 </style>
