@@ -18,7 +18,7 @@
    * - currencyChange（≥50）  → RpgCurrencyGainFx
    * - activityUpdate（start）→ RpgActivityStartBanner
    * - banStatus（禁言）     → RpgBanPunishAnimation
-   * - 钻石不足              → RpgRechargeModal（handleRpgCurrencyError）
+   * - 钻石不足              → RpgRechargeDynamicModal（动态小程序码建单）
    */
 import { useRpg } from '~~/composables/use-rpg';
 import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
@@ -80,7 +80,12 @@ const {
   closeArticleLevelUp,
 } = useRpgRealtimeHandlers();
 
-const { visible: rechargeVisible, closeRechargeModal } = useRpgRecharge();
+const {
+  visible: rechargeVisible,
+  legacyVisible: rechargeLegacyVisible,
+  closeRechargeModal,
+  closeLegacyRechargeModal,
+} = useRpgRecharge();
 
 /** 登录后立即连 Socket，用户信息与 RPG 数据并行拉取 */
 const initGlobalRpg = () => {
@@ -214,6 +219,8 @@ onMounted(() => {
       :data="articleLevelUpData"
       @close="closeArticleLevelUp"
     />
-    <RpgRechargeModal :visible="rechargeVisible" @close="closeRechargeModal" />
+    <RpgRechargeDynamicModal :visible="rechargeVisible" @close="closeRechargeModal" />
+    <!-- 归档组件：全站不再触发，/tool/test 可预览 -->
+    <RpgRechargeModal :visible="rechargeLegacyVisible" @close="closeLegacyRechargeModal" />
   </ClientOnly>
 </template>

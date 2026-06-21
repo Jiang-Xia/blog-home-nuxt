@@ -1,6 +1,6 @@
 export const SiteTitle = '江夏的Blog';
-/** 导航栏等 UI 展示的短品牌名 */
-export const SiteBrandName = 'Xia Blog';
+/** 导航栏等 UI 展示的短品牌名（暂隐藏，与徽标 X 组合为 X's） */
+export const SiteBrandName = '\'s';
 
 export interface NavLink {
   path: string;

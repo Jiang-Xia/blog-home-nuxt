@@ -60,7 +60,7 @@ export const RPG_LOTTERY_DRAW_MOCK_OPTIONS: RpgLotteryDrawMockOption[] = [
   { key: 'recharge', label: '钻石充值', icon: '💳', kind: 'recharge' },
 ];
 
-/** 与 server RealtimeWsEvents / use-realtime-socket ALL_EVENTS 对齐（共 22 项） */
+/** 与 server RealtimeWsEvents / use-realtime-socket ALL_EVENTS 对齐（共 23 项） */
 export const RPG_ALL_WS_EVENTS: RealtimeSocketEvent[] = [
   'levelUp',
   'lifeChange',
@@ -75,6 +75,7 @@ export const RPG_ALL_WS_EVENTS: RealtimeSocketEvent[] = [
   'articleLevelUp',
   'masterpiece',
   'currencyChange',
+  'rechargeComplete',
   'itemGranted',
   'lotteryTicketChange',
   'petHatched',
@@ -656,7 +657,7 @@ export function triggerMockAfterLotteryDraw(status: RpgStatus | null, delayMs = 
 
   window.setTimeout(() => {
     if (option.kind === 'recharge') {
-      useRpgRecharge().openRechargeModal();
+      useRpgRecharge().openDynamicRechargeModal();
       messageInfo('[抽奖联动] 钻石充值弹窗');
       return;
     }

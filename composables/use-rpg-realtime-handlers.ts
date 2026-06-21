@@ -34,7 +34,7 @@ import {
 import { itemGrantedSfxKey } from '~~/constants/rpg-audio';
 import type { RpgSocialFeedbackData } from '~~/types/rpg';
 import { shouldShowItemRevealCelebration } from '~~/utils/rpg-rarity';
-import { shouldShowCurrencyGainFx } from '~~/utils/rpg-currency';
+import { shouldShowCurrencyGainFx, formatRpgCurrencyReasonLabel } from '~~/utils/rpg-currency';
 import { messageInfo, messageSuccess, messageWarning } from '@/utils/toast';
 
 /** 前端 expGain 二次防抖窗口（与后端 8s 互补） */
@@ -351,6 +351,13 @@ export function useRpgRealtimeHandlers() {
     });
   });
 
+  /** 充值到账：刷新状态与背包（弹窗已关时仍更新余额） */
+  on('rechargeComplete', () => {
+    void fetchStatus();
+    notifyDataRefresh('status');
+    notifyDataRefresh('inventory');
+  });
+
   /** 钻石变动：大额增加飞入特效 + Toast → refresh status / inventory */
   on('currencyChange', (data) => {
     const payload = data as RpgCurrencyChangePayload;
@@ -358,7 +365,7 @@ export function useRpgRealtimeHandlers() {
     notifyDataRefresh('status');
     notifyDataRefresh('inventory');
     deferCelebration(() => {
-      const label = payload.reasonLabel || payload.reason;
+      const label = formatRpgCurrencyReasonLabel(payload.reason, payload.reasonLabel);
       if (payload.delta > 0) {
         messageInfo(`💎 +${payload.delta} 钻石（${label}），余额 ${payload.balance}`);
         if (shouldShowCurrencyGainFx(payload.delta)) {

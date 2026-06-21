@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NAV_LINKS } from '@/utils/constant';
+import { NAV_LINKS, SiteTitle } from '@/utils/constant';
 
 const route = useRoute();
 
@@ -12,8 +12,8 @@ function isActive(path: string) {
 <template>
   <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
     <!-- Logo -->
-    <NuxtLink to="/" class="no-underline">
-      <CyberSiteLogo />
+    <NuxtLink to="/" class="no-underline" :aria-label="SiteTitle">
+      <CyberSiteLogo :show-title="false" />
     </NuxtLink>
 
     <!-- Center links -->

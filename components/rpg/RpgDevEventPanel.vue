@@ -83,7 +83,7 @@ const onRun = (scenario: (typeof RPG_MOCK_SCENARIOS)[number]) => {
           @click="openRechargeModal"
         >
           <span class="panel-btn-icon">💎</span>
-          钻石充值弹窗
+          钻石充值（动态码）
         </button>
       </div>
     </section>
