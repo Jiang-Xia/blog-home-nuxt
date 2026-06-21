@@ -4,7 +4,7 @@
    * - 草稿 localStorage autosave（debounce 3s）
    * - 发布成功展示 Cyber 结果面板；离开页 RPG 确认弹窗
    */
-import { computed, onMounted, reactive, ref, watch, onBeforeUnmount } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref, watch, onBeforeUnmount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { useDebounceFn } from '@vueuse/core';
 import { MdEditor } from 'md-editor-v3';
@@ -39,6 +39,27 @@ const coverUploading = ref(false);
 const publishSuccess = ref<{ id: number; title: string } | null>(null);
 const draftRestored = ref(false);
 const isDirty = ref(false);
+const mdEditorRef = ref<{ $el?: HTMLElement } | null>(null);
+let mdEditorFullscreenObserver: MutationObserver | null = null;
+
+/** 同步 md-editor 网页全屏状态，全屏时隐藏站点顶栏避免遮挡工具栏 */
+function syncArticleEditorPageFullscreen() {
+  if (!import.meta.client) return;
+  const root = mdEditorRef.value?.$el;
+  const active = Boolean(root?.classList?.contains('md-editor-fullscreen'));
+  document.body.classList.toggle('article-editor-page-fs', active);
+}
+
+function bindMdEditorFullscreenObserver() {
+  mdEditorFullscreenObserver?.disconnect();
+  const root = mdEditorRef.value?.$el;
+  if (!root) return;
+  syncArticleEditorPageFullscreen();
+  mdEditorFullscreenObserver = new MutationObserver(syncArticleEditorPageFullscreen);
+  mdEditorFullscreenObserver.observe(root, { attributes: true, attributeFilter: ['class'] });
+}
+
+watch(mdEditorRef, () => nextTick(bindMdEditorFullscreenObserver));
 
 /** localStorage 草稿 key；新建与编辑分 key 存储 */
 const draftStorageKey = computed(() => `draft:${props.articleId || 'new'}`);
@@ -343,8 +364,11 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  mdEditorFullscreenObserver?.disconnect();
+  mdEditorFullscreenObserver = null;
   if (import.meta.client) {
     window.removeEventListener('beforeunload', onBeforeUnload);
+    document.body.classList.remove('article-editor-page-fs');
   }
 });
 
@@ -602,8 +626,9 @@ const copyPublishedLink = async () => {
             正文内容
           </h2>
           <ClientOnly>
-            <div class="rounded-lg overflow-hidden border border-base-300 shadow-inner">
+            <div class="article-md-editor-wrap rounded-lg border border-base-300 shadow-inner">
               <MdEditor
+                ref="mdEditorRef"
                 v-model="formState.content"
                 class="x-md-editor article-md-editor"
                 :theme="mdEditorTheme"
@@ -711,13 +736,28 @@ const copyPublishedLink = async () => {
   }
 
   .article-md-editor {
-    min-height: 360px;
+    height: 400px;
     border: none !important;
+  }
+
+  @media (min-width: 768px) {
+    .article-md-editor {
+      height: min(680px, calc(100vh - 300px));
+      min-height: 520px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .article-md-editor {
+      height: min(760px, calc(100vh - 280px));
+      min-height: 560px;
+    }
   }
 
   .article-md-editor :deep(.md-editor) {
     border: none;
     border-radius: 0;
+    height: 100%;
   }
 
   .article-md-editor :deep(.md-editor-toolbar-wrapper) {

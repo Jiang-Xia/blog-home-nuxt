@@ -510,15 +510,24 @@ html.tech-shell[data-theme='cyber-light'] {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 1.75rem;
     height: 1.75rem;
+    margin: 0;
+    padding: 0;
     border: none;
     border-radius: 999px;
     background: var(--rpg-notify-close-bg);
     color: var(--rpg-notify-close-fg);
-    font-size: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
     line-height: 1;
     cursor: pointer;
+    box-sizing: border-box;
+    flex-shrink: 0;
     transition:
       background 0.2s,
       color 0.2s;
@@ -1429,5 +1438,51 @@ html.tech-shell[data-theme='cyber-light'] {
     font-weight: 500;
     color: var(--rpg-text-body);
     word-break: break-word;
+  }
+}
+
+/* ── 手机端 RPG 冒险状态 / 奖池布局优化 ── */
+@media (max-width: 639px) {
+  .rpg-loot-card {
+    padding: 8px;
+    gap: 5px;
+  }
+
+  .rpg-loot-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+
+  .rpg-loot-grid--compact {
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+    gap: 8px;
+  }
+
+  .rpg-panel-tabs {
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+
+  .rpg-panel-tab {
+    padding: 4px 9px;
+    font-size: 11px;
+  }
+
+  .rpg-pool-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .rpg-pool-chip {
+    width: 100%;
+    height: auto;
+    min-height: 72px;
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .rpg-pool-chip__name {
+    font-size: 10px;
+    line-height: 1.3;
   }
 }

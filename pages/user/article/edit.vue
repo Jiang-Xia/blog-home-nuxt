@@ -35,9 +35,9 @@ useHead({
     :subtitle="pageSubtitle"
     back-to="/user/profile?tab=article"
     back-label="返回我的文章"
-    max-width="max-w-3xl"
+    max-width="max-w-6xl"
   >
-    <div class="cyber-glass-card overflow-hidden">
+    <div class="article-edit-shell">
       <ClientOnly>
         <UserArticleEditForm :article-id="articleId || undefined" />
         <template #fallback>

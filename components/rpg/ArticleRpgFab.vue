@@ -5,7 +5,12 @@
    */
 import { useScroll } from '@vueuse/core';
 import { checkCollected } from '@/api/article';
-import { toggleCollectHandle, updateLikesHandle, xBLogStore } from '@/utils/common';
+import {
+  toggleCollectHandle,
+  updateLikesHandle,
+  isArticleLiked,
+  syncUserLikes,
+} from '@/utils/common';
 import { messageError, messageSuccess } from '@/utils/toast';
 import { useRpg } from '~~/composables/use-rpg';
 
@@ -47,7 +52,7 @@ const ensureLogin = async () => {
 };
 
 const syncLikeState = () => {
-  isLiked.value = xBLogStore.value.likes.includes(props.articleId as never);
+  isLiked.value = isArticleLiked(props.articleId);
 };
 
 /** 点赞成功：uiClick 由 updateLikesHandle 统一播放 */
@@ -98,14 +103,16 @@ const loadCollectState = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await syncUserLikes();
   syncLikeState();
   loadCollectState();
 });
 
 watch(
   () => userInfo.value?.uid,
-  () => {
+  async () => {
+    await syncUserLikes();
     syncLikeState();
     loadCollectState();
   },
@@ -195,8 +202,8 @@ watch(
 <style scoped>
   .article-rpg-fab-wrap {
     position: fixed;
-    bottom: 6rem;
-    right: 2.25rem;
+    right: 1rem;
+    bottom: max(5.5rem, calc(env(safe-area-inset-bottom, 0px) + 4.5rem));
     z-index: 40;
   }
 

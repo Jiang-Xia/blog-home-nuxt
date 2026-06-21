@@ -77,7 +77,6 @@ const userInfo = useUserInfo();
 const { isBanned } = useRpg();
 const { playSfx } = useRpgAudio();
 const submitting = ref(false);
-const showToast = ref(false);
 const guestNickname = () => getRandomNickname();
 const resolveFormName = () => (userInfo.value?.uid ? userInfo.value.nickname : guestNickname());
 const msgForm: MsgInterFace = reactive({
@@ -86,12 +85,6 @@ const msgForm: MsgInterFace = reactive({
   address: '',
   comment: '',
 });
-const showTip = () => {
-  showToast.value = true;
-  setTimeout(() => {
-    showToast.value = false;
-  }, 1500);
-};
 onMounted(() => {
   document.addEventListener('click', () => {
     dialog.value = false;
@@ -109,7 +102,7 @@ const confirmHandle = async () => {
     }
     const keys = Object.keys(msgForm);
     if (keys.some(k => !msgForm[k as keyof MsgInterFace])) {
-      showTip();
+      messageWarning('请填写完整信息哦！');
       return;
     }
     const eamilRegx = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
@@ -207,10 +200,6 @@ useHead({
     </h1>
 
     <CyberCard class="mx-auto mb-6 max-w-3xl !p-4 md:!p-6">
-      <CyberAlert v-show="showToast" variant="warning" class="mb-4">
-        <p>请填写完整信息哦！</p>
-      </CyberAlert>
-
       <p class="cyber-section-label mb-4">
         发表留言
       </p>

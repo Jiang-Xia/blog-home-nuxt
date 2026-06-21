@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
-   * 用户个人中心页面 - daisyUI tabs
+   * 用户个人中心页面
    * Tab 与 URL ?tab= 双向同步，便于深链分享（对齐 rpg/index switchTab）
    */
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, nextTick } from 'vue';
 import { refreshUserInfo } from '@/composables/use-common';
 
 const { frame: avatarFrame } = useEquippedAvatarFrame();
@@ -32,11 +32,38 @@ watch(
   },
 );
 
+const tabOptions: { key: ProfileTab; label: string }[] = [
+  { key: 'card', label: '我的名片' },
+  { key: 'article', label: '我的文章' },
+  { key: 'collect', label: '我的收藏' },
+  { key: 'comment', label: '我的评论/回复' },
+  { key: 'inbox', label: '收到评论' },
+  { key: 'dashboard', label: '数据看板' },
+];
+
+const tabListRef = ref<HTMLElement | null>(null);
+
+/** 移动端横向 Tab 栏：将当前 Tab 滚入可视区域 */
+const scrollActiveTabIntoView = (smooth = true) => {
+  nextTick(() => {
+    const list = tabListRef.value;
+    if (!list) return;
+    const activeEl = list.querySelector<HTMLElement>('[aria-selected="true"]');
+    activeEl?.scrollIntoView({
+      behavior: smooth ? 'smooth' : 'instant',
+      block: 'nearest',
+      inline: 'center',
+    });
+  });
+};
+
 /** 切换 Tab 并写回 URL query（card 为默认时不带 tab 参数） */
 const switchTab = (tab: ProfileTab) => {
   activeTab.value = tab;
   router.replace({ query: tab === 'card' ? {} : { tab } });
 };
+
+watch(activeTab, () => scrollActiveTabIntoView());
 
 definePageMeta({
   layout: 'default',
@@ -47,6 +74,7 @@ useHead({
 });
 
 onMounted(async () => {
+  scrollActiveTabIntoView(false);
   try {
     await refreshUserInfo();
   }
@@ -84,73 +112,20 @@ onMounted(async () => {
         </div>
       </CyberCard>
 
-      <!-- daisyUI 标签页 -->
-      <div role="tablist" class="tabs tabs-border mb-4 overflow-x-auto flex-nowrap">
+      <!-- 横向可滚动 Tab（移动端优化，对齐 rpg/index .rpg-page-tabs） -->
+      <div ref="tabListRef" role="tablist" class="profile-page-tabs">
         <button
+          v-for="opt in tabOptions"
+          :key="opt.key"
           type="button"
           role="tab"
-          class="tab shrink-0"
-          :class="{ 'tab-active': activeTab === 'card' }"
-          :aria-selected="activeTab === 'card'"
-          aria-controls="profile-panel-card"
-          @click="switchTab('card')"
+          class="profile-page-tab"
+          :class="{ active: activeTab === opt.key }"
+          :aria-selected="activeTab === opt.key"
+          :aria-controls="`profile-panel-${opt.key}`"
+          @click="switchTab(opt.key)"
         >
-          我的名片
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="tab shrink-0"
-          :class="{ 'tab-active': activeTab === 'article' }"
-          :aria-selected="activeTab === 'article'"
-          aria-controls="profile-panel-article"
-          @click="switchTab('article')"
-        >
-          我的文章
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="tab shrink-0"
-          :class="{ 'tab-active': activeTab === 'collect' }"
-          :aria-selected="activeTab === 'collect'"
-          aria-controls="profile-panel-collect"
-          @click="switchTab('collect')"
-        >
-          我的收藏
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="tab shrink-0"
-          :class="{ 'tab-active': activeTab === 'comment' }"
-          :aria-selected="activeTab === 'comment'"
-          aria-controls="profile-panel-comment"
-          @click="switchTab('comment')"
-        >
-          我的评论/回复
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="tab shrink-0"
-          :class="{ 'tab-active': activeTab === 'inbox' }"
-          :aria-selected="activeTab === 'inbox'"
-          aria-controls="profile-panel-inbox"
-          @click="switchTab('inbox')"
-        >
-          收到评论
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="tab shrink-0"
-          :class="{ 'tab-active': activeTab === 'dashboard' }"
-          :aria-selected="activeTab === 'dashboard'"
-          aria-controls="profile-panel-dashboard"
-          @click="switchTab('dashboard')"
-        >
-          数据看板
+          {{ opt.label }}
         </button>
       </div>
 
@@ -233,6 +208,77 @@ onMounted(async () => {
   .profile-container {
     max-width: 720px;
     margin: 0 auto;
+    min-width: 0;
+  }
+
+  .profile-page-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--tech-border);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .profile-page-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .profile-page-tab {
+    position: relative;
+    flex: 0 0 auto;
+    padding: 0.625rem 0.875rem;
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25;
+    white-space: nowrap;
+    color: var(--tech-fg-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .profile-page-tab:hover {
+    color: var(--tech-fg);
+  }
+
+  .profile-page-tab.active {
+    color: var(--tech-section-label);
+    font-weight: 600;
+  }
+
+  .profile-page-tab.active::after {
+    content: '';
+    position: absolute;
+    left: 0.875rem;
+    right: 0.875rem;
+    bottom: -1px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--tech-section-label);
+    z-index: 1;
+  }
+
+  @media (max-width: 639px) {
+    .profile-page-tabs {
+      margin-inline: -0.75rem;
+      padding-inline: 0.75rem;
+    }
+
+    .profile-page-tab {
+      padding: 0.5rem 0.625rem;
+      font-size: 0.8125rem;
+    }
+
+    .profile-page-tab.active::after {
+      left: 0.625rem;
+      right: 0.625rem;
+      height: 2px;
+      border-radius: 2px 2px 0 0;
+    }
   }
 
   .card-tab-panel {

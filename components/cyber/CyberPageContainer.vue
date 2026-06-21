@@ -1,5 +1,5 @@
 <template>
-  <div :class="['mx-auto px-4 py-4 md:py-6', maxWidth]">
+  <div :class="['mx-auto px-3 py-3 sm:px-4 sm:py-4 md:py-6', maxWidth]">
     <NuxtLink
       v-if="backTo"
       :to="backTo"

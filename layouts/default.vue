@@ -154,6 +154,8 @@ const needsRpgGlobal = computed(() => {
     // background: var(--main-bgc);
     // color: var(--text-color);
     min-height: 100vh;
+    /* 防止子元素光晕/负边距导致横向滚动，左滑露出 Cyber 网格底 */
+    overflow-x: clip;
 
     // 会编译成和 & 同级类名即 app-layout-header
     &-header {

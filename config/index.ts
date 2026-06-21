@@ -14,8 +14,9 @@ if (ViteEnv.MODE === 'production') {
 else {
   originUrl = ViteEnv.VITE_NUXT_ORIGIN_URL;
   apiPrefix = ViteEnv.VITE_NUXT_API_PREFIX;
-  // 开发走 Nitro devProxy（/blog-api → blog-server），与页面同源，手机/LAN 调试不会误连 localhost
-  baseUrl = ViteEnv.VITE_NUXT_PREFIX_PATH || '/blog-api';
+  const prefixPath = ViteEnv.VITE_NUXT_PREFIX_PATH || '/blog-api';
+  // 开发：浏览器走 Nitro devProxy（/blog-api → blog-server）；SSR 内部 $fetch 不经 devProxy，需直连 backend
+  baseUrl = import.meta.server ? `${originUrl}${apiPrefix}` : prefixPath;
   adminUrl = ViteEnv.VITE_NUXT_ADMIN_URL;
 }
 

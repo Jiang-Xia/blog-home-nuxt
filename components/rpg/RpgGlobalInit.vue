@@ -24,6 +24,7 @@ import { useRpg } from '~~/composables/use-rpg';
 import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
 import { useRpgRealtimeHandlers } from '~~/composables/use-rpg-realtime-handlers';
 import { refreshUserInfo } from '@/composables/use-common';
+import { syncUserLikes } from '@/utils/common';
 import { messageInfo } from '@/utils/toast';
 
 const token = useToken();
@@ -91,7 +92,13 @@ const initGlobalRpg = () => {
     }
     if (!token.value || !userInfo.value?.uid) return;
     connect();
-    await Promise.all([fetchStatus(), fetchSignInfo(), fetchQuests(), fetchBanStatus()]);
+    await Promise.all([
+      fetchStatus(),
+      fetchSignInfo(),
+      fetchQuests(),
+      fetchBanStatus(),
+      syncUserLikes(),
+    ]);
   })().finally(() => {
     initInflight.value = null;
   });

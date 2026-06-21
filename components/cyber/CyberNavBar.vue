@@ -12,11 +12,8 @@ function isActive(path: string) {
 <template>
   <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
     <!-- Logo -->
-    <NuxtLink to="/" class="flex shrink-0 items-center gap-2.5 no-underline">
-      <div class="cyber-logo-badge flex h-9 w-9 items-center justify-center rounded-xl">
-        <span class="text-sm font-bold cyber-gradient-text">X</span>
-      </div>
-      <span class="hidden text-lg font-semibold text-tech sm:inline">Xia</span>
+    <NuxtLink to="/" class="no-underline">
+      <CyberSiteLogo />
     </NuxtLink>
 
     <!-- Center links -->

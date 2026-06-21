@@ -85,6 +85,16 @@ export const checkCollected = (articleId: string | number) => {
   return request.get('/collect/check', { articleId: String(articleId) });
 };
 
+/** 检查当前用户是否已点赞 */
+export const checkLiked = (articleId: string | number) => {
+  return request.get('/like/check', { articleId: String(articleId) });
+};
+
+/** 获取当前用户已点赞的文章 ID 列表（供本地状态同步） */
+export const getMyLikedArticleIds = () => {
+  return request.get('/like/my-ids') as Promise<{ ids: number[] }>;
+};
+
 // 获取我的评论列表（分页）
 export const getMyComments = (params: { page?: number; pageSize?: number }) => {
   return request.get('/comment/my-list', params);

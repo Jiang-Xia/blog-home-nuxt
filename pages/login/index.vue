@@ -130,6 +130,7 @@ const okHandle = async () => {
     res = await request.post(url, params);
     persistLoginTokens(res.info.accessToken, res.info.refreshToken);
     await refreshUserInfo();
+    await syncUserLikes();
     void useRpgAudio().playSfx('uiClick');
     messageSuccess('登录成功');
     await navigateTo(resolveRedirectPath(route.query.redirect as string));
@@ -220,6 +221,7 @@ const exchangeOAuthTicket = async (ticket: string) => {
     const res: any = await request.post('/user/auth/ticket/exchange', { ticket });
     persistLoginTokens(res.info.accessToken, res.info.refreshToken);
     await refreshUserInfo();
+    await syncUserLikes();
     void useRpgAudio().playSfx('uiClick');
     messageSuccess('登录成功');
     history.replaceState({}, '', route.path);

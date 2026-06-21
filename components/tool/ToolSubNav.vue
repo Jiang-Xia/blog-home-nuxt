@@ -17,7 +17,7 @@ watch(
 <template>
   <div>
     <div class="relative z-20 mb-4 md:z-auto">
-      <div class="cyber-glass-card overflow-visible p-4 md:hidden">
+      <div class="cyber-glass-card overflow-visible p-2 sm:p-4 md:hidden">
         <div class="dropdown w-full" :class="{ 'dropdown-open': mobileOpen }">
           <button
             type="button"

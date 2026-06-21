@@ -8,7 +8,13 @@ import { ref, reactive, computed, watch } from 'vue';
 import { MdPreview } from 'md-editor-v3';
 
 import { getArticleInfo, getComment } from '@/api/article';
-import { updateViews, xBLogStore, updateLikesHandle } from '@/utils/common';
+import {
+  updateViews,
+  xBLogStore,
+  updateLikesHandle,
+  isArticleLiked,
+  syncUserLikes,
+} from '@/utils/common';
 import { resolveStaticUrl } from '@/utils/static-url';
 import { resolvePublicAvatarFrame } from '@/composables/use-avatar-frame';
 import type { tocInter } from '@/utils';
@@ -122,17 +128,26 @@ const themeList: any = ref([
 ]);
   // 为了客户端时重新渲染才能设置为缓存的暗黑模式，themeLocal 另设置一个变量会导致签署数据两次
 const mdKey = ref(new Date().getTime());
-const likes = ref([]);
-// 本地点赞记录
 
-onMounted(() => {
+const syncDetailLikeState = () => {
+  ArticleInfo.checked = isArticleLiked(ArticleInfo.id);
+};
+
+onMounted(async () => {
   scrollElement.value = document.documentElement;
   mdKey.value = new Date().getTime();
   recordArticleView(articleId.value);
-  // 点赞的
-  likes.value = xBLogStore.value.likes;
-  ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never);
+  await syncUserLikes();
+  syncDetailLikeState();
 });
+
+watch(
+  () => xBLogStore.value.likes,
+  () => {
+    syncDetailLikeState();
+  },
+  { deep: true },
+);
 
 /* 评论：顶层分页，回复仍随父评论返回 */
 const COMMENT_PAGE_SIZE = 20;
@@ -276,8 +291,8 @@ watch(
     recordArticleView(nextId);
 
     mdKey.value = new Date().getTime();
-    likes.value = xBLogStore.value.likes;
-    ArticleInfo.checked = likes.value.includes(ArticleInfo.id as never);
+    await syncUserLikes();
+    syncDetailLikeState();
 
     await refreshCommentsFn();
     getCommentHandle();

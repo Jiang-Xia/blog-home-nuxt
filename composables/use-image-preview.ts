@@ -5,6 +5,8 @@ export interface ImagePreviewState {
   initialIndex: number;
   /** simple：仅查看；full：旋转/翻转等完整工具栏 */
   mode: 'simple' | 'full';
+  fileNames: string[];
+  onDownload: ((index: number) => void | Promise<void>) | null;
 }
 
 const state = reactive<ImagePreviewState>({
@@ -12,21 +14,35 @@ const state = reactive<ImagePreviewState>({
   images: [],
   initialIndex: 0,
   mode: 'simple',
+  fileNames: [],
+  onDownload: null,
 });
 
 export function useImagePreview() {
-  const open = (src: string | string[], options?: { index?: number; mode?: 'simple' | 'full' }) => {
+  const open = (
+    src: string | string[],
+    options?: {
+      index?: number;
+      mode?: 'simple' | 'full';
+      fileNames?: string[];
+      onDownload?: (index: number) => void | Promise<void>;
+    },
+  ) => {
     const images = (Array.isArray(src) ? src : [src]).filter(Boolean);
     if (!images.length) return;
     const index = Math.min(Math.max(options?.index ?? 0, 0), images.length - 1);
     state.images = images;
     state.initialIndex = index;
     state.mode = options?.mode ?? (images.length > 1 ? 'full' : 'simple');
+    state.fileNames = options?.fileNames ?? [];
+    state.onDownload = options?.onDownload ?? null;
     state.open = true;
   };
 
   const close = () => {
     state.open = false;
+    state.onDownload = null;
+    state.fileNames = [];
   };
 
   return { state, open, close };

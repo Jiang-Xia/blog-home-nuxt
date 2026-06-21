@@ -78,9 +78,10 @@ const onTopicClick = (e: MouseEvent) => {
   .article-toc-drawer {
     .toc-drawer__fab {
       position: fixed;
-      right: 1rem;
-      bottom: 5.5rem;
-      z-index: 40;
+      left: 1rem;
+      right: auto;
+      bottom: max(5.5rem, calc(env(safe-area-inset-bottom, 0px) + 4.5rem));
+      z-index: 39;
     }
   }
 </style>
