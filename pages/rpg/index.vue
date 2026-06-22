@@ -42,7 +42,7 @@ const {
   lotteryHistory,
   hitRecords,
   hitRecordsTotal,
-  activity,
+  activityOverview,
   weatherBuff,
   inventoryItems,
   loadout,
@@ -232,7 +232,7 @@ const onToggleBuff = async (buff: any) => {
     const wasActive = buff.isActive;
     await handleToggleBuff(buff);
     void playSfx(wasActive ? 'buffDeactivate' : 'buffActivate');
-    messageSuccess(wasActive ? '已停用' : '已激活');
+    messageSuccess(wasActive ? '已暂停' : '已激活');
   }
   catch (e: any) {
     messageError(e?.message || '操作失败');
@@ -420,7 +420,7 @@ const onLeaveGuild = async () => {
         </button>
       </div>
 
-      <RpgSeasonBanner :activity="activity" :weather-buff="weatherBuff" />
+      <RpgSeasonBanner :activity-overview="activityOverview" :weather-buff="weatherBuff" />
 
       <div v-if="isLoggedIn" class="rpg-page-tabs mb-4" role="tablist">
         <button

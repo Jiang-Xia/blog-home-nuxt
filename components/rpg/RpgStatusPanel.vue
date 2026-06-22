@@ -80,9 +80,10 @@ const handleToggleBuff = async (
   buff: UserBuff & { triggerMode?: string; isActive?: boolean },
 ) => {
   if (buff.triggerMode !== 'manual') return;
-  if (buff.isActive) await deactivateBuff(buff.id);
+  const wasActive = buff.isActive;
+  if (wasActive) await deactivateBuff(buff.id);
   else await activateBuff(buff.id);
-  messageSuccess(buff.isActive ? '已停用' : '已激活');
+  messageSuccess(wasActive ? '已暂停' : '已激活');
   await fetchBuffs();
 };
 

@@ -50,6 +50,7 @@ import type {
   UserBuff,
   UserQuestProgress,
   InventoryItem,
+  CurrentActivitiesOverview,
 } from '~~/types/rpg';
 
 /**
@@ -76,7 +77,7 @@ export function useRpgPage() {
   const lotteryHistory = ref<LotteryRecord[]>([]);
   const hitRecords = ref<SensitiveHitRecord[]>([]);
   const hitRecordsTotal = ref(0);
-  const activity = ref<any>(null);
+  const activityOverview = ref<CurrentActivitiesOverview | null>(null);
   const weatherBuff = ref<any>(null);
 
   const inventoryItems = ref<InventoryItem[]>([]);
@@ -150,7 +151,7 @@ export function useRpgPage() {
       lotteryTickets.value = ticketsRes.tickets || 0;
       levelRewards.value = rewards;
       lotteryPool.value = pool;
-      activity.value = act;
+      activityOverview.value = act;
       weatherBuff.value = weather;
       loadedTabs.value.add('status');
     }
@@ -433,7 +434,7 @@ export function useRpgPage() {
     }
   };
 
-  /** 手动激活/停用 Buff（仅 triggerMode=manual 生效） */
+  /** 手动激活/停用 Buff（仅 triggerMode=manual） */
   const handleToggleBuff = async (
     buff: UserBuff & { triggerMode?: string; isActive?: boolean },
   ) => {
@@ -540,7 +541,7 @@ export function useRpgPage() {
     lotteryHistory,
     hitRecords,
     hitRecordsTotal,
-    activity,
+    activityOverview,
     weatherBuff,
     inventoryItems,
     loadout,

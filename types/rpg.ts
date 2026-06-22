@@ -258,6 +258,15 @@ export interface QuestStats {
 /** Buff类型 */
 export type BuffType = 'exp_boost' | 'hp_regen' | 'ban_reduction' | 'shield' | 'lucky';
 
+/** 手动经验 Buff 运行时快照（与后端 effectJson 一致） */
+export interface ManualExpBuffMeta {
+  durationMinutes: number;
+  activated: boolean;
+  /** 停用后冻结剩余效果时长 */
+  paused?: boolean;
+  remainingMs?: number;
+}
+
 /** 用户Buff实例 */
 export interface UserBuff {
   id: number;
@@ -269,6 +278,12 @@ export interface UserBuff {
   value: number;
   expireAt: string;
   remainingUses: number;
+  /** auto=获得即生效；manual=需手动激活（经验类） */
+  triggerMode?: 'auto' | 'manual' | 'passive';
+  /** manual 类型须 isActive=true 才参与加成 */
+  isActive?: boolean;
+  /** 手动经验 Buff：durationMinutes + activated */
+  effectJson?: ManualExpBuffMeta | Record<string, unknown> | null;
   createTime: string;
 }
 
@@ -390,4 +405,36 @@ export interface RpgSocialFeedbackData {
   reputationDelta?: number;
   amount?: number;
   articleTitle?: string;
+}
+
+/** 赛季/限时活动摘要（GET /rpg/activities/current） */
+export interface RpgActivitySummary {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  activityType: string;
+  startTime: string;
+  endTime: string;
+  expBuffRate: number;
+  posterUrl: string;
+  active: boolean;
+}
+
+/** 当前活动概览：赛季主位 + 限时 tag + 实际生效倍率 */
+export interface CurrentActivitiesOverview {
+  season: RpgActivitySummary | null;
+  limitedTime: RpgActivitySummary[];
+  effectiveExpBuffRate: number;
+}
+
+/** 活动海报分享结果 */
+export interface SharePosterResult {
+  posterUrl: string;
+  activityCode: string;
+  activityName: string;
+  activityType: string;
+  description: string;
+  expBuffRate: number;
+  shareUrl: string;
 }

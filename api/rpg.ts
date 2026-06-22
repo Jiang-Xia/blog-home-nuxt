@@ -114,12 +114,18 @@ export const exchangePet = (petCode: string) =>
 export const renamePet = (id: number, nickname: string) =>
   afterRpgMutation(['pets'], () => request.patch(`/rpg/pets/${id}/rename`, { nickname }));
 
-/** 活动 */
+/** 当前活动概览（赛季 + 限时活动 + 实际生效经验倍率） */
 export const getCurrentActivity = () =>
   rpgDedupedGet('activities/current', () => request.get('/rpg/activities/current'));
 
-export const shareSeasonPoster = () =>
-  afterRpgMutation(['activities/current'], () => request.post('/rpg/activities/share-poster'));
+/** 分享活动海报（activityCode 不传则分享当前赛季） */
+export const shareActivityPoster = (activityCode?: string) =>
+  afterRpgMutation(['activities/current'], () =>
+    request.post('/rpg/activities/share-poster', activityCode ? { activityCode } : {}),
+  );
+
+/** @deprecated 使用 shareActivityPoster */
+export const shareSeasonPoster = shareActivityPoster;
 
 export const getWeatherBuff = (city?: string) =>
   rpgDedupedGet(`weather-buff:${city ?? ''}`, () => request.get('/rpg/weather-buff', { city }));

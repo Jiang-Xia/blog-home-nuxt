@@ -1,24 +1,24 @@
 <script setup lang="ts">
 /**
-   * Buff列表组件 - 展示当前激活的Buff，带倒计时（纯展示）
+   * Buff列表组件 - 展示当前 Buff，带倒计时（纯展示）
+   * 手动经验 Buff：未激活显示囤积期；激活中倒计时；停用后冻结 remainingMs
    */
 import { BUFF_TYPE_MAP } from '~~/types/rpg';
-import type { UserBuff, BuffType } from '~~/types/rpg';
+import type { ManualExpBuffMeta, UserBuff, BuffType } from '~~/types/rpg';
 
 const props = defineProps<{
   buffs: UserBuff[];
 }>();
 
 const emit = defineEmits<{
-  toggle: [buff: UserBuff & { triggerMode?: string; isActive?: boolean }];
+  toggle: [buff: UserBuff];
 }>();
 
-const toggleBuff = (buff: UserBuff & { triggerMode?: string; isActive?: boolean }) => {
+const toggleBuff = (buff: UserBuff) => {
   if (buff.triggerMode !== 'manual') return;
   emit('toggle', buff);
 };
 
-// 倒计时状态
 const now = ref(Date.now());
 let timer: ReturnType<typeof setInterval> | null = null;
 
@@ -32,26 +32,88 @@ onUnmounted(() => {
   if (timer) clearInterval(timer);
 });
 
-/** 获取Buff剩余时间文本 */
-const getRemainingText = (expireAt: string): string => {
-  const diff = new Date(expireAt).getTime() - now.value;
-  if (diff <= 0) return '即将过期';
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+const getManualExpMeta = (buff: UserBuff): ManualExpBuffMeta | null => {
+  if (buff.triggerMode !== 'manual' || buff.buffType !== 'exp_boost') return null;
+  const meta = buff.effectJson as Partial<ManualExpBuffMeta> | null | undefined;
+  if (!meta?.durationMinutes) return null;
+  return {
+    durationMinutes: meta.durationMinutes,
+    activated: !!meta.activated,
+    paused: !!meta.paused,
+    remainingMs: meta.remainingMs,
+  };
+};
+
+/** 未激活、仍在囤积期内 */
+const isManualExpPending = (buff: UserBuff) => {
+  const meta = getManualExpMeta(buff);
+  return !!meta && !meta.activated;
+};
+
+/** 已激活过但当前停用（暂停计时） */
+const isManualExpPaused = (buff: UserBuff) => {
+  const meta = getManualExpMeta(buff);
+  return !!meta?.activated && !buff.isActive;
+};
+
+const formatDuration = (diffMs: number): string => {
+  if (diffMs <= 0) return '即将过期';
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
   if (hours > 0) return `${hours}时${minutes}分${seconds}秒`;
   if (minutes > 0) return `${minutes}分${seconds}秒`;
   return `${seconds}秒`;
 };
 
-/** 获取Buff剩余百分比（用于进度条） */
+/** 效果剩余毫秒：暂停读 remainingMs，激活中读 expireAt 动态差值 */
+const getEffectRemainingMs = (buff: UserBuff): number => {
+  const meta = getManualExpMeta(buff);
+  if (isManualExpPaused(buff)) {
+    if (meta?.remainingMs != null) return meta.remainingMs;
+    return Math.max(0, new Date(buff.expireAt).getTime() - now.value);
+  }
+  if (meta?.activated && buff.isActive) {
+    return Math.max(0, new Date(buff.expireAt).getTime() - now.value);
+  }
+  return Math.max(0, new Date(buff.expireAt).getTime() - now.value);
+};
+
+/** 底部倒计时文案 */
+const getTimeLabel = (buff: UserBuff): string => {
+  const remaining = formatDuration(getEffectRemainingMs(buff));
+  if (isManualExpPending(buff)) return `${remaining} 内可激活`;
+  if (isManualExpPaused(buff)) return `${remaining} 效果剩余（已暂停）`;
+  return remaining;
+};
+
+/** 进度条百分比 */
 const getRemainingPercent = (buff: UserBuff): number => {
-  const created = new Date(buff.createTime).getTime();
-  const expire = new Date(buff.expireAt).getTime();
-  const total = expire - created;
-  const remaining = expire - now.value;
+  const meta = getManualExpMeta(buff);
+  if (isManualExpPending(buff)) {
+    const created = new Date(buff.createTime).getTime();
+    const expire = new Date(buff.expireAt).getTime();
+    const total = expire - created;
+    const remaining = expire - now.value;
+    if (total <= 0) return 0;
+    return Math.max(0, Math.min(100, (remaining / total) * 100));
+  }
+
+  const total = (meta?.durationMinutes ?? 0) * 60 * 1000;
   if (total <= 0) return 0;
-  return Math.max(0, Math.min(100, (remaining / total) * 100));
+  return Math.max(0, Math.min(100, (getEffectRemainingMs(buff) / total) * 100));
+};
+
+const getStatusText = (buff: UserBuff): string => {
+  if (isManualExpPending(buff)) return '待激活';
+  if (buff.triggerMode === 'manual' && buff.isActive) return '激活中';
+  if (isManualExpPaused(buff)) return '已暂停';
+  return '生效中';
+};
+
+const getStatusClass = (buff: UserBuff): string => {
+  if (isManualExpPending(buff) || isManualExpPaused(buff)) return 'rpg-loot-status--pending';
+  return 'rpg-loot-status--done';
 };
 
 /** 格式化Buff效果描述 */
@@ -91,7 +153,9 @@ const getEffectText = (buff: UserBuff): string => {
           >
             {{ BUFF_TYPE_MAP[buff.buffType]?.icon || '✨' }}
           </div>
-          <span class="rpg-loot-status rpg-loot-status--done">激活中</span>
+          <span class="rpg-loot-status" :class="getStatusClass(buff)">
+            {{ getStatusText(buff) }}
+          </span>
         </div>
         <div class="rpg-loot-name">
           {{ buff.name }}
@@ -111,15 +175,15 @@ const getEffectText = (buff: UserBuff): string => {
         </div>
         <div class="rpg-loot-footer">
           <div class="rpg-loot-meta">
-            <span class="rpg-loot-progress-text">{{ getRemainingText(buff.expireAt) }}</span>
+            <span class="rpg-loot-progress-text">{{ getTimeLabel(buff) }}</span>
           </div>
           <button
-            v-if="(buff as any).triggerMode === 'manual'"
+            v-if="buff.triggerMode === 'manual'"
             class="rpg-loot-claim-btn"
-            :class="{ 'opacity-70': (buff as any).isActive }"
-            @click="toggleBuff(buff as any)"
+            :class="{ 'rpg-loot-claim-btn--pause': buff.isActive }"
+            @click="toggleBuff(buff)"
           >
-            {{ (buff as any).isActive ? '停用' : '激活' }}
+            {{ buff.isActive ? '停用' : '激活' }}
           </button>
         </div>
       </div>

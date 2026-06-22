@@ -1175,6 +1175,21 @@ html.tech-shell[data-theme='cyber-light'] {
     cursor: not-allowed;
   }
 
+  /** Buff 等场景的「停用/暂停」次要按钮：紫色描边，与金色激活区分 */
+  .rpg-loot-claim-btn--pause {
+    background: var(--rpg-violet-bg);
+    color: var(--rpg-violet);
+    border: 1px solid color-mix(in oklch, var(--color-secondary) 38%, var(--color-base-100));
+    box-shadow: none;
+  }
+
+  .rpg-loot-claim-btn--pause:hover:not(:disabled) {
+    background: color-mix(in oklch, var(--color-secondary) 20%, var(--color-base-100));
+    color: var(--rpg-violet-light);
+    filter: none;
+    box-shadow: 0 2px 10px color-mix(in oklch, var(--color-secondary) 22%, transparent);
+  }
+
   .rpg-loot-action {
     display: flex;
     justify-content: flex-end;
