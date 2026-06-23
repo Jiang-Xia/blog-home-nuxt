@@ -34,6 +34,7 @@ import {
   activateBuff,
   deactivateBuff,
 } from '~~/api/rpg';
+import { filterLinkedLotteryPool } from '~~/utils/lottery-reel';
 import type {
   BanStatus,
   DrawResult,
@@ -150,7 +151,7 @@ export function useRpgPage() {
       buffs.value = buffList;
       lotteryTickets.value = ticketsRes.tickets || 0;
       levelRewards.value = rewards;
-      lotteryPool.value = pool;
+      lotteryPool.value = filterLinkedLotteryPool(pool);
       activityOverview.value = act;
       weatherBuff.value = weather;
       loadedTabs.value.add('status');

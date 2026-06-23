@@ -19,6 +19,11 @@ export interface ReelStripPlan {
 const DEFAULT_ITEM_WIDTH = 88;
 const DEFAULT_ITEM_GAP = 8;
 
+/** 过滤未关联系统物品的奖池脏数据（与后端 getPool 一致，前端防御） */
+export function filterLinkedLotteryPool(pool: LotteryPoolItem[]): LotteryPoolItem[] {
+  return pool.filter(item => item.itemLinked !== false);
+}
+
 /** 奖池条目 → 滚轮展示项 */
 export function poolItemToReelItem(item: LotteryPoolItem, suffix = ''): ReelStripItem {
   return {

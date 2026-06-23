@@ -18,6 +18,7 @@ import {
   getLotteryHistory,
   getLotteryTickets,
 } from '~~/api/rpg';
+import { filterLinkedLotteryPool } from '~~/utils/lottery-reel';
 import type {
   RpgStatus,
   SignInfo,
@@ -164,7 +165,7 @@ export function useRpg() {
 
   const fetchLotteryPool = async () => {
     try {
-      lotteryPool.value = await getLotteryPool();
+      lotteryPool.value = filterLinkedLotteryPool(await getLotteryPool());
     }
     catch (e) {
       console.error('[useRpg] 获取抽奖奖池失败:', e);

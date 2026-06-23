@@ -313,6 +313,8 @@ export interface LotteryPoolItem {
   rarityLabel?: string;
   rarityColor?: string;
   rarityIcon?: string;
+  /** 是否已关联 rpg_item_config（未关联项不应出现在 C 端奖池） */
+  itemLinked?: boolean;
 }
 
 /** 抽奖结果 */
