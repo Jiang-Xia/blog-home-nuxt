@@ -9,70 +9,83 @@
           : position === 'bottom-right'
             ? 'bottom-4 right-4'
             : 'bottom-4 left-4',
-      { 'opacity-0 pointer-events-none': !visible },
     ]"
   >
-    <!-- 主进度环 -->
-    <div
-      class="relative cursor-pointer group"
-      @click="toggleExpanded"
-      @mouseenter="showTooltip = true"
-      @mouseleave="showTooltip = false"
-    >
-      <svg :width="ringSize" :height="ringSize" class="transform -rotate-90 drop-shadow-lg">
-        <!-- 背景圆环 -->
-        <circle
-          :cx="ringSize / 2"
-          :cy="ringSize / 2"
-          :r="radius"
-          stroke="currentColor"
-          :stroke-width="strokeWidth"
-          fill="none"
-          class="text-[var(--tech-border)]"
-        />
+    <div class="flex flex-col items-center gap-2">
+      <!-- 主进度环 -->
+      <div
+        class="relative cursor-pointer group transition-all duration-300"
+        :class="{ 'opacity-0 pointer-events-none': autoHide && !visible }"
+        @click="toggleExpanded"
+        @mouseenter="showTooltip = true"
+        @mouseleave="showTooltip = false"
+      >
+        <svg :width="ringSize" :height="ringSize" class="transform -rotate-90 drop-shadow-lg">
+          <!-- 背景圆环 -->
+          <circle
+            :cx="ringSize / 2"
+            :cy="ringSize / 2"
+            :r="radius"
+            stroke="currentColor"
+            :stroke-width="strokeWidth"
+            fill="none"
+            class="text-[var(--tech-border)]"
+          />
 
-        <!-- 进度圆环 -->
-        <circle
-          :cx="ringSize / 2"
-          :cy="ringSize / 2"
-          :r="radius"
-          stroke="currentColor"
-          :stroke-width="strokeWidth"
-          fill="none"
-          :stroke-dasharray="circumference"
-          :stroke-dashoffset="offset"
-          :class="progressColor"
-          class="transition-all duration-300 ease-out"
-          stroke-linecap="round"
-        />
-      </svg>
+          <!-- 进度圆环 -->
+          <circle
+            :cx="ringSize / 2"
+            :cy="ringSize / 2"
+            :r="radius"
+            stroke="currentColor"
+            :stroke-width="strokeWidth"
+            fill="none"
+            :stroke-dasharray="circumference"
+            :stroke-dashoffset="offset"
+            :class="progressColor"
+            class="transition-all duration-300 ease-out"
+            stroke-linecap="round"
+          />
+        </svg>
 
-      <!-- 中心内容 -->
-      <div class="absolute inset-0 flex items-center justify-center text-tech">
-        <div class="text-center text-tech-muted">
-          <div class="font-bold text-lg">
-            {{ Math.round(progress) }}%
+        <!-- 中心内容 -->
+        <div class="absolute inset-0 flex items-center justify-center text-tech">
+          <div class="text-center text-tech-muted">
+            <div class="font-bold text-lg">
+              {{ Math.round(progress) }}%
+            </div>
+            <div class="text-xs opacity-75">
+              {{ readingTime }}
+            </div>
           </div>
-          <div class="text-xs opacity-75">
-            {{ readingTime }}
-          </div>
+        </div>
+
+        <!-- 工具提示（桌面端） -->
+        <div
+          v-if="showTooltip && !expanded"
+          class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-[var(--tech-dropdown-bg)] text-tech border border-tech text-xs rounded px-2 py-1 whitespace-nowrap z-10 backdrop-blur-md hidden lg:block"
+        >
+          点击展开目录
         </div>
       </div>
 
-      <!-- 工具提示 -->
-      <div
-        v-if="showTooltip && !expanded"
-        class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-[var(--tech-dropdown-bg)] text-tech border border-tech text-xs rounded px-2 py-1 whitespace-nowrap z-10 backdrop-blur-md"
+      <!-- 移动端：进度球下方醒目目录按钮 -->
+      <button
+        v-if="headings.length"
+        type="button"
+        class="reading-progress-ring__toc-btn lg:hidden btn btn-sm btn-primary shadow-lg border border-primary/30"
+        aria-label="打开文章目录"
+        @click.stop="openMobileToc"
       >
-        点击展开目录
-      </div>
+        📑 目录
+      </button>
     </div>
 
-    <!-- 展开的目录面板 -->
+    <!-- 桌面端：展开的目录面板 -->
     <Transition name="slide-fade">
       <div
         v-if="expanded"
-        class="absolute top-full mt-4 cyber-glass-card text-tech border border-tech rounded-lg shadow-xl p-4 w-80 max-h-96 overflow-y-auto"
+        class="absolute top-full mt-4 cyber-glass-card text-tech border border-tech rounded-lg shadow-xl p-4 w-80 max-h-96 overflow-y-auto hidden lg:block"
         :class="menuPosition"
       >
         <div class="flex items-center justify-between mb-3">
@@ -148,6 +161,63 @@
         </div>
       </div>
     </Transition>
+
+    <!-- 移动端：底部抽屉目录 -->
+    <Teleport to="body">
+      <div
+        v-if="mobileTocOpen"
+        class="fixed inset-0 z-[10030] bg-black/40 backdrop-blur-[1px] lg:hidden"
+        aria-hidden="true"
+        @click="closeMobileToc"
+      />
+      <div
+        v-if="mobileTocOpen"
+        class="fixed inset-x-0 bottom-0 z-[10031] max-h-[70vh] rounded-t-2xl border border-tech bg-[var(--tech-dropdown-bg)] shadow-2xl lg:hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-label="文章目录"
+      >
+        <div class="flex items-center justify-between border-b border-tech px-4 py-3">
+          <span class="text-sm font-semibold text-tech">文章目录</span>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs btn-circle"
+            aria-label="关闭目录"
+            @click="closeMobileToc"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="overflow-y-auto px-2 py-2" style="max-height: calc(70vh - 3rem)">
+          <div class="space-y-1">
+            <div
+              v-for="(heading, index) in headings"
+              :key="index"
+              class="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-base-200 transition-colors"
+              :class="[
+                { 'bg-primary/10': currentHeading === index },
+                `ml-${(heading.level - 1) * 2}`,
+              ]"
+              @click="scrollToHeading(heading, index)"
+            >
+              <div
+                class="w-2 h-2 rounded-full flex-shrink-0"
+                :class="currentHeading === index ? 'bg-primary' : 'bg-base-300'"
+              />
+              <span
+                class="text-sm truncate"
+                :class="[
+                  currentHeading === index ? 'text-primary font-medium' : 'text-tech',
+                  `text-${getTextSize(heading.level)}`,
+                ]"
+              >
+                {{ heading.text }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -180,6 +250,7 @@ const props = withDefaults(defineProps<Props>(), {
 const progress = ref(0);
 const visible = ref(false);
 const expanded = ref(false);
+const mobileTocOpen = ref(false);
 const showTooltip = ref(false);
 const currentHeading = ref(-1);
 const headings = ref<Heading[]>([]);
@@ -290,12 +361,14 @@ const scrollToHeading = (heading: Heading, index: number) => {
   });
   currentHeading.value = index;
   expanded.value = false;
+  mobileTocOpen.value = false;
 };
 
 // 滚动到顶部
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   expanded.value = false;
+  mobileTocOpen.value = false;
 };
 
 // 滚动到底部
@@ -305,10 +378,24 @@ const scrollToBottom = () => {
     behavior: 'smooth',
   });
   expanded.value = false;
+  mobileTocOpen.value = false;
 };
 
-// 切换展开状态
+const openMobileToc = () => {
+  mobileTocOpen.value = true;
+  showTooltip.value = false;
+};
+
+const closeMobileToc = () => {
+  mobileTocOpen.value = false;
+};
+
+// 切换展开状态（桌面端）
 const toggleExpanded = () => {
+  if (import.meta.client && window.matchMedia('(max-width: 1023px)').matches) {
+    openMobileToc();
+    return;
+  }
   expanded.value = !expanded.value;
   if (expanded.value) {
     showTooltip.value = false;
@@ -378,5 +465,11 @@ onUnmounted(() => {
   }
   .ml-10 {
     margin-left: 2.5rem;
+  }
+
+  .reading-progress-ring__toc-btn {
+    min-width: 4.5rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
   }
 </style>

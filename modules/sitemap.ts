@@ -21,9 +21,9 @@ export default defineNuxtModule({
         .map((route: any) => route.path)
         .filter((path: string) => !path.includes(':'));
       const details = articleIds.map((id: string) => `/detail/${id}`);
-      const sitemapRoutes = [...routePaths, ...details];
+      const sitemapEntries = [...routePaths, ...details].map(url => ({ url }));
       const stream = new SitemapStream({ hostname: options.hostname });
-      return streamToPromise(Readable.from(sitemapRoutes).pipe(stream)).then(data =>
+      return streamToPromise(Readable.from(sitemapEntries).pipe(stream)).then(data =>
         data.toString(),
       );
     }

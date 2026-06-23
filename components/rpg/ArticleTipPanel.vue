@@ -9,7 +9,7 @@ import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 const props = defineProps<{ articleId: number; authorUid: number }>();
 const emit = defineEmits<{ tipped: [] }>();
 const userInfo = useUserInfo();
-const amount = ref(50);
+const amount = ref(5);
 const loading = ref(false);
 const { playSfx } = useRpgAudio();
 

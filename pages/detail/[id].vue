@@ -417,9 +417,8 @@ watch(
         </aside>
       </div>
     </div>
-    <!-- 阅读进度环 -->
+    <!-- 阅读进度环（含移动端目录） -->
     <ReadingProgressRing position="top-right" :auto-hide="true" style="top: 70px" />
-    <ArticleTocDrawer :topics="topics" />
     <RpgArticleRpgFab
       v-if="ArticleInfo.id && ArticleInfo.uid"
       :article-id="ArticleInfo.id"

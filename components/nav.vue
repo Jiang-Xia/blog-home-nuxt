@@ -13,6 +13,7 @@ import Yaya from '../assets/images/animal/yaya.svg';
 import { getArticleList } from '@/api/article';
 import { debounce } from '~~/utils';
 import { TokenKey, RefreshTokenKey, getToken, removeToken } from '@/utils/cookie';
+import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
 import { isDarkTheme, useThemeActions } from '@/composables/use-home';
 import { NAV_LINKS } from '@/utils/constant';
 
@@ -128,12 +129,14 @@ const onSearchHandle = debounce(() => {
   }
 }, 300);
 
+const { disconnect: disconnectRealtimeSocket } = useRealtimeSocket();
 const clearUserInfoFn = useClearUserInfo();
 const clear = () => {
   token.value = '';
   removeToken(TokenKey);
   removeToken(RefreshTokenKey);
   clearUserInfoFn();
+  disconnectRealtimeSocket();
 };
 if (import.meta.client) {
   token.value = getToken(TokenKey);

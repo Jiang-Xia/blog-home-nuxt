@@ -316,13 +316,25 @@ function useRealtimeSocketCore() {
     });
   };
 
-  /** 建立 /realtime 连接；未登录（无 token）时不连接 */
+  /** 建立 /realtime 连接；未登录（无 token）时不连接；切账户时先断开旧连接 */
   const connect = () => {
     if (!import.meta.client) return;
-    if (socket.value?.connected) return;
 
     const authToken = buildAuthToken();
-    if (!authToken) return;
+    if (!authToken) {
+      disconnect();
+      return;
+    }
+
+    const existing = socket.value;
+    if (existing?.connected) {
+      const currentToken = (existing.auth as { token?: string } | undefined)?.token;
+      if (currentToken === authToken) return;
+      disconnect();
+    }
+    else if (existing) {
+      disconnect();
+    }
 
     const newSocket = io(`${originUrl}/realtime`, {
       auth: { token: authToken },
