@@ -83,9 +83,12 @@ const handleClose = () => {
             <div class="hatch-badge">
               孵化成功
             </div>
-            <div class="pet-icon">
-              🐾
-            </div>
+            <RpgItemIcon
+              class="pet-icon"
+              :icon="data.petCode"
+              :rarity-color="data.rarityColor"
+              size="lg"
+            />
             <RpgRarityBadge
               class="pet-rarity"
               :rarity="tier"

@@ -1427,7 +1427,7 @@ html.tech-shell[data-theme='cyber-light'] {
     justify-content: flex-start;
     gap: 6px;
     width: 108px;
-    height: 88px;
+    height: 104px;
     padding: 8px;
     border-radius: 10px;
     border: 1px solid var(--rpg-loot-border);
@@ -1448,6 +1448,10 @@ html.tech-shell[data-theme='cyber-light'] {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .rpg-pool-chip__icon {
+    align-self: center;
   }
 
   .rpg-pool-chip__name {

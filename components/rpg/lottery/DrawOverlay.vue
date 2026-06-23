@@ -287,6 +287,13 @@ const handleConfirm = () => {
                 :rarity-color="currentResult.item.rarityColor"
                 :rarity-icon="currentResult.item.rarityIcon"
               />
+              <RpgItemIcon
+                class="reveal-item-icon"
+                :icon="currentResult.item.icon"
+                :item-type-icon="currentResult.item.itemTypeIcon"
+                :rarity-color="currentResult.item.rarityColor"
+                size="lg"
+              />
               <div class="reveal-name">
                 {{ currentResult.item.name }}
               </div>
@@ -314,6 +321,13 @@ const handleConfirm = () => {
                   animationDelay: `${idx * 0.08}s`,
                 }"
               >
+                <RpgItemIcon
+                  class="summary-item-icon"
+                  :icon="result.item.icon"
+                  :item-type-icon="result.item.itemTypeIcon"
+                  :rarity-color="result.item.rarityColor"
+                  size="sm"
+                />
                 <RpgRarityBadge
                   :rarity="result.item.rarity"
                   :rarity-label="result.item.rarityLabel"
@@ -556,6 +570,10 @@ const handleConfirm = () => {
 
   .reveal-rarity {
     margin-bottom: 10px;
+  }
+
+  .reveal-item-icon {
+    margin: 0 auto 12px;
   }
 
   .reveal-name {

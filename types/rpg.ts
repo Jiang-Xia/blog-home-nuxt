@@ -2,7 +2,7 @@
  * RPG 前端类型定义
  *
  * 物品展示约定（与后端 rpg_item_config 对齐）：
- * - 称号/头像框/背包/抽奖等：只用 API 返回的 name、itemTypeLabel、rarityColor 等字段
+ * - 称号/头像框/背包/抽奖等：只用 API 返回的 name、icon、itemTypeLabel、rarityColor 等字段
  * - 禁止新增 AVATAR_FRAME_MAP、RARITY_MAP、ITEM_TYPE_MAP 等本地物品 map
  * - 详见 blog-home-nuxt/.cursor/rules/home-15-rpg-item-display.mdc
  */
@@ -20,6 +20,7 @@ export interface CosmeticItemSummary extends RarityDisplayFields {
   code: string;
   name: string;
   rarity: string;
+  icon?: string;
   color?: string | null;
 }
 
@@ -307,6 +308,8 @@ export interface LotteryPoolItem {
   rarity: string;
   active: boolean;
   sort: number;
+  icon?: string;
+  itemTypeIcon?: string;
   rarityLabel?: string;
   rarityColor?: string;
   rarityIcon?: string;
@@ -320,6 +323,8 @@ export interface DrawResult {
     description: string;
     rarity: string;
     type: string;
+    icon?: string;
+    itemTypeIcon?: string;
     rarityLabel?: string;
     rarityColor?: string;
     rarityIcon?: string;
@@ -336,6 +341,8 @@ export interface LotteryRecord {
   poolRarity: string;
   rewardData: Record<string, any>;
   createTime: string;
+  icon?: string;
+  itemTypeIcon?: string;
   rarityLabel?: string;
   rarityColor?: string;
   rarityIcon?: string;

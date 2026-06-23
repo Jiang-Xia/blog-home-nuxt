@@ -4,6 +4,7 @@ import { resolveStaticUrl } from '@/utils/static-url';
 import { SiteTitle } from '@/utils/constant';
 import { getPublicArticles, getPublicCollects, getPublicLikes } from '@/api/profile';
 import { coverAspectRatio } from '@/utils/image-compress';
+import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 
 const route = useRoute();
 const uid = computed(() => route.params.uid as string);
@@ -190,13 +191,15 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
         </h3>
         <div class="flex flex-wrap gap-2">
           <span v-if="profile.loadout.title" class="badge badge-warning gap-1">
-            🏆 {{ profile.loadout.title.name }}
+            {{ resolveRpgItemEmoji(profile.loadout.title) }} {{ profile.loadout.title.name }}
           </span>
           <span v-if="profile.loadout.avatarFrame" class="badge badge-info gap-1">
-            🖼 {{ profile.loadout.avatarFrame.name }}
+            {{ resolveRpgItemEmoji(profile.loadout.avatarFrame) }}
+            {{ profile.loadout.avatarFrame.name }}
           </span>
           <span v-if="profile.loadout.pet" class="badge badge-success gap-1">
-            🐾 {{ profile.loadout.pet.nickname || profile.loadout.pet.config?.name }}
+            {{ resolveRpgItemEmoji(profile.loadout.pet.config) }}
+            {{ profile.loadout.pet.nickname || profile.loadout.pet.config?.name }}
           </span>
         </div>
         <div v-if="profile.completedAchievements?.length" class="mt-3 flex flex-wrap gap-1">

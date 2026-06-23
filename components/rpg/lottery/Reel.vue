@@ -228,7 +228,14 @@ onUnmounted(() => {
           class="reel-item"
           :style="{ borderColor: item.rarityColor || '#94a3b8' }"
         >
-          <span v-if="item.rarityIcon" class="reel-icon">{{ item.rarityIcon }}</span>
+          <RpgItemIcon
+            class="reel-item-icon"
+            :icon="item.icon"
+            :item-type-icon="item.itemTypeIcon"
+            :rarity-color="item.rarityColor"
+            size="sm"
+            :tinted="true"
+          />
           <span class="reel-name">{{ item.name }}</span>
           <RpgRarityBadge
             class="reel-badge"
@@ -306,13 +313,8 @@ onUnmounted(() => {
     padding: 4px 2px;
   }
 
-  .reel-icon {
-    font-size: 18px;
-    line-height: 1;
-  }
-
-  .compact .reel-icon {
-    font-size: 14px;
+  .reel-item-icon {
+    flex-shrink: 0;
   }
 
   .reel-name {

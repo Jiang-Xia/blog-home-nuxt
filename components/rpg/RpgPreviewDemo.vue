@@ -128,8 +128,8 @@ onUnmounted(() => {
         <div>打赏</div>
       </div>
       <div class="rounded-lg bg-[var(--rpg-empty-bg)]" :class="dense ? 'py-1.5' : 'py-2'">
-        <div class="text-base">
-          🐾
+        <div class="flex justify-center" :class="dense ? 'mb-0.5' : 'mb-1'">
+          <RpgItemIcon icon="slime" rarity-color="#4ade80" size="sm" />
         </div>
         <div>宠物</div>
       </div>

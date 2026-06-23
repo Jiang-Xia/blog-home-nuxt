@@ -4,6 +4,7 @@
    * unlockedRewards 已由后端 enrich（avatarFrame.name、title.name 等）
    */
 import type { LevelUpResult } from '~~/types/rpg';
+import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 
 const props = defineProps<{
   visible: boolean;
@@ -31,7 +32,9 @@ const rewards = computed(() => {
     currencyReward: r.currencyReward || 0,
     currencyName: r.currencyName || '钻石',
     frameName: r.avatarFrame?.name || null,
+    frameEmoji: r.avatarFrame ? resolveRpgItemEmoji(r.avatarFrame) : null,
     titleName: r.title?.name || null,
+    titleEmoji: r.title ? resolveRpgItemEmoji(r.title) : null,
   }));
 });
 
@@ -80,8 +83,8 @@ const handleClose = () => {
             </div>
             <div v-for="r in rewards" :key="r.level" class="reward-item">
               <span v-if="r.currencyReward" class="reward-diamond">💎 {{ r.currencyReward }} {{ r.currencyName }}</span>
-              <span v-if="r.frameName" class="reward-frame">🖼 {{ r.frameName }}</span>
-              <span v-if="r.titleName" class="reward-title">🏆 {{ r.titleName }}</span>
+              <span v-if="r.frameName" class="reward-frame">{{ r.frameEmoji }} {{ r.frameName }}</span>
+              <span v-if="r.titleName" class="reward-title">{{ r.titleEmoji }} {{ r.titleName }}</span>
             </div>
           </div>
           <button class="close-btn" @click="handleClose">

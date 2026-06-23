@@ -13,6 +13,7 @@ import type {
   UserQuestProgress,
 } from '~~/types/rpg';
 import { getRpgLifeColor } from '~~/composables/use-rpg-theme';
+import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 import { formactDate } from '@/utils/common';
 import RpgQuestPanel from './QuestPanel.vue';
 import RpgAchievementPanel from './AchievementPanel.vue';
@@ -278,7 +279,7 @@ const toggleHitRecords = () => {
                 : emit('equip', 'avatar_frame', frame.code)
             "
           >
-            {{ frame.name }}
+            {{ resolveRpgItemEmoji(frame) }} {{ frame.name }}
             <span v-if="rpgStatus.equippedAvatarFrame === frame.code" class="equipped-badge">已穿戴</span>
           </span>
         </div>
@@ -297,7 +298,7 @@ const toggleHitRecords = () => {
                 : emit('equip', 'title', title.code)
             "
           >
-            {{ title.name }}
+            {{ resolveRpgItemEmoji(title) }} {{ title.name }}
             <span v-if="rpgStatus.equippedTitle === title.code" class="equipped-badge">已穿戴</span>
           </span>
         </div>

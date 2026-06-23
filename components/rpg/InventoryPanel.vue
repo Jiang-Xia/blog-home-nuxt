@@ -104,9 +104,11 @@ const switchTypeTab = (key: string) => {
         >
           <div class="rpg-loot-card-body">
             <div class="rpg-loot-card-head">
-              <div class="rpg-loot-icon">
-                {{ item.config?.itemTypeIcon || '🎒' }}
-              </div>
+              <RpgItemIcon
+                :icon="item.config?.icon"
+                :item-type-icon="item.config?.itemTypeIcon"
+                :rarity-color="item.config?.rarityColor"
+              />
               <span class="rpg-loot-progress-text">×{{ item.quantity }}</span>
             </div>
             <div class="rpg-loot-name">

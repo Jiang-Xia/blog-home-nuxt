@@ -210,6 +210,14 @@ const toggleHistory = () => {
           class="rpg-pool-chip"
           :style="{ borderColor: item.rarityColor || 'var(--rpg-loot-border)' }"
         >
+          <RpgItemIcon
+            class="rpg-pool-chip__icon"
+            :icon="item.icon"
+            :item-type-icon="item.itemTypeIcon"
+            :rarity-color="item.rarityColor"
+            size="sm"
+            :tinted="true"
+          />
           <RpgRarityBadge
             class="rpg-pool-chip__badge"
             :rarity="item.rarity"
@@ -235,6 +243,12 @@ const toggleHistory = () => {
           :key="record.id"
           class="rpg-rank-row rpg-rank-row--compact"
         >
+          <RpgItemIcon
+            :icon="record.icon"
+            :item-type-icon="record.itemTypeIcon"
+            :rarity-color="record.rarityColor"
+            size="sm"
+          />
           <RpgRarityBadge
             class="history-rarity-badge"
             :rarity="record.poolRarity"

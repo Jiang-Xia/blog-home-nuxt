@@ -2,6 +2,7 @@
 /**
    * RPG状态面板 - 展示等级、经验进度、生命值、头像框、称号、签到等信息
    */
+import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 import type { LevelUpResult, UserBuff } from '~~/types/rpg';
 import { activateBuff, deactivateBuff } from '~~/api/rpg';
 import { messageSuccess } from '~~/utils/toast';
@@ -190,7 +191,13 @@ onMounted(async () => {
           class="frame-item"
           :style="{ borderColor: frame.color || '#ccc' }"
         >
-          <span class="frame-icon" :style="{ color: frame.color || '#ccc' }"> 🖼 </span>
+          <RpgItemIcon
+            class="frame-icon-wrap"
+            :icon="frame.icon"
+            :frame-color="frame.color"
+            :rarity-color="frame.rarityColor"
+            size="sm"
+          />
           <span class="frame-name">{{ frame.name }}</span>
         </div>
       </div>
@@ -203,7 +210,7 @@ onMounted(async () => {
       </div>
       <div class="titles-list">
         <span v-for="title in rpgStatus.unlockedTitles" :key="title.code" class="title-badge">
-          🏆 {{ title.name }}
+          {{ resolveRpgItemEmoji(title) }} {{ title.name }}
         </span>
       </div>
     </div>

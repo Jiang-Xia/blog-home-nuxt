@@ -4,6 +4,8 @@ export interface ReelStripItem {
   id: string;
   name: string;
   rarity: string;
+  icon?: string;
+  itemTypeIcon?: string;
   rarityLabel?: string;
   rarityColor?: string;
   rarityIcon?: string;
@@ -23,6 +25,8 @@ export function poolItemToReelItem(item: LotteryPoolItem, suffix = ''): ReelStri
     id: `${item.id}${suffix}`,
     name: item.name,
     rarity: item.rarity,
+    icon: item.icon,
+    itemTypeIcon: item.itemTypeIcon,
     rarityLabel: item.rarityLabel,
     rarityColor: item.rarityColor,
     rarityIcon: item.rarityIcon,
@@ -35,6 +39,8 @@ export function drawItemToReelItem(item: DrawResult['item'], suffix = ''): ReelS
     id: `${item.code}${suffix}`,
     name: item.name,
     rarity: item.rarity,
+    icon: item.icon,
+    itemTypeIcon: item.itemTypeIcon,
     rarityLabel: item.rarityLabel,
     rarityColor: item.rarityColor,
     rarityIcon: item.rarityIcon,
@@ -63,6 +69,8 @@ export function buildReelStrip(
             rarity: winner.rarity,
             active: true,
             sort: 0,
+            icon: winner.icon,
+            itemTypeIcon: winner.itemTypeIcon,
             rarityLabel: winner.rarityLabel,
             rarityColor: winner.rarityColor,
             rarityIcon: winner.rarityIcon,

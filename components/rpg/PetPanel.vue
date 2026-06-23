@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ItemConfigView } from '~~/types/rpg';
 import { useRpgModal } from '~~/composables/use-rpg-modal';
+import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 
 const props = defineProps<{
   pets: any[];
@@ -89,9 +90,11 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
           >
             <div class="rpg-loot-card-body">
               <div class="rpg-loot-card-head">
-                <div class="rpg-loot-icon">
-                  🐾
-                </div>
+                <RpgItemIcon
+                  :icon="c.icon"
+                  :item-type-icon="c.itemTypeIcon"
+                  :rarity-color="c.rarityColor"
+                />
                 <span v-if="isOwned(c.code)" class="rpg-loot-status rpg-loot-status--done">已兑换</span>
               </div>
               <div class="rpg-loot-name">
@@ -130,7 +133,7 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
             class="rpg-panel-tab"
             @click="emit('hatch', e.itemCode)"
           >
-            🥚 {{ e.config?.name }} 孵化
+            {{ resolveRpgItemEmoji(e.config) }} {{ e.config?.name }} 孵化
           </button>
         </div>
       </div>
@@ -155,9 +158,11 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
             :class="{ 'rpg-loot-card--active': equippedPetId === p.id }"
           >
             <div class="rpg-loot-card-head">
-              <div class="rpg-loot-icon">
-                🐾
-              </div>
+              <RpgItemIcon
+                :icon="p.config?.icon"
+                :item-type-icon="p.config?.itemTypeIcon"
+                :rarity-color="p.config?.rarityColor"
+              />
               <span v-if="equippedPetId === p.id" class="rpg-loot-status rpg-loot-status--done">出战中</span>
             </div>
             <div class="rpg-loot-name">
