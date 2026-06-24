@@ -51,16 +51,6 @@ const log = (msg: string, type = 'log') => {
 // }
 
 /**
- * 待处理任务接口定义
- * 用于无感刷新token时的请求队列管理
- */
-interface PendingTask {
-  config: any; // 请求配置
-  url: string; // 请求URL
-  fn: Function; // 回调函数
-}
-
-/**
  * 可选请求行为（通过 get 第三参或 $http options 传入）
  * @example request.get('/article/info', { id }, { silent: true })
  */
@@ -69,9 +59,54 @@ interface RequestHttpOptions {
   silent?: boolean;
 }
 
-// 无感刷新token相关变量
-let refreshing = false; // 是否正在刷新token
-let queue: PendingTask[] = []; // 待处理请求队列
+// 无感刷新 token 相关变量
+/** 同一页面生命周期内 refresh 已失败则不再重试，避免 info/refresh 循环 */
+let refreshUnavailable = false;
+/** 进行中 refresh 单飞，合并并发 401 */
+let refreshPromise: Promise<RefreshTokenResult | null> | null = null;
+/** 会话失效 toast 去重 */
+let sessionExpireNotified = false;
+
+interface RefreshTokenResult {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    nickname: string;
+    homepage: string;
+    intro: string;
+    avatar: string;
+    id: number;
+    role: string;
+  };
+}
+
+const defaultUserInfo = {
+  nickname: '',
+  homepage: '',
+  intro: '',
+  avatar: '',
+  uid: 0,
+  role: '',
+};
+
+/** refresh 失败或 refreshToken 缺失时清空登录态，阻断后续无感刷新 */
+function clearAuthSession() {
+  refreshUnavailable = true;
+  const token = useToken();
+  token.value = '';
+  const userInfo = useUserInfo();
+  Object.assign(userInfo.value, defaultUserInfo);
+  removeToken(TokenKey);
+  removeToken(RefreshTokenKey);
+}
+
+function notifySessionExpired(message: string, silent: boolean) {
+  if (silent || sessionExpireNotified) {
+    return;
+  }
+  sessionExpireNotified = true;
+  messageDanger(message);
+}
 
 /**
  * async/await函数错误统一处理工具函数
@@ -398,52 +433,34 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
         const body = decryptMsg(ctx.response._data, url);
         const status: number = ctx.response.status;
 
-        // 如果正在刷新token，将请求加入队列
-        if (refreshing) {
-          queue.push({
-            config: getDTconfig(),
-            url,
-            // 作用是把当前状态为pending的promise放进全局数组中
-            // 刷新完token之后再把对应的promise状态改为fulfilled，
-            // 这样之前报401响应的请求没有变更状态，刷新token再变为fulfilled响应后执行等待的相关操作
-            fn: safeResolve,
-          });
-          // return为关键，不执行下面代码，不然下面resolve变更promise状态，
-          // 造成每个promise都会执行foreach请求多个
-          return;
-        }
-
         try {
-          // 处理401未授权错误，尝试刷新token
+          // 处理 401 未授权：单飞 refresh，失败则清登录态并阻断后续重试
           if (status === 401 && !url.includes('/user/refresh')) {
-            refreshing = true;
+            if (refreshUnavailable || !getToken(RefreshTokenKey)) {
+              clearAuthSession();
+              const err = new Error(body?.message || '登录已过期，请重新登录');
+              notifySessionExpired(err.message, silent);
+              safeReject(err);
+              return;
+            }
+
             const res = await refreshToken();
-            refreshing = false;
 
             if (res) {
-              // token刷新成功，重新执行队列中的请求
-              queue.forEach(({ config, url, fn }) => {
-                // 需动态重装config 查询获取本地的token
-                config.headers.Authorization = getTk();
-                fn(apiFetch(url, config));
-              });
-              console.log('queue', queue);
-              queue = [];
-
-              // 重新执行当前请求
               safeResolve((await apiFetch(url, getDTconfig())) as ApiResponse);
             }
             else {
-              // token刷新失败，清除本地token
-              const token = useToken();
-              token.value = '';
-              removeToken(TokenKey);
+              clearAuthSession();
               const err = new Error(body?.message || '登录已过期，请重新登录');
-              if (!silent) {
-                messageDanger(err.message);
-              }
+              notifySessionExpired(err.message, silent);
               safeReject(err);
             }
+          }
+          else if (status === 401 && url.includes('/user/refresh')) {
+            clearAuthSession();
+            const err = new Error(body?.message || '登录已过期，请重新登录');
+            notifySessionExpired(err.message, silent);
+            safeReject(err);
           }
           else {
             // 全局错误提示处理；reject 时附带 statusCode 供上层区分 404 等场景
@@ -455,18 +472,18 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
           }
         }
         catch (error) {
-          // 处理刷新token过程中的错误
-          let errorMessage: string;
-
           if (isNetworkError(error)) {
-            errorMessage = getNetworkErrorMessage(error);
+            const errorMessage = getNetworkErrorMessage(error);
+            if (!silent) {
+              messageDanger(errorMessage);
+            }
+            safeReject(error);
+            return;
           }
-          else {
-            errorMessage = '网络请求异常，请稍后重试';
-          }
-          if (!silent) {
-            messageDanger(errorMessage);
-          }
+
+          clearAuthSession();
+          const errorMessage = '登录已过期，请重新登录';
+          notifySessionExpired(errorMessage, silent);
           safeReject(error);
         }
       },
@@ -531,34 +548,64 @@ const patch = async (url: string, params = {}): Promise<any> => {
  * 使用refreshToken获取新的accessToken和refreshToken
  * 同时更新本地存储和状态管理
  */
-async function refreshToken() {
-  const token = useToken();
-  const userInfo = useUserInfo();
-  const refreshToken = getToken(RefreshTokenKey);
+async function refreshToken(): Promise<RefreshTokenResult | null> {
+  if (refreshUnavailable) {
+    return null;
+  }
 
-  // 调用刷新token接口
-  const res = await get('/user/refresh', { token: refreshToken });
+  if (refreshPromise) {
+    return refreshPromise;
+  }
 
-  // 更新本地存储的token
-  setToken(TokenKey, res.accessToken);
-  setToken(RefreshTokenKey, res.refreshToken, '', 7);
+  refreshPromise = (async () => {
+    const storedRefreshToken = getToken(RefreshTokenKey);
+    if (!storedRefreshToken) {
+      return null;
+    }
 
-  // 更新状态管理中的token
-  token.value = res.accessToken;
+    try {
+      const token = useToken();
+      const userInfo = useUserInfo();
 
-  // 更新用户信息
-  const { nickname, homepage, intro, avatar, id: uid, role } = res.user;
-  userInfo.value = {
-    nickname,
-    homepage,
-    intro,
-    avatar,
-    uid,
-    role,
-  };
+      // 静默调用，避免与外层 401 处理重复弹 toast
+      const res = await get('/user/refresh', { token: storedRefreshToken }, { silent: true });
 
-  return res;
+      setToken(TokenKey, res.accessToken);
+      setToken(RefreshTokenKey, res.refreshToken, '', 7);
+      token.value = res.accessToken;
+
+      const { nickname, homepage, intro, avatar, id: uid, role } = res.user;
+      userInfo.value = {
+        nickname,
+        homepage,
+        intro,
+        avatar,
+        uid,
+        role,
+      };
+
+      refreshUnavailable = false;
+      sessionExpireNotified = false;
+      return res as RefreshTokenResult;
+    }
+    catch (error) {
+      if (isNetworkError(error)) {
+        throw error;
+      }
+      return null;
+    }
+  })().finally(() => {
+    refreshPromise = null;
+  });
+
+  return refreshPromise;
 }
 
 // 导出所有方法
-export default { http: $http, get, post, put, patch, del, awaitWrap };
+export function resetAuthRefreshState() {
+  refreshUnavailable = false;
+  sessionExpireNotified = false;
+  refreshPromise = null;
+}
+
+export default { http: $http, get, post, put, patch, del, awaitWrap, resetAuthRefreshState };

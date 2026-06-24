@@ -4,7 +4,7 @@
    * - 账号/邮箱登录；成功后 resolveRedirectPath 回跳（防 open redirect）
    */
 import { reactive } from 'vue';
-import request from '~~/api/request.js';
+import request, { resetAuthRefreshState } from '~~/api/request.js';
 import { messageDanger, messageSuccess, messageInfo } from '~~/utils/toast';
 import { debounce } from '~~/utils/index';
 import { baseUrl } from '~~/config';
@@ -37,6 +37,7 @@ const route = useRoute();
 const submitting = ref(false);
 
 const persistLoginTokens = (accessToken: string, refreshToken: string) => {
+  resetAuthRefreshState();
   token.value = accessToken;
   setToken(TokenKey, accessToken);
   setToken(RefreshTokenKey, refreshToken, '', 7);

@@ -49,6 +49,8 @@ export const refreshUserInfo = async () => {
     return res;
   }
   catch {
+    const tok = useToken();
+    tok.value = '';
     clearUserInfo();
     return null;
   }
