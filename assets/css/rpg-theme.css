@@ -1416,7 +1416,7 @@ html.tech-shell[data-theme='cyber-light'] {
   .rpg-pool-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, 108px);
-    justify-content: start;
+    justify-content: center;
     gap: 8px;
   }
 
@@ -1442,6 +1442,7 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-pool-chip__badge {
+    justify-self: center;
     flex-shrink: 0;
     max-width: 100%;
     overflow: hidden;
@@ -1450,15 +1451,17 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-pool-chip__icon {
-    justify-self: start;
-    align-self: start;
+    justify-self: center;
+    align-self: center;
     width: 28px;
     height: 28px;
     flex-shrink: 0;
   }
 
   .rpg-pool-chip__name {
-    align-self: start;
+    justify-self: center;
+    align-self: center;
+    text-align: center;
     min-height: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;

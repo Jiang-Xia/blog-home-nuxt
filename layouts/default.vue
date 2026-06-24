@@ -85,6 +85,7 @@ const runTime = Math.ceil((dayjs().unix() - dayjs('2022-03-01').unix()) / (24 * 
 
 const route = useRoute();
 const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
+const showRagAssistant = computed(() => !route.path.startsWith('/login'));
 const needsRpgGlobal = computed(() => {
   const path = route.path;
   // 测试页需挂载 RpgGlobalInit，线上 /tool/test 挡板才能走 handlers + 全屏弹窗
@@ -140,6 +141,9 @@ const needsRpgGlobal = computed(() => {
       <xia-icon icon="blog-rocket4" width="34px" height="34px" />
     </xia-backtop>
     <RpgGlobalInit v-if="needsRpgGlobal" />
+    <ClientOnly>
+      <RagAssistantFab v-if="showRagAssistant" />
+    </ClientOnly>
     <BaseImagePreviewHost />
   </div>
 </template>

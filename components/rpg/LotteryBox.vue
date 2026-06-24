@@ -213,6 +213,8 @@ const toggleHistory = () => {
           <RpgItemIcon
             class="rpg-pool-chip__icon"
             :icon="item.icon"
+            :icon-url="item.iconUrl"
+            :bg-url="item.bgUrl"
             :item-type-icon="item.itemTypeIcon"
             :rarity-color="item.rarityColor"
             size="sm"
@@ -245,6 +247,8 @@ const toggleHistory = () => {
         >
           <RpgItemIcon
             :icon="record.icon"
+            :icon-url="record.iconUrl"
+            :bg-url="record.bgUrl"
             :item-type-icon="record.itemTypeIcon"
             :rarity-color="record.rarityColor"
             size="sm"
@@ -434,6 +438,7 @@ const toggleHistory = () => {
     font-weight: 600;
     color: var(--rpg-text-label);
     margin-bottom: 8px;
+    text-align: center;
   }
 
   .history-toggle {

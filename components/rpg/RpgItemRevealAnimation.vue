@@ -73,6 +73,8 @@ const handleClose = () => {
             <RpgItemIcon
               class="reveal-item-icon"
               :icon="data.config?.icon"
+              :icon-url="data.config?.iconUrl"
+              :bg-url="data.config?.bgUrl"
               :item-type-icon="data.config?.itemTypeIcon"
               :rarity-color="data.config?.rarityColor"
               size="lg"

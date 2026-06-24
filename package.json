@@ -25,10 +25,12 @@
     "font:subset": "node scripts/font/build-subset.mjs"
   },
   "dependencies": {
+    "@ai-sdk/vue": "^3.0.209",
     "@nuxt/ui": "^4.7.1",
     "@pinia/nuxt": "^0.11.3",
     "@vueuse/core": "^14.3.0",
     "@vueuse/nuxt": "^14.3.0",
+    "ai": "^6.0.209",
     "copy-to-clipboard": "^3.3.3",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.20",

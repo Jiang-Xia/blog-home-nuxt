@@ -144,6 +144,10 @@ export interface ItemConfigView {
   rarity: string;
   description?: string;
   icon?: string;
+  /** 管理端上传图标，/static/rpgAssets/itemIcon/{icon}.*，API enrich 勿本地拼 */
+  iconUrl?: string | null;
+  /** 管理端上传背景，/static/rpgAssets/itemBg/{icon}.* */
+  bgUrl?: string | null;
   category?: string;
   effectJson?: Record<string, any> | null;
   itemTypeLabel?: string;

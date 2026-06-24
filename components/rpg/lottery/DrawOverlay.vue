@@ -290,6 +290,8 @@ const handleConfirm = () => {
               <RpgItemIcon
                 class="reveal-item-icon"
                 :icon="currentResult.item.icon"
+                :icon-url="currentResult.item.iconUrl"
+                :bg-url="currentResult.item.bgUrl"
                 :item-type-icon="currentResult.item.itemTypeIcon"
                 :rarity-color="currentResult.item.rarityColor"
                 size="lg"
@@ -324,6 +326,8 @@ const handleConfirm = () => {
                 <RpgItemIcon
                   class="summary-item-icon"
                   :icon="result.item.icon"
+                  :icon-url="result.item.iconUrl"
+                  :bg-url="result.item.bgUrl"
                   :item-type-icon="result.item.itemTypeIcon"
                   :rarity-color="result.item.rarityColor"
                   size="sm"
@@ -407,19 +411,23 @@ const handleConfirm = () => {
   }
 
   .multi .draw-panel {
-    width: min(94vw, 480px);
-    padding: 14px 12px 16px;
+    width: min(96vw, 520px);
+    padding: 16px 14px 18px;
   }
 
   @media (max-width: 639px) {
     .multi .draw-panel {
-      width: min(96vw, 480px);
-      padding: 12px 10px 14px;
+      width: min(98vw, 520px);
+      padding: 14px 10px 16px;
     }
 
     .multi-reels {
-      gap: 3px;
+      gap: 6px;
     }
+  }
+
+  .multi .panel-header {
+    margin-bottom: 12px;
   }
 
   .panel-header {
@@ -528,7 +536,7 @@ const handleConfirm = () => {
   .multi-reels {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
     overflow: visible;
   }
 

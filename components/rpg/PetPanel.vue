@@ -92,6 +92,8 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
               <div class="rpg-loot-card-head">
                 <RpgItemIcon
                   :icon="c.icon"
+                  :icon-url="c.iconUrl"
+                  :bg-url="c.bgUrl"
                   :item-type-icon="c.itemTypeIcon"
                   :rarity-color="c.rarityColor"
                 />
@@ -160,6 +162,8 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
             <div class="rpg-loot-card-head">
               <RpgItemIcon
                 :icon="p.config?.icon"
+                :icon-url="p.config?.iconUrl"
+                :bg-url="p.config?.bgUrl"
                 :item-type-icon="p.config?.itemTypeIcon"
                 :rarity-color="p.config?.rarityColor"
               />

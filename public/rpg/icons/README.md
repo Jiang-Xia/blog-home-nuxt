@@ -27,9 +27,12 @@
 
 ## 换图步骤
 
-1. 将成图放入本目录，如 `dragon.png`
-2. 确认物品 `icon` 键一致（seed 里已有 `dragon` / `slime` 等）
-3. 刷新页面即可，**不用改后端、不用改数据库**
+1. **推荐（管理端）**：后台「系统物品」→ 填写 `icon` ID → 上传 icon/背景，保存至服务端 `public/rpgAssets/itemIcon|itemBg/{icon}.*`
+2. **本地占位**：将成图放入本目录，如 `dragon.png`
+3. 确认物品 `icon` 键一致（seed 里已有 `dragon` / `slime` 等）
+4. 刷新页面即可，**不用改数据库**
+
+C 端加载顺序：`iconUrl`（上传资产）→ 本目录 `{icon}.png|.webp|.svg` → emoji 回退。
 
 ## 新增物品
 

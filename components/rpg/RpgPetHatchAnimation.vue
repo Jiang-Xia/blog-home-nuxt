@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
    * 宠物孵化全屏动画（petHatched WS）
-   * 蛋裂开 → 宠物展示；音效在 reveal 阶段播放
+   * 蛋裂开 → 宠物展示；揭晓区 flex 居中，宠物图标外包 pet-icon-wrap
    */
 import type { RpgPetHatchedPayload } from '~~/composables/use-realtime-socket';
 import { rarityLabelToTier } from '~~/utils/rpg-rarity';
@@ -83,12 +83,14 @@ const handleClose = () => {
             <div class="hatch-badge">
               孵化成功
             </div>
-            <RpgItemIcon
-              class="pet-icon"
-              :icon="data.petCode"
-              :rarity-color="data.rarityColor"
-              size="lg"
-            />
+            <div class="pet-icon-wrap">
+              <RpgItemIcon
+                class="pet-icon"
+                :icon="data.petCode"
+                :rarity-color="data.rarityColor"
+                size="lg"
+              />
+            </div>
             <RpgRarityBadge
               class="pet-rarity"
               :rarity="tier"
@@ -192,8 +194,11 @@ const handleClose = () => {
     letter-spacing: 0.08em;
   }
 
-  /* --- 揭晓阶段 --- */
+  /* --- 揭晓阶段：纵向居中，孵化成功弹框内宠物图标水平居中 --- */
   .reveal-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background: linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 45%, #6ee7b7 100%);
     border-radius: 20px;
     padding: 28px 32px 24px;
@@ -211,10 +216,16 @@ const handleClose = () => {
     margin-bottom: 10px;
   }
 
-  .pet-icon {
-    font-size: 56px;
-    line-height: 1;
+  /* pet-icon 在 flex 容器内居中，避免大尺寸 lg 图标偏左 */
+  .pet-icon-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
     margin-bottom: 8px;
+  }
+
+  .pet-icon {
     animation: petBounce 0.9s ease infinite;
   }
 

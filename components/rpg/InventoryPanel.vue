@@ -106,6 +106,8 @@ const switchTypeTab = (key: string) => {
             <div class="rpg-loot-card-head">
               <RpgItemIcon
                 :icon="item.config?.icon"
+                :icon-url="item.config?.iconUrl"
+                :bg-url="item.config?.bgUrl"
                 :item-type-icon="item.config?.itemTypeIcon"
                 :rarity-color="item.config?.rarityColor"
               />

@@ -344,6 +344,7 @@ Layout 根节点已带 `bg-tech-shell text-tech`，普通内容页**无需再包
 | `CyberBackground` | 背景光效（Layout 已包含，页面一般无需重复） |
 | `CyberAlert` | 提示框 |
 | `CyberNavBar` | 导航条 |
+| `CyberFab` | 悬浮操作按钮（霓虹 FAB，全站浮层入口） |
 
 ### 参考页面
 
