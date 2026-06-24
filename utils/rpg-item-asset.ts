@@ -57,6 +57,12 @@ export const RPG_ICON_ASSET_KEYS = new Set([
 const RASTER_EXT = ['png', 'webp'] as const;
 const VECTOR_EXT = ['svg'] as const;
 
+/**
+ * 已有 png/webp 成图的 icon 键。
+ * 未登记时仅请求 svg 占位，避免首页等场景对不存在的 raster 产生 404。
+ */
+export const RPG_ICON_RASTER_KEYS = new Set<string>([]);
+
 export interface RpgItemAssetOptions {
   /** 后端 enrich 的上传图标 URL，优先于 public/rpg/icons */
   iconUrl?: string | null;
@@ -70,13 +76,15 @@ export function hasRpgIconAsset(key?: string | null): boolean {
   return !!normalized && normalized !== 'default' && RPG_ICON_ASSET_KEYS.has(normalized);
 }
 
-/** 按 icon 键生成本地候选 URL（Raster 优先，便于 png 覆盖 svg 占位） */
+/** 按 icon 键生成本地候选 URL（有 raster 时优先，便于 png 覆盖 svg 占位） */
 export function buildLocalIconAssetUrls(key: string): string[] {
   const base = `/rpg/icons/${key}`;
-  return [
-    ...RASTER_EXT.map(ext => `${base}.${ext}`),
-    ...VECTOR_EXT.map(ext => `${base}.${ext}`),
-  ];
+  const urls: string[] = [];
+  if (RPG_ICON_RASTER_KEYS.has(key)) {
+    urls.push(...RASTER_EXT.map(ext => `${base}.${ext}`));
+  }
+  urls.push(...VECTOR_EXT.map(ext => `${base}.${ext}`));
+  return urls;
 }
 
 /** 构建图片候选链（iconUrl → 本地 icons）；空数组时 RpgItemIcon 回退 emoji */

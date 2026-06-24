@@ -14,12 +14,12 @@
 {icon}.svg   ← 当前占位矢量
 ```
 
-示例：DB 里 `icon = 'dragon'` → 放 `dragon.png` 即自动生效，可删掉 `dragon.svg`。
+示例：DB 里 `icon = 'dragon'` → 放 `dragon.png` 并在 `utils/rpg-item-asset.ts` 的 `RPG_ICON_RASTER_KEYS` 登记 `'dragon'`，即可优先走 raster；可删掉 `dragon.svg`。
 
 ## 加载顺序
 
-1. `/rpg/icons/{icon}.png`
-2. `/rpg/icons/{icon}.webp`
+1. 管理端上传 `iconUrl`（`/static/rpgAssets/itemIcon/...`）
+2. `/rpg/icons/{icon}.png` / `.webp`（仅 `RPG_ICON_RASTER_KEYS` 已登记时请求）
 3. `/rpg/icons/{icon}.svg`
 4. emoji 回退（`utils/rpg-item-icon.ts`）
 

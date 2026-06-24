@@ -8,7 +8,7 @@ import { getNotifications, markNotificationsRead } from '@/api/notification';
 import { useSiteNotification } from '~~/composables/use-site-notification';
 import { beforeTimeNow } from '@/utils';
 
-const token = useToken();
+const { isLoggedIn, sync: syncAuthSession } = useAuthSession();
 const { unreadCount, resetUnread } = useSiteNotification();
 const open = ref(false);
 const list = ref<any[]>([]);
@@ -42,7 +42,8 @@ const notificationDesc = (item: any) => {
 
 /** 展开面板时拉取最近通知 */
 const fetchList = async () => {
-  if (!token.value) return;
+  syncAuthSession();
+  if (!isLoggedIn.value) return;
   loading.value = true;
   try {
     const res = await getNotifications({ page: 1, pageSize: 8 });
@@ -75,6 +76,7 @@ const onDocumentClick = (event: MouseEvent) => {
 };
 
 onMounted(() => {
+  syncAuthSession();
   if (import.meta.client) {
     document.addEventListener('click', onDocumentClick);
     onUnmounted(() => {
@@ -83,7 +85,7 @@ onMounted(() => {
   }
 });
 
-watch(token, (v) => {
+watch(isLoggedIn, (v) => {
   if (!v) {
     closePanel();
   }
@@ -91,7 +93,7 @@ watch(token, (v) => {
 </script>
 
 <template>
-  <div v-if="token" ref="rootRef" class="notify-bell">
+  <div v-if="isLoggedIn" ref="rootRef" class="notify-bell">
     <button
       type="button"
       class="notify-bell__trigger"

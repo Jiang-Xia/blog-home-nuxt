@@ -15,6 +15,7 @@ import {
   isArticleLiked,
   syncUserLikes,
 } from '@/utils/common';
+import { ensureLoggedIn } from '@/composables/use-common';
 import { resolveStaticUrl } from '@/utils/static-url';
 import { resolvePublicAvatarFrame } from '@/composables/use-avatar-frame';
 import type { tocInter } from '@/utils';
@@ -137,6 +138,7 @@ onMounted(async () => {
   scrollElement.value = document.documentElement;
   mdKey.value = new Date().getTime();
   recordArticleView(articleId.value);
+  await ensureLoggedIn();
   await syncUserLikes();
   syncDetailLikeState();
 });

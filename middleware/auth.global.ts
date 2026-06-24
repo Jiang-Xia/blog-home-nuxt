@@ -1,3 +1,5 @@
+import { TokenKey, getToken, getTokenFromCookieHeader } from '@/utils/cookie';
+
 const AUTH_PATHS = ['/user/profile', '/user/article/edit'];
 
 export default defineNuxtRouteMiddleware((to) => {
@@ -6,8 +8,11 @@ export default defineNuxtRouteMiddleware((to) => {
     return;
   }
 
-  const token = useCookie('x-accessToken');
-  if (!token.value) {
+  const accessToken = import.meta.client
+    ? getToken(TokenKey)
+    : getTokenFromCookieHeader(useRequestHeaders(['cookie']).cookie);
+
+  if (!accessToken) {
     return navigateTo({
       path: '/login',
       query: { redirect: to.fullPath },

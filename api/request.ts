@@ -2,6 +2,7 @@ import type { ApiResponse } from './ApiResponse';
 import { baseUrl } from '~~/config';
 import { messageDanger } from '~~/utils/toast';
 import { setToken, getToken, removeToken, TokenKey, RefreshTokenKey } from '@/utils/cookie';
+import { readAccessToken, readRefreshToken } from '@/utils/auth-token-state';
 import { aesEncrypt, aesDecrypt } from '~~/utils/crypto';
 
 // 是否开启请求日志记录
@@ -89,11 +90,21 @@ const defaultUserInfo = {
   role: '',
 };
 
+/** 优先 useState（SSR 由 auth 插件从 Cookie 同步），客户端 fallback js-cookie 并回写 state */
+function resolveAccessToken(): string {
+  return readAccessToken();
+}
+
+function resolveRefreshToken(): string {
+  return readRefreshToken();
+}
+
 /** refresh 失败或 refreshToken 缺失时清空登录态，阻断后续无感刷新 */
 function clearAuthSession() {
   refreshUnavailable = true;
   const token = useToken();
   token.value = '';
+  useRefreshToken().value = '';
   const userInfo = useUserInfo();
   Object.assign(userInfo.value, defaultUserInfo);
   removeToken(TokenKey);
@@ -359,7 +370,7 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
      * @returns Bearer token字符串
      */
     const getTk = () => {
-      const token = getToken();
+      const token = resolveAccessToken();
       return token ? 'Bearer ' + token : '';
     };
 
@@ -436,7 +447,17 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
         try {
           // 处理 401 未授权：单飞 refresh，失败则清登录态并阻断后续重试
           if (status === 401 && !url.includes('/user/refresh')) {
-            if (refreshUnavailable || !getToken(RefreshTokenKey)) {
+            const accessToken = resolveAccessToken();
+            const storedRefreshToken = resolveRefreshToken();
+
+            // SSR 未携带 token 时不视为会话失效，避免 payload 登录态被误清
+            if (import.meta.server && !accessToken) {
+              const err = new Error(body?.message || '未授权');
+              safeReject(err);
+              return;
+            }
+
+            if (refreshUnavailable || !storedRefreshToken) {
               clearAuthSession();
               const err = new Error(body?.message || '登录已过期，请重新登录');
               notifySessionExpired(err.message, silent);
@@ -558,13 +579,14 @@ async function refreshToken(): Promise<RefreshTokenResult | null> {
   }
 
   refreshPromise = (async () => {
-    const storedRefreshToken = getToken(RefreshTokenKey);
+    const storedRefreshToken = resolveRefreshToken();
     if (!storedRefreshToken) {
       return null;
     }
 
     try {
       const token = useToken();
+      const refreshTokenState = useRefreshToken();
       const userInfo = useUserInfo();
 
       // 静默调用，避免与外层 401 处理重复弹 toast
@@ -573,6 +595,7 @@ async function refreshToken(): Promise<RefreshTokenResult | null> {
       setToken(TokenKey, res.accessToken);
       setToken(RefreshTokenKey, res.refreshToken, '', 7);
       token.value = res.accessToken;
+      refreshTokenState.value = res.refreshToken;
 
       const { nickname, homepage, intro, avatar, id: uid, role } = res.user;
       userInfo.value = {

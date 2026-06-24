@@ -8,6 +8,7 @@ import { messageError, messageSuccess } from '~~/utils/toast';
 import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 import { useRpgPage } from '~~/composables/use-rpg-page';
 import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
+import { ensureLoggedIn, useAuthSession } from '@/composables/use-common';
 import type { DrawResult } from '~~/types/rpg';
 import { triggerMockAfterLotteryDraw } from '~~/utils/rpg-dev-mock';
 
@@ -22,8 +23,7 @@ const lotteryBoxRef = ref<{
 } | null>(null);
 const onboardingRef = ref<{ open: () => void } | null>(null);
 
-const token = useToken();
-const isLoggedIn = computed(() => !!token.value);
+const { isLoggedIn } = useAuthSession();
 
 const activeTab = ref<'status' | 'inventory' | 'pet' | 'guild' | 'leaderboard'>('status');
 
@@ -100,6 +100,7 @@ useHead({
 onMounted(() => {
   // 冒险页进入：初始化音频引擎；BGM 默认关闭，由工具条滑条手动开启
   void initAudio();
+  void ensureLoggedIn();
 });
 
 /** BGM 滑条 > 0 且未静音时播放，归零或静音时停止 */

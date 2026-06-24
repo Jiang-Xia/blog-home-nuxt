@@ -4,7 +4,7 @@
    * Tab 与 URL ?tab= 双向同步，便于深链分享（对齐 rpg/index switchTab）
    */
 import { ref, watch, onMounted, nextTick } from 'vue';
-import { refreshUserInfo } from '@/composables/use-common';
+import { refreshUserInfo, ensureLoggedIn } from '@/composables/use-common';
 
 const { frame: avatarFrame } = useEquippedAvatarFrame();
 
@@ -75,11 +75,8 @@ useHead({
 
 onMounted(async () => {
   scrollActiveTabIntoView(false);
-  try {
+  if (!(await ensureLoggedIn())) {
     await refreshUserInfo();
-  }
-  catch {
-    // 错误由全局拦截器处理
   }
 });
 </script>

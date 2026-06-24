@@ -39,6 +39,7 @@ const submitting = ref(false);
 const persistLoginTokens = (accessToken: string, refreshToken: string) => {
   resetAuthRefreshState();
   token.value = accessToken;
+  useRefreshToken().value = refreshToken;
   setToken(TokenKey, accessToken);
   setToken(RefreshTokenKey, refreshToken, '', 7);
 };
