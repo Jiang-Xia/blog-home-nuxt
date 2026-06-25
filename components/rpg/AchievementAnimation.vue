@@ -1,11 +1,14 @@
 <script setup lang="ts">
 /**
-   * 成就达成弹窗
+   * 成就达成弹窗（背景/光晕随 API 下发的 rarityColor 变化）
    */
 const props = defineProps<{
   visible: boolean;
   name: string;
   expReward?: number;
+  rarityColor?: string;
+  rarityLabel?: string;
+  rarityIcon?: string;
 }>();
 
 const emit = defineEmits<{
@@ -13,6 +16,21 @@ const emit = defineEmits<{
 }>();
 
 const { playSfx } = useRpgAudio();
+
+const accentColor = computed(() => props.rarityColor || '#f59e0b');
+
+const modalStyle = computed(() => {
+  const c = accentColor.value;
+  return {
+    'background': `linear-gradient(135deg, color-mix(in srgb, ${c} 18%, #fff) 0%, color-mix(in srgb, ${c} 32%, #fef3c7) 48%, color-mix(in srgb, ${c} 55%, #fde68a) 100%)`,
+    'boxShadow': `0 20px 60px rgba(0, 0, 0, 0.35), 0 0 48px color-mix(in srgb, ${c} 35%, transparent)`,
+    '--ach-accent': c,
+    '--ach-text': `color-mix(in srgb, ${c} 72%, #451a03)`,
+    '--ach-text-soft': `color-mix(in srgb, ${c} 58%, #78350f)`,
+    '--ach-btn-bg': `color-mix(in srgb, ${c} 70%, #451a03)`,
+    '--ach-btn-text': `color-mix(in srgb, ${c} 12%, #fff)`,
+  } as Record<string, string>;
+});
 
 /** 成就弹窗展示时播放庆祝音 */
 watch(
@@ -31,12 +49,12 @@ const handleClose = () => {
   <Teleport to="body">
     <Transition name="achievement">
       <div v-if="visible" class="achievement-overlay" @click="handleClose">
-        <div class="achievement-modal" @click.stop>
+        <div class="achievement-modal" :style="modalStyle" @click.stop>
           <div class="achievement-icon">
-            🏆
+            {{ rarityIcon || '🏆' }}
           </div>
           <div class="achievement-badge">
-            成就达成
+            成就达成<span v-if="rarityLabel" class="achievement-rarity"> · {{ rarityLabel }}</span>
           </div>
           <div class="achievement-name">
             {{ name }}
@@ -65,13 +83,9 @@ const handleClose = () => {
   }
 
   .achievement-modal {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 45%, #fbbf24 100%);
     border-radius: 20px;
     padding: 32px 40px 28px;
     text-align: center;
-    box-shadow:
-      0 20px 60px rgba(0, 0, 0, 0.35),
-      0 0 48px rgba(251, 191, 36, 0.35);
     min-width: 280px;
     max-width: 380px;
     animation: modalGlow 2.4s ease-in-out infinite;
@@ -82,22 +96,27 @@ const handleClose = () => {
     line-height: 1;
     margin-bottom: 8px;
     animation: iconBounce 0.9s ease infinite;
-    filter: drop-shadow(0 4px 8px rgba(146, 64, 14, 0.25));
+    filter: drop-shadow(0 4px 8px color-mix(in srgb, var(--ach-accent) 28%, transparent));
   }
 
   .achievement-badge {
     font-size: 14px;
     font-weight: 800;
-    color: #92400e;
+    color: var(--ach-text-soft);
     margin-bottom: 12px;
     letter-spacing: 0.12em;
     animation: badgePulse 1.1s ease infinite;
   }
 
+  .achievement-rarity {
+    letter-spacing: 0.04em;
+    opacity: 0.92;
+  }
+
   .achievement-name {
     font-size: 22px;
     font-weight: 800;
-    color: #78350f;
+    color: var(--ach-text);
     margin-bottom: 10px;
     line-height: 1.35;
     animation: gentleFloat 2.6s ease-in-out infinite;
@@ -106,7 +125,7 @@ const handleClose = () => {
   .achievement-reward {
     font-size: 17px;
     font-weight: 800;
-    color: #b45309;
+    color: var(--ach-text-soft);
     margin-bottom: 22px;
     animation: rewardPulse 1.6s ease-in-out infinite;
   }
@@ -115,8 +134,8 @@ const handleClose = () => {
     padding: 10px 28px;
     border: none;
     border-radius: 999px;
-    background: #78350f;
-    color: #fef3c7;
+    background: var(--ach-btn-bg);
+    color: var(--ach-btn-text);
     font-weight: 700;
     font-size: 14px;
     cursor: pointer;
@@ -175,14 +194,10 @@ const handleClose = () => {
   @keyframes modalGlow {
     0%,
     100% {
-      box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.35),
-        0 0 32px rgba(251, 191, 36, 0.28);
+      filter: brightness(1);
     }
     50% {
-      box-shadow:
-        0 24px 64px rgba(0, 0, 0, 0.38),
-        0 0 56px rgba(251, 191, 36, 0.45);
+      filter: brightness(1.04);
     }
   }
 

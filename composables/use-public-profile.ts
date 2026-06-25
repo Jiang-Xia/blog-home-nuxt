@@ -10,18 +10,26 @@ export interface PublicProfilePayload {
   articles: any[];
   collects: any[];
   likes: any[];
+  tabTotals: {
+    articles: number;
+    collects: number;
+    likes: number;
+  };
 }
 
 /** Tab 列表请求失败时不拖垮 profile SSR（刷新时避免误报「用户不存在」） */
-async function safePublicTabList<T>(
-  fetcher: () => Promise<{ list?: T[] } | null | undefined>,
-): Promise<T[]> {
+async function safePublicTabFetch<T>(
+  fetcher: () => Promise<{ list?: T[]; pagination?: { total?: number } } | null | undefined>,
+): Promise<{ list: T[]; total: number }> {
   try {
     const res = await fetcher();
-    return res?.list ?? [];
+    return {
+      list: res?.list ?? [],
+      total: res?.pagination?.total ?? 0,
+    };
   }
   catch {
-    return [];
+    return { list: [], total: 0 };
   }
 }
 
@@ -32,25 +40,42 @@ export async function usePublicProfile(uid: Ref<number | string | undefined>) {
     async (): Promise<PublicProfilePayload> => {
       const id = uid.value;
       if (!id) {
-        return { profile: null, articles: [], collects: [], likes: [] };
+        return {
+          profile: null,
+          articles: [],
+          collects: [],
+          likes: [],
+          tabTotals: { articles: 0, collects: 0, likes: 0 },
+        };
       }
 
       const profile = await getPublicProfile(id);
       if (!profile) {
-        return { profile: null, articles: [], collects: [], likes: [] };
+        return {
+          profile: null,
+          articles: [],
+          collects: [],
+          likes: [],
+          tabTotals: { articles: 0, collects: 0, likes: 0 },
+        };
       }
 
-      const [articles, collects, likes] = await Promise.all([
-        safePublicTabList(() => getPublicArticles(id)),
-        safePublicTabList(() => getPublicCollects(id)),
-        safePublicTabList(() => getPublicLikes(id)),
+      const [articlesRes, collectsRes, likesRes] = await Promise.all([
+        safePublicTabFetch(() => getPublicArticles(id)),
+        safePublicTabFetch(() => getPublicCollects(id)),
+        safePublicTabFetch(() => getPublicLikes(id)),
       ]);
 
       return {
         profile,
-        articles,
-        collects,
-        likes,
+        articles: articlesRes.list,
+        collects: collectsRes.list,
+        likes: likesRes.list,
+        tabTotals: {
+          articles: articlesRes.total,
+          collects: collectsRes.total,
+          likes: likesRes.total,
+        },
       };
     },
     { watch: [uid] },
@@ -60,6 +85,7 @@ export async function usePublicProfile(uid: Ref<number | string | undefined>) {
   const articles = computed(() => data.value?.articles ?? []);
   const collects = computed(() => data.value?.collects ?? []);
   const likes = computed(() => data.value?.likes ?? []);
+  const tabTotals = computed(() => data.value?.tabTotals ?? { articles: 0, collects: 0, likes: 0 });
   const loading = computed(() => pending.value);
 
   return {
@@ -67,6 +93,7 @@ export async function usePublicProfile(uid: Ref<number | string | undefined>) {
     articles,
     collects,
     likes,
+    tabTotals,
     loading,
     error,
     refresh,

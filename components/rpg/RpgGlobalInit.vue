@@ -41,6 +41,9 @@ const {
   achievementVisible,
   achievementName,
   achievementExpReward,
+  achievementRarityColor,
+  achievementRarityLabel,
+  achievementRarityIcon,
   masterpieceVisible,
   masterpieceData,
   socialFeedbackVisible,
@@ -176,6 +179,9 @@ onMounted(() => {
       :visible="achievementVisible"
       :name="achievementName"
       :exp-reward="achievementExpReward"
+      :rarity-color="achievementRarityColor"
+      :rarity-label="achievementRarityLabel"
+      :rarity-icon="achievementRarityIcon"
       @close="closeAchievement"
     />
     <RpgMasterpieceAnimation

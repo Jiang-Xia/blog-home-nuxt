@@ -45,6 +45,7 @@ export interface RpgStatus {
   currency?: number;
   reputation?: number;
   lotteryPityCounter?: number;
+  lotteryLegendaryPityCounter?: number;
   lotteryTickets?: number;
 }
 
@@ -69,7 +70,7 @@ export interface LevelUpResult {
   unlockedRewards: LevelReward[];
 }
 
-/** 等级奖励（展示字段由 GET /rpg/level-rewards 从 rpg_item_config enrich 后返回） */
+/** 等级奖励（展示字段由 GET /rpg/level-rewards 从 level_up 成就 effectJson enrich 后返回） */
 export interface LevelReward {
   level: number;
   currencyReward?: number;
@@ -185,8 +186,22 @@ export interface Achievement {
   code: string;
   name: string;
   description: string;
-  category: 'creation' | 'social' | 'exploration' | 'sign' | 'special';
+  category:
+    | 'creation'
+    | 'social'
+    | 'exploration'
+    | 'sign'
+    | 'special'
+    | 'economy'
+    | 'lottery'
+    | 'pet'
+    | 'guild'
+    | 'author';
   icon: string;
+  rarity: string;
+  rarityLabel?: string;
+  rarityColor?: string;
+  rarityIcon?: string;
   maxProgress: number;
   expReward: number;
   badge: { color: string } | null;
@@ -207,6 +222,11 @@ export const ACHIEVEMENT_CATEGORY_MAP: Record<string, string> = {
   exploration: '探索系',
   sign: '签到系',
   special: '特殊系',
+  economy: '经济系',
+  lottery: '抽奖系',
+  pet: '宠物系',
+  guild: '公会系',
+  author: '作者系',
 };
 
 /** 成就图标映射 */
@@ -373,7 +393,7 @@ export interface PublicProfile {
   level: number;
   reputation: number;
   loadout: any;
-  completedAchievements: any[];
+  completedAchievements: UserAchievementProgress[];
 }
 
 /** 排行榜 period/type 扩展 */

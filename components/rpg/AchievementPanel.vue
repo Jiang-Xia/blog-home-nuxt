@@ -4,6 +4,7 @@
    */
 import { ACHIEVEMENT_CATEGORY_MAP, ACHIEVEMENT_ICON_MAP } from '~~/types/rpg';
 import type { UserAchievementProgress } from '~~/types/rpg';
+import { resolveRpgItemTint } from '~~/utils/rpg-item-icon';
 
 const props = defineProps<{
   achievements: UserAchievementProgress[];
@@ -115,14 +116,21 @@ const categories = computed(() => {
         :key="ach.code"
         class="rpg-loot-card rpg-loot-card--achievement"
         :class="{
-          'rpg-loot-card--gold': ach.completed,
           'rpg-loot-card--locked': !ach.completed,
         }"
+        :style="
+          ach.completed && ach.rarityColor
+            ? {
+              borderColor: ach.rarityColor,
+              background: `linear-gradient(135deg, ${ach.rarityColor}18 0%, ${ach.rarityColor}0a 100%)`,
+            }
+            : undefined
+        "
       >
         <div class="rpg-loot-card-head">
           <div
             class="rpg-loot-icon rpg-loot-icon--tinted"
-            :style="{ background: ach.badge?.color || '#94a3b8' }"
+            :style="{ background: resolveRpgItemTint(ach) || '#94a3b8' }"
           >
             {{ ACHIEVEMENT_ICON_MAP[ach.icon] || '🏆' }}
           </div>
@@ -142,6 +150,13 @@ const categories = computed(() => {
         </div>
         <div class="rpg-loot-footer">
           <div class="rpg-loot-meta">
+            <RpgRarityBadge
+              v-if="ach.rarityLabel"
+              :rarity="ach.rarity"
+              :rarity-label="ach.rarityLabel"
+              :rarity-color="ach.rarityColor"
+              :rarity-icon="ach.rarityIcon"
+            />
             <span v-if="ach.maxProgress > 1" class="rpg-loot-progress-text">
               {{ ach.progress }}/{{ ach.maxProgress }}
             </span>

@@ -7,6 +7,11 @@
 import type { LotteryDrawPhase } from '@/utils/lottery-reel';
 import type { DrawResult, LotteryPoolItem, LotteryRecord, RpgStatus } from '~~/types/rpg';
 import { formactDate } from '@/utils/common';
+import {
+  LOTTERY_CURRENCY_COST,
+  LOTTERY_EPIC_PITY_THRESHOLD,
+  LOTTERY_LEGENDARY_PITY_THRESHOLD,
+} from '@/utils/rpg-economy';
 
 const props = defineProps<{
   lotteryPool: LotteryPoolItem[];
@@ -45,7 +50,7 @@ const overlayPhase = computed(() => (drawPhase.value === 'idle' ? 'charging' : d
 /** 判断是否可抽奖（券或钻石） */
 const canDraw = (count: number) => {
   if (drawCurrency.value === 'currency') {
-    return (props.rpgStatus?.currency || 0) >= count * 10;
+    return (props.rpgStatus?.currency || 0) >= count * LOTTERY_CURRENCY_COST;
   }
   return props.lotteryTickets >= count;
 };
@@ -131,8 +136,17 @@ const toggleHistory = () => {
       <span class="section-title">🎁 幸运宝箱</span>
       <span class="ticket-count">🎫 {{ lotteryTickets }} · 💎 {{ rpgStatus?.currency ?? 0 }}</span>
     </div>
-    <div v-if="rpgStatus?.lotteryPityCounter != null" class="text-xs text-base-content/60 mb-2">
-      保底进度 {{ rpgStatus.lotteryPityCounter }} / 90
+    <div
+      v-if="rpgStatus?.lotteryPityCounter != null || rpgStatus?.lotteryLegendaryPityCounter != null"
+      class="text-xs text-base-content/60 mb-2 flex flex-wrap gap-x-3 gap-y-1"
+    >
+      <span v-if="rpgStatus?.lotteryPityCounter != null">
+        史诗保底 {{ rpgStatus.lotteryPityCounter }} / {{ LOTTERY_EPIC_PITY_THRESHOLD }}
+      </span>
+      <span v-if="rpgStatus?.lotteryLegendaryPityCounter != null">
+        传说保底 {{ rpgStatus.lotteryLegendaryPityCounter }} /
+        {{ LOTTERY_LEGENDARY_PITY_THRESHOLD }}
+      </span>
     </div>
     <div class="flex gap-2 mb-3 rpg-panel-tabs !mb-3">
       <button

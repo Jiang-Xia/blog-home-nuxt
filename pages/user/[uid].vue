@@ -6,10 +6,12 @@ import { getPublicArticles, getPublicCollects, getPublicLikes } from '@/api/prof
 import { coverAspectRatio } from '@/utils/image-compress';
 import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 import { isNotFoundError } from '@/utils/api-error';
+import type { UserAchievementProgress } from '~~/types/rpg';
 
 const route = useRoute();
 const uid = computed(() => route.params.uid as string);
-const { profile, articles, collects, likes, loading, error } = await usePublicProfile(uid);
+const { profile, articles, collects, likes, tabTotals, loading, error }
+  = await usePublicProfile(uid);
 const userInfo = useUserInfo();
 
 const articlesList = ref<any[]>([]);
@@ -61,10 +63,14 @@ const switchProfileTab = (key: ProfileTab) => {
   activeTab.value = key;
 };
 
-const tabOptions: { key: ProfileTab; label: string }[] = [
-  { key: 'articles', label: '已发布' },
-  { key: 'collects', label: '收藏' },
-  { key: 'likes', label: '点赞' },
+const tabOptions: {
+  key: ProfileTab;
+  label: string;
+  totalKey: 'articles' | 'collects' | 'likes';
+}[] = [
+  { key: 'articles', label: '已发布', totalKey: 'articles' },
+  { key: 'collects', label: '收藏', totalKey: 'collects' },
+  { key: 'likes', label: '点赞', totalKey: 'likes' },
 ];
 
 const currentList = computed(() => {
@@ -224,10 +230,15 @@ watch([profile, loading, error], ([currentProfile, isLoading, fetchError]) => {
         <div v-if="profile.completedAchievements?.length" class="mt-3 flex flex-wrap gap-1">
           <span
             v-for="ach in profile.completedAchievements"
-            :key="ach.achievementCode"
-            class="badge badge-outline badge-sm"
+            :key="ach.code"
+            class="badge badge-sm inline-flex items-center gap-1 border"
+            :style="{
+              backgroundColor: (ach.rarityColor || '#94a3b8') + '20',
+              color: ach.rarityColor || '#94a3b8',
+              borderColor: ach.rarityColor || '#94a3b8',
+            }"
           >
-            ⭐ {{ ach.name || ach.achievementCode }}
+            {{ ach.rarityIcon || '🏆' }} {{ ach.name || ach.code }}
           </span>
         </div>
       </div>
@@ -242,13 +253,7 @@ watch([profile, loading, error], ([currentProfile, isLoading, fetchError]) => {
             @click="switchProfileTab(opt.key)"
           >
             {{ opt.label }}
-            <span class="opacity-70">({{
-              opt.key === 'articles'
-                ? articlesList.length
-                : opt.key === 'collects'
-                  ? collectsList.length
-                  : likesList.length
-            }})</span>
+            <span class="opacity-70">({{ tabTotals[opt.totalKey] ?? 0 }})</span>
           </button>
         </div>
 

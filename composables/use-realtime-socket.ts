@@ -4,7 +4,7 @@ import { io, type Socket } from 'socket.io-client';
 import { originUrl } from '~~/config';
 import { getToken } from '@/utils/cookie';
 import { canUseRpgDevMock } from '~~/utils/rpg-dev-mock-guard';
-import type { LevelUpResult } from '~~/types/rpg';
+import type { LevelUpResult, RarityDisplayFields } from '~~/types/rpg';
 
 /**
  * 博客实时推送事件名（与 blog-server modules/core/realtime/constants/ws-events.ts 对齐）
@@ -62,7 +62,7 @@ export interface RpgBanStatusPayload {
 }
 
 /** achievementComplete 事件 */
-export interface RpgAchievementCompletePayload {
+export interface RpgAchievementCompletePayload extends RarityDisplayFields {
   code?: string;
   name?: string;
   achievementName?: string;

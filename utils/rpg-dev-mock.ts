@@ -181,6 +181,10 @@ export function buildDefaultRpgMockPayload(
       code: 'comment_master',
       name: '评论达人',
       expReward: 120,
+      rarity: 'epic',
+      rarityLabel: '史诗',
+      rarityColor: '#8b5cf6',
+      rarityIcon: '🟣',
     } satisfies RpgAchievementCompletePayload,
     questReward: {
       questCode: 'daily_sign',
