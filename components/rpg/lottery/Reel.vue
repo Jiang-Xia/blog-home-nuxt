@@ -15,6 +15,7 @@ import {
   type ReelStripItem,
 } from '@/utils/lottery-reel';
 import type { DrawResult, LotteryPoolItem } from '~~/types/rpg';
+import { getRarityFallbackColor } from '~~/utils/rpg-rarity';
 
 const props = withDefaults(
   defineProps<{
@@ -227,7 +228,7 @@ onUnmounted(() => {
           v-for="item in stripPlan?.strip || []"
           :key="item.id"
           class="reel-item"
-          :style="{ borderColor: item.rarityColor || '#94a3b8' }"
+          :style="{ borderColor: item.rarityColor || getRarityFallbackColor() }"
         >
           <RpgItemIcon
             class="reel-item-icon"

@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import tailwindcss from '@tailwindcss/vite';
+import { buildThemeBootScript } from './constants/theme-tone';
 import { scripts } from './config';
 
 const prefixPath = process.env.VITE_NUXT_PREFIX_PATH || '/api';
@@ -50,7 +51,10 @@ export default defineNuxtConfig({
           // https://www.filamentgroup.com/lab/load-css-simpler/
         },
       ],
-      script: scripts,
+      script: [
+        { innerHTML: buildThemeBootScript(), key: 'theme-boot', tagPriority: 'critical' },
+        ...scripts,
+      ],
     },
     pageTransition: {
       name: 'fade',

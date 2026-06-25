@@ -6,7 +6,7 @@ import { getPublicArticles, getPublicCollects, getPublicLikes } from '@/api/prof
 import { coverAspectRatio } from '@/utils/image-compress';
 import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 import { isNotFoundError } from '@/utils/api-error';
-import type { UserAchievementProgress } from '~~/types/rpg';
+import { getRarityBadgePresentation } from '~~/utils/rpg-rarity';
 
 const route = useRoute();
 const uid = computed(() => route.params.uid as string);
@@ -232,11 +232,7 @@ watch([profile, loading, error], ([currentProfile, isLoading, fetchError]) => {
             v-for="ach in profile.completedAchievements"
             :key="ach.code"
             class="badge badge-sm inline-flex items-center gap-1 border"
-            :style="{
-              backgroundColor: (ach.rarityColor || '#94a3b8') + '20',
-              color: ach.rarityColor || '#94a3b8',
-              borderColor: ach.rarityColor || '#94a3b8',
-            }"
+            v-bind="getRarityBadgePresentation(ach)"
           >
             {{ ach.rarityIcon || '🏆' }} {{ ach.name || ach.code }}
           </span>

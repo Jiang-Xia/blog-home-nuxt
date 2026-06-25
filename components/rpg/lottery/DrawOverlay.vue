@@ -16,6 +16,7 @@ import {
   LOTTERY_SPIN_MS,
   type LotteryDrawPhase,
 } from '@/utils/lottery-reel';
+import { getRarityFallbackColor, getRarityGlowByCode } from '~~/utils/rpg-rarity';
 
 const { playSfx, playSfxLoop, stopSfx } = useRpgAudio();
 
@@ -81,15 +82,7 @@ const phaseTitle = computed(() => {
   return map[props.phase];
 });
 
-const getRarityGlow = (rarity: string): string => {
-  const map: Record<string, string> = {
-    common: '0 0 24px rgba(148, 163, 184, 0.35)',
-    rare: '0 0 36px rgba(59, 130, 246, 0.55)',
-    epic: '0 0 48px rgba(139, 92, 246, 0.65)',
-    legendary: '0 0 60px rgba(245, 158, 11, 0.85)',
-  };
-  return map[rarity] || map.common || '';
-};
+const getRarityGlow = getRarityGlowByCode;
 
 const resetSpinState = () => {
   reelsLanded.value = 0;
@@ -319,7 +312,7 @@ const handleConfirm = () => {
                 :key="`${result.item.code}-${idx}`"
                 class="summary-card"
                 :style="{
-                  borderColor: result.item.rarityColor || '#94a3b8',
+                  borderColor: result.item.rarityColor || getRarityFallbackColor(),
                   animationDelay: `${idx * 0.08}s`,
                 }"
               >

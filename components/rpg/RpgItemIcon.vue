@@ -9,6 +9,7 @@ import {
   resolveRpgItemTint,
   type RpgItemIconSource,
 } from '~~/utils/rpg-item-icon';
+import { isSilverRarityColor } from '~~/utils/rpg-rarity';
 
 const props = withDefaults(
   defineProps<{
@@ -63,6 +64,13 @@ const currentSrc = computed(() => {
 
 const emoji = computed(() => resolveRpgItemEmoji(iconSource.value));
 
+/** 银色稀有度：走 CSS 金属渐变，不用纯色底 */
+const isSilverTint = computed(() => {
+  if (!props.tinted || props.bgUrl) return false;
+  const tintColor = props.rarityColor || props.frameColor;
+  return isSilverRarityColor(tintColor);
+});
+
 /** 容器样式：有 bgUrl 时用背景图，否则用稀有度 tint */
 const containerStyle = computed(() => {
   const bgImage = resolveRpgItemBgUrl(props.bgUrl);
@@ -73,7 +81,7 @@ const containerStyle = computed(() => {
       backgroundPosition: 'center',
     };
   }
-  if (!props.tinted) return undefined;
+  if (!props.tinted || isSilverTint.value) return undefined;
   const bg = resolveRpgItemTint({
     rarityColor: props.rarityColor,
     color: props.frameColor,
@@ -83,7 +91,9 @@ const containerStyle = computed(() => {
 });
 
 /** 有上传背景时不叠稀有度 tint，避免盖住底图 */
-const isTinted = computed(() => props.tinted && !!containerStyle.value && !props.bgUrl);
+const isTinted = computed(
+  () => props.tinted && (!!containerStyle.value || isSilverTint.value) && !props.bgUrl,
+);
 
 /** 当前候选加载失败，尝试下一格式或回退 emoji */
 const onImgError = () => {
@@ -99,7 +109,8 @@ const onImgError = () => {
   <div
     class="rpg-loot-icon"
     :class="{
-      'rpg-loot-icon--tinted': isTinted,
+      'rpg-loot-icon--tinted': isTinted && !isSilverTint,
+      'rpg-loot-icon--silver': isSilverTint,
       'rpg-loot-icon--asset': currentSrc,
       'rpg-loot-icon--bg': !!bgUrl,
       'rpg-loot-icon--sm': size === 'sm',

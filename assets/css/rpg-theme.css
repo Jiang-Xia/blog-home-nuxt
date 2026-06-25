@@ -1,4 +1,4 @@
-/* RPG 冒险模块主题令牌 — 跟随 cyber / cyber-light 切换 */
+/* RPG 冒险模块主题令牌 — 任务/成就卡片明暗跟随 data-rpg-tone（见 constants/theme-tone.ts） */
 
 html.tech-shell {
   --rpg-bg: color-mix(in oklch, var(--color-base-200) 55%, var(--color-base-100));
@@ -75,6 +75,61 @@ html.tech-shell {
   --rpg-badge-alert: #ef4444;
 
   --rpg-disabled: #94a3b8;
+
+  /* 稀有度 — 徽章金属渐变（四档共用变量名，由 tier class 注入） */
+  --rpg-rarity-badge-common-bg: linear-gradient(
+    145deg,
+    #f1f5f9 0%,
+    #c8d4e0 28%,
+    #94a3b8 55%,
+    #64748b 78%,
+    #e2e8f0 100%
+  );
+  --rpg-rarity-badge-common-text: #334155;
+  --rpg-rarity-badge-common-border: #cbd5e1;
+
+  --rpg-rarity-badge-rare-bg: linear-gradient(
+    145deg,
+    #dbeafe 0%,
+    #60a5fa 28%,
+    #3b82f6 55%,
+    #1d4ed8 78%,
+    #93c5fd 100%
+  );
+  --rpg-rarity-badge-rare-text: #eff6ff;
+  --rpg-rarity-badge-rare-border: #2563eb;
+
+  --rpg-rarity-badge-epic-bg: linear-gradient(
+    145deg,
+    #ede9fe 0%,
+    #a78bfa 28%,
+    #8b5cf6 55%,
+    #6d28d9 78%,
+    #c4b5fd 100%
+  );
+  --rpg-rarity-badge-epic-text: #f5f3ff;
+  --rpg-rarity-badge-epic-border: #7c3aed;
+
+  --rpg-rarity-badge-legendary-bg: linear-gradient(
+    145deg,
+    #fffbeb 0%,
+    #fcd34d 28%,
+    #f59e0b 55%,
+    #d97706 78%,
+    #fde68a 100%
+  );
+  --rpg-rarity-badge-legendary-text: #fffbeb;
+  --rpg-rarity-badge-legendary-border: #d97706;
+
+  /* 图标银色底 — 与 common 徽章同色 */
+  --rpg-rarity-silver: #c8d4e0;
+  --rpg-rarity-silver-highlight: #f1f5f9;
+  --rpg-rarity-silver-shadow: #94a3b8;
+  --rpg-rarity-silver-border: var(--rpg-rarity-badge-common-border);
+  --rpg-rarity-silver-text: var(--rpg-rarity-badge-common-text);
+  --rpg-rarity-silver-gradient: var(--rpg-rarity-badge-common-bg);
+  --rpg-rarity-silver-glow: 0 0 28px rgb(200 212 224 / 0.45);
+
   --rpg-life-track: rgba(0, 0, 0, 0.1);
   --rpg-life-track-bg: rgba(0, 0, 0, 0.04);
 
@@ -97,6 +152,8 @@ html.tech-shell {
   --rpg-loot-progress-shadow: inset 0 1px 2px rgb(15 23 42 / 0.07);
   --rpg-loot-tab-active-shadow: 0 2px 10px rgb(59 130 246 / 0.22);
   --rpg-loot-backdrop: none;
+
+  /* 任务 / 成就卡片变量见 data-rpg-tone='dark' | 'light' */
 
   /* 面板通知（Toast / 活动横幅）— 浅色默认 */
   --rpg-notify-shadow: 0 14px 36px rgb(15 23 42 / 0.12);
@@ -132,6 +189,152 @@ html.tech-shell {
   --rpg-notify-error-sub: #ef4444;
   --rpg-notify-error-glow: rgb(239 68 68 / 0.1);
   --rpg-notify-error-icon: #dc2626;
+}
+
+/* 任务 / 成就卡片 — 暗色（cyber 及所有 DaisyUI 暗色主题） */
+html.tech-shell[data-rpg-tone='dark'],
+html.tech-shell:not([data-rpg-tone]) {
+  --rpg-loot-edge: linear-gradient(
+    90deg,
+    transparent,
+    rgb(139 92 246 / 0.65),
+    rgb(103 232 249 / 0.48),
+    transparent
+  );
+  --rpg-loot-quest-bg: linear-gradient(
+    152deg,
+    rgb(6 28 48 / 0.72) 0%,
+    rgb(14 42 64 / 0.62) 42%,
+    rgb(10 16 28 / 0.9) 100%
+  );
+  --rpg-loot-quest-border: rgb(103 232 249 / 0.22);
+  --rpg-loot-quest-shine:
+    radial-gradient(ellipse 85% 65% at 100% 0%, rgb(103 232 249 / 0.14), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 0% 100%, rgb(139 92 246 / 0.07), transparent 52%);
+  --rpg-loot-quest-icon-bg: linear-gradient(145deg, rgb(103 232 249 / 0.16), rgb(15 23 42 / 0.82));
+  --rpg-loot-quest-icon-border: rgb(103 232 249 / 0.28);
+  --rpg-loot-quest-icon-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.1), 0 2px 12px rgb(0 0 0 / 0.34),
+    0 0 14px rgb(103 232 249 / 0.1);
+  --rpg-loot-quest-hover-border: rgb(103 232 249 / 0.36);
+  --rpg-loot-quest-hover-glow: 0 0 22px rgb(103 232 249 / 0.1);
+
+  --rpg-loot-achievement-bg: linear-gradient(
+    152deg,
+    rgb(69 26 3 / 0.42) 0%,
+    rgb(76 29 149 / 0.38) 42%,
+    rgb(15 23 42 / 0.88) 100%
+  );
+  --rpg-loot-achievement-border: rgb(251 191 36 / 0.22);
+  --rpg-loot-achievement-shine:
+    radial-gradient(ellipse 85% 65% at 100% 0%, rgb(251 191 36 / 0.18), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 0% 100%, rgb(139 92 246 / 0.14), transparent 52%);
+  --rpg-loot-achievement-icon-bg: linear-gradient(
+    145deg,
+    rgb(245 158 11 / 0.22),
+    rgb(76 29 149 / 0.35)
+  );
+  --rpg-loot-achievement-icon-border: rgb(251 191 36 / 0.28);
+  --rpg-loot-achievement-icon-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14), 0 2px 12px rgb(0 0 0 / 0.28),
+    0 0 16px rgb(245 158 11 / 0.12);
+  --rpg-loot-achievement-hover-border: rgb(251 191 36 / 0.32);
+  --rpg-loot-achievement-hover-glow: 0 0 24px rgb(245 158 11 / 0.1);
+
+  --rpg-loot-locked-bg: linear-gradient(152deg, rgb(30 41 59 / 0.62) 0%, rgb(15 23 42 / 0.82) 100%);
+  --rpg-loot-locked-border: rgb(148 163 184 / 0.18);
+  --rpg-loot-locked-shine: radial-gradient(
+    ellipse 80% 60% at 50% 0%,
+    rgb(148 163 184 / 0.08),
+    transparent 62%
+  );
+  --rpg-loot-locked-filter: saturate(0.88) brightness(0.96);
+  --rpg-loot-locked-opacity: 0.9;
+
+  --rpg-loot-done-bg: linear-gradient(
+    152deg,
+    rgb(6 44 30 / 0.58) 0%,
+    rgb(20 83 45 / 0.45) 45%,
+    rgb(15 23 42 / 0.85) 100%
+  );
+  --rpg-loot-done-border: rgb(74 222 128 / 0.38);
+  --rpg-loot-done-shine:
+    radial-gradient(ellipse 85% 65% at 100% 0%, rgb(74 222 128 / 0.2), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 0% 100%, rgb(103 232 249 / 0.06), transparent 52%);
+  --rpg-loot-done-extra-shadow: 0 0 22px rgb(34 197 94 / 0.14);
+
+  --rpg-loot-card-hover-border: rgb(167 139 250 / 0.38);
+  --rpg-loot-progress-track-bg: rgb(15 23 42 / 0.55);
+  --rpg-loot-progress-track-border: rgb(255 255 255 / 0.12);
+  --rpg-loot-claimed-opacity: 0.9;
+  --rpg-loot-claimed-filter: saturate(0.94);
+}
+
+/* 任务 / 成就卡片 — 亮色（cyber-light 及所有 DaisyUI 亮色主题） */
+html.tech-shell[data-rpg-tone='light'] {
+  --rpg-loot-edge: linear-gradient(
+    90deg,
+    transparent,
+    rgb(139 92 246 / 0.35),
+    rgb(59 130 246 / 0.28),
+    transparent
+  );
+  --rpg-loot-quest-bg: linear-gradient(
+    152deg,
+    rgb(240 249 255) 0%,
+    rgb(224 242 254 / 0.88) 45%,
+    #ffffff 100%
+  );
+  --rpg-loot-quest-border: rgb(125 211 252 / 0.65);
+  --rpg-loot-quest-shine:
+    radial-gradient(ellipse 85% 65% at 100% 0%, rgb(103 232 249 / 0.2), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 0% 100%, rgb(139 92 246 / 0.06), transparent 52%);
+  --rpg-loot-quest-icon-bg: linear-gradient(145deg, #ecfeff, #e0f2fe);
+  --rpg-loot-quest-icon-border: rgb(125 211 252 / 0.55);
+  --rpg-loot-quest-icon-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.85), 0 1px 4px rgb(56 189 248 / 0.14);
+  --rpg-loot-quest-hover-border: rgb(56 189 248 / 0.55);
+  --rpg-loot-quest-hover-glow: 0 0 20px rgb(56 189 248 / 0.14);
+
+  --rpg-loot-achievement-bg: linear-gradient(
+    152deg,
+    rgb(255 251 235) 0%,
+    rgb(245 243 255 / 0.92) 45%,
+    #ffffff 100%
+  );
+  --rpg-loot-achievement-border: rgb(251 191 36 / 0.38);
+  --rpg-loot-achievement-shine:
+    radial-gradient(ellipse 85% 65% at 100% 0%, rgb(251 191 36 / 0.16), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 0% 100%, rgb(139 92 246 / 0.08), transparent 52%);
+  --rpg-loot-achievement-icon-bg: linear-gradient(145deg, #fffbeb, #f5f3ff);
+  --rpg-loot-achievement-icon-border: rgb(251 191 36 / 0.4);
+  --rpg-loot-achievement-icon-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.85), 0 1px 4px rgb(245 158 11 / 0.12);
+  --rpg-loot-achievement-hover-border: rgb(245 158 11 / 0.45);
+  --rpg-loot-achievement-hover-glow: 0 0 20px rgb(245 158 11 / 0.12);
+
+  --rpg-loot-locked-bg: linear-gradient(152deg, #f8fafc 0%, #f1f5f9 100%);
+  --rpg-loot-locked-border: rgb(203 213 225 / 0.65);
+  --rpg-loot-locked-shine: radial-gradient(
+    ellipse 80% 60% at 50% 0%,
+    rgb(148 163 184 / 0.1),
+    transparent 62%
+  );
+  --rpg-loot-locked-filter: saturate(0.92) brightness(0.98);
+  --rpg-loot-locked-opacity: 0.92;
+
+  --rpg-loot-done-bg: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  --rpg-loot-done-border: rgb(34 197 94 / 0.35);
+  --rpg-loot-done-shine:
+    radial-gradient(ellipse 85% 65% at 100% 0%, rgb(34 197 94 / 0.14), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 0% 100%, rgb(103 232 249 / 0.05), transparent 52%);
+  --rpg-loot-done-extra-shadow: 0 0 18px rgb(34 197 94 / 0.12);
+
+  --rpg-loot-card-hover-border: rgb(139 92 246 / 0.35);
+  --rpg-loot-progress-track-bg: #e2e8f0;
+  --rpg-loot-progress-track-border: #f1f5f9;
+  --rpg-loot-claimed-opacity: 0.88;
+  --rpg-loot-claimed-filter: saturate(0.92);
 }
 
 /* ── 深色 cyber ── */
@@ -181,23 +384,81 @@ html.tech-shell[data-theme='cyber'] {
   --rpg-life-track: rgb(255 255 255 / 0.12);
   --rpg-life-track-bg: rgb(255 255 255 / 0.06);
 
-  --rpg-loot-bg: linear-gradient(155deg, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0.03));
-  --rpg-loot-border: rgb(255 255 255 / 0.16);
-  --rpg-loot-shadow: 0 4px 18px rgb(0 0 0 / 0.38), inset 0 1px 0 rgb(255 255 255 / 0.07);
-  --rpg-loot-shadow-hover: 0 10px 28px rgb(0 0 0 / 0.48), 0 0 24px var(--rpg-loot-accent-soft);
-  --rpg-loot-inset: inset 0 1px 0 rgb(255 255 255 / 0.1);
-  --rpg-loot-shine: radial-gradient(
-    ellipse 80% 60% at 100% 0%,
-    rgb(139 92 246 / 0.18),
-    transparent 58%
+  --rpg-rarity-badge-common-bg: linear-gradient(
+    145deg,
+    #1e293b 0%,
+    #334155 28%,
+    #475569 55%,
+    #64748b 78%,
+    #94a3b8 100%
   );
-  --rpg-loot-accent-soft: rgb(139 92 246 / 0.22);
-  --rpg-loot-icon-bg: rgb(255 255 255 / 0.08);
-  --rpg-loot-icon-border: rgb(255 255 255 / 0.14);
-  --rpg-loot-icon-shadow: 0 2px 10px rgb(0 0 0 / 0.28);
+  --rpg-rarity-badge-common-text: #f1f5f9;
+  --rpg-rarity-badge-common-border: #64748b;
+
+  --rpg-rarity-badge-rare-bg: linear-gradient(
+    145deg,
+    #1e3a8a 0%,
+    #2563eb 28%,
+    #3b82f6 55%,
+    #1d4ed8 78%,
+    #60a5fa 100%
+  );
+  --rpg-rarity-badge-rare-text: #dbeafe;
+  --rpg-rarity-badge-rare-border: #3b82f6;
+
+  --rpg-rarity-badge-epic-bg: linear-gradient(
+    145deg,
+    #4c1d95 0%,
+    #6d28d9 28%,
+    #8b5cf6 55%,
+    #5b21b6 78%,
+    #a78bfa 100%
+  );
+  --rpg-rarity-badge-epic-text: #ede9fe;
+  --rpg-rarity-badge-epic-border: #8b5cf6;
+
+  --rpg-rarity-badge-legendary-bg: linear-gradient(
+    145deg,
+    #78350f 0%,
+    #b45309 28%,
+    #f59e0b 55%,
+    #d97706 78%,
+    #fcd34d 100%
+  );
+  --rpg-rarity-badge-legendary-text: #fef3c7;
+  --rpg-rarity-badge-legendary-border: #f59e0b;
+
+  --rpg-rarity-silver-highlight: #94a3b8;
+  --rpg-rarity-silver-text: var(--rpg-rarity-badge-common-text);
+  --rpg-rarity-silver-gradient: var(--rpg-rarity-badge-common-bg);
+  --rpg-rarity-silver-glow: 0 0 28px rgb(200 212 224 / 0.38);
+
+  --rpg-loot-bg: linear-gradient(
+    152deg,
+    rgb(76 29 149 / 0.32) 0%,
+    rgb(30 27 75 / 0.55) 42%,
+    rgb(15 23 42 / 0.9) 100%
+  );
+  --rpg-loot-border: rgb(167 139 250 / 0.26);
+  --rpg-loot-shadow:
+    0 6px 22px rgb(0 0 0 / 0.45), 0 0 0 1px rgb(139 92 246 / 0.1),
+    inset 0 1px 0 rgb(255 255 255 / 0.14);
+  --rpg-loot-shadow-hover:
+    0 12px 32px rgb(0 0 0 / 0.52), 0 0 28px rgb(139 92 246 / 0.22),
+    inset 0 1px 0 rgb(255 255 255 / 0.16);
+  --rpg-loot-inset: inset 0 1px 0 rgb(255 255 255 / 0.12);
+  --rpg-loot-shine:
+    radial-gradient(ellipse 85% 65% at 100% 0%, rgb(139 92 246 / 0.32), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 0% 100%, rgb(103 232 249 / 0.1), transparent 52%);
+  --rpg-loot-accent-soft: rgb(139 92 246 / 0.28);
+  --rpg-loot-icon-bg: linear-gradient(145deg, rgb(139 92 246 / 0.28), rgb(30 41 59 / 0.72));
+  --rpg-loot-icon-border: rgb(167 139 250 / 0.34);
+  --rpg-loot-icon-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.16), 0 2px 12px rgb(0 0 0 / 0.32),
+    0 0 14px rgb(139 92 246 / 0.12);
   --rpg-loot-progress-shadow: inset 0 1px 3px rgb(0 0 0 / 0.35);
   --rpg-loot-tab-active-shadow: 0 0 18px rgb(139 92 246 / 0.35);
-  --rpg-loot-backdrop: blur(10px);
+  --rpg-loot-backdrop: blur(12px);
 
   --rpg-banner-bg: rgb(139 92 246 / 0.12);
   --rpg-banner-border: rgb(139 92 246 / 0.28);
@@ -911,8 +1172,8 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-loot-card--done {
-    border-color: var(--rpg-success-border);
-    background: var(--rpg-success-gradient);
+    border-color: var(--rpg-loot-done-border);
+    background: var(--rpg-loot-done-bg);
   }
 
   .rpg-loot-card--gold {
@@ -921,13 +1182,13 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-loot-card--claimed {
-    opacity: 0.82;
-    filter: saturate(0.9);
+    opacity: var(--rpg-loot-claimed-opacity);
+    filter: var(--rpg-loot-claimed-filter);
   }
 
   .rpg-loot-card--locked {
-    opacity: 0.72;
-    filter: saturate(0.78);
+    opacity: var(--rpg-loot-locked-opacity);
+    filter: var(--rpg-loot-locked-filter);
   }
 
   .rpg-loot-card--claimable {
@@ -952,7 +1213,7 @@ html.tech-shell[data-theme='cyber-light'] {
     }
   }
 
-  html.tech-shell[data-theme='cyber'] .rpg-loot-card--claimable {
+  html.tech-shell[data-rpg-tone='dark'] .rpg-loot-card--claimable {
     animation-name: rpg-loot-claimable-dark;
   }
 
@@ -1011,6 +1272,152 @@ html.tech-shell[data-theme='cyber-light'] {
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 0.22),
       var(--rpg-loot-icon-shadow);
+  }
+
+  .rpg-loot-icon--silver {
+    color: var(--rpg-rarity-silver-text);
+    background: var(--rpg-rarity-silver-gradient);
+    border-color: var(--rpg-rarity-silver-border);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.35),
+      var(--rpg-loot-icon-shadow);
+  }
+
+  /* 稀有度徽章 — 四档共用同一套局部变量 + tier 映射 */
+  .rpg-rarity-badge--common,
+  .rpg-rarity-badge--rare,
+  .rpg-rarity-badge--epic,
+  .rpg-rarity-badge--legendary {
+    background: var(--rpg-rarity-badge-bg) !important;
+    color: var(--rpg-rarity-badge-text) !important;
+    border-color: var(--rpg-rarity-badge-border) !important;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
+  }
+
+  .rpg-rarity-badge--common {
+    --rpg-rarity-badge-bg: var(--rpg-rarity-badge-common-bg);
+    --rpg-rarity-badge-text: var(--rpg-rarity-badge-common-text);
+    --rpg-rarity-badge-border: var(--rpg-rarity-badge-common-border);
+  }
+
+  .rpg-rarity-badge--rare {
+    --rpg-rarity-badge-bg: var(--rpg-rarity-badge-rare-bg);
+    --rpg-rarity-badge-text: var(--rpg-rarity-badge-rare-text);
+    --rpg-rarity-badge-border: var(--rpg-rarity-badge-rare-border);
+  }
+
+  .rpg-rarity-badge--epic {
+    --rpg-rarity-badge-bg: var(--rpg-rarity-badge-epic-bg);
+    --rpg-rarity-badge-text: var(--rpg-rarity-badge-epic-text);
+    --rpg-rarity-badge-border: var(--rpg-rarity-badge-epic-border);
+  }
+
+  .rpg-rarity-badge--legendary {
+    --rpg-rarity-badge-bg: var(--rpg-rarity-badge-legendary-bg);
+    --rpg-rarity-badge-text: var(--rpg-rarity-badge-legendary-text);
+    --rpg-rarity-badge-border: var(--rpg-rarity-badge-legendary-border);
+  }
+
+  /* ── 任务 / 成就卡片质感（明暗由 data-rpg-tone 切换）── */
+  html.tech-shell .rpg-loot-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: var(--rpg-loot-edge);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  html.tech-shell .rpg-loot-card--quest:not(.rpg-loot-card--done):not(.rpg-loot-card--claimable) {
+    background: var(--rpg-loot-quest-bg);
+    border-color: var(--rpg-loot-quest-border);
+  }
+
+  html.tech-shell
+    .rpg-loot-card--quest:not(.rpg-loot-card--done):not(.rpg-loot-card--claimable)::after {
+    background: var(--rpg-loot-quest-shine);
+  }
+
+  html.tech-shell .rpg-loot-card--achievement:not(.rpg-loot-card--locked) {
+    background: var(--rpg-loot-achievement-bg);
+    border-color: var(--rpg-loot-achievement-border);
+  }
+
+  html.tech-shell .rpg-loot-card--achievement:not(.rpg-loot-card--locked)::after {
+    background: var(--rpg-loot-achievement-shine);
+  }
+
+  html.tech-shell
+    .rpg-loot-card--quest
+    .rpg-loot-icon:not(.rpg-loot-icon--tinted):not(.rpg-loot-icon--silver) {
+    background: var(--rpg-loot-quest-icon-bg);
+    border-color: var(--rpg-loot-quest-icon-border);
+    box-shadow: var(--rpg-loot-quest-icon-shadow);
+  }
+
+  html.tech-shell
+    .rpg-loot-card--achievement
+    .rpg-loot-icon:not(.rpg-loot-icon--tinted):not(.rpg-loot-icon--silver) {
+    background: var(--rpg-loot-achievement-icon-bg);
+    border-color: var(--rpg-loot-achievement-icon-border);
+    box-shadow: var(--rpg-loot-achievement-icon-shadow);
+  }
+
+  html.tech-shell .rpg-loot-card--quest .rpg-loot-desc,
+  html.tech-shell .rpg-loot-card--achievement .rpg-loot-desc {
+    color: var(--rpg-text-label);
+  }
+
+  html.tech-shell .rpg-loot-card--quest .rpg-loot-progress,
+  html.tech-shell .rpg-loot-card--achievement .rpg-loot-progress {
+    background: var(--rpg-loot-progress-track-bg);
+    border-color: var(--rpg-loot-progress-track-border);
+  }
+
+  html.tech-shell .rpg-loot-card--locked {
+    opacity: var(--rpg-loot-locked-opacity);
+    filter: var(--rpg-loot-locked-filter);
+    background: var(--rpg-loot-locked-bg);
+    border-color: var(--rpg-loot-locked-border);
+  }
+
+  html.tech-shell .rpg-loot-card--locked::after {
+    background: var(--rpg-loot-locked-shine);
+  }
+
+  html.tech-shell .rpg-loot-card--done {
+    background: var(--rpg-loot-done-bg);
+    border-color: var(--rpg-loot-done-border);
+    box-shadow: var(--rpg-loot-shadow), var(--rpg-loot-done-extra-shadow), var(--rpg-loot-inset);
+  }
+
+  html.tech-shell .rpg-loot-card--done::after {
+    background: var(--rpg-loot-done-shine);
+  }
+
+  html.tech-shell .rpg-loot-card--claimed {
+    opacity: var(--rpg-loot-claimed-opacity);
+    filter: var(--rpg-loot-claimed-filter);
+  }
+
+  html.tech-shell .rpg-loot-card:hover {
+    border-color: var(--rpg-loot-card-hover-border);
+  }
+
+  html.tech-shell
+    .rpg-loot-card--quest:not(.rpg-loot-card--done):not(.rpg-loot-card--claimable):hover {
+    border-color: var(--rpg-loot-quest-hover-border);
+    box-shadow:
+      var(--rpg-loot-shadow-hover), var(--rpg-loot-quest-hover-glow), var(--rpg-loot-inset);
+  }
+
+  html.tech-shell .rpg-loot-card--achievement:not(.rpg-loot-card--locked):hover {
+    border-color: var(--rpg-loot-achievement-hover-border);
+    box-shadow:
+      var(--rpg-loot-shadow-hover), var(--rpg-loot-achievement-hover-glow), var(--rpg-loot-inset);
   }
 
   .rpg-loot-name {

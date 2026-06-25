@@ -263,7 +263,7 @@ export function buildDefaultRpgMockPayload(
       petCode: 'pet_slime',
       name: '史莱姆',
       rarityLabel: '普通',
-      rarityColor: '#94a3b8',
+      rarityColor: '#c8d4e0',
     } satisfies RpgPetHatchedPayload,
     shieldUsed: {
       buffName: '护盾卷轴',

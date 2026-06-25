@@ -1,33 +1,11 @@
 import { useState } from '#app';
+import { buildThemeBootScript, getRpgTone, isDarkTheme } from '~/constants/theme-tone';
+
+export { isDarkTheme, getRpgTone };
+
 // useState 的第一参数为 key，第二参数为初始化的工厂函数(即默认值)
 export const TECH_THEMES = ['cyber', 'cyber-light'] as const;
 export type TechTheme = (typeof TECH_THEMES)[number];
-
-/** DaisyUI 中 color-scheme 为 dark 的主题（SSR 回退用） */
-const DARK_THEMES = new Set([
-  'dark',
-  'synthwave',
-  'halloween',
-  'forest',
-  'black',
-  'luxury',
-  'dracula',
-  'business',
-  'night',
-  'coffee',
-  'dim',
-  'nord',
-  'sunset',
-  'abyss',
-  'cyberpunk',
-  'cyber',
-]);
-
-export function isDarkTheme(themeName: string): boolean {
-  if (themeName === 'cyber-light') return false;
-  if (DARK_THEMES.has(themeName)) return true;
-  return false;
-}
 
 /** md-editor-v3 仅支持 light / dark，跟随站点 DaisyUI 主题明暗 */
 export function useMdEditorTheme() {
@@ -56,6 +34,7 @@ export function useThemeActions() {
     document.documentElement.className = type;
     document.documentElement.setAttribute('data-theme', type);
     document.documentElement.classList.add('tech-shell');
+    document.documentElement.setAttribute('data-rpg-tone', getRpgTone(type));
     localStorage.setItem('theme', type);
   };
 

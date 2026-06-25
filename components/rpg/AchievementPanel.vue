@@ -5,6 +5,27 @@
 import { ACHIEVEMENT_CATEGORY_MAP, ACHIEVEMENT_ICON_MAP } from '~~/types/rpg';
 import type { UserAchievementProgress } from '~~/types/rpg';
 import { resolveRpgItemTint } from '~~/utils/rpg-item-icon';
+import {
+  getRarityFallbackColor,
+  isSilverRarityColor,
+  shouldUseSilverRarityStyle,
+} from '~~/utils/rpg-rarity';
+
+/** 成就卡片完成态：边框随稀有度，背景走主题 CSS 变量 */
+const achievementCardStyle = (ach: UserAchievementProgress) => {
+  if (!ach.completed) return undefined;
+  if (shouldUseSilverRarityStyle(ach)) {
+    return { borderColor: 'var(--rpg-rarity-silver-border)' };
+  }
+  if (!ach.rarityColor) return undefined;
+  return { borderColor: ach.rarityColor };
+};
+
+/** 成就图标底：银色用 CSS 渐变 class */
+const achievementIconStyle = (ach: UserAchievementProgress) => {
+  if (shouldUseSilverRarityStyle(ach) || isSilverRarityColor(ach.rarityColor)) return undefined;
+  return { background: resolveRpgItemTint(ach) || getRarityFallbackColor() };
+};
 
 const props = defineProps<{
   achievements: UserAchievementProgress[];
@@ -118,19 +139,18 @@ const categories = computed(() => {
         :class="{
           'rpg-loot-card--locked': !ach.completed,
         }"
-        :style="
-          ach.completed && ach.rarityColor
-            ? {
-              borderColor: ach.rarityColor,
-              background: `linear-gradient(135deg, ${ach.rarityColor}18 0%, ${ach.rarityColor}0a 100%)`,
-            }
-            : undefined
-        "
+        :style="achievementCardStyle(ach)"
       >
         <div class="rpg-loot-card-head">
           <div
-            class="rpg-loot-icon rpg-loot-icon--tinted"
-            :style="{ background: resolveRpgItemTint(ach) || '#94a3b8' }"
+            class="rpg-loot-icon"
+            :class="{
+              'rpg-loot-icon--silver':
+                shouldUseSilverRarityStyle(ach) || isSilverRarityColor(ach.rarityColor),
+              'rpg-loot-icon--tinted':
+                !!achievementIconStyle(ach) && !shouldUseSilverRarityStyle(ach),
+            }"
+            :style="achievementIconStyle(ach)"
           >
             {{ ACHIEVEMENT_ICON_MAP[ach.icon] || '🏆' }}
           </div>
