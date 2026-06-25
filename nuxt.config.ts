@@ -22,7 +22,7 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
     '@vueuse/nuxt',
-    '~/modules/sitemap',
+    '@nuxtjs/sitemap',
     '~/modules/inspria-ui',
     '@pinia/nuxt',
     '@nuxt/ui',
@@ -62,6 +62,9 @@ export default defineNuxtConfig({
     },
   },
   css: ['~/assets/css/main.css'],
+  site: {
+    url: originUrl || 'https://jiang-xia.top',
+  },
   ui: {
     prefix: 'U',
     fonts: false,
@@ -139,7 +142,7 @@ export default defineNuxtConfig({
     },
   },
   sitemap: {
-    hostname: 'https://jiang-xia.top',
+    sources: ['/api/__sitemap__/urls'],
   },
   stylelint: {
     /* module options */

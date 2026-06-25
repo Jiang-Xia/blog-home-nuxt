@@ -119,7 +119,7 @@ blog-home-nuxt/
 ├── config/               # 配置文件（API 地址等）
 ├── layouts/              # 布局组件
 ├── middleware/           # 中间件
-├── modules/              # Nuxt 模块（sitemap 等）
+├── modules/              # Nuxt 模块（inspria-ui 等）
 ├── pages/                # 页面文件（文件路由）
 │   ├── index/           # 首页
 │   ├── detail/          # 文章详情
@@ -160,7 +160,7 @@ blog-home-nuxt/
 - **内容渲染**：文章详情页用 `MdPreview` 客户端渲染 Markdown 源文
 - **内容编辑**：用户中心/文章编辑用 `MdEditor`，同时提交 `content` 与 `contentHtml`
 - **状态管理**：Pinia + `useState` composables（RPG 跨组件共享）
-- **SEO**：自定义 sitemap 模块，生产环境 hostname `jiang-xia.top`
+- **SEO**：`@nuxtjs/sitemap` 自动生成 `/sitemap.xml`（静态页 + 文章详情 API 源），站点 URL 取自 `VITE_NUXT_ORIGIN_URL`
 
 ## 🚀 快速开始
 
