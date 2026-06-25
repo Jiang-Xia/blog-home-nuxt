@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
-   * 个人空间RPG综合卡片 - 整合等级、成就、任务、Buff等所有RPG数据（纯展示 + 事件上报）
+   * 个人空间RPG综合卡片 - 整合等级、成就、任务（含周常）、Buff 等（纯展示 + 事件上报）
+   * 任务数据：GET /rpg/my-quests → questGroups.daily/bounty/weekly/special
    */
 import type {
   BanStatus,
@@ -27,6 +28,7 @@ const props = defineProps<{
   questGroups: {
     daily: UserQuestProgress[];
     bounty: UserQuestProgress[];
+    weekly: UserQuestProgress[];
     special: UserQuestProgress[];
   };
   buffs: UserBuff[];
@@ -73,6 +75,7 @@ const completedAchievementCount = computed(
 const allQuests = computed(() => [
   ...props.questGroups.daily,
   ...props.questGroups.bounty,
+  ...props.questGroups.weekly,
   ...props.questGroups.special,
 ]);
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
-   * 任务面板 - 每日 / 悬赏 / 特殊任务（纯展示）
+   * 任务面板 - 每日 / 悬赏 / 周常 / 特殊任务（纯展示）
+   * 数据来源：GET /rpg/my-quests 返回 daily/bounty/weekly/special 四组
    */
 import type { UserQuestProgress } from '~~/types/rpg';
 
@@ -8,6 +9,7 @@ const props = defineProps<{
   questGroups: {
     daily: UserQuestProgress[];
     bounty: UserQuestProgress[];
+    weekly: UserQuestProgress[];
     special: UserQuestProgress[];
   };
 }>();
@@ -18,12 +20,13 @@ const emit = defineEmits<{
 
 const { playSfx } = useRpgAudio();
 
-type QuestTab = 'daily' | 'bounty' | 'special';
+type QuestTab = 'daily' | 'bounty' | 'weekly' | 'special';
 const activeTab = ref<QuestTab>('daily');
 
 const tabOptions: { key: QuestTab; label: string }[] = [
   { key: 'daily', label: '每日' },
   { key: 'bounty', label: '悬赏' },
+  { key: 'weekly', label: '周常' },
   { key: 'special', label: '特殊' },
 ];
 
@@ -55,6 +58,13 @@ const QUEST_ICON_MAP: Record<string, string> = {
   collect: '🔖',
   msgboard: '📝',
   tip: '💎',
+  reply: '↩️',
+  lottery_draw: '🎰',
+  social_cheer: '💪',
+  social_flower: '🌸',
+  social_egg: '🥚',
+  guild_join: '🛡️',
+  pet_hatch: '🐾',
 };
 
 const totalCompleted = computed(() => currentQuests.value.filter(q => q.completed).length);

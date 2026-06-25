@@ -5,10 +5,11 @@ import { SiteTitle } from '@/utils/constant';
 import { getPublicArticles, getPublicCollects, getPublicLikes } from '@/api/profile';
 import { coverAspectRatio } from '@/utils/image-compress';
 import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
+import { isNotFoundError } from '@/utils/api-error';
 
 const route = useRoute();
 const uid = computed(() => route.params.uid as string);
-const { profile, articles, collects, likes, loading } = await usePublicProfile(uid);
+const { profile, articles, collects, likes, loading, error } = await usePublicProfile(uid);
 const userInfo = useUserInfo();
 
 const articlesList = ref<any[]>([]);
@@ -34,7 +35,15 @@ watch(
   { immediate: true },
 );
 
-if (!profile.value) {
+if (error.value && !isNotFoundError(error.value)) {
+  throw createError({
+    statusCode: 503,
+    statusMessage: '加载用户主页失败，请稍后重试',
+    fatal: true,
+  });
+}
+
+if (!loading.value && uid.value && !profile.value) {
   throw createError({
     statusCode: 404,
     statusMessage: '用户不存在',
@@ -136,8 +145,18 @@ useHead({
   ],
 });
 
-watch([profile, loading], ([currentProfile, isLoading]) => {
-  if (!isLoading && uid.value && !currentProfile) {
+watch([profile, loading, error], ([currentProfile, isLoading, fetchError]) => {
+  if (isLoading || !uid.value) {
+    return;
+  }
+  if (fetchError && !isNotFoundError(fetchError)) {
+    throw createError({
+      statusCode: 503,
+      statusMessage: '加载用户主页失败，请稍后重试',
+      fatal: true,
+    });
+  }
+  if (!currentProfile) {
     throw createError({
       statusCode: 404,
       statusMessage: '用户不存在',

@@ -12,6 +12,19 @@ export interface PublicProfilePayload {
   likes: any[];
 }
 
+/** Tab 列表请求失败时不拖垮 profile SSR（刷新时避免误报「用户不存在」） */
+async function safePublicTabList<T>(
+  fetcher: () => Promise<{ list?: T[] } | null | undefined>,
+): Promise<T[]> {
+  try {
+    const res = await fetcher();
+    return res?.list ?? [];
+  }
+  catch {
+    return [];
+  }
+}
+
 /** 他人公开主页数据（SSR：await useAsyncData 后服务端再输出 HTML） */
 export async function usePublicProfile(uid: Ref<number | string | undefined>) {
   const { data, pending, error, refresh } = await useAsyncData(
@@ -27,17 +40,17 @@ export async function usePublicProfile(uid: Ref<number | string | undefined>) {
         return { profile: null, articles: [], collects: [], likes: [] };
       }
 
-      const [articlesRes, collectsRes, likesRes] = await Promise.all([
-        getPublicArticles(id),
-        getPublicCollects(id),
-        getPublicLikes(id),
+      const [articles, collects, likes] = await Promise.all([
+        safePublicTabList(() => getPublicArticles(id)),
+        safePublicTabList(() => getPublicCollects(id)),
+        safePublicTabList(() => getPublicLikes(id)),
       ]);
 
       return {
         profile,
-        articles: articlesRes?.list ?? [],
-        collects: collectsRes?.list ?? [],
-        likes: likesRes?.list ?? [],
+        articles,
+        collects,
+        likes,
       };
     },
     { watch: [uid] },

@@ -1,5 +1,7 @@
 <script setup lang="ts">
+/** 公会成员列表；头像/昵称可跳转至用户公开主页 */
 import { getGuildRoleLabel } from '~~/types/rpg';
+import { resolveStaticUrl } from '@/utils/static-url';
 
 const props = defineProps<{
   myGuild: any;
@@ -40,14 +42,24 @@ const isLeader = computed(() => {
         v-if="myGuild.members?.length"
         class="rpg-loot-grid rpg-loot-grid--compact member-grid mt-2"
       >
-        <div v-for="m in myGuild.members" :key="m.uid" class="rpg-loot-card member-card">
+        <NuxtLink
+          v-for="m in myGuild.members"
+          :key="m.uid"
+          :to="`/user/${m.uid}`"
+          class="rpg-loot-card member-card member-card--link"
+          :title="`查看 ${m.nickname} 的主页`"
+        >
+          <div class="member-avatar">
+            <img v-if="m.avatar" :src="resolveStaticUrl(m.avatar)" :alt="m.nickname">
+            <span v-else class="member-avatar-fallback">{{ m.nickname?.charAt(0) || '?' }}</span>
+          </div>
           <div class="rpg-loot-name truncate">
             {{ m.nickname }}
           </div>
           <div class="rpg-loot-desc">
             {{ getGuildRoleLabel(m.role) }}
           </div>
-        </div>
+        </NuxtLink>
       </div>
       <div class="rpg-loot-footer mt-2">
         <button
@@ -129,9 +141,42 @@ const isLeader = computed(() => {
     min-height: 72px;
     padding: 8px 10px;
     gap: 4px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .member-grid .member-card--link:hover {
+    border-color: var(--rpg-amber-text-soft);
   }
 
   .member-grid .member-card::after {
     display: none;
+  }
+
+  .member-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--rpg-track);
+    border: 1px solid var(--rpg-border-subtle);
+    flex-shrink: 0;
+  }
+
+  .member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .member-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--rpg-text-secondary);
   }
 </style>
