@@ -173,6 +173,9 @@ html.tech-shell:not([data-rpg-tone]) {
   --rpg-loot-list-icon-border: var(--rpg-border-subtle);
   --rpg-loot-list-icon-shadow: 0 1px 2px rgb(0 0 0 / 0.18);
 
+  /* 暗色 RPG 卡片：隐藏 ::after 紫色径向光晕 */
+  --rpg-loot-shine: none;
+
   --rpg-loot-edge: linear-gradient(
     90deg,
     transparent,
@@ -379,14 +382,14 @@ html.tech-shell[data-theme='cyber'] {
   --rpg-loot-shadow: 0 2px 10px rgb(0 0 0 / 0.28), 0 0 0 1px rgb(255 255 255 / 0.04);
   --rpg-loot-shadow-hover: 0 4px 14px rgb(0 0 0 / 0.34), 0 0 0 1px rgb(255 255 255 / 0.07);
   --rpg-loot-inset: inset 0 1px 0 rgb(255 255 255 / 0.12), inset 0 -1px 0 rgb(0 0 0 / 0.16);
-  /* 暂隐藏卡片光晕（恢复时将 none 改回 radial-gradient） */
+  /* 隐藏卡片紫色光晕（::after 层） */
   --rpg-loot-shine: none;
   --rpg-loot-accent-soft: rgb(139 92 246 / 0.12);
   --rpg-loot-icon-bg: rgb(255 255 255 / 0.08);
   --rpg-loot-icon-border: rgb(255 255 255 / 0.14);
   --rpg-loot-icon-shadow: 0 2px 10px rgb(0 0 0 / 0.28);
   --rpg-loot-progress-shadow: inset 0 1px 3px rgb(0 0 0 / 0.35);
-  --rpg-loot-tab-active-shadow: 0 0 18px rgb(139 92 246 / 0.35);
+  --rpg-loot-tab-active-shadow: 0 2px 8px rgb(0 0 0 / 0.32);
   --rpg-loot-backdrop: blur(12px);
 
   --rpg-banner-bg: rgb(139 92 246 / 0.12);
@@ -1087,6 +1090,12 @@ html.tech-shell[data-theme='cyber-light'] {
     inset: 0;
     background: var(--rpg-loot-shine);
     pointer-events: none;
+  }
+
+  /* shine 为 none 时不渲染覆盖层，避免残留色偏 */
+  html.tech-shell[data-rpg-tone='dark'] .rpg-loot-card::after,
+  html.tech-shell:not([data-rpg-tone]) .rpg-loot-card::after {
+    display: none;
   }
 
   .rpg-loot-card > * {

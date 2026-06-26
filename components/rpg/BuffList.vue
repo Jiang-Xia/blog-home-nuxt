@@ -169,7 +169,6 @@ const getEffectText = (buff: UserBuff): string => {
             :style="{
               width: getRemainingPercent(buff) + '%',
               background: BUFF_TYPE_MAP[buff.buffType]?.color || '#8b5cf6',
-              boxShadow: `0 0 8px ${BUFF_TYPE_MAP[buff.buffType]?.color || '#8b5cf6'}55`,
             }"
           />
         </div>
