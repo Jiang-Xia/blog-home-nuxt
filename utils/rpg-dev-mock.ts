@@ -181,6 +181,10 @@ export function buildDefaultRpgMockPayload(
       code: 'comment_master',
       name: '评论达人',
       expReward: 120,
+      rarity: 'epic',
+      rarityLabel: '史诗',
+      rarityColor: '#8b5cf6',
+      rarityIcon: '🟣',
     } satisfies RpgAchievementCompletePayload,
     questReward: {
       questCode: 'daily_sign',
@@ -244,7 +248,7 @@ export function buildDefaultRpgMockPayload(
       config: {
         name: '抽奖称号·作家',
         rarityLabel: '稀有',
-        rarityColor: '#3b82f6',
+        rarityColor: '#22c55e',
         itemTypeLabel: '称号',
       },
     } satisfies RpgItemGrantedPayload,
@@ -259,7 +263,7 @@ export function buildDefaultRpgMockPayload(
       petCode: 'pet_slime',
       name: '史莱姆',
       rarityLabel: '普通',
-      rarityColor: '#94a3b8',
+      rarityColor: '#c8d4e0',
     } satisfies RpgPetHatchedPayload,
     shieldUsed: {
       buffName: '护盾卷轴',

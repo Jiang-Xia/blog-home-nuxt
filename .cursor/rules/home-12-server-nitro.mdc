@@ -16,7 +16,7 @@ alwaysApply: false
 | SSE / 流式代理 | 带 token 的业务鉴权接口 |
 | 构建期/服务端专属逻辑 | 可直接由前端 `api/request.ts` 调用的接口 |
 
-参考：`server/api/ai-summary-stream.post.ts` → 前端 `SSE('/api/ai-summary-stream')`；配置检测 `GET /api/ai-summary-status`。
+参考：`server/api/ai-summary-stream.post.ts` → 前端 `SSE('/api/ai-summary-stream')`；配置检测 `GET /api/ai-summary-status`。RAG 助手：`server/api/rag-query-stream.post.ts` → 开发环境 AI SDK Chat 透传 `POST /rag/query-stream`（生产直连 blog-server）。
 
 ## 文件路由
 

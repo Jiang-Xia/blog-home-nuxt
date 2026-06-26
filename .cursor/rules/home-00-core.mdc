@@ -24,7 +24,7 @@ Nuxt 4 · Vue 3 Composition API · TypeScript · Pinia · Nuxt UI 4 · Tailwind 
 | `utils/` | 纯工具函数（cookie、crypto、toast、**rpg-audio-synth** 等） |
 | `constants/` | 模块常量（如 **rpg-audio.ts** 音效键与音量） |
 | `config/` | 环境变量派生的 URL 与静态配置 |
-| `modules/` | 自定义 Nuxt 模块（sitemap、inspria-ui） |
+| `modules/` | 自定义 Nuxt 模块（inspria-ui 等）；sitemap 见 `@nuxtjs/sitemap` + `server/api/__sitemap__/` |
 | `plugins/` | 客户端插件用 `.client.ts` 后缀（见 `home-13-plugins.mdc`） |
 | `server/api/` | Nitro 服务端路由（见 `home-12-server-nitro.mdc`） |
 | `stores/` | Pinia 全局 store（见 `home-11-stores-pinia.mdc`） |

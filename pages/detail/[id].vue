@@ -15,6 +15,7 @@ import {
   isArticleLiked,
   syncUserLikes,
 } from '@/utils/common';
+import { ensureLoggedIn } from '@/composables/use-common';
 import { resolveStaticUrl } from '@/utils/static-url';
 import { resolvePublicAvatarFrame } from '@/composables/use-avatar-frame';
 import type { tocInter } from '@/utils';
@@ -137,6 +138,7 @@ onMounted(async () => {
   scrollElement.value = document.documentElement;
   mdKey.value = new Date().getTime();
   recordArticleView(articleId.value);
+  await ensureLoggedIn();
   await syncUserLikes();
   syncDetailLikeState();
 });
@@ -417,9 +419,8 @@ watch(
         </aside>
       </div>
     </div>
-    <!-- 阅读进度环 -->
+    <!-- 阅读进度环（含移动端目录） -->
     <ReadingProgressRing position="top-right" :auto-hide="true" style="top: 70px" />
-    <ArticleTocDrawer :topics="topics" />
     <RpgArticleRpgFab
       v-if="ArticleInfo.id && ArticleInfo.uid"
       :article-id="ArticleInfo.id"
@@ -569,19 +570,6 @@ watch(
   .comment-module {
     margin-top: 1.5rem;
     min-height: 30vh;
-  }
-  .md-editor {
-    font-family:
-      HarmonyOS-Sans,
-      ZhuZiAWan,
-      -apple-system,
-      Helvetica Neue,
-      Helvetica,
-      PingFang SC,
-      Hiragino Sans GB,
-      Microsoft YaHei,
-      Arial,
-      sans-serif;
   }
   .md-dark {
     // --md-bk-color: var(--main-bgc);

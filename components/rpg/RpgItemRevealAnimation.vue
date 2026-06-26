@@ -70,6 +70,15 @@ const handleClose = () => {
               :rarity-label="data.config?.rarityLabel"
               :rarity-color="data.config?.rarityColor"
             />
+            <RpgItemIcon
+              class="reveal-item-icon"
+              :icon="data.config?.icon"
+              :icon-url="data.config?.iconUrl"
+              :bg-url="data.config?.bgUrl"
+              :item-type-icon="data.config?.itemTypeIcon"
+              :rarity-color="data.config?.rarityColor"
+              size="lg"
+            />
             <div class="reveal-name">
               {{ data.config?.name || data.itemCode }}
             </div>
@@ -158,7 +167,11 @@ const handleClose = () => {
   }
 
   .reveal-rarity {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+  }
+
+  .reveal-item-icon {
+    margin: 0 auto 12px;
   }
 
   .reveal-name {

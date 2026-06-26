@@ -22,31 +22,20 @@ export function resolvePublicAvatarFrame(
   };
 }
 
-/** 从 RPG 状态解析当前应展示的头像框（优先装备框，其次角色专属框） */
+/** 从 RPG 状态解析当前应展示的头像框（仅已穿戴时返回，未穿戴无呼吸灯） */
 export function resolveAvatarFrameFromRpgStatus(
   status: RpgStatus | null | undefined,
 ): AvatarFrameInfo | null {
-  if (!status) return null;
-  const equippedCode = status.equippedAvatarFrame;
-  if (equippedCode) {
-    const equipped = status.unlockedAvatarFrames?.find(item => item.code === equippedCode);
-    if (equipped) {
-      return {
-        code: equipped.code,
-        name: equipped.name,
-        color: equipped.color ?? null,
-      };
-    }
-  }
-  const roleReward = status.roleReward;
-  if (roleReward?.avatarFrameColor) {
-    return {
-      code: roleReward.avatarFrame,
-      name: roleReward.avatarFrameName || roleReward.avatarFrame,
-      color: roleReward.avatarFrameColor,
-    };
-  }
-  return null;
+  if (!status?.equippedAvatarFrame) return null;
+  const equipped = status.unlockedAvatarFrames?.find(
+    item => item.code === status.equippedAvatarFrame,
+  );
+  if (!equipped) return null;
+  return {
+    code: equipped.code,
+    name: equipped.name,
+    color: equipped.color ?? null,
+  };
 }
 
 /** 当前登录用户的装备头像框（依赖 RpgGlobalInit 已拉取的 rpgStatus） */

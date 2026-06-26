@@ -18,6 +18,7 @@ import {
   getLotteryHistory,
   getLotteryTickets,
 } from '~~/api/rpg';
+import { filterLinkedLotteryPool } from '~~/utils/lottery-reel';
 import type {
   RpgStatus,
   SignInfo,
@@ -71,8 +72,10 @@ export function useRpg() {
   const questGroups = useState<{
     daily: UserQuestProgress[];
     bounty: UserQuestProgress[];
+    /** 周常任务（questDate=当周周一，后端 GET /rpg/my-quests weekly 字段） */
+    weekly: UserQuestProgress[];
     special: UserQuestProgress[];
-  }>('rpg-quest-groups', () => ({ daily: [], bounty: [], special: [] }));
+  }>('rpg-quest-groups', () => ({ daily: [], bounty: [], weekly: [], special: [] }));
   const buffs = useState<UserBuff[]>('rpg-buffs', () => []);
   const lotteryPool = useState<LotteryPoolItem[]>('rpg-lottery-pool', () => []);
   const lotteryTickets = useState('rpg-lottery-tickets', () => 0);
@@ -164,7 +167,7 @@ export function useRpg() {
 
   const fetchLotteryPool = async () => {
     try {
-      lotteryPool.value = await getLotteryPool();
+      lotteryPool.value = filterLinkedLotteryPool(await getLotteryPool());
     }
     catch (e) {
       console.error('[useRpg] 获取抽奖奖池失败:', e);
@@ -301,17 +304,19 @@ export function useRpg() {
         const data = (await getMyQuests()) as any;
         if (Array.isArray(data)) {
           quests.value = data;
-          questGroups.value = { daily: data, bounty: [], special: [] };
+          questGroups.value = { daily: data, bounty: [], weekly: [], special: [] };
         }
         else {
           questGroups.value = {
             daily: data.daily || [],
             bounty: data.bounty || [],
+            weekly: data.weekly || [],
             special: data.special || [],
           };
           quests.value = [
             ...questGroups.value.daily,
             ...questGroups.value.bounty,
+            ...questGroups.value.weekly,
             ...questGroups.value.special,
           ];
         }

@@ -7,9 +7,6 @@ import { toggleCollect, getMyLikedArticleIds } from '@/api/article';
 import { getAllCategory } from '@/api/category';
 import { getAllTag } from '@/api/tag';
 import { messageError } from '@/utils/toast';
-import { resolveStaticUrl } from '@/utils/static-url';
-
-export { resolveStaticUrl };
 
 const categoryOptions: any = ref([]);
 const tagsOptions: any = ref([]);

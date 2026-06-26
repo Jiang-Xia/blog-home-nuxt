@@ -13,11 +13,12 @@ import Yaya from '../assets/images/animal/yaya.svg';
 import { getArticleList } from '@/api/article';
 import { debounce } from '~~/utils';
 import { TokenKey, RefreshTokenKey, getToken, removeToken } from '@/utils/cookie';
+import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
 import { isDarkTheme, useThemeActions } from '@/composables/use-home';
 import { NAV_LINKS } from '@/utils/constant';
 
-const token = useToken();
-const userInfo = useUserInfo();
+const { token, userInfo, isLoggedIn, sync: syncAuthSession } = useAuthSession();
+const refreshTokenState = useRefreshToken();
 // 主题相关逻辑重构
 const { theme, clickIcon, initTheme, disposeTheme } = useThemeActions();
 const themeToggleIcon = computed(() => (isDarkTheme(theme.value) ? 'blog-light' : 'blog-dark'));
@@ -25,6 +26,7 @@ const themeToggleIcon = computed(() => (isDarkTheme(theme.value) ? 'blog-light' 
 onMounted(() => {
   document.addEventListener('click', onDocumentClick);
   initTheme();
+  syncAuthSession();
 });
 
 onUnmounted(() => {
@@ -128,22 +130,19 @@ const onSearchHandle = debounce(() => {
   }
 }, 300);
 
+const { disconnect: disconnectRealtimeSocket } = useRealtimeSocket();
 const clearUserInfoFn = useClearUserInfo();
 const clear = () => {
   token.value = '';
+  refreshTokenState.value = '';
   removeToken(TokenKey);
   removeToken(RefreshTokenKey);
   clearUserInfoFn();
+  disconnectRealtimeSocket();
 };
-if (import.meta.client) {
-  token.value = getToken(TokenKey);
-  if (!token.value) {
-    clear();
-  }
-}
 watch(token, (newToken) => {
   if (!import.meta.client) return;
-  if (!newToken) {
+  if (!newToken && !getToken(TokenKey)) {
     clearUserInfoFn();
   }
 });
@@ -240,8 +239,8 @@ function isNavActive(path: string) {
 
       <ClientOnly>
         <NavNotificationBell />
-        <RpgNavHud v-if="token" class="mr-1" />
-        <CyberButton v-if="!token" variant="primary" to="/login" class="!px-4 !py-2 text-sm">
+        <RpgNavHud v-if="isLoggedIn" class="mr-1" />
+        <CyberButton v-if="!isLoggedIn" variant="primary" to="/login" class="!px-4 !py-2 text-sm">
           登录
         </CyberButton>
         <div v-else class="dropdown dropdown-end">

@@ -2,6 +2,7 @@
 /**
    * RPG状态面板 - 展示等级、经验进度、生命值、头像框、称号、签到等信息
    */
+import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 import type { LevelUpResult, UserBuff } from '~~/types/rpg';
 import { activateBuff, deactivateBuff } from '~~/api/rpg';
 import { messageSuccess } from '~~/utils/toast';
@@ -80,9 +81,10 @@ const handleToggleBuff = async (
   buff: UserBuff & { triggerMode?: string; isActive?: boolean },
 ) => {
   if (buff.triggerMode !== 'manual') return;
-  if (buff.isActive) await deactivateBuff(buff.id);
+  const wasActive = buff.isActive;
+  if (wasActive) await deactivateBuff(buff.id);
   else await activateBuff(buff.id);
-  messageSuccess(buff.isActive ? '已停用' : '已激活');
+  messageSuccess(wasActive ? '已暂停' : '已激活');
   await fetchBuffs();
 };
 
@@ -189,7 +191,13 @@ onMounted(async () => {
           class="frame-item"
           :style="{ borderColor: frame.color || '#ccc' }"
         >
-          <span class="frame-icon" :style="{ color: frame.color || '#ccc' }"> 🖼 </span>
+          <RpgItemIcon
+            class="frame-icon-wrap"
+            :icon="frame.icon"
+            :frame-color="frame.color"
+            :rarity-color="frame.rarityColor"
+            size="sm"
+          />
           <span class="frame-name">{{ frame.name }}</span>
         </div>
       </div>
@@ -202,7 +210,7 @@ onMounted(async () => {
       </div>
       <div class="titles-list">
         <span v-for="title in rpgStatus.unlockedTitles" :key="title.code" class="title-badge">
-          🏆 {{ title.name }}
+          {{ resolveRpgItemEmoji(title) }} {{ title.name }}
         </span>
       </div>
     </div>

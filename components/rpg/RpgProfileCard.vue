@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
-   * 个人空间RPG综合卡片 - 整合等级、成就、任务、Buff等所有RPG数据（纯展示 + 事件上报）
+   * 个人空间RPG综合卡片 - 整合等级、成就、任务（含周常）、Buff 等（纯展示 + 事件上报）
+   * 任务数据：GET /rpg/my-quests → questGroups.daily/bounty/weekly/special
    */
 import type {
   BanStatus,
@@ -13,6 +14,7 @@ import type {
   UserQuestProgress,
 } from '~~/types/rpg';
 import { getRpgLifeColor } from '~~/composables/use-rpg-theme';
+import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 import { formactDate } from '@/utils/common';
 import RpgQuestPanel from './QuestPanel.vue';
 import RpgAchievementPanel from './AchievementPanel.vue';
@@ -26,6 +28,7 @@ const props = defineProps<{
   questGroups: {
     daily: UserQuestProgress[];
     bounty: UserQuestProgress[];
+    weekly: UserQuestProgress[];
     special: UserQuestProgress[];
   };
   buffs: UserBuff[];
@@ -72,6 +75,7 @@ const completedAchievementCount = computed(
 const allQuests = computed(() => [
   ...props.questGroups.daily,
   ...props.questGroups.bounty,
+  ...props.questGroups.weekly,
   ...props.questGroups.special,
 ]);
 
@@ -278,7 +282,7 @@ const toggleHitRecords = () => {
                 : emit('equip', 'avatar_frame', frame.code)
             "
           >
-            {{ frame.name }}
+            {{ resolveRpgItemEmoji(frame) }} {{ frame.name }}
             <span v-if="rpgStatus.equippedAvatarFrame === frame.code" class="equipped-badge">已穿戴</span>
           </span>
         </div>
@@ -297,7 +301,7 @@ const toggleHitRecords = () => {
                 : emit('equip', 'title', title.code)
             "
           >
-            {{ title.name }}
+            {{ resolveRpgItemEmoji(title) }} {{ title.name }}
             <span v-if="rpgStatus.equippedTitle === title.code" class="equipped-badge">已穿戴</span>
           </span>
         </div>
@@ -335,11 +339,11 @@ const toggleHitRecords = () => {
     width: 100%;
     padding: 12px;
     border-radius: 14px;
-    background: var(--rpg-loot-bg);
-    border: 1px solid var(--rpg-loot-border);
-    box-shadow: var(--rpg-loot-shadow), var(--rpg-loot-inset);
-    backdrop-filter: var(--rpg-loot-backdrop);
-    -webkit-backdrop-filter: var(--rpg-loot-backdrop);
+    background: var(--rpg-surface);
+    border: 1px solid var(--rpg-border-subtle);
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .role-badge {
@@ -348,8 +352,8 @@ const toggleHitRecords = () => {
     gap: 8px;
     padding: 8px 12px;
     border-radius: 10px;
-    border: 2px solid;
-    background: var(--rpg-amber-bg-gradient);
+    border: 1px solid;
+    background: var(--rpg-amber-bg);
     margin-bottom: 12px;
   }
 

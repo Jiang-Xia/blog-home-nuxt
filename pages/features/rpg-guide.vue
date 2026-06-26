@@ -379,14 +379,15 @@ const socialActions = [
         align="left"
         label="LOTTERY"
         title="抽奖与 Buff"
-        subtitle="券/钻石双货币，90 次保底史诗"
+        subtitle="券/钻石双货币，史诗 90 / 传说 180 独立保底"
       />
       <CyberCard class="mb-4 !p-4">
         <ul class="space-y-2 text-sm text-tech-muted">
           <li>单次可 1~10 连抽</li>
           <li><strong class="text-tech">抽奖券</strong>：1 张/次（签到、全勤、抽奖回流获得）</li>
           <li><strong class="text-tech">钻石</strong>：10/次</li>
-          <li>累计 90 次未出史诗/传说，第 90 次强制从史诗/传说池抽取</li>
+          <li>史诗保底：累计 90 次未出史诗/传说，第 90 次强制史诗池</li>
+          <li>传说保底：累计 180 次未出传说，第 180 次强制传说池（与史诗计数独立）</li>
           <li>奖品含经验、Buff 卷轴、装扮、宠物蛋、抽奖券等</li>
         </ul>
       </CyberCard>

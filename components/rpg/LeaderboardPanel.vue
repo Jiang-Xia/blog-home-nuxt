@@ -1,8 +1,10 @@
 <script setup lang="ts">
 /**
    * RPG 排行榜面板 - 支持经验/签到/等级等多种维度（纯展示）
+   * 头像/昵称可跳转至用户公开主页
    */
 import type { LeaderboardPeriod, LeaderboardScoreType } from '~~/types/rpg';
+import { resolveStaticUrl } from '@/utils/static-url';
 
 defineProps<{
   leaderboard: any[];
@@ -99,10 +101,14 @@ const getScoreText = (entry: any) => {
         <span class="rank-num" :class="`rank-${entry.rank}`">
           {{ entry.rank <= 3 ? ['🥇', '🥈', '🥉'][entry.rank - 1] : entry.rank }}
         </span>
-        <div class="rank-avatar">
-          <img v-if="entry.avatar" :src="entry.avatar" :alt="entry.nickname">
+        <NuxtLink
+          :to="`/user/${entry.uid}`"
+          class="rank-avatar"
+          :title="`查看 ${entry.nickname} 的主页`"
+        >
+          <img v-if="entry.avatar" :src="resolveStaticUrl(entry.avatar)" :alt="entry.nickname">
           <span v-else class="avatar-placeholder">{{ entry.nickname?.charAt(0) || '?' }}</span>
-        </div>
+        </NuxtLink>
         <div class="rank-info">
           <NuxtLink :to="`/user/${entry.uid}`" class="rank-name link link-hover">{{
             entry.nickname
@@ -135,6 +141,7 @@ const getScoreText = (entry: any) => {
   }
 
   .rank-avatar {
+    display: block;
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -142,6 +149,14 @@ const getScoreText = (entry: any) => {
     background: var(--rpg-track);
     flex-shrink: 0;
     border: 1px solid var(--rpg-border-subtle);
+    transition:
+      border-color 0.2s,
+      transform 0.2s;
+  }
+
+  .rank-avatar:hover {
+    border-color: var(--rpg-amber-text-soft);
+    transform: scale(1.04);
   }
 
   .rank-avatar img {

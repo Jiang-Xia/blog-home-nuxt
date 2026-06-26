@@ -16,6 +16,7 @@ import {
   LOTTERY_SPIN_MS,
   type LotteryDrawPhase,
 } from '@/utils/lottery-reel';
+import { getRarityFallbackColor, getRarityGlowByCode } from '~~/utils/rpg-rarity';
 
 const { playSfx, playSfxLoop, stopSfx } = useRpgAudio();
 
@@ -81,15 +82,7 @@ const phaseTitle = computed(() => {
   return map[props.phase];
 });
 
-const getRarityGlow = (rarity: string): string => {
-  const map: Record<string, string> = {
-    common: '0 0 24px rgba(148, 163, 184, 0.35)',
-    rare: '0 0 36px rgba(59, 130, 246, 0.55)',
-    epic: '0 0 48px rgba(139, 92, 246, 0.65)',
-    legendary: '0 0 60px rgba(245, 158, 11, 0.85)',
-  };
-  return map[rarity] || map.common || '';
-};
+const getRarityGlow = getRarityGlowByCode;
 
 const resetSpinState = () => {
   reelsLanded.value = 0;
@@ -287,6 +280,15 @@ const handleConfirm = () => {
                 :rarity-color="currentResult.item.rarityColor"
                 :rarity-icon="currentResult.item.rarityIcon"
               />
+              <RpgItemIcon
+                class="reveal-item-icon"
+                :icon="currentResult.item.icon"
+                :icon-url="currentResult.item.iconUrl"
+                :bg-url="currentResult.item.bgUrl"
+                :item-type-icon="currentResult.item.itemTypeIcon"
+                :rarity-color="currentResult.item.rarityColor"
+                size="lg"
+              />
               <div class="reveal-name">
                 {{ currentResult.item.name }}
               </div>
@@ -310,10 +312,19 @@ const handleConfirm = () => {
                 :key="`${result.item.code}-${idx}`"
                 class="summary-card"
                 :style="{
-                  borderColor: result.item.rarityColor || '#94a3b8',
+                  borderColor: result.item.rarityColor || getRarityFallbackColor(),
                   animationDelay: `${idx * 0.08}s`,
                 }"
               >
+                <RpgItemIcon
+                  class="summary-item-icon"
+                  :icon="result.item.icon"
+                  :icon-url="result.item.iconUrl"
+                  :bg-url="result.item.bgUrl"
+                  :item-type-icon="result.item.itemTypeIcon"
+                  :rarity-color="result.item.rarityColor"
+                  size="sm"
+                />
                 <RpgRarityBadge
                   :rarity="result.item.rarity"
                   :rarity-label="result.item.rarityLabel"
@@ -393,19 +404,23 @@ const handleConfirm = () => {
   }
 
   .multi .draw-panel {
-    width: min(94vw, 480px);
-    padding: 14px 12px 16px;
+    width: min(96vw, 520px);
+    padding: 16px 14px 18px;
   }
 
   @media (max-width: 639px) {
     .multi .draw-panel {
-      width: min(96vw, 480px);
-      padding: 12px 10px 14px;
+      width: min(98vw, 520px);
+      padding: 14px 10px 16px;
     }
 
     .multi-reels {
-      gap: 3px;
+      gap: 6px;
     }
+  }
+
+  .multi .panel-header {
+    margin-bottom: 12px;
   }
 
   .panel-header {
@@ -514,7 +529,7 @@ const handleConfirm = () => {
   .multi-reels {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
     overflow: visible;
   }
 
@@ -556,6 +571,10 @@ const handleConfirm = () => {
 
   .reveal-rarity {
     margin-bottom: 10px;
+  }
+
+  .reveal-item-icon {
+    margin: 0 auto 12px;
   }
 
   .reveal-name {

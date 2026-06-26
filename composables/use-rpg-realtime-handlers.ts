@@ -75,6 +75,9 @@ export function useRpgRealtimeHandlers() {
   const achievementVisible = ref(false);
   const achievementName = ref('');
   const achievementExpReward = ref(0);
+  const achievementRarityColor = ref('');
+  const achievementRarityLabel = ref('');
+  const achievementRarityIcon = ref('');
 
   const masterpieceVisible = ref(false);
   const masterpieceData = ref<RpgMasterpiecePayload | null>(null);
@@ -211,6 +214,9 @@ export function useRpgRealtimeHandlers() {
     deferCelebration(() => {
       achievementName.value = payload.name || payload.achievementName || '新成就';
       achievementExpReward.value = payload.expReward ?? 0;
+      achievementRarityColor.value = payload.rarityColor || '';
+      achievementRarityLabel.value = payload.rarityLabel || '';
+      achievementRarityIcon.value = payload.rarityIcon || '';
       achievementVisible.value = true;
     });
   });
@@ -512,6 +518,9 @@ export function useRpgRealtimeHandlers() {
     achievementVisible.value = false;
     achievementName.value = '';
     achievementExpReward.value = 0;
+    achievementRarityColor.value = '';
+    achievementRarityLabel.value = '';
+    achievementRarityIcon.value = '';
   };
 
   /** 关闭神作全屏弹窗 */
@@ -580,6 +589,9 @@ export function useRpgRealtimeHandlers() {
     achievementVisible,
     achievementName,
     achievementExpReward,
+    achievementRarityColor,
+    achievementRarityLabel,
+    achievementRarityIcon,
     masterpieceVisible,
     masterpieceData,
     socialFeedbackVisible,

@@ -4,6 +4,7 @@
    * 直接使用 API 返回的 avatarFrame/title/currencyName，不做本地物品 map
    */
 import type { LevelReward, RpgStatus } from '~~/types/rpg';
+import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 
 const props = defineProps<{
   rpgStatus: RpgStatus | null;
@@ -100,10 +101,10 @@ const hasAnyReward = (reward: LevelReward) =>
             class="reward-tag frame"
             :style="{ borderColor: reward.avatarFrame.color || '#ccc' }"
           >
-            🖼 {{ reward.avatarFrame.name }}
+            {{ resolveRpgItemEmoji(reward.avatarFrame) }} {{ reward.avatarFrame.name }}
           </span>
           <span v-if="reward.title?.name" class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">
-            🏆 {{ reward.title.name }}
+            {{ resolveRpgItemEmoji(reward.title) }} {{ reward.title.name }}
           </span>
           <span v-if="!hasAnyReward(reward)" class="rpg-loot-status rpg-loot-status--pending">暂无奖励</span>
         </div>

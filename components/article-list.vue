@@ -14,8 +14,8 @@ import {
   updateLikesHandle,
   isArticleLiked,
   syncUserLikes,
-  resolveStaticUrl,
 } from '@/utils/common';
+import { resolveStaticUrl } from '@/utils/static-url';
 import { colorRgb } from '~~/utils/color';
 import { debounce } from '~~/utils';
 import { messageDanger } from '@/utils/toast';
@@ -881,10 +881,31 @@ watch(articleList, syncAuthorLevels, { immediate: true });
             v-for="comment in commentsList"
             :key="comment.id"
             class="list-row text-base-content/80 cursor-pointer"
+            :title="'查看文章'"
             @click="$router.push(`/detail/${comment.articleId}`)"
           >
             <div class="flex items-center">
-              <xia-image class="size-9 rounded-box" lazyload :src="comment.userInfo.avatar" />
+              <NuxtLink
+                v-if="comment.uid"
+                :to="`/user/${comment.uid}`"
+                class="shrink-0"
+                :title="`${comment.userInfo.nickname} 的主页`"
+                @click.stop
+              >
+                <xia-image
+                  class="size-9 rounded-box"
+                  lazyload
+                  :src="comment.userInfo.avatar"
+                  :title="comment.userInfo.nickname"
+                />
+              </NuxtLink>
+              <xia-image
+                v-else
+                class="size-9 rounded-box"
+                lazyload
+                :src="comment.userInfo.avatar"
+                :title="comment.userInfo.nickname"
+              />
             </div>
             <div>
               <div class="flex items-center text-xs">

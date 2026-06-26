@@ -41,6 +41,9 @@ const {
   achievementVisible,
   achievementName,
   achievementExpReward,
+  achievementRarityColor,
+  achievementRarityLabel,
+  achievementRarityIcon,
   masterpieceVisible,
   masterpieceData,
   socialFeedbackVisible,
@@ -133,13 +136,20 @@ watch(
   },
 );
 
-watch(token, (t) => {
+watch(token, (t, prev) => {
   if (t) {
+    if (prev && prev !== t) {
+      disconnect();
+    }
     void initGlobalRpg();
   }
   else {
     teardown();
   }
+});
+
+onUnmounted(() => {
+  teardown();
 });
 
 /** 首次进入且未签到时轻提示（每会话一次；挂载后再监听，避免 hydration 阶段 inject 失败） */
@@ -169,6 +179,9 @@ onMounted(() => {
       :visible="achievementVisible"
       :name="achievementName"
       :exp-reward="achievementExpReward"
+      :rarity-color="achievementRarityColor"
+      :rarity-label="achievementRarityLabel"
+      :rarity-icon="achievementRarityIcon"
       @close="closeAchievement"
     />
     <RpgMasterpieceAnimation

@@ -4,6 +4,8 @@ export interface ReelStripItem {
   id: string;
   name: string;
   rarity: string;
+  icon?: string;
+  itemTypeIcon?: string;
   rarityLabel?: string;
   rarityColor?: string;
   rarityIcon?: string;
@@ -17,12 +19,19 @@ export interface ReelStripPlan {
 const DEFAULT_ITEM_WIDTH = 88;
 const DEFAULT_ITEM_GAP = 8;
 
+/** 过滤未关联系统物品的奖池脏数据（与后端 getPool 一致，前端防御） */
+export function filterLinkedLotteryPool(pool: LotteryPoolItem[]): LotteryPoolItem[] {
+  return pool.filter(item => item.itemLinked !== false);
+}
+
 /** 奖池条目 → 滚轮展示项 */
 export function poolItemToReelItem(item: LotteryPoolItem, suffix = ''): ReelStripItem {
   return {
     id: `${item.id}${suffix}`,
     name: item.name,
     rarity: item.rarity,
+    icon: item.icon,
+    itemTypeIcon: item.itemTypeIcon,
     rarityLabel: item.rarityLabel,
     rarityColor: item.rarityColor,
     rarityIcon: item.rarityIcon,
@@ -35,6 +44,8 @@ export function drawItemToReelItem(item: DrawResult['item'], suffix = ''): ReelS
     id: `${item.code}${suffix}`,
     name: item.name,
     rarity: item.rarity,
+    icon: item.icon,
+    itemTypeIcon: item.itemTypeIcon,
     rarityLabel: item.rarityLabel,
     rarityColor: item.rarityColor,
     rarityIcon: item.rarityIcon,
@@ -63,6 +74,8 @@ export function buildReelStrip(
             rarity: winner.rarity,
             active: true,
             sort: 0,
+            icon: winner.icon,
+            itemTypeIcon: winner.itemTypeIcon,
             rarityLabel: winner.rarityLabel,
             rarityColor: winner.rarityColor,
             rarityIcon: winner.rarityIcon,

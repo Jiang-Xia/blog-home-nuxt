@@ -8,8 +8,8 @@ import {
   getRandomAvatar,
   getRandomNickname,
   isPC,
-  resolveStaticUrl,
 } from '~~/utils/common';
+import { resolveStaticUrl } from '~~/utils/static-url';
 import { messageDanger, messageSuccess } from '~~/utils/toast';
 import { debounce } from '~~/utils/index';
 import { rsaEncrypt as rsaEncryptUtil } from '~~/utils/jsencrypt';

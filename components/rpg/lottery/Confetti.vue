@@ -27,8 +27,8 @@ const particleCount = computed(() => {
 
 const palette = computed(() => {
   const map = {
-    common: ['#94a3b8', '#cbd5e1', '#e2e8f0', '#f8fafc'],
-    rare: ['#3b82f6', '#60a5fa', '#93c5fd', '#dbeafe'],
+    common: ['#c8d4e0', '#cbd5e1', '#e2e8f0', '#f8fafc'],
+    rare: ['#22c55e', '#4ade80', '#86efac', '#dcfce7'],
     epic: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ede9fe'],
     legendary: ['#f59e0b', '#fbbf24', '#fde68a', '#fef3c7', '#fff'],
   };

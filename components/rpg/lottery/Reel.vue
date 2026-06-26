@@ -15,6 +15,7 @@ import {
   type ReelStripItem,
 } from '@/utils/lottery-reel';
 import type { DrawResult, LotteryPoolItem } from '~~/types/rpg';
+import { getRarityFallbackColor } from '~~/utils/rpg-rarity';
 
 const props = withDefaults(
   defineProps<{
@@ -47,9 +48,10 @@ let landTimer: ReturnType<typeof setTimeout> | null = null;
 let activeAnimation: Animation | null = null;
 let activeSpinToken = '';
 
-const itemWidth = computed(() => (props.compact ? 56 : LOTTERY_REEL_ITEM_WIDTH));
-const itemGap = computed(() => (props.compact ? 4 : LOTTERY_REEL_ITEM_GAP));
-const itemHeight = computed(() => (props.compact ? 48 : 80));
+const itemWidth = computed(() => (props.compact ? 76 : LOTTERY_REEL_ITEM_WIDTH));
+const itemGap = computed(() => (props.compact ? 10 : LOTTERY_REEL_ITEM_GAP));
+/** 五连 compact：卡片略大，小图标 + 稀有度标签上下分开 */
+const itemHeight = computed(() => (props.compact ? 62 : 80));
 
 const stripStyle = computed(() =>
   isMoving.value ? undefined : { transform: `translateX(-${offsetPx.value}px)` },
@@ -226,10 +228,19 @@ onUnmounted(() => {
           v-for="item in stripPlan?.strip || []"
           :key="item.id"
           class="reel-item"
-          :style="{ borderColor: item.rarityColor || '#94a3b8' }"
+          :style="{ borderColor: item.rarityColor || getRarityFallbackColor() }"
         >
-          <span v-if="item.rarityIcon" class="reel-icon">{{ item.rarityIcon }}</span>
-          <span class="reel-name">{{ item.name }}</span>
+          <RpgItemIcon
+            class="reel-item-icon"
+            :icon="item.icon"
+            :icon-url="item.iconUrl"
+            :bg-url="item.bgUrl"
+            :item-type-icon="item.itemTypeIcon"
+            :rarity-color="item.rarityColor"
+            size="sm"
+            :tinted="true"
+          />
+          <span v-if="!compact" class="reel-name">{{ item.name }}</span>
           <RpgRarityBadge
             class="reel-badge"
             :rarity="item.rarity"
@@ -262,8 +273,8 @@ onUnmounted(() => {
   }
 
   .lottery-reel.compact {
-    padding: 4px 0;
-    border-radius: 8px;
+    padding: 8px 0;
+    border-radius: 12px;
   }
 
   .reel-viewport {
@@ -302,17 +313,34 @@ onUnmounted(() => {
   }
 
   .compact .reel-item {
-    border-radius: 8px;
-    padding: 4px 2px;
+    border-radius: 11px;
+    border-width: 2px;
+    padding: 6px 8px 7px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
   }
 
-  .reel-icon {
-    font-size: 18px;
-    line-height: 1;
+  .reel-item-icon {
+    flex-shrink: 0;
   }
 
-  .compact .reel-icon {
-    font-size: 14px;
+  .compact .reel-item-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    border-radius: 7px;
+  }
+
+  .compact .reel-item-icon :deep(.rpg-loot-icon__img) {
+    width: 66%;
+    height: 66%;
+  }
+
+  .compact .reel-badge {
+    transform: scale(0.84);
+    max-width: 100%;
+    flex-shrink: 0;
   }
 
   .reel-name {
@@ -335,6 +363,21 @@ onUnmounted(() => {
     transform: scale(0.85);
   }
 
+  .compact .reel-pointer {
+    border-top-width: 8px;
+    border-bottom-width: 8px;
+  }
+
+  .compact .reel-pointer--left {
+    left: calc(50% - var(--item-w) / 2 - 14px);
+    border-right-width: 10px;
+  }
+
+  .compact .reel-pointer--right {
+    left: calc(50% + var(--item-w) / 2 + 4px);
+    border-left-width: 10px;
+  }
+
   .reel-highlight {
     position: absolute;
     top: 8px;
@@ -352,9 +395,13 @@ onUnmounted(() => {
   }
 
   .compact .reel-highlight {
-    top: 5px;
-    bottom: 5px;
-    border-radius: 9px;
+    top: 7px;
+    bottom: 7px;
+    border-radius: 12px;
+    border-width: 3px;
+    box-shadow:
+      0 0 28px rgb(251 191 36 / 0.58),
+      inset 0 0 22px rgb(251 191 36 / 0.16);
   }
 
   .reel-pointer {

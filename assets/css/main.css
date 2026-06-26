@@ -293,6 +293,126 @@ html.tech-shell[data-theme='cyber-light'] {
     background-color: var(--tech-btn-secondary-hover-bg);
   }
 
+  .cyber-fab {
+    position: fixed;
+    z-index: 45;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    bottom: max(5.5rem, calc(env(safe-area-inset-bottom, 0px) + 4.5rem));
+  }
+
+  .cyber-fab--right {
+    right: 1rem;
+    align-items: flex-end;
+  }
+
+  .cyber-fab--left {
+    left: 1rem;
+    align-items: flex-start;
+  }
+
+  .cyber-fab__btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border: 1px solid color-mix(in oklch, var(--color-primary) 45%, transparent);
+    border-radius: 1rem;
+    background: linear-gradient(
+      145deg,
+      color-mix(in oklch, var(--color-primary) 22%, transparent),
+      color-mix(in oklch, var(--tech-glass) 92%, transparent)
+    );
+    color: var(--color-primary);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+      0 0 28px var(--tech-primary-glow),
+      inset 0 1px 0 color-mix(in oklch, var(--color-primary) 30%, transparent);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+    cursor: pointer;
+  }
+
+  .cyber-fab__btn:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklch, var(--color-primary) 70%, transparent);
+    box-shadow:
+      0 0 40px var(--tech-primary-glow-hover),
+      inset 0 1px 0 color-mix(in oklch, var(--color-primary) 40%, transparent);
+  }
+
+  .cyber-fab__btn:active {
+    transform: translateY(0);
+  }
+
+  .cyber-fab__glow {
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    background: radial-gradient(
+      circle at 50% 50%,
+      color-mix(in oklch, var(--color-primary) 25%, transparent),
+      transparent 70%
+    );
+    opacity: 0.8;
+    pointer-events: none;
+    animation: cyber-fab-pulse 3s ease-in-out infinite;
+  }
+
+  .cyber-fab__icon {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cyber-fab__hint {
+    pointer-events: none;
+    white-space: nowrap;
+    border-radius: 0.5rem;
+    border: 1px solid var(--tech-border);
+    background: var(--tech-dropdown-bg);
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--tech-section-label);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.12);
+  }
+
+  .cyber-drawer-panel {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--tech-border);
+    border-radius: 1rem;
+    background-color: var(--tech-dropdown-bg);
+    color: var(--tech-fg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow:
+      0 0 40px var(--tech-primary-glow),
+      0 24px 48px rgb(0 0 0 / 0.28);
+    overflow: hidden;
+  }
+
+  .cyber-drawer-panel__accent {
+    height: 3px;
+    background: linear-gradient(
+      to right,
+      var(--tech-gradient-from),
+      var(--tech-gradient-mid),
+      var(--tech-gradient-to)
+    );
+  }
+
   .cyber-nav-link {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
@@ -821,6 +941,19 @@ html.tech-shell :where(.app-layout) {
   50% {
     filter: drop-shadow(0 0 10px color-mix(in oklch, var(--color-primary) 70%, transparent))
       drop-shadow(0 0 18px color-mix(in oklch, var(--color-primary) 40%, transparent));
+  }
+}
+
+@keyframes cyber-fab-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
   }
 }
 

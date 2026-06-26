@@ -56,7 +56,8 @@
 </template>
 
 <script setup lang="ts">
-import { downloadFile, resolveStaticUrl } from '@/utils/common';
+import { downloadFile } from '@/utils/common';
+import { resolveStaticUrl } from '@/utils/static-url';
 import { messageSuccess } from '@/utils/toast';
 
 /** 站点静态示例 PDF（开发走 localhost:5000，生产走网关） */

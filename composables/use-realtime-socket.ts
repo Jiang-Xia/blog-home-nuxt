@@ -4,7 +4,7 @@ import { io, type Socket } from 'socket.io-client';
 import { originUrl } from '~~/config';
 import { getToken } from '@/utils/cookie';
 import { canUseRpgDevMock } from '~~/utils/rpg-dev-mock-guard';
-import type { LevelUpResult } from '~~/types/rpg';
+import type { LevelUpResult, RarityDisplayFields } from '~~/types/rpg';
 
 /**
  * 博客实时推送事件名（与 blog-server modules/core/realtime/constants/ws-events.ts 对齐）
@@ -62,7 +62,7 @@ export interface RpgBanStatusPayload {
 }
 
 /** achievementComplete 事件 */
-export interface RpgAchievementCompletePayload {
+export interface RpgAchievementCompletePayload extends RarityDisplayFields {
   code?: string;
   name?: string;
   achievementName?: string;
@@ -316,13 +316,25 @@ function useRealtimeSocketCore() {
     });
   };
 
-  /** 建立 /realtime 连接；未登录（无 token）时不连接 */
+  /** 建立 /realtime 连接；未登录（无 token）时不连接；切账户时先断开旧连接 */
   const connect = () => {
     if (!import.meta.client) return;
-    if (socket.value?.connected) return;
 
     const authToken = buildAuthToken();
-    if (!authToken) return;
+    if (!authToken) {
+      disconnect();
+      return;
+    }
+
+    const existing = socket.value;
+    if (existing?.connected) {
+      const currentToken = (existing.auth as { token?: string } | undefined)?.token;
+      if (currentToken === authToken) return;
+      disconnect();
+    }
+    else if (existing) {
+      disconnect();
+    }
 
     const newSocket = io(`${originUrl}/realtime`, {
       auth: { token: authToken },

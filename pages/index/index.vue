@@ -132,8 +132,8 @@ const heroStats = computed(() => [
                 </svg>
                 浏览文章
               </CyberButton>
-              <CyberButton variant="secondary" to="/features/rpg-guide" class="home-hero-btn">
-                冒险攻略
+              <CyberButton variant="secondary" to="/tool" class="home-hero-btn">
+                查看工具
               </CyberButton>
             </div>
 

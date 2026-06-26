@@ -14,6 +14,7 @@ export const InfoKey = 'x-userInfo';
 
 const DAY: number = 1; // 一天时间
 const commonCookieOptions = {
+  path: '/',
   secure: typeof window !== 'undefined' ? window.location.protocol === 'https:' : true,
   sameSite: 'Lax' as const,
 };
@@ -22,12 +23,35 @@ export function getToken(key = TokenKey) {
   return Cookies.get(key);
 }
 
+/**
+ * 从 Cookie 请求头解析 token（SSR 用，与 js-cookie 读写同一 key）
+ */
+export function getTokenFromCookieHeader(
+  cookieHeader: string | undefined,
+  key = TokenKey,
+): string | undefined {
+  if (!cookieHeader) {
+    return undefined;
+  }
+  const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${escapedKey}=([^;]*)`));
+  if (!match?.[1]) {
+    return undefined;
+  }
+  try {
+    return decodeURIComponent(match[1]);
+  }
+  catch {
+    return match[1];
+  }
+}
+
 export function setToken(key = TokenKey, token: string, type: string = '', day = DAY) {
   return Cookies.set(key, type + token, { expires: day, ...commonCookieOptions });
 }
 
 export function removeToken(key = TokenKey) {
-  return Cookies.remove(key);
+  return Cookies.remove(key, { path: '/' });
 }
 
 export function getInfo(key = InfoKey) {

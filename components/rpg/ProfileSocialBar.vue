@@ -3,12 +3,12 @@
    * 个人页社交栏：加油 / 砸蛋 / 送花（发送方页面音，收方走 WS 弹窗）
    */
 import { socialCheer, socialEgg, socialFlower } from '~~/api/rpg';
+import { ensureLoggedIn } from '@/composables/use-common';
 import { messageSuccess, messageError } from '~~/utils/toast';
 import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 import type { RpgSynthSfxKey } from '~~/constants/rpg-audio';
 
 defineProps<{ targetUid: number }>();
-const userInfo = useUserInfo();
 const loading = ref(false);
 const { playSfx } = useRpgAudio();
 
@@ -18,7 +18,7 @@ const act = async (
   getLabel?: (_res: any) => string,
   sfx?: RpgSynthSfxKey,
 ) => {
-  if (!userInfo.value?.uid) {
+  if (!(await ensureLoggedIn())) {
     messageError('请先登录');
     return;
   }

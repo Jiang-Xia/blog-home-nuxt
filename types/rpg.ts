@@ -2,7 +2,7 @@
  * RPG 前端类型定义
  *
  * 物品展示约定（与后端 rpg_item_config 对齐）：
- * - 称号/头像框/背包/抽奖等：只用 API 返回的 name、itemTypeLabel、rarityColor 等字段
+ * - 称号/头像框/背包/抽奖等：只用 API 返回的 name、icon、itemTypeLabel、rarityColor 等字段
  * - 禁止新增 AVATAR_FRAME_MAP、RARITY_MAP、ITEM_TYPE_MAP 等本地物品 map
  * - 详见 blog-home-nuxt/.cursor/rules/home-15-rpg-item-display.mdc
  */
@@ -20,6 +20,7 @@ export interface CosmeticItemSummary extends RarityDisplayFields {
   code: string;
   name: string;
   rarity: string;
+  icon?: string;
   color?: string | null;
 }
 
@@ -44,6 +45,7 @@ export interface RpgStatus {
   currency?: number;
   reputation?: number;
   lotteryPityCounter?: number;
+  lotteryLegendaryPityCounter?: number;
   lotteryTickets?: number;
 }
 
@@ -68,7 +70,7 @@ export interface LevelUpResult {
   unlockedRewards: LevelReward[];
 }
 
-/** 等级奖励（展示字段由 GET /rpg/level-rewards 从 rpg_item_config enrich 后返回） */
+/** 等级奖励（展示字段由 GET /rpg/level-rewards 从 level_up 成就 effectJson enrich 后返回） */
 export interface LevelReward {
   level: number;
   currencyReward?: number;
@@ -143,6 +145,10 @@ export interface ItemConfigView {
   rarity: string;
   description?: string;
   icon?: string;
+  /** 管理端上传图标，/static/rpgAssets/itemIcon/{icon}.*，API enrich 勿本地拼 */
+  iconUrl?: string | null;
+  /** 管理端上传背景，/static/rpgAssets/itemBg/{icon}.* */
+  bgUrl?: string | null;
   category?: string;
   effectJson?: Record<string, any> | null;
   itemTypeLabel?: string;
@@ -180,8 +186,22 @@ export interface Achievement {
   code: string;
   name: string;
   description: string;
-  category: 'creation' | 'social' | 'exploration' | 'sign' | 'special';
+  category:
+    | 'creation'
+    | 'social'
+    | 'exploration'
+    | 'sign'
+    | 'special'
+    | 'economy'
+    | 'lottery'
+    | 'pet'
+    | 'guild'
+    | 'author';
   icon: string;
+  rarity: string;
+  rarityLabel?: string;
+  rarityColor?: string;
+  rarityIcon?: string;
   maxProgress: number;
   expReward: number;
   badge: { color: string } | null;
@@ -202,6 +222,11 @@ export const ACHIEVEMENT_CATEGORY_MAP: Record<string, string> = {
   exploration: '探索系',
   sign: '签到系',
   special: '特殊系',
+  economy: '经济系',
+  lottery: '抽奖系',
+  pet: '宠物系',
+  guild: '公会系',
+  author: '作者系',
 };
 
 /** 成就图标映射 */
@@ -258,6 +283,15 @@ export interface QuestStats {
 /** Buff类型 */
 export type BuffType = 'exp_boost' | 'hp_regen' | 'ban_reduction' | 'shield' | 'lucky';
 
+/** 手动经验 Buff 运行时快照（与后端 effectJson 一致） */
+export interface ManualExpBuffMeta {
+  durationMinutes: number;
+  activated: boolean;
+  /** 停用后冻结剩余效果时长 */
+  paused?: boolean;
+  remainingMs?: number;
+}
+
 /** 用户Buff实例 */
 export interface UserBuff {
   id: number;
@@ -269,6 +303,12 @@ export interface UserBuff {
   value: number;
   expireAt: string;
   remainingUses: number;
+  /** auto=获得即生效；manual=需手动激活（经验类） */
+  triggerMode?: 'auto' | 'manual' | 'passive';
+  /** manual 类型须 isActive=true 才参与加成 */
+  isActive?: boolean;
+  /** 手动经验 Buff：durationMinutes + activated */
+  effectJson?: ManualExpBuffMeta | Record<string, unknown> | null;
   createTime: string;
 }
 
@@ -292,9 +332,13 @@ export interface LotteryPoolItem {
   rarity: string;
   active: boolean;
   sort: number;
+  icon?: string;
+  itemTypeIcon?: string;
   rarityLabel?: string;
   rarityColor?: string;
   rarityIcon?: string;
+  /** 是否已关联 rpg_item_config（未关联项不应出现在 C 端奖池） */
+  itemLinked?: boolean;
 }
 
 /** 抽奖结果 */
@@ -305,6 +349,8 @@ export interface DrawResult {
     description: string;
     rarity: string;
     type: string;
+    icon?: string;
+    itemTypeIcon?: string;
     rarityLabel?: string;
     rarityColor?: string;
     rarityIcon?: string;
@@ -321,6 +367,8 @@ export interface LotteryRecord {
   poolRarity: string;
   rewardData: Record<string, any>;
   createTime: string;
+  icon?: string;
+  itemTypeIcon?: string;
   rarityLabel?: string;
   rarityColor?: string;
   rarityIcon?: string;
@@ -345,7 +393,7 @@ export interface PublicProfile {
   level: number;
   reputation: number;
   loadout: any;
-  completedAchievements: any[];
+  completedAchievements: UserAchievementProgress[];
 }
 
 /** 排行榜 period/type 扩展 */
@@ -390,4 +438,36 @@ export interface RpgSocialFeedbackData {
   reputationDelta?: number;
   amount?: number;
   articleTitle?: string;
+}
+
+/** 赛季/限时活动摘要（GET /rpg/activities/current） */
+export interface RpgActivitySummary {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  activityType: string;
+  startTime: string;
+  endTime: string;
+  expBuffRate: number;
+  posterUrl: string;
+  active: boolean;
+}
+
+/** 当前活动概览：赛季主位 + 限时 tag + 实际生效倍率 */
+export interface CurrentActivitiesOverview {
+  season: RpgActivitySummary | null;
+  limitedTime: RpgActivitySummary[];
+  effectiveExpBuffRate: number;
+}
+
+/** 活动海报分享结果 */
+export interface SharePosterResult {
+  posterUrl: string;
+  activityCode: string;
+  activityName: string;
+  activityType: string;
+  description: string;
+  expBuffRate: number;
+  shareUrl: string;
 }

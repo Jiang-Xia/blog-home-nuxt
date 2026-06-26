@@ -4,10 +4,14 @@ import { resolveStaticUrl } from '@/utils/static-url';
 import { SiteTitle } from '@/utils/constant';
 import { getPublicArticles, getPublicCollects, getPublicLikes } from '@/api/profile';
 import { coverAspectRatio } from '@/utils/image-compress';
+import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
+import { isNotFoundError } from '@/utils/api-error';
+import { getRarityBadgePresentation } from '~~/utils/rpg-rarity';
 
 const route = useRoute();
 const uid = computed(() => route.params.uid as string);
-const { profile, articles, collects, likes, loading } = await usePublicProfile(uid);
+const { profile, articles, collects, likes, tabTotals, loading, error }
+  = await usePublicProfile(uid);
 const userInfo = useUserInfo();
 
 const articlesList = ref<any[]>([]);
@@ -33,7 +37,15 @@ watch(
   { immediate: true },
 );
 
-if (!profile.value) {
+if (error.value && !isNotFoundError(error.value)) {
+  throw createError({
+    statusCode: 503,
+    statusMessage: '加载用户主页失败，请稍后重试',
+    fatal: true,
+  });
+}
+
+if (!loading.value && uid.value && !profile.value) {
   throw createError({
     statusCode: 404,
     statusMessage: '用户不存在',
@@ -51,10 +63,14 @@ const switchProfileTab = (key: ProfileTab) => {
   activeTab.value = key;
 };
 
-const tabOptions: { key: ProfileTab; label: string }[] = [
-  { key: 'articles', label: '已发布' },
-  { key: 'collects', label: '收藏' },
-  { key: 'likes', label: '点赞' },
+const tabOptions: {
+  key: ProfileTab;
+  label: string;
+  totalKey: 'articles' | 'collects' | 'likes';
+}[] = [
+  { key: 'articles', label: '已发布', totalKey: 'articles' },
+  { key: 'collects', label: '收藏', totalKey: 'collects' },
+  { key: 'likes', label: '点赞', totalKey: 'likes' },
 ];
 
 const currentList = computed(() => {
@@ -135,8 +151,18 @@ useHead({
   ],
 });
 
-watch([profile, loading], ([currentProfile, isLoading]) => {
-  if (!isLoading && uid.value && !currentProfile) {
+watch([profile, loading, error], ([currentProfile, isLoading, fetchError]) => {
+  if (isLoading || !uid.value) {
+    return;
+  }
+  if (fetchError && !isNotFoundError(fetchError)) {
+    throw createError({
+      statusCode: 503,
+      statusMessage: '加载用户主页失败，请稍后重试',
+      fatal: true,
+    });
+  }
+  if (!currentProfile) {
     throw createError({
       statusCode: 404,
       statusMessage: '用户不存在',
@@ -190,22 +216,25 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
         </h3>
         <div class="flex flex-wrap gap-2">
           <span v-if="profile.loadout.title" class="badge badge-warning gap-1">
-            🏆 {{ profile.loadout.title.name }}
+            {{ resolveRpgItemEmoji(profile.loadout.title) }} {{ profile.loadout.title.name }}
           </span>
           <span v-if="profile.loadout.avatarFrame" class="badge badge-info gap-1">
-            🖼 {{ profile.loadout.avatarFrame.name }}
+            {{ resolveRpgItemEmoji(profile.loadout.avatarFrame) }}
+            {{ profile.loadout.avatarFrame.name }}
           </span>
           <span v-if="profile.loadout.pet" class="badge badge-success gap-1">
-            🐾 {{ profile.loadout.pet.nickname || profile.loadout.pet.config?.name }}
+            {{ resolveRpgItemEmoji(profile.loadout.pet.config) }}
+            {{ profile.loadout.pet.nickname || profile.loadout.pet.config?.name }}
           </span>
         </div>
         <div v-if="profile.completedAchievements?.length" class="mt-3 flex flex-wrap gap-1">
           <span
             v-for="ach in profile.completedAchievements"
-            :key="ach.achievementCode"
-            class="badge badge-outline badge-sm"
+            :key="ach.code"
+            class="badge badge-sm inline-flex items-center gap-1 border"
+            v-bind="getRarityBadgePresentation(ach)"
           >
-            ⭐ {{ ach.name || ach.achievementCode }}
+            {{ ach.rarityIcon || '🏆' }} {{ ach.name || ach.code }}
           </span>
         </div>
       </div>
@@ -220,13 +249,7 @@ watch([profile, loading], ([currentProfile, isLoading]) => {
             @click="switchProfileTab(opt.key)"
           >
             {{ opt.label }}
-            <span class="opacity-70">({{
-              opt.key === 'articles'
-                ? articlesList.length
-                : opt.key === 'collects'
-                  ? collectsList.length
-                  : likesList.length
-            }})</span>
+            <span class="opacity-70">({{ tabTotals[opt.totalKey] ?? 0 }})</span>
           </button>
         </div>
 

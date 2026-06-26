@@ -34,6 +34,7 @@ import {
   activateBuff,
   deactivateBuff,
 } from '~~/api/rpg';
+import { filterLinkedLotteryPool } from '~~/utils/lottery-reel';
 import type {
   BanStatus,
   DrawResult,
@@ -50,6 +51,7 @@ import type {
   UserBuff,
   UserQuestProgress,
   InventoryItem,
+  CurrentActivitiesOverview,
 } from '~~/types/rpg';
 
 /**
@@ -67,8 +69,9 @@ export function useRpgPage() {
   const questGroups = ref<{
     daily: UserQuestProgress[];
     bounty: UserQuestProgress[];
+    weekly: UserQuestProgress[];
     special: UserQuestProgress[];
-  }>({ daily: [], bounty: [], special: [] });
+  }>({ daily: [], bounty: [], weekly: [], special: [] });
   const buffs = ref<UserBuff[]>([]);
   const levelRewards = ref<LevelReward[]>([]);
   const lotteryPool = ref<LotteryPoolItem[]>([]);
@@ -76,7 +79,7 @@ export function useRpgPage() {
   const lotteryHistory = ref<LotteryRecord[]>([]);
   const hitRecords = ref<SensitiveHitRecord[]>([]);
   const hitRecordsTotal = ref(0);
-  const activity = ref<any>(null);
+  const activityOverview = ref<CurrentActivitiesOverview | null>(null);
   const weatherBuff = ref<any>(null);
 
   const inventoryItems = ref<InventoryItem[]>([]);
@@ -103,15 +106,16 @@ export function useRpgPage() {
   /** 已加载过的 Tab，避免切换回来时重复请求静态数据 */
   const loadedTabs = ref(new Set<string>());
 
-  /** 将接口返回的任务数据归一化为 daily/bounty/special 三组 */
+  /** 将接口返回的任务数据归一化为 daily/bounty/weekly/special 四组 */
   const parseQuestGroups = (data: any) => {
     if (Array.isArray(data)) {
-      questGroups.value = { daily: data, bounty: [], special: [] };
+      questGroups.value = { daily: data, bounty: [], weekly: [], special: [] };
     }
     else {
       questGroups.value = {
         daily: data.daily || [],
         bounty: data.bounty || [],
+        weekly: data.weekly || [],
         special: data.special || [],
       };
     }
@@ -149,8 +153,8 @@ export function useRpgPage() {
       buffs.value = buffList;
       lotteryTickets.value = ticketsRes.tickets || 0;
       levelRewards.value = rewards;
-      lotteryPool.value = pool;
-      activity.value = act;
+      lotteryPool.value = filterLinkedLotteryPool(pool);
+      activityOverview.value = act;
       weatherBuff.value = weather;
       loadedTabs.value.add('status');
     }
@@ -433,7 +437,7 @@ export function useRpgPage() {
     }
   };
 
-  /** 手动激活/停用 Buff（仅 triggerMode=manual 生效） */
+  /** 手动激活/停用 Buff（仅 triggerMode=manual） */
   const handleToggleBuff = async (
     buff: UserBuff & { triggerMode?: string; isActive?: boolean },
   ) => {
@@ -540,7 +544,7 @@ export function useRpgPage() {
     lotteryHistory,
     hitRecords,
     hitRecordsTotal,
-    activity,
+    activityOverview,
     weatherBuff,
     inventoryItems,
     loadout,
