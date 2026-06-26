@@ -339,11 +339,11 @@ const toggleHitRecords = () => {
     width: 100%;
     padding: 12px;
     border-radius: 14px;
-    background: var(--rpg-loot-bg);
-    border: 1px solid var(--rpg-loot-border);
-    box-shadow: var(--rpg-loot-shadow), var(--rpg-loot-inset);
-    backdrop-filter: var(--rpg-loot-backdrop);
-    -webkit-backdrop-filter: var(--rpg-loot-backdrop);
+    background: var(--rpg-surface);
+    border: 1px solid var(--rpg-border-subtle);
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .role-badge {
@@ -352,8 +352,8 @@ const toggleHitRecords = () => {
     gap: 8px;
     padding: 8px 12px;
     border-radius: 10px;
-    border: 2px solid;
-    background: var(--rpg-amber-bg-gradient);
+    border: 1px solid;
+    background: var(--rpg-amber-bg);
     margin-bottom: 12px;
   }
 

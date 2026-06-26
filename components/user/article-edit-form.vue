@@ -13,7 +13,7 @@ import { createArticle, editArticle, getArticleInfo, uploadArticleImage } from '
 import { getAllCategory } from '@/api/category';
 import { getAllTag } from '@/api/tag';
 import { uploadCover, parseUploadedUrl } from '@/api/resources';
-import { resolveStaticUrl } from '@/utils/common';
+import { resolveStaticUrl } from '@/utils/static-url';
 import { messageDanger, messageSuccess } from '@/utils/toast';
 import { useRpgModal } from '@/composables/use-rpg-modal';
 import { COVER_IMAGE, coverAspectRatio } from '@/utils/image-compress';

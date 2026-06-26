@@ -479,14 +479,14 @@ const onLeaveGuild = async () => {
       <client-only>
         <div
           v-if="!isLoggedIn"
-          class="cyber-glass-card p-8 text-center text-[var(--rpg-text-muted)]"
+          class="rpg-page-section p-8 text-center text-[var(--rpg-text-muted)]"
         >
           请先登录以查看冒险数据
         </div>
 
         <template v-else>
           <div v-if="activeTab === 'status'">
-            <div class="cyber-glass-card p-3 sm:p-5">
+            <div class="rpg-page-section p-3 sm:p-5">
               <div class="card-body p-2 sm:p-5">
                 <RpgProfileCard
                   v-if="!statusLoading && rpgStatus"
@@ -510,7 +510,7 @@ const onLeaveGuild = async () => {
                 <RpgPanelLoading v-else compact />
               </div>
             </div>
-            <div class="cyber-glass-card mt-5 p-3 sm:p-5">
+            <div class="rpg-page-section mt-5 p-3 sm:p-5">
               <div class="card-body p-2 sm:p-5">
                 <RpgLevelRewardsPanel
                   :rpg-status="rpgStatus"
@@ -519,7 +519,7 @@ const onLeaveGuild = async () => {
                 />
               </div>
             </div>
-            <div class="cyber-glass-card mt-5 p-3 sm:p-5">
+            <div class="rpg-page-section mt-5 p-3 sm:p-5">
               <div class="card-body p-2 sm:p-5">
                 <RpgDevEventPanel v-if="isDev" compact :context="{ status: rpgStatus }" />
                 <RpgLotteryDrawMockBar v-if="isDev" :status="rpgStatus" />
@@ -539,7 +539,7 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'inventory'">
-            <div class="cyber-glass-card p-3 sm:p-5">
+            <div class="rpg-page-section p-3 sm:p-5">
               <div class="card-body p-2 sm:p-5">
                 <RpgInventoryPanel
                   :items="inventoryItems"
@@ -553,7 +553,7 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'pet'">
-            <div class="cyber-glass-card p-3 sm:p-5">
+            <div class="rpg-page-section p-3 sm:p-5">
               <div class="card-body p-2 sm:p-5">
                 <RpgPetPanel
                   :pets="pets"
@@ -572,7 +572,7 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'guild'">
-            <div class="cyber-glass-card p-3 sm:p-5">
+            <div class="rpg-page-section p-3 sm:p-5">
               <div class="card-body p-2 sm:p-5">
                 <RpgGuildPanel
                   :my-guild="myGuild"
@@ -587,7 +587,7 @@ const onLeaveGuild = async () => {
           </div>
 
           <div v-if="activeTab === 'leaderboard'">
-            <div class="cyber-glass-card p-3 sm:p-5">
+            <div class="rpg-page-section p-3 sm:p-5">
               <div class="card-body p-2 sm:p-5">
                 <h3 class="card-title text-base mb-3">
                   冒险排行榜

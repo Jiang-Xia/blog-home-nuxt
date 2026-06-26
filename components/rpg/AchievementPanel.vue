@@ -11,16 +11,6 @@ import {
   shouldUseSilverRarityStyle,
 } from '~~/utils/rpg-rarity';
 
-/** 成就卡片完成态：边框随稀有度，背景走主题 CSS 变量 */
-const achievementCardStyle = (ach: UserAchievementProgress) => {
-  if (!ach.completed) return undefined;
-  if (shouldUseSilverRarityStyle(ach)) {
-    return { borderColor: 'var(--rpg-rarity-silver-border)' };
-  }
-  if (!ach.rarityColor) return undefined;
-  return { borderColor: ach.rarityColor };
-};
-
 /** 成就图标底：银色用 CSS 渐变 class */
 const achievementIconStyle = (ach: UserAchievementProgress) => {
   if (shouldUseSilverRarityStyle(ach) || isSilverRarityColor(ach.rarityColor)) return undefined;
@@ -63,6 +53,19 @@ const filteredAchievements = computed(() => {
   if (activeCategory.value === 'all') return props.achievements;
   return groupedAchievements.value[activeCategory.value] || [];
 });
+
+/** 默认隐藏未开始的锁定成就，减轻首屏卡片密度 */
+const showLocked = ref(false);
+
+const displayedAchievements = computed(() => {
+  const list = filteredAchievements.value;
+  if (showLocked.value) return list;
+  return list.filter(a => a.completed || a.progress > 0);
+});
+
+const hiddenLockedCount = computed(
+  () => filteredAchievements.value.filter(a => !a.completed && a.progress === 0).length,
+);
 
 const categories = computed(() => {
   return Object.keys(groupedAchievements.value).map(key => ({
@@ -133,13 +136,12 @@ const categories = computed(() => {
     <!-- 成就列表 -->
     <div class="rpg-loot-grid rpg-loot-grid--compact ach-list">
       <div
-        v-for="ach in filteredAchievements"
+        v-for="ach in displayedAchievements"
         :key="ach.code"
         class="rpg-loot-card rpg-loot-card--achievement"
         :class="{
           'rpg-loot-card--locked': !ach.completed,
         }"
-        :style="achievementCardStyle(ach)"
       >
         <div class="rpg-loot-card-head">
           <div
@@ -162,7 +164,7 @@ const categories = computed(() => {
         <div class="rpg-loot-desc">
           {{ ach.description }}
         </div>
-        <div v-if="ach.maxProgress > 1" class="rpg-loot-progress">
+        <div class="rpg-loot-progress">
           <div
             class="rpg-loot-progress__fill rpg-loot-progress__fill--exp"
             :style="{ width: Math.min(100, (ach.progress / ach.maxProgress) * 100) + '%' }"
@@ -177,10 +179,7 @@ const categories = computed(() => {
               :rarity-color="ach.rarityColor"
               :rarity-icon="ach.rarityIcon"
             />
-            <span v-if="ach.maxProgress > 1" class="rpg-loot-progress-text">
-              {{ ach.progress }}/{{ ach.maxProgress }}
-            </span>
-            <span v-else class="rpg-loot-status rpg-loot-status--pending">单次成就</span>
+            <span class="rpg-loot-progress-text"> {{ ach.progress }}/{{ ach.maxProgress }} </span>
             <div v-if="ach.expReward" class="rpg-loot-rewards">
               <span class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">⭐ +{{ ach.expReward }}</span>
             </div>
@@ -188,6 +187,15 @@ const categories = computed(() => {
         </div>
       </div>
     </div>
+
+    <button
+      v-if="hiddenLockedCount > 0"
+      type="button"
+      class="ach-expand-btn"
+      @click="showLocked = !showLocked"
+    >
+      {{ showLocked ? '收起未开始成就' : `展开未开始成就 (${hiddenLockedCount})` }}
+    </button>
   </div>
 </template>
 
@@ -264,5 +272,29 @@ const categories = computed(() => {
 
   .ach-list .rpg-loot-card {
     min-height: 136px;
+  }
+
+  .ach-expand-btn {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border: 1px dashed var(--rpg-border-subtle);
+    border-radius: 8px;
+    background: transparent;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--rpg-text-secondary);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .ach-expand-btn:hover {
+    color: var(--rpg-text-body);
+    border-color: var(--rpg-border);
+    background: var(--rpg-stat-hover);
   }
 </style>

@@ -112,13 +112,11 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
                 :rarity-icon="c.rarityIcon"
               />
             </div>
-            <div class="rpg-loot-footer">
+            <div class="rpg-loot-footer rpg-loot-footer--center">
               <button v-if="canExchange(c)" class="rpg-loot-claim-btn w-full" @click="handleBuy(c)">
                 💎 {{ c.effectJson?.currencyCost }} 兑换
               </button>
-              <span v-else class="rpg-loot-status rpg-loot-status--pending w-full justify-center">
-                已拥有
-              </span>
+              <span v-else class="rpg-loot-owned-mark">已拥有</span>
             </div>
           </div>
         </div>

@@ -248,7 +248,7 @@ export function buildDefaultRpgMockPayload(
       config: {
         name: '抽奖称号·作家',
         rarityLabel: '稀有',
-        rarityColor: '#3b82f6',
+        rarityColor: '#22c55e',
         itemTypeLabel: '称号',
       },
     } satisfies RpgItemGrantedPayload,

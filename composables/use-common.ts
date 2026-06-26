@@ -48,8 +48,6 @@ export const syncAuthTokensFromCookie = (): { access?: string; refresh?: string 
   return { access, refresh };
 };
 
-export { readAccessToken, readRefreshToken } from '@/utils/auth-token-state';
-
 /**
  * 导航/UI 用登录态：state 与 Cookie 任一侧有效即视为已登录
  * （线上 refresh 后常见 Cookie 在但 useToken 尚未 hydration 同步）

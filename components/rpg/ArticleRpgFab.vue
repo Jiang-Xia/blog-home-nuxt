@@ -132,7 +132,7 @@ watch(
         <div
           tabindex="0"
           role="button"
-          class="btn btn-circle btn-primary rpg-fab-bounce text-xl shadow-lg ring-2 ring-[var(--rpg-amber-border)]"
+          class="btn btn-circle btn-primary text-xl shadow-lg ring-2 ring-[var(--rpg-amber-border)]"
           @click="fabOpen = true"
         >
           ⚔️

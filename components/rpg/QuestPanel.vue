@@ -69,6 +69,23 @@ const QUEST_ICON_MAP: Record<string, string> = {
 
 const totalCompleted = computed(() => currentQuests.value.filter(q => q.completed).length);
 const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed && !q.claimed));
+
+/** 默认折叠已领取任务，优先展示可领与进行中 */
+const showCompleted = ref(false);
+
+const questRank = (q: UserQuestProgress) => {
+  if (q.completed && !q.claimed) return 0;
+  if (!q.completed) return 1;
+  return 2;
+};
+
+const sortedQuests = computed(() => {
+  const quests = [...currentQuests.value].sort((a, b) => questRank(a) - questRank(b));
+  if (showCompleted.value) return quests;
+  return quests.filter(q => !q.claimed);
+});
+
+const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.claimed).length);
 </script>
 
 <template>
@@ -101,7 +118,7 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
 
     <div v-else class="rpg-loot-grid quest-list">
       <div
-        v-for="quest in currentQuests"
+        v-for="quest in sortedQuests"
         :key="quest.code"
         class="rpg-loot-card rpg-loot-card--quest"
         :class="{
@@ -115,6 +132,7 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
             {{ QUEST_ICON_MAP[quest.targetAction] || '📋' }}
           </div>
           <span v-if="quest.claimed" class="rpg-loot-status rpg-loot-status--done">✓ 已领</span>
+          <span v-else-if="!quest.completed" class="rpg-loot-status rpg-loot-status--pending">进行中</span>
         </div>
         <div class="rpg-loot-name">
           {{ quest.name }}
@@ -138,20 +156,27 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
               </span>
             </div>
           </div>
-          <div class="rpg-loot-action">
+          <div v-if="quest.completed && !quest.claimed" class="rpg-loot-action">
             <button
-              v-if="quest.completed && !quest.claimed"
               class="rpg-loot-claim-btn"
               :disabled="claimingCode === quest.code"
               @click="handleClaim(quest.code)"
             >
               {{ claimingCode === quest.code ? '...' : '领取奖励' }}
             </button>
-            <span v-else-if="!quest.completed" class="rpg-loot-status rpg-loot-status--pending">进行中</span>
           </div>
         </div>
       </div>
     </div>
+
+    <button
+      v-if="hiddenCompletedCount > 0"
+      type="button"
+      class="quest-expand-btn"
+      @click="showCompleted = !showCompleted"
+    >
+      {{ showCompleted ? '收起已领取' : `展开已领取 (${hiddenCompletedCount})` }}
+    </button>
 
     <div
       v-if="
@@ -203,17 +228,6 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
     background: var(--rpg-amber-bg);
     padding: 2px 8px;
     border-radius: 4px;
-    animation: pulse 1.5s infinite;
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.6;
-    }
   }
 
   .quest-empty {
@@ -240,5 +254,29 @@ const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed &&
     padding: 8px;
     background: var(--rpg-success-bg);
     border-radius: 8px;
+  }
+
+  .quest-expand-btn {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border: 1px dashed var(--rpg-border-subtle);
+    border-radius: 8px;
+    background: transparent;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--rpg-text-secondary);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .quest-expand-btn:hover {
+    color: var(--rpg-text-body);
+    border-color: var(--rpg-border);
+    background: var(--rpg-stat-hover);
   }
 </style>

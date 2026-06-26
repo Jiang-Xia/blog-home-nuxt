@@ -2,6 +2,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import { buildThemeBootScript } from './constants/theme-tone';
 import { scripts } from './config';
+import { SiteTitle } from './utils/constant';
 
 const prefixPath = process.env.VITE_NUXT_PREFIX_PATH || '/api';
 const originUrl = process.env.VITE_NUXT_ORIGIN_URL || '';
@@ -64,6 +65,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   site: {
     url: originUrl || 'https://jiang-xia.top',
+    name: SiteTitle,
   },
   ui: {
     prefix: 'U',
@@ -143,6 +145,19 @@ export default defineNuxtConfig({
   },
   sitemap: {
     sources: ['/api/__sitemap__/urls'],
+    // 排除无参重定向页、登录注册、pages 下误收录的工具源码路径
+    exclude: [
+      '/404',
+      '/login',
+      '/register',
+      '/detail',
+      '/user/article/**',
+      '/user/profile',
+      '/tool/**/components/**',
+      '/tool/components/**',
+      '/tool/upload-slice/worker',
+      new RegExp('^/tool/photos/(constants|photo-)'),
+    ],
   },
   stylelint: {
     /* module options */

@@ -68,17 +68,17 @@ export interface RpgItemIconSource {
 
 /** 将 API icon 键解析为 emoji；优先 config.icon，其次 itemTypeIcon，最后 📦 */
 export function resolveRpgItemEmoji(source?: RpgItemIconSource | null): string {
-  if (!source) return ITEM_ICON_MAP.default;
+  if (!source) return ITEM_ICON_MAP.default ?? '📦';
   const key = source.icon?.trim();
   if (key && key !== 'default') {
     const mapped = ITEM_ICON_MAP[key];
     if (mapped) return mapped;
   }
   if (source.itemTypeIcon) return source.itemTypeIcon;
-  return ITEM_ICON_MAP.default;
+  return ITEM_ICON_MAP.default ?? '📦';
 }
 
-/** 稀有度着色底：优先 rarityColor，头像框可用 frameColor */
+/** 稀有度着色底：优先 API rarityColor，头像框可用 frameColor */
 export function resolveRpgItemTint(
   source?: { rarityColor?: string | null; color?: string | null } | null,
 ): string | undefined {

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 /**
-   * 成就达成弹窗（背景/光晕随 API 下发的 rarityColor 变化）
+   * 成就达成弹窗：弹框配色统一；仅图标方块底色随稀有度
    */
+import { resolveRarityDisplayColor } from '~~/utils/rpg-rarity';
+
 const props = defineProps<{
   visible: boolean;
   name: string;
@@ -17,20 +19,12 @@ const emit = defineEmits<{
 
 const { playSfx } = useRpgAudio();
 
-const accentColor = computed(() => props.rarityColor || '#f59e0b');
-
-const modalStyle = computed(() => {
-  const c = accentColor.value;
-  return {
-    'background': `linear-gradient(135deg, color-mix(in srgb, ${c} 18%, #fff) 0%, color-mix(in srgb, ${c} 32%, #fef3c7) 48%, color-mix(in srgb, ${c} 55%, #fde68a) 100%)`,
-    'boxShadow': `0 20px 60px rgba(0, 0, 0, 0.35), 0 0 48px color-mix(in srgb, ${c} 35%, transparent)`,
-    '--ach-accent': c,
-    '--ach-text': `color-mix(in srgb, ${c} 72%, #451a03)`,
-    '--ach-text-soft': `color-mix(in srgb, ${c} 58%, #78350f)`,
-    '--ach-btn-bg': `color-mix(in srgb, ${c} 70%, #451a03)`,
-    '--ach-btn-text': `color-mix(in srgb, ${c} 12%, #fff)`,
-  } as Record<string, string>;
-});
+const iconStyle = computed(() => ({
+  background: resolveRarityDisplayColor({
+    rarityColor: props.rarityColor,
+    rarityLabel: props.rarityLabel,
+  }),
+}));
 
 /** 成就弹窗展示时播放庆祝音 */
 watch(
@@ -49,12 +43,12 @@ const handleClose = () => {
   <Teleport to="body">
     <Transition name="achievement">
       <div v-if="visible" class="achievement-overlay" @click="handleClose">
-        <div class="achievement-modal" :style="modalStyle" @click.stop>
-          <div class="achievement-icon">
+        <div class="achievement-modal" @click.stop>
+          <div class="achievement-icon rpg-loot-icon rpg-loot-icon--tinted" :style="iconStyle">
             {{ rarityIcon || '🏆' }}
           </div>
           <div class="achievement-badge">
-            成就达成<span v-if="rarityLabel" class="achievement-rarity"> · {{ rarityLabel }}</span>
+            成就达成
           </div>
           <div class="achievement-name">
             {{ name }}
@@ -88,35 +82,36 @@ const handleClose = () => {
     text-align: center;
     min-width: 280px;
     max-width: 380px;
+    background: var(--rpg-amber-bg-gradient);
+    border: 1px solid var(--rpg-amber-border);
+    box-shadow:
+      0 20px 60px rgb(15 23 42 / 0.28),
+      0 0 40px rgb(245 158 11 / 0.18);
     animation: modalGlow 2.4s ease-in-out infinite;
   }
 
   .achievement-icon {
-    font-size: 52px;
-    line-height: 1;
-    margin-bottom: 8px;
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 12px;
+    font-size: 28px;
+    border-radius: 14px;
     animation: iconBounce 0.9s ease infinite;
-    filter: drop-shadow(0 4px 8px color-mix(in srgb, var(--ach-accent) 28%, transparent));
   }
 
   .achievement-badge {
     font-size: 14px;
     font-weight: 800;
-    color: var(--ach-text-soft);
+    color: var(--rpg-amber-text-soft);
     margin-bottom: 12px;
     letter-spacing: 0.12em;
     animation: badgePulse 1.1s ease infinite;
   }
 
-  .achievement-rarity {
-    letter-spacing: 0.04em;
-    opacity: 0.92;
-  }
-
   .achievement-name {
     font-size: 22px;
     font-weight: 800;
-    color: var(--ach-text);
+    color: var(--rpg-amber-text);
     margin-bottom: 10px;
     line-height: 1.35;
     animation: gentleFloat 2.6s ease-in-out infinite;
@@ -125,7 +120,7 @@ const handleClose = () => {
   .achievement-reward {
     font-size: 17px;
     font-weight: 800;
-    color: var(--ach-text-soft);
+    color: var(--rpg-amber-dark);
     margin-bottom: 22px;
     animation: rewardPulse 1.6s ease-in-out infinite;
   }
@@ -134,8 +129,8 @@ const handleClose = () => {
     padding: 10px 28px;
     border: none;
     border-radius: 999px;
-    background: var(--ach-btn-bg);
-    color: var(--ach-btn-text);
+    background: var(--rpg-level-badge-gradient);
+    color: #fffbeb;
     font-weight: 700;
     font-size: 14px;
     cursor: pointer;

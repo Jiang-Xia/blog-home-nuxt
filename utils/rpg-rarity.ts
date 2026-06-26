@@ -16,7 +16,7 @@ const LABEL_TO_TIER: Record<string, RarityTier> = {
 /** 后端标准稀有度色 → tier（色值识别时用） */
 const KNOWN_RARITY_COLORS: Record<string, RarityTier> = {
   '#c8d4e0': 'common',
-  '#3b82f6': 'rare',
+  '#22c55e': 'rare',
   '#8b5cf6': 'epic',
   '#f59e0b': 'legendary',
 };
@@ -123,6 +123,11 @@ export function getRarityInlineStyle(
   return getRarityBadgePresentation(fields).style;
 }
 
+/** 稀有度展示色：直接使用 API 下发的 rarityColor */
+export function resolveRarityDisplayColor(fields: RarityDisplayFields): string {
+  return fields.rarityColor || getRarityFallbackColor();
+}
+
 /** 稀有度展示色回退（无 API 字段时） */
 export function getRarityFallbackColor(): string {
   return RARITY_SILVER_COLOR;
@@ -145,7 +150,7 @@ export function rankToConfettiTier(rank: number): RarityTier {
 export function getRarityGlow(tier: RarityTier): string {
   const map: Record<RarityTier, string> = {
     common: '0 0 28px rgba(200, 212, 224, 0.45)',
-    rare: '0 0 36px rgba(59, 130, 246, 0.55)',
+    rare: '0 0 36px rgba(34, 197, 94, 0.55)',
     epic: '0 0 48px rgba(139, 92, 246, 0.65)',
     legendary: '0 0 60px rgba(245, 158, 11, 0.85)',
   };
