@@ -13,6 +13,11 @@ export const getUnreadNotificationCount = () => {
   return request.get('/notification/unread-count');
 };
 
+/** 断线补漏：拉 seq 之后错过的站内通知并回放 */
+export const getNotificationsSince = (seq: number) => {
+  return request.get('/notification/since', { seq });
+};
+
 /** 标记已读；不传 id 则全部已读 */
 export const markNotificationsRead = (id?: number) => {
   const qs = id ? `?id=${id}` : '';

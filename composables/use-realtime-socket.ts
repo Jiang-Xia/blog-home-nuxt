@@ -3,8 +3,12 @@ import { createSharedComposable } from '@vueuse/core';
 import { io, type Socket } from 'socket.io-client';
 import { originUrl } from '~~/config';
 import { getToken } from '@/utils/cookie';
+import { getNotificationsSince } from '@/api/notification';
 import { canUseRpgDevMock } from '~~/utils/rpg-dev-mock-guard';
 import type { LevelUpResult, RarityDisplayFields } from '~~/types/rpg';
+
+/** true 时回退 Socket.IO（Nest）；默认原生 WebSocket（blog-server-go） */
+const useSocketIO = import.meta.env.VITE_NUXT_USE_SOCKET_IO === 'true';
 
 /**
  * 博客实时推送事件名（与 blog-server modules/core/realtime/constants/ws-events.ts 对齐）
@@ -265,15 +269,21 @@ const ALL_EVENTS: RealtimeSocketEvent[] = [
 
 /**
  * 博客实时 WebSocket 连接 composable（全站单例）
- * 连接后端 /realtime namespace，接收 RPG、站内通知等推送
+ * 默认原生 WS GET /realtime；VITE_NUXT_USE_SOCKET_IO=true 时回退 Socket.IO
  */
 function useRealtimeSocketCore() {
-  const socket = ref<Socket | null>(null);
+  const socket = ref<Socket | WebSocket | null>(null);
   const connected = ref(false);
   const refreshHandlers = new Set<RpgRefreshHandler>();
   const listeners = Object.fromEntries(
     ALL_EVENTS.map(e => [e, new Set<RealtimeSocketListener>()]),
   ) as Record<RealtimeSocketEvent, Set<RealtimeSocketListener>>;
+
+  let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+  let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
+  let reconnectAttempts = 0;
+  let lastSeq = 0;
+  let currentWsURL = '';
 
   const emitToListeners = (event: RealtimeSocketEvent, data: unknown) => {
     listeners[event].forEach(fn => fn(data));
@@ -298,6 +308,128 @@ function useRealtimeSocketCore() {
     return token ? `Bearer ${token}` : '';
   };
 
+  const buildWsURL = () => {
+    const raw = getToken();
+    if (!raw) return '';
+    const wsOrigin = originUrl.replace(/^http/i, 'ws');
+    return `${wsOrigin}/realtime?token=${encodeURIComponent(raw)}`;
+  };
+
+  const routeNativeMessage = (msg: { type?: string; seq?: number; data?: unknown }) => {
+    if (!msg.type || msg.type === 'pong') return;
+    if (typeof msg.seq === 'number' && msg.seq > 0) {
+      lastSeq = Math.max(lastSeq, msg.seq);
+    }
+    if (!ALL_EVENTS.includes(msg.type as RealtimeSocketEvent)) return;
+    let data = msg.data;
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      }
+      catch {
+        return;
+      }
+    }
+    emitToListeners(msg.type as RealtimeSocketEvent, data);
+  };
+
+  const replayNotificationsSince = async () => {
+    if (lastSeq <= 0) return;
+    try {
+      const list = (await getNotificationsSince(lastSeq)) as {
+        id: number;
+        type: string;
+        payload: Record<string, unknown>;
+        read: number;
+        createTime: string;
+      }[];
+      if (!Array.isArray(list)) return;
+      for (const item of list) {
+        lastSeq = Math.max(lastSeq, item.id);
+        emitToListeners('siteNotification', {
+          notification: {
+            id: item.id,
+            type: item.type,
+            payload: item.payload,
+            read: item.read === 1,
+            createTime: item.createTime,
+          },
+        });
+      }
+    }
+    catch {
+      // 补漏失败不阻断 WS
+    }
+  };
+
+  const stopHeartbeat = () => {
+    if (heartbeatTimer) {
+      clearInterval(heartbeatTimer);
+      heartbeatTimer = undefined;
+    }
+  };
+
+  const startNativeHeartbeat = (ws: WebSocket) => {
+    stopHeartbeat();
+    heartbeatTimer = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'ping' }));
+      }
+    }, 20000);
+  };
+
+  const scheduleReconnect = () => {
+    if (reconnectTimer) clearTimeout(reconnectTimer);
+    const delay = Math.min(1000 * 2 ** reconnectAttempts, 30000);
+    const jitter = Math.random() * 1000;
+    reconnectTimer = setTimeout(() => {
+      reconnectAttempts += 1;
+      connect();
+    }, delay + jitter);
+  };
+
+  const connectNative = () => {
+    const url = buildWsURL();
+    if (!url) {
+      disconnect();
+      return;
+    }
+
+    const existing = socket.value;
+    if (existing instanceof WebSocket) {
+      if (existing.readyState === WebSocket.OPEN && currentWsURL === url) return;
+      disconnect();
+    }
+
+    const ws = new WebSocket(url);
+    currentWsURL = url;
+    socket.value = ws;
+
+    ws.onopen = () => {
+      connected.value = true;
+      reconnectAttempts = 0;
+      startNativeHeartbeat(ws);
+      void replayNotificationsSince();
+    };
+
+    ws.onmessage = (e) => {
+      try {
+        routeNativeMessage(JSON.parse(e.data as string));
+      }
+      catch {
+        // ignore malformed
+      }
+    };
+
+    ws.onclose = () => {
+      connected.value = false;
+      stopHeartbeat();
+      if (getToken()) scheduleReconnect();
+    };
+
+    ws.onerror = () => ws.close();
+  };
+
   const bindSocketEvents = (s: Socket) => {
     s.on('connect', () => {
       connected.value = true;
@@ -316,10 +448,7 @@ function useRealtimeSocketCore() {
     });
   };
 
-  /** 建立 /realtime 连接；未登录（无 token）时不连接；切账户时先断开旧连接 */
-  const connect = () => {
-    if (!import.meta.client) return;
-
+  const connectSocketIO = () => {
     const authToken = buildAuthToken();
     if (!authToken) {
       disconnect();
@@ -327,7 +456,7 @@ function useRealtimeSocketCore() {
     }
 
     const existing = socket.value;
-    if (existing?.connected) {
+    if (existing && 'connected' in existing && existing.connected) {
       const currentToken = (existing.auth as { token?: string } | undefined)?.token;
       if (currentToken === authToken) return;
       disconnect();
@@ -355,10 +484,33 @@ function useRealtimeSocketCore() {
     socket.value = newSocket;
   };
 
+  /** 建立 /realtime 连接；未登录（无 token）时不连接；切账户时先断开旧连接 */
+  const connect = () => {
+    if (!import.meta.client) return;
+    if (useSocketIO) {
+      connectSocketIO();
+    }
+    else {
+      connectNative();
+    }
+  };
+
   const disconnect = () => {
-    socket.value?.disconnect();
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = undefined;
+    }
+    stopHeartbeat();
+    const s = socket.value;
+    if (s instanceof WebSocket) {
+      s.close();
+    }
+    else if (s && 'disconnect' in s) {
+      s.disconnect();
+    }
     socket.value = null;
     connected.value = false;
+    currentWsURL = '';
   };
 
   /** 开发/测试页：本地注入 WS 事件，走与真推送相同的 on() 监听链 */
@@ -366,6 +518,8 @@ function useRealtimeSocketCore() {
     if (!canUseRpgDevMock()) return;
     emitToListeners(event, data);
   };
+
+  onUnmounted(() => disconnect());
 
   return {
     socket,
