@@ -44,8 +44,9 @@ declare const ExifReader: any; // photo-worker 内使用
 declare const JSZip: any; // /tool/watermark 用到
 declare const JsBarcode: any; // /tool/codes 用到
 declare const html2pdf: any; // /tool/test 用到
-declare const SmoothSignature: any; // /tool/pdf 用到
+declare const SmoothSignature: any; // /tool/pdf、xia-agreement-sign 用到
 declare const QRCode: any; // /tool/codes 用到
 declare const sm2: any; // /tool/sm 用到（CDN 脚本挂载在 window.sm2）
+declare const sm4: any; // /tool/des 用到（CDN 脚本挂载在 window.sm4）
 
 /* cdn end */

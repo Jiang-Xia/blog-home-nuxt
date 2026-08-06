@@ -53,7 +53,7 @@ Blog Home Nuxt 是一个基于现代前端技术栈构建的个人博客系统�
 ### 🛠️ 实用工具
 - **代码生成器**：条形码、二维码生成
 - **图片处理**：图片滤镜、批量处理、导出功能
-- **加密工具**：RSA、SM2/SM3/SM4 国密算法
+- **加密工具**：对称（AES/DES/RC4/Rabbit/TripleDES/SM4）、RSA、国密 SM2
 - **音视频工具**：音频可视化、WebRTC 视频聊天
 - **文件处理**：PDF 查看、文件上传切片
 - **AI 工具**：集成 AI 对话功能
@@ -239,6 +239,10 @@ yarn dev:ip
 | `/tool/webrtc` | WebRTC 调试（媒体采集、本页回环、双 Tab P2P） |
 | `/tool/ai-summary` | AI 文章摘要（Nitro SSE 代理 DeepSeek，需 `AI_SUMMARY_API_KEY`） |
 | `/tool/pdf` | PDF 预览与电子签名（支持本地上传、`?file=` 远程 URL） |
+| `/tool/pdf-h5` | H5 协议签署（滚到底部 + 倒计时 → 手写签名，组件 `xia-agreement-sign`） |
+| `/tool/des` | 对称加密（AES/DES/RC4/Rabbit/TripleDES/SM4） |
+| `/tool/sm` | 国密 SM2 加解密与密钥生成 |
+| `/tool/rsa` | RSA 加解密与密钥生成 |
 
 ### 生产构建
 

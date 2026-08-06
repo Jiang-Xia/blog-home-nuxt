@@ -67,6 +67,7 @@ export const SCRIPTS = {
   JSENCRYPT:
     'https://jiang-xia.top/x-blog/api/v1/static/uploads/2025-10/7746c5c31ccc4ae0b972fc1a5b8f1152-jsencrypt.min.js',
   SM2: '/js/cdn/sm-crypto/sm2.min.js',
+  SM4: '/js/cdn/sm-crypto/sm4.min.js',
 
   // 工具类
   JSZIP: 'https://cdn.staticfile.net/jszip/3.10.1/jszip.min.js',
@@ -102,6 +103,13 @@ export function loadRsaScript(): Promise<void> {
  */
 export function loadSm2Script(): Promise<void> {
   return loadScript(SCRIPTS.SM2);
+}
+
+/**
+ * 加载国密 SM4 脚本（对称加密工具按需加载）
+ */
+export function loadSm4Script(): Promise<void> {
+  return loadScript(SCRIPTS.SM4);
 }
 
 /**
