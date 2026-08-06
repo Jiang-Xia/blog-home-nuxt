@@ -8,6 +8,7 @@
     "build:test": "nuxt build --dotenv .env.test",
     "build:report": "nuxt analyze",
     "dev": "nuxt dev --port 5050 --dotenv .env.development",
+    "dev:nest-online": "nuxt dev --port 5050 --dotenv .env.nest-online",
     "dev:go-online": "nuxt dev --port 5050 --dotenv .env.go-online",
     "dev:ip": "nuxt dev --port 5050 --host 0.0.0.0 --dotenv .env.development",
     "deploy": "powershell -ExecutionPolicy Bypass -File deploy/pm2/deploy.ps1",

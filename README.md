@@ -197,14 +197,23 @@ npm install
 ### 开发环境
 
 ```bash
-# 启动开发服务器
+# 启动开发服务器（本机 Nest :5000）
 yarn dev
+
+# 本地前端 → 线上 Nest（无需本机起 blog-server）
+yarn dev:nest-online
 
 # 或指定 IP 访问（局域网 / 手机调试）
 yarn dev:ip
 ```
 
-手机访问 `http://<电脑局域网IP>:5050` 时，API 与静态资源均经 Nuxt 代理（`/blog-api`、`/static`），无需改 `VITE_NUXT_ORIGIN_URL`。请确保 **blog-server 已启动**（端口 5000）且防火墙放行 5050。
+| 命令 | dotenv | 后端 |
+|------|--------|------|
+| `yarn dev` | `.env.development` | 本机 Nest `localhost:5000` |
+| `yarn dev:nest-online` | `.env.nest-online` | 线上 Nest `/x-blog/api/v1` |
+| `yarn dev:go-online` | `.env.go-online` | 线上 Go `/x-blog-go/api/v1`（备选） |
+
+手机访问 `http://<电脑局域网IP>:5050` 时，API 与静态资源均经 Nuxt 代理（`/blog-api`、`/static`），无需改 `VITE_NUXT_ORIGIN_URL`。本机 Nest 联调请确保 **blog-server 已启动**（端口 5000）且防火墙放行 5050。
 
 访问 [http://localhost:5050](http://localhost:5050) 查看效果
 
@@ -223,6 +232,7 @@ yarn dev:ip
 | `/user/profile` | 个人中心（`?tab=inbox` 收件箱、`?tab=dashboard` 看板） |
 | `/rpg` | RPG 冒险中心（含 BGM/音效控制） |
 | `/about` | 关于作者 |
+| `/projects` | 项目展示（含 Zone、Blog UniApp H5、Admin 等 iframe 演示） |
 | `/open-source` | 开源范围、后端闭源说明与付费套餐 |
 | `/login` | 登录注册 |
 | `/tool/watermark` | 批量图片水印（旋转/颜色/格式、追加选图、单张或 ZIP 下载） |

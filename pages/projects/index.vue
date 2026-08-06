@@ -28,6 +28,15 @@
         </template>
       </CyberProjectSection>
 
+      <!-- uni-app H5：手机框预览线上部署 -->
+      <CyberProjectSection
+        title="Blog UniApp"
+        icon-on="📱"
+        icon-off="💻"
+        :url="blogUniappUrl"
+        preview="phone"
+      />
+
       <CyberProjectSection title="Blog Admin" icon-on="😈" icon-off="😇" :url="blogAdminUrl" />
 
       <CyberProjectSection title="Data Screen" icon-on="📉" icon-off="📊" :url="dataScreenUrl" />
@@ -38,21 +47,32 @@
 </template>
 
 <script setup lang="ts">
+/**
+   * 项目展示：iframe 嵌入各子项目演示页
+   * - Zone / Admin / DataScreen 等 URL 随环境 origin/admin 拼接
+   * - Blog UniApp 固定线上 H5：https://jiang-xia.top/blog-uniapp/#/
+   */
 import { adminUrl, originUrl } from '@/config';
 import { joinUrl, withCacheBust } from '@/utils/url';
+
+/** 线上 uni-app H5 入口（与 Nginx /blog-uniapp 部署一致） */
+const BLOG_UNIAPP_URL = 'https://jiang-xia.top/blog-uniapp/#/';
 
 const adminBaseUrl = adminUrl.replace(/\/$/, '');
 
 const blogAdminUrl = ref('');
 const zoneUrl = ref('');
+const blogUniappUrl = ref('');
 const dataScreenUrl = ref('');
 const zoneAdminUrl = ref('');
 
+/** 挂载后写入带 cache-bust 的演示 URL，避免 iframe 缓存旧页 */
 onMounted(() => {
   const ts = Date.now();
   blogAdminUrl.value = withCacheBust(adminBaseUrl, ts);
   dataScreenUrl.value = withCacheBust(joinUrl(adminBaseUrl, 'datascreen'), ts);
   zoneUrl.value = withCacheBust(`${originUrl}/zone/#/`, ts);
+  blogUniappUrl.value = withCacheBust(BLOG_UNIAPP_URL, ts);
   zoneAdminUrl.value = withCacheBust(joinUrl(adminBaseUrl, 'admin/zone-admin/login'), ts);
 });
 
