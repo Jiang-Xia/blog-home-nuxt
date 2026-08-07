@@ -211,7 +211,7 @@ yarn dev:ip
 |------|--------|------|
 | `yarn dev` | `.env.development` | 本机 Nest `localhost:5000` |
 | `yarn dev:nest-online` | `.env.nest-online` | 线上 Nest `/x-blog/api/v1` |
-| `yarn dev:go-online` | `.env.go-online` | 线上 Go `/x-blog-go/api/v1`（备选） |
+| `yarn dev:go-online` | `.env.go-online` | 线上 Go `go.jiang-xia.top/api/v1`（备选） |
 
 手机访问 `http://<电脑局域网IP>:5050` 时，API 与静态资源均经 Nuxt 代理（`/blog-api`、`/static`），无需改 `VITE_NUXT_ORIGIN_URL`。本机 Nest 联调请确保 **blog-server 已启动**（端口 5000）且防火墙放行 5050。
 

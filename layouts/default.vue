@@ -85,7 +85,10 @@ const runTime = Math.ceil((dayjs().unix() - dayjs('2022-03-01').unix()) / (24 * 
 
 const route = useRoute();
 const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
-const showRagAssistant = computed(() => !route.path.startsWith('/login'));
+// 登录页无助手；文章详情浮层已多，避免再叠知识库 FAB 干扰阅读
+const showRagAssistant = computed(
+  () => !route.path.startsWith('/login') && !route.path.startsWith('/detail/'),
+);
 const needsRpgGlobal = computed(() => {
   const path = route.path;
   // 测试页需挂载 RpgGlobalInit，线上 /tool/test 挡板才能走 handlers + 全屏弹窗

@@ -175,11 +175,13 @@ function handleGo() {
 
   .cyber-project-section__phone {
     width: 100%;
-    margin-inline: 0;
+    max-width: 462px;
+    margin-inline: auto;
 
     @media (width >= 768px) {
       width: 24rem;
       flex-shrink: 0;
+      margin-inline: 0;
     }
   }
 
@@ -192,10 +194,16 @@ function handleGo() {
     }
   }
 
+  /*
+   * iframe 不易被父级 round+overflow 裁切，易盖住手机黑边；
+   * 中等圆角挡住外溢，避免过大 radius 裁切 tabbar 文字。
+   */
   .iframe-wrap {
     height: 100%;
     width: 100%;
     background: var(--tech-shell);
+    border-radius: 2.25rem;
+    overflow: hidden;
   }
 
   .iframe {
@@ -213,7 +221,7 @@ function handleGo() {
     &--phone {
       height: 100%;
       min-height: 0;
-      border-radius: 0.625rem;
+      border-radius: 1.75rem;
     }
   }
 </style>
