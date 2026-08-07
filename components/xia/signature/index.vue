@@ -148,6 +148,7 @@ import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import dayjs from 'dayjs';
 import sealLogo from '@/assets/images/logo/person/jiang.png';
 import { loadPdfScripts } from '~/utils/script-loader';
+import { cloneArrayBuffer, fetchPdfBuffer } from '~/utils/pdf-buffer';
 import { messageDanger } from '@/utils/toast';
 
 const emits = defineEmits<{ success: [blob: Blob] }>();
@@ -185,33 +186,23 @@ const pdfSourceBuffer = ref<ArrayBuffer | null>(null);
 let countdownTimer: ReturnType<typeof setInterval> | null = null;
 let scrollHandler: (() => void) | null = null;
 
-/** 将远程 URL / Blob URL 拉取为 ArrayBuffer */
-const fetchPdfBuffer = async (src: string): Promise<ArrayBuffer> => {
-  const res = await fetch(src);
-  if (!res.ok) {
-    throw new Error(`PDF 加载失败（HTTP ${res.status}）`);
-  }
-  return res.arrayBuffer();
-};
-
 /** 归一化 reloadPdf 入参，统一走 pdf.js getDocument({ data }) */
 const normalizePdfInput = async (
   pdfData: string | ArrayBuffer | Uint8Array,
 ): Promise<Uint8Array> => {
+  let source: ArrayBuffer;
   if (typeof pdfData === 'string') {
-    const buffer = await fetchPdfBuffer(pdfData);
-    pdfSourceBuffer.value = buffer;
-    return new Uint8Array(buffer);
+    source = await fetchPdfBuffer(pdfData);
   }
-  if (pdfData instanceof ArrayBuffer) {
-    pdfSourceBuffer.value = pdfData;
-    return new Uint8Array(pdfData);
+  else if (pdfData instanceof ArrayBuffer) {
+    source = pdfData;
   }
-  pdfSourceBuffer.value = pdfData.buffer.slice(
-    pdfData.byteOffset,
-    pdfData.byteOffset + pdfData.byteLength,
-  );
-  return pdfData;
+  else {
+    source = cloneArrayBuffer(pdfData);
+  }
+  // 缓存与传给 pdf.js 的各用一份，互不 detach
+  pdfSourceBuffer.value = cloneArrayBuffer(source);
+  return new Uint8Array(cloneArrayBuffer(source));
 };
 
 /** 渲染 PDF 各页到 canvas */
@@ -316,19 +307,21 @@ const editPdf = async () => {
 
     const sealImageBytes = await fetch(sealLogo).then(res => res.arrayBuffer());
     const sealImg = await pdfDoc.embedPng(sealImageBytes);
+
+    // 先签后章：签名在下层，印章盖在上面
+    lastPage.drawImage(img, {
+      x,
+      y,
+      width: 160,
+      height: 60,
+    });
+
     lastPage.drawImage(sealImg, {
       x,
       y: y - 40,
       width: 140,
       height: 140,
       opacity: 1,
-    });
-
-    lastPage.drawImage(img, {
-      x,
-      y,
-      width: 160,
-      height: 60,
     });
 
     const dateText = dayjs().format('YYYY MM DD');
@@ -339,11 +332,9 @@ const editPdf = async () => {
     });
 
     const pdfBytes = await pdfDoc.save();
-    pdfSourceBuffer.value = pdfBytes.buffer.slice(
-      pdfBytes.byteOffset,
-      pdfBytes.byteOffset + pdfBytes.byteLength,
-    );
-    await reloadPdf(new Uint8Array(pdfBytes));
+    // 先落盘独立副本再 reload，避免 pdf.js detach 写回的缓存
+    pdfSourceBuffer.value = cloneArrayBuffer(pdfBytes);
+    await reloadPdf(new Uint8Array(cloneArrayBuffer(pdfBytes)));
     emits('success', new Blob([pdfBytes], { type: 'application/pdf' }));
   }
   catch (err) {

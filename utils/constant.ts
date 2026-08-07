@@ -31,6 +31,7 @@ export const NAV_LINKS: NavLink[] = [
 export const TOOL_LINKS: ToolLink[] = [
   { path: '/tool/codes', title: '条形/二维码', icon: 'blog-erweima' },
   { path: '/tool/pdf', title: 'PDF', icon: 'blog-pdf1' },
+  { path: '/tool/pdf-h5', title: 'H5协议签署', icon: 'blog-pdf1' },
   { path: '/tool/watermark', title: '水印', icon: 'blog-yinzhang' },
   { path: '/tool/photos', title: '光影边框', icon: 'blog-xiangji' },
   { path: '/tool/audio-visualized', title: '音频可视化', icon: 'blog-yinpin1' },

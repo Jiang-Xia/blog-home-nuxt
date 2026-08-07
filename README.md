@@ -53,7 +53,7 @@ Blog Home Nuxt 是一个基于现代前端技术栈构建的个人博客系统�
 ### 🛠️ 实用工具
 - **代码生成器**：条形码、二维码生成
 - **图片处理**：图片滤镜、批量处理、导出功能
-- **加密工具**：RSA、SM2/SM3/SM4 国密算法
+- **加密工具**：对称（AES/DES/RC4/Rabbit/TripleDES/SM4）、RSA、国密 SM2
 - **音视频工具**：音频可视化、WebRTC 视频聊天
 - **文件处理**：PDF 查看、文件上传切片
 - **AI 工具**：集成 AI 对话功能
@@ -197,14 +197,23 @@ npm install
 ### 开发环境
 
 ```bash
-# 启动开发服务器
+# 启动开发服务器（本机 Nest :5000）
 yarn dev
+
+# 本地前端 → 线上 Nest（无需本机起 blog-server）
+yarn dev:nest-online
 
 # 或指定 IP 访问（局域网 / 手机调试）
 yarn dev:ip
 ```
 
-手机访问 `http://<电脑局域网IP>:5050` 时，API 与静态资源均经 Nuxt 代理（`/blog-api`、`/static`），无需改 `VITE_NUXT_ORIGIN_URL`。请确保 **blog-server 已启动**（端口 5000）且防火墙放行 5050。
+| 命令 | dotenv | 后端 |
+|------|--------|------|
+| `yarn dev` | `.env.development` | 本机 Nest `localhost:5000` |
+| `yarn dev:nest-online` | `.env.nest-online` | 线上 Nest `/x-blog/api/v1` |
+| `yarn dev:go-online` | `.env.go-online` | 线上 Go `go.jiang-xia.top/api/v1`（备选） |
+
+手机访问 `http://<电脑局域网IP>:5050` 时，API 与静态资源均经 Nuxt 代理（`/blog-api`、`/static`），无需改 `VITE_NUXT_ORIGIN_URL`。本机 Nest 联调请确保 **blog-server 已启动**（端口 5000）且防火墙放行 5050。
 
 访问 [http://localhost:5050](http://localhost:5050) 查看效果
 
@@ -223,12 +232,17 @@ yarn dev:ip
 | `/user/profile` | 个人中心（`?tab=inbox` 收件箱、`?tab=dashboard` 看板） |
 | `/rpg` | RPG 冒险中心（含 BGM/音效控制） |
 | `/about` | 关于作者 |
+| `/projects` | 项目展示（含 Zone、Blog UniApp H5、Admin 等 iframe 演示） |
 | `/open-source` | 开源范围、后端闭源说明与付费套餐 |
 | `/login` | 登录注册 |
 | `/tool/watermark` | 批量图片水印（旋转/颜色/格式、追加选图、单张或 ZIP 下载） |
 | `/tool/webrtc` | WebRTC 调试（媒体采集、本页回环、双 Tab P2P） |
 | `/tool/ai-summary` | AI 文章摘要（Nitro SSE 代理 DeepSeek，需 `AI_SUMMARY_API_KEY`） |
 | `/tool/pdf` | PDF 预览与电子签名（支持本地上传、`?file=` 远程 URL） |
+| `/tool/pdf-h5` | H5 协议签署（滚到底部 + 倒计时 → 手写签名，组件 `xia-agreement-sign`） |
+| `/tool/des` | 对称加密（AES/DES/RC4/Rabbit/TripleDES/SM4） |
+| `/tool/sm` | 国密 SM2 加解密与密钥生成 |
+| `/tool/rsa` | RSA 加解密与密钥生成 |
 
 ### 生产构建
 
