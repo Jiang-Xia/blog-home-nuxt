@@ -231,7 +231,7 @@ yarn dev:ip
 | `/explore` | 快速入口（常用页面卡片导航） |
 | `/user/profile` | 个人中心（`?tab=inbox` 收件箱、`?tab=dashboard` 看板） |
 | `/rpg` | RPG 冒险中心（含 BGM/音效控制） |
-| `/about` | 关于作者 |
+| `/about` | 关于作者（正文 + 支付宝赞赏流水） |
 | `/projects` | 项目展示（含 Zone、Blog UniApp H5、Admin 等 iframe 演示） |
 | `/open-source` | 开源范围、后端闭源说明与付费套餐 |
 | `/login` | 登录注册 |
