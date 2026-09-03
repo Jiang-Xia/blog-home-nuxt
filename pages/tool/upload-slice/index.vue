@@ -187,10 +187,14 @@ const uploadHandler = (formData) => {
   return uploadFileRequest(formData);
 };
 
+// 同源经典 Worker（public/），勿用 Vite 打包的 data:/blob: URL，否则 importScripts 相对路径无效
 const createChunksByWorker = (file) => {
   return new Promise((resolve, reject) => {
-    const url = new URL('./worker.js', import.meta.url).href;
-    const myWorker = new Worker(url);
+    const myWorker = new Worker('/js/workers/upload-slice-worker.js');
+    myWorker.onerror = (err) => {
+      myWorker.terminate();
+      reject(err);
+    };
     myWorker.postMessage({ file, chunkSize: ChunkSize });
     myWorker.onmessage = (e) => {
       resolve(e.data);

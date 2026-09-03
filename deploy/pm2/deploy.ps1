@@ -108,7 +108,15 @@ Write-Host "==> Build env: .env.production (project root)"
 Write-Host '==> [1/5] Local build'
 Push-Location $Root
 npm ci --ignore-scripts
+if ($LASTEXITCODE -ne 0) {
+  Pop-Location
+  throw "npm ci failed (exit $LASTEXITCODE)"
+}
 npm run build
+if ($LASTEXITCODE -ne 0) {
+  Pop-Location
+  throw "npm run build failed (exit $LASTEXITCODE)"
+}
 Pop-Location
 
 $outputDir = Join-Path $Root '.output'

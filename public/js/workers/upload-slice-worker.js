@@ -1,38 +1,36 @@
-// 读取外部脚本(外部库)
-importScripts('https://cdn.staticfile.net/spark-md5/3.0.2/spark-md5.min.js');
-const ChunkSize = 2097152; // 131072 // 2097152
-// 创建切片
+/**
+ * 分片上传 Worker：按 chunk 读文件并计算 SparkMD5。
+ * 必须放在 public/ 以同源经典 Worker 加载；Vite 打包成 data:/blob: 后
+ * importScripts('/js/...') 会报 URL invalid。
+ */
+/* eslint-disable no-undef */
+importScripts('/js/cdn/spark-md5.min.js');
+
+const ChunkSize = 2097152; // 2MB
+
 const createChunks = ({ file, chunkSize = ChunkSize }) => {
   return new Promise((resolve, reject) => {
     const fileName = file.name;
-    // Read in chunks of 2MB
-    const chunkList = []; // 切片文件数据
+    const chunkList = [];
     const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice;
     const chunks = Math.ceil(file.size / chunkSize);
     let currentChunk = 0;
-    // console.log(self, globalThis)
     const spark = new SparkMD5.ArrayBuffer();
     const fileReader = new FileReader();
 
     fileReader.onload = function (e) {
-      // console.log('read chunk nr', currentChunk + 1, 'of', chunks)
-      spark.append(e.target.result); // Append array buffer
+      spark.append(e.target.result);
       currentChunk++;
       if (currentChunk < chunks) {
         loadNext();
-      }
-      else {
-        console.log('finished loading');
+      } else {
         const hash = spark.end();
-        console.info('computed hash', hash); // Compute hash
-        console.info('chunkList.length', chunkList.length);
-        chunkList.forEach(v => (v.hash = hash));
+        chunkList.forEach((v) => (v.hash = hash));
         resolve({ chunkList, hash });
       }
     };
 
     fileReader.onerror = function () {
-      console.warn('oops, something went wrong.');
       reject(new Error('切片错误'));
     };
 
@@ -46,13 +44,13 @@ const createChunks = ({ file, chunkSize = ChunkSize }) => {
         hash: '',
         fileName,
       });
-      // https://developer.mozilla.org/zh-CN/docs/Web/API/FileReader/readAsArrayBuffer
       fileReader.readAsArrayBuffer(sliceFile);
     }
 
     loadNext();
   });
 };
+
 onmessage = async (e) => {
   const { chunkList, hash } = await createChunks(e.data);
   postMessage({ chunkList, hash });

@@ -39,7 +39,7 @@ function detectBridge() {
 onMounted(async () => {
   try {
     await Promise.all([
-      loadScript('https://res.wx.qq.com/open/js/jweixin-1.4.0.js'),
+      loadScript('/js/cdn/jweixin-1.4.0.js'),
       loadScript('/js/uni.webview.min.js'),
     ]);
     detectBridge();

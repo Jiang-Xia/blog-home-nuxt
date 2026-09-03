@@ -36,9 +36,9 @@ interface configState {
   gif404: string;
 }
 const config: configState = {
-  // 阿里巴巴图标库链接，新添加图标需要重新生成 css 改成js
+  // 阿里巴巴图标库（本地静态，避免 at.alicdn 不可用；更新图标后需重新下载覆盖）
   // 新增图标记得批量去色，不然修改不了图标颜色
-  iconfonrUrl: '//at.alicdn.com/t/c/font_3114416_dzveo1cnuj.js',
+  iconfonrUrl: '/js/cdn/iconfont.js',
   // 500 error页动图
   gifError:
     originUrl + '/x-api/blog-server/static/uploads/2022-09-12/nm2t4fs18ix5ld2w6g1j1b-error.gif',

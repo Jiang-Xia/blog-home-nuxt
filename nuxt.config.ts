@@ -43,7 +43,7 @@ export default defineNuxtConfig({
         {
           rel: 'preload',
           as: 'style',
-          href: 'https://cdn.staticfile.org/csshake/1.5.3/csshake.min.css',
+          href: '/css/cdn/csshake.min.css',
           onload: 'this.rel=\'stylesheet\';',
           // 需设置rel=stylesheet 不然不是样式,不生效
           /* rel: 'stylesheet',

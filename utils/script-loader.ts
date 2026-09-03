@@ -1,6 +1,6 @@
 /**
  * 动态脚本加载工具
- * 用于按需加载第三方 CDN 脚本，避免首页加载过多脚本
+ * 用于按需加载第三方脚本（优先本地 /js/cdn），避免首页加载过多脚本
  */
 
 // 脚本加载状态缓存
@@ -58,26 +58,25 @@ export function loadScripts(scripts: string[]): Promise<Array<void>> {
  * 预定义的脚本映射
  */
 export const SCRIPTS = {
-  // PDF 相关
-  PDF_LIB: 'https://cdn.staticfile.net/pdf-lib/1.17.1/pdf-lib.min.js',
-  PDF_JS: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.min.js',
-  PDF_JS_WORKER: 'https://cdn.staticfile.net/pdf.js/3.9.179/pdf.worker.min.js',
+  // PDF 相关（本地静态资源，避免 CDN 不可用）
+  PDF_LIB: '/js/cdn/pdf-lib.min.js',
+  PDF_JS: '/js/cdn/pdf.min.js',
+  PDF_JS_WORKER: '/js/cdn/pdf.worker.min.js',
 
   // 加密相关
-  JSENCRYPT:
-    'https://jiang-xia.top/x-blog/api/v1/static/uploads/2025-10/7746c5c31ccc4ae0b972fc1a5b8f1152-jsencrypt.min.js',
+  JSENCRYPT: '/js/cdn/jsencrypt.min.js',
   SM2: '/js/cdn/sm-crypto/sm2.min.js',
   SM4: '/js/cdn/sm-crypto/sm4.min.js',
 
   // 工具类
-  JSZIP: 'https://cdn.staticfile.net/jszip/3.10.1/jszip.min.js',
-  JSBARCODE: 'https://cdn.staticfile.net/jsbarcode/3.11.6/JsBarcode.all.min.js',
-  HTML2PDF: 'https://cdn.staticfile.net/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
+  JSZIP: '/js/cdn/jszip.min.js',
+  JSBARCODE: '/js/cdn/JsBarcode.all.min.js',
+  HTML2PDF: '/js/cdn/html2pdf.bundle.min.js',
 
   // 图形图像相关
-  KONVA: 'https://unpkg.com/konva@9/konva.min.js',
-  QRCODE: 'https://cdn.staticfile.net/qrcodejs/1.0.0/qrcode.min.js',
-  SMOOTH_SIGNATURE: 'https://unpkg.com/smooth-signature/dist/index.umd.min.js',
+  KONVA: '/js/cdn/konva.min.js',
+  QRCODE: '/js/cdn/qrcode.min.js',
+  SMOOTH_SIGNATURE: '/js/cdn/smooth-signature.umd.min.js',
   EXIF_READER: '/js/cdn/exif-reader.min.js',
 };
 

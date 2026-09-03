@@ -10,7 +10,7 @@ interface propsState {
   height: string;
   width: string;
 }
-// 加载iconfont 图标字体文件
+// 加载 iconfont（本地 /js/cdn，避免依赖 at.alicdn）
 const createIconfont = () => {
   const scriptUrl = config.iconfonrUrl;
   const script = document.createElement('script');
