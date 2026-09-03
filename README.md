@@ -62,7 +62,7 @@ Blog Home Nuxt 是一个基于现代前端技术栈构建的个人博客系统�
 ### 🚀 技术特性
 - **SSR/SSG**：支持服务端渲染和静态生成
 - **SEO 优化**：自动生成 sitemap，优化搜索引擎收录
-- **性能优化**：图片懒加载、代码分割、缓存策略；`useAsyncData` 同 key 合并重复请求（见 [页面开发规范 §2.4](./docs/page-development-guide.md#24-useasyncdata-与请求去重)）；生产包 esbuild `drop` 剔除 `console` / `debugger`
+- **性能优化**：图片懒加载、代码分割、缓存策略；`useAsyncData` 同 key 合并重复请求（见 [页面开发规范 §2.4](./docs/page-development-guide.md#24-useasyncdata-与请求去重)）；生产包 esbuild `drop` 剔除 `console` / `debugger`；头像/封面/文章图上传前在 module worker 中缩放并用 `@jsquash/webp` 编码；摄影边框/水印导出 JPEG 使用 `@jsquash/jpeg`（mozjpeg WASM），批量 ZIP 使用 `fflate`；分片上传整文件指纹使用 `hash-wasm`（WASM MD5，失败回退 SparkMD5）
 - **控制台彩蛋**：打开 DevTools 打印命令菜单（`help` / `about` / `go`），见 `plugins/console-egg.client.ts`
 - **开发体验**：热重载、TypeScript 支持、ESLint 规范
 

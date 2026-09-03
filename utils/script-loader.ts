@@ -112,7 +112,7 @@ export function loadSm4Script(): Promise<void> {
 }
 
 /**
- * 加载水印工具脚本
+ * 加载水印工具脚本（历史 CDN JSZip；批量导出已改用 fflate，一般无需再调）
  */
 export function loadWatermarkScripts(): Promise<Array<void>> {
   return loadScripts([SCRIPTS.JSZIP]);
@@ -133,7 +133,7 @@ export function loadScreenshotScripts(): Promise<Array<void>> {
 }
 
 /**
- * 摄影工具：仅导出 ZIP 需要 JSZip（EXIF/模糊在 Web Worker 内处理）
+ * 摄影工具脚本（历史 CDN JSZip；批量导出已改用 utils/zip-files + fflate，一般无需再调）
  */
 export function loadPhotoScripts(): Promise<Array<void>> {
   return loadScripts([SCRIPTS.JSZIP]);

@@ -39,6 +39,7 @@
 import { watch, stop } from 'vue';
 import { uploadFileRequest, mergeFile, checkFile } from '@/api/tool';
 import { messageDanger, messageSuccess } from '@/utils/toast';
+import { createChunksByWorker } from '@/utils/upload-slice-client';
 
 let currentIndex = 0;
 let stopUpload = false;
@@ -187,24 +188,12 @@ const uploadHandler = (formData) => {
   return uploadFileRequest(formData);
 };
 
-// 同源经典 Worker（public/），勿用 Vite 打包的 data:/blob: URL，否则 importScripts 相对路径无效
-const createChunksByWorker = (file) => {
-  return new Promise((resolve, reject) => {
-    const myWorker = new Worker('/js/workers/upload-slice-worker.js');
-    myWorker.onerror = (err) => {
-      myWorker.terminate();
-      reject(err);
-    };
-    myWorker.postMessage({ file, chunkSize: ChunkSize });
-    myWorker.onmessage = (e) => {
-      resolve(e.data);
-      myWorker.terminate();
-    };
-  });
-};
+// 切片 + MD5：优先 WASM（hash-wasm），失败回退 public SparkMD5 Worker
+const createChunks = file => createChunksByWorker(file, ChunkSize);
+
 const uploadFile = async (file) => {
   fileName.value = file.name;
-  const { chunkList, hash } = await createChunksByWorker(file);
+  const { chunkList, hash } = await createChunks(file);
   fileHash.value = hash;
   chunkTotal.value = chunkList.length;
   const [err, data] = await checkFile({ hash });

@@ -1,3 +1,7 @@
+/**
+ * 文件内容哈希与「是否同一媒体」比对。
+ * SHA-256 供 upload-media 的 contentHash；同源比对走原图 hash（不受 Canvas 压缩影响）。
+ */
 import CryptoJS from 'crypto-js';
 import { resolveStaticUrl } from '@/utils/static-url';
 import { compressImageFile, type ImageCompressPreset } from '@/utils/image-compress';
@@ -52,13 +56,14 @@ export async function isSameMediaContent(
     return false;
   }
 
+  // 先只算原图 hash（快路径）；命中则无需压缩
   const originalHash = await computeFileSha256(originalFile);
   const basename = toStaticPath(currentUrl).split('/').pop() || '';
   if (basenameMatchesHash(basename, originalHash)) {
     return true;
   }
 
-  // 兼容旧版 UUID 命名：压缩后与线上已存文件字节比对
+  // 兼容旧版 UUID 命名：压缩后与线上已存文件字节比对（走 Worker 压缩）
   try {
     const compressed = await compressImageFile(originalFile, preset);
     const res = await fetch(resolveStaticUrl(currentUrl));

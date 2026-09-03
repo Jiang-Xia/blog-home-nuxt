@@ -271,7 +271,7 @@
 <script setup lang="ts">
 import { messageDanger, messageSuccess } from '@/utils/toast';
 import { debounce } from '@/utils/index';
-import { loadWatermarkScripts } from '~/utils/script-loader';
+import { blobToUint8Array, zipFilesToBlob } from '@/utils/zip-files';
 
 const { open: openImagePreview } = useImagePreview();
 
@@ -614,7 +614,8 @@ function drawWatermarkLayer(
   drawSingleWatermark(ctx, text, width, height, style);
 }
 
-function encodeCanvas(
+/** 预览用：同步 data URL（不走 WASM，避免首屏拉 codec） */
+function encodeCanvasDataUrl(
   canvas: HTMLCanvasElement,
   exportOptions: ExportOptions = { format: 'png', jpegQuality: 90 },
 ): string {
@@ -623,6 +624,24 @@ function encodeCanvas(
     return canvas.toDataURL('image/jpeg', quality);
   }
   return canvas.toDataURL('image/png');
+}
+
+/** 导出用：JPEG 优先 mozjpeg WASM，PNG 用 toBlob */
+async function encodeCanvasBlob(
+  canvas: HTMLCanvasElement,
+  exportOptions: ExportOptions = { format: 'png', jpegQuality: 90 },
+): Promise<Blob> {
+  if (exportOptions.format === 'jpeg') {
+    const quality = Math.min(1, Math.max(0.6, exportOptions.jpegQuality / 100));
+    const { encodeCanvasToJpeg } = await import('@/utils/jpeg-encode');
+    return encodeCanvasToJpeg(canvas, quality);
+  }
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      blob => (blob ? resolve(blob) : reject(new Error('PNG 导出失败'))),
+      'image/png',
+    );
+  });
 }
 
 function sanitizeFileName(name: string): string {
@@ -688,32 +707,30 @@ async function renderWatermarkedImage(
   exportOptions: ExportOptions = { format: 'png', jpegQuality: 90 },
 ): Promise<string> {
   const canvas = await renderWatermarkedCanvas(src, style);
-  return encodeCanvas(canvas, exportOptions);
+  return encodeCanvasDataUrl(canvas, exportOptions);
 }
 
-async function getExportDataUrl(item: WatermarkItem): Promise<string> {
-  return renderWatermarkedImage(item.originalSrc, getWatermarkStyle(), getExportOptions());
+/** 导出文件用 Blob（JPEG 走 WASM） */
+async function renderWatermarkedBlob(
+  src: string,
+  style = getWatermarkStyle(),
+  exportOptions: ExportOptions = { format: 'png', jpegQuality: 90 },
+): Promise<Blob> {
+  const canvas = await renderWatermarkedCanvas(src, style);
+  return encodeCanvasBlob(canvas, exportOptions);
 }
 
-async function ensureJsZipReady(): Promise<boolean> {
-  if (typeof JSZip !== 'undefined') {
-    return true;
-  }
-  try {
-    await loadWatermarkScripts();
-    return typeof JSZip !== 'undefined';
-  }
-  catch {
-    messageDanger('打包组件加载失败，请刷新页面后重试');
-    return false;
-  }
+async function getExportBlob(item: WatermarkItem): Promise<Blob> {
+  return renderWatermarkedBlob(item.originalSrc, getWatermarkStyle(), getExportOptions());
 }
 
-function downloadBlob(dataUrl: string, filename: string): void {
+function downloadFileBlob(blob: Blob, filename: string): void {
   const link = document.createElement('a');
-  link.href = dataUrl;
+  const objectUrl = URL.createObjectURL(blob);
+  link.href = objectUrl;
   link.download = filename;
   link.click();
+  URL.revokeObjectURL(objectUrl);
 }
 
 async function processFiles(files: FileList | File[]) {
@@ -858,9 +875,9 @@ const downloadSingle = async (item: WatermarkItem) => {
 
   downloadingId.value = item.id;
   try {
-    const dataUrl = await getExportDataUrl(item);
+    const blob = await getExportBlob(item);
     const ext = getExportExtension(exportFormat.value);
-    downloadBlob(dataUrl, `${item.name}-watermarked.${ext}`);
+    downloadFileBlob(blob, `${item.name}-watermarked.${ext}`);
     messageSuccess('已开始下载');
   }
   catch {
@@ -906,32 +923,18 @@ const downloadAllImages = async () => {
 
   loading.value = true;
   try {
-    const ready = await ensureJsZipReady();
-    if (!ready) {
-      return;
-    }
-
-    const zip = new JSZip();
+    const files: Record<string, Uint8Array> = {};
     const ext = getExportExtension(exportFormat.value);
 
     for (let index = 0; index < items.value.length; index++) {
       const item = items.value[index]!;
-      const dataUrl = await getExportDataUrl(item);
-      const base64 = dataUrl.split(',')[1];
-      if (!base64) {
-        continue;
-      }
-      zip.file(`${item.name}-watermarked-${index + 1}.${ext}`, base64, { base64: true });
+      const blob = await getExportBlob(item);
+      files[`${item.name}-watermarked-${index + 1}.${ext}`] = await blobToUint8Array(blob);
       await new Promise(resolve => setTimeout(resolve, 0));
     }
 
-    const content = await zip.generateAsync({ type: 'blob' });
-    const link = document.createElement('a');
-    const objectUrl = URL.createObjectURL(content);
-    link.href = objectUrl;
-    link.download = 'watermarked-images.zip';
-    link.click();
-    URL.revokeObjectURL(objectUrl);
+    const content = await zipFilesToBlob(files);
+    downloadFileBlob(content, 'watermarked-images.zip');
     messageSuccess('已开始下载');
   }
   catch {
@@ -941,13 +944,4 @@ const downloadAllImages = async () => {
     loading.value = false;
   }
 };
-
-onMounted(async () => {
-  try {
-    await loadWatermarkScripts();
-  }
-  catch {
-    // 下载时再尝试加载
-  }
-});
 </script>

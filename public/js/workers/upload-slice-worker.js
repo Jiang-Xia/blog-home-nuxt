@@ -1,7 +1,7 @@
 /**
- * 分片上传 Worker：按 chunk 读文件并计算 SparkMD5。
- * 必须放在 public/ 以同源经典 Worker 加载；Vite 打包成 data:/blob: 后
- * importScripts('/js/...') 会报 URL invalid。
+ * 分片上传 Worker：按 chunk 读文件并计算 SparkMD5（回退路径）。
+ * 主路径已改为 workers/upload-slice.worker.ts + hash-wasm；
+ * 本文件保留供 WASM Worker 失败时回退。必须放在 public/ 以同源经典 Worker 加载。
  */
 /* eslint-disable no-undef */
 importScripts('/js/cdn/spark-md5.min.js');

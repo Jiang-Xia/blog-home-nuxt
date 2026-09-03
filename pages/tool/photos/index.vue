@@ -20,7 +20,7 @@ import {
 } from './photo-renderer';
 import { messageDanger, messageSuccess } from '~~/utils/toast';
 import { debounce } from '~~/utils/index';
-import { loadPhotoScripts } from '~/utils/script-loader';
+import { blobToUint8Array, zipFilesToBlob } from '@/utils/zip-files';
 
 interface PhotoItem {
   id: string;
@@ -100,12 +100,6 @@ const createPhotoItem = (file: File): PhotoItem => {
     url,
     name: file.name,
   };
-};
-
-const ensureExportReady = async () => {
-  if (typeof JSZip === 'undefined') {
-    await loadPhotoScripts();
-  }
 };
 
 onMounted(() => {
@@ -242,7 +236,6 @@ const exportCurrent = async () => {
   exportLoading.value = true;
   exportProgress.value = '正在导出当前图片...';
   try {
-    await ensureExportReady();
     const blob = await exportPhotoBlob({
       src: photo.url,
       settings: appliedSettings.value,
@@ -268,9 +261,7 @@ const exportAll = async () => {
   }
   exportLoading.value = true;
   try {
-    await ensureExportReady();
-    const zip = new JSZip();
-    const folder = zip.folder('photos')!;
+    const files: Record<string, Uint8Array> = {};
     const total = imageList.value.length;
 
     for (let i = 0; i < total; i++) {
@@ -282,13 +273,13 @@ const exportAll = async () => {
         size: EXPORT_SIZE,
       });
       const base = item.name.replace(/\.[^.]+$/, '') || `photo-${i + 1}`;
-      folder.file(`${base}-framed.jpg`, blob);
+      files[`photos/${base}-framed.jpg`] = await blobToUint8Array(blob);
       // 让出主线程，避免长时间阻塞 UI
       await new Promise(resolve => setTimeout(resolve, 0));
     }
 
     exportProgress.value = '正在打包...';
-    const content = await zip.generateAsync({ type: 'blob' });
+    const content = await zipFilesToBlob(files);
     downloadBlob(content, 'photos-framed.zip');
     messageSuccess(`已导出 ${total} 张图片`);
   }

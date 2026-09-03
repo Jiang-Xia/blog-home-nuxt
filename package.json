@@ -28,6 +28,8 @@
   },
   "dependencies": {
     "@ai-sdk/vue": "^3.0.209",
+    "@jsquash/jpeg": "^1.6.0",
+    "@jsquash/webp": "^1.5.0",
     "@nuxt/ui": "^4.7.1",
     "@nuxtjs/sitemap": "^8.2.1",
     "@pinia/nuxt": "^0.11.3",
@@ -37,6 +39,8 @@
     "copy-to-clipboard": "^3.3.3",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.20",
+    "fflate": "^0.8.3",
+    "hash-wasm": "^4.12.0",
     "howler": "^2.2.4",
     "js-cookie": "^3.0.5",
     "md-editor-v3": "^6.5.0",
