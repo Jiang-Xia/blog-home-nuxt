@@ -28,6 +28,14 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/ui',
   ],
+  // 生产包剔除 console / debugger；控制台彩蛋见 plugins/console-egg.client.ts（间接调用，不受 drop 影响）
+  $production: {
+    vite: {
+      esbuild: {
+        drop: ['console', 'debugger'],
+      },
+    },
+  },
   devtools: { enabled: false },
   app: {
     head: {
