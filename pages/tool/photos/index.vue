@@ -3,6 +3,7 @@ import FilterBorderCanvas from './components/FilterBorderCanvas.vue';
 import {
   DEFAULT_PHOTO_SETTINGS,
   EXIF_LABELS,
+  getLogoUrl,
   LOGO_BRAND_OPTIONS,
   MAX_PHOTOS,
   type PhotoSettings,
@@ -41,6 +42,28 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
 const exportLoading = ref(false);
 const exportProgress = ref('');
 const isDragging = ref(false);
+
+/** 品牌 Logo 自定义下拉（原生 select 无法展示图片且易与主题色撞色） */
+const logoBrandOpen = ref(false);
+const logoBrandSelectRef = ref<HTMLElement | null>(null);
+
+const selectedLogoBrand = computed(
+  () =>
+    LOGO_BRAND_OPTIONS.find(opt => opt.value === settings.logoBrand) ?? LOGO_BRAND_OPTIONS[0]!,
+);
+
+/** 选择品牌并关闭下拉 */
+const pickLogoBrand = (value: string) => {
+  settings.logoBrand = value;
+  logoBrandOpen.value = false;
+};
+
+/** 点击面板外关闭品牌下拉 */
+const onLogoBrandClickOutside = (event: MouseEvent) => {
+  const root = logoBrandSelectRef.value;
+  if (!root || !(event.target instanceof Node) || root.contains(event.target)) return;
+  logoBrandOpen.value = false;
+};
 
 const EMPTY_EXIF: Record<string, string> = {};
 
@@ -105,6 +128,7 @@ const createPhotoItem = (file: File): PhotoItem => {
 onMounted(() => {
   initPhotoWorker();
   scriptsReady.value = true;
+  document.addEventListener('click', onLogoBrandClickOutside);
 });
 
 const addFiles = (files: FileList | File[]) => {
@@ -297,6 +321,7 @@ const resetSettings = () => {
 };
 
 onBeforeUnmount(() => {
+  document.removeEventListener('click', onLogoBrandClickOutside);
   clearAll();
   terminatePhotoWorker();
 });
@@ -366,7 +391,7 @@ onBeforeUnmount(() => {
     >
 
     <div class="grid gap-4 lg:grid-cols-[280px_1fr]">
-      <aside class="cyber-glass-card space-y-4 p-4">
+      <aside class="cyber-glass-card relative z-20 space-y-4 overflow-visible p-4">
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-medium text-tech">
             边框设置
@@ -436,17 +461,60 @@ onBeforeUnmount(() => {
           >
         </label>
 
-        <label class="block space-y-1.5">
+        <div ref="logoBrandSelectRef" class="relative space-y-1.5">
           <span class="text-xs text-tech-subtle">品牌 Logo</span>
-          <select
-            v-model="settings.logoBrand"
-            class="photos-tool-select select select-bordered select-sm w-full border-tech text-tech"
+          <button
+            type="button"
+            class="photos-logo-trigger flex w-full items-center gap-2 rounded-lg border border-tech px-2.5 py-1.5 text-left text-sm text-tech transition-colors hover:border-primary/40"
+            :disabled="exportLoading"
+            :aria-expanded="logoBrandOpen"
+            @click="logoBrandOpen = !logoBrandOpen"
           >
-            <option v-for="opt in LOGO_BRAND_OPTIONS" :key="opt.value" :value="opt.value">
-              {{ opt.label }}
-            </option>
-          </select>
-        </label>
+            <span
+              class="photos-logo-chip flex h-5 w-8 shrink-0 items-center justify-center overflow-hidden rounded"
+            >
+              <img
+                v-if="selectedLogoBrand.value"
+                :src="getLogoUrl(selectedLogoBrand.value)"
+                :alt="selectedLogoBrand.label"
+                class="max-h-3.5 max-w-7 object-contain"
+              >
+              <span v-else class="text-[9px] text-tech-faint">AUTO</span>
+            </span>
+            <span class="min-w-0 flex-1 truncate">{{ selectedLogoBrand.label }}</span>
+            <span class="shrink-0 text-xs text-tech-faint" :class="{ 'rotate-180': logoBrandOpen }">▾</span>
+          </button>
+          <ul
+            v-show="logoBrandOpen"
+            class="photos-logo-menu absolute inset-x-0 z-30 mt-1 max-h-64 overflow-y-auto rounded-xl border border-tech p-1.5 shadow-xl"
+            role="listbox"
+          >
+            <li v-for="opt in LOGO_BRAND_OPTIONS" :key="opt.value || 'auto'">
+              <button
+                type="button"
+                role="option"
+                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-tech transition-colors hover:bg-primary/10"
+                :class="{ 'bg-primary/15 text-primary': settings.logoBrand === opt.value }"
+                :aria-selected="settings.logoBrand === opt.value"
+                @click="pickLogoBrand(opt.value)"
+              >
+                <span
+                  class="photos-logo-chip flex h-5 w-8 shrink-0 items-center justify-center overflow-hidden rounded"
+                >
+                  <img
+                    v-if="opt.value"
+                    :src="getLogoUrl(opt.value)"
+                    :alt="opt.label"
+                    loading="lazy"
+                    class="max-h-3.5 max-w-7 object-contain"
+                  >
+                  <span v-else class="text-[9px] text-tech-faint">AUTO</span>
+                </span>
+                <span class="min-w-0 flex-1 truncate">{{ opt.label }}</span>
+              </button>
+            </li>
+          </ul>
+        </div>
 
         <label class="flex cursor-pointer items-center gap-2">
           <input
@@ -615,24 +683,21 @@ onBeforeUnmount(() => {
       --range-shdw: var(--color-primary);
     }
 
-    :deep(.select-bordered) {
-      border-color: var(--tech-border);
+    .photos-logo-trigger {
+      background-color: var(--tech-input-bg);
+      color: var(--tech-fg);
     }
 
-    .photos-tool-select {
-      appearance: auto;
-      color-scheme: var(--tech-color-scheme, light);
-      background-color: var(--tech-input-bg) !important;
-      color: var(--tech-fg) !important;
+    .photos-logo-menu {
+      background-color: var(--tech-dropdown-bg);
+      color: var(--tech-fg);
+      backdrop-filter: blur(12px);
+    }
 
-      &:focus {
-        background-color: var(--tech-input-bg) !important;
-      }
-
-      option {
-        background-color: var(--tech-input-bg) !important;
-        color: var(--tech-fg) !important;
-      }
+    /* Logo 多为深色字，浅底保证深浅主题都可读 */
+    .photos-logo-chip {
+      background: #fff;
+      border: 1px solid color-mix(in srgb, var(--tech-border) 80%, transparent);
     }
   }
 </style>

@@ -1,9 +1,19 @@
 /**
- * Canvas → JPEG：优先 @jsquash/jpeg（mozjpeg WASM），失败回退 canvas.toBlob。
- * 供摄影边框等导出路径使用；quality 与 Canvas 约定一致（0–1）。
+ * Canvas → JPEG：优先 @jsquash/jpeg（mozjpeg WASM），失败回退浏览器原生编码。
+ * 供摄影边框、水印导出（主线程 HTMLCanvas / Worker OffscreenCanvas）共用。
  */
 
 type JpegEncodeFn = (data: ImageData, options?: { quality?: number }) => Promise<ArrayBuffer>;
+
+type JpegCanvasLike = {
+  width: number;
+  height: number;
+  getContext: (contextId: '2d') => {
+    getImageData: (sx: number, sy: number, sw: number, sh: number) => ImageData;
+  } | null;
+  toBlob?: (callback: (blob: Blob | null) => void, type?: string, quality?: number) => void;
+  convertToBlob?: (options?: { type?: string; quality?: number }) => Promise<Blob>;
+};
 
 let jpegEncode: JpegEncodeFn | null = null;
 
@@ -16,9 +26,13 @@ async function getJpegEncode(): Promise<JpegEncodeFn> {
   return jpegEncode;
 }
 
-/** Canvas toBlob 回退（浏览器原生 JPEG） */
-function canvasToJpegBlob(canvas: HTMLCanvasElement, quality01: number): Promise<Blob> {
+/** HTMLCanvasElement.toBlob 回退 */
+function canvasToJpegBlob(canvas: JpegCanvasLike, quality01: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
+    if (typeof canvas.toBlob !== 'function') {
+      reject(new Error('toBlob unavailable'));
+      return;
+    }
     canvas.toBlob(
       blob => (blob ? resolve(blob) : reject(new Error('JPEG 导出失败'))),
       'image/jpeg',
@@ -27,17 +41,32 @@ function canvasToJpegBlob(canvas: HTMLCanvasElement, quality01: number): Promise
   });
 }
 
+/** OffscreenCanvas.convertToBlob 回退（Worker） */
+async function offscreenToJpegBlob(canvas: JpegCanvasLike, quality01: number): Promise<Blob> {
+  if (typeof canvas.convertToBlob !== 'function') {
+    throw new Error('convertToBlob unavailable');
+  }
+  const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: quality01 });
+  if (!blob) {
+    throw new Error('JPEG 导出失败');
+  }
+  return blob;
+}
+
 /**
  * 将已绘制完成的 Canvas 编码为 JPEG Blob。
- * @param quality01 0–1，与原先 toBlob 第三参一致（如 0.92）
+ * @param quality01 0–1，与 toBlob 第三参一致（如 0.92）
  */
 export async function encodeCanvasToJpeg(
-  canvas: HTMLCanvasElement,
+  canvas: HTMLCanvasElement | OffscreenCanvas | JpegCanvasLike,
   quality01 = 0.92,
 ): Promise<Blob> {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
-    return canvasToJpegBlob(canvas, quality01);
+    if (typeof (canvas as JpegCanvasLike).convertToBlob === 'function') {
+      return offscreenToJpegBlob(canvas as JpegCanvasLike, quality01);
+    }
+    return canvasToJpegBlob(canvas as JpegCanvasLike, quality01);
   }
 
   const quality100 = Math.round(Math.min(1, Math.max(0, quality01)) * 100);
@@ -51,8 +80,11 @@ export async function encodeCanvasToJpeg(
     }
   }
   catch (err) {
-    console.warn('[jpeg-encode] WASM JPEG 失败，回退 toBlob', err);
+    console.warn('[jpeg-encode] WASM JPEG 失败，回退原生编码', err);
   }
 
-  return canvasToJpegBlob(canvas, quality01);
+  if (typeof (canvas as JpegCanvasLike).convertToBlob === 'function') {
+    return offscreenToJpegBlob(canvas as JpegCanvasLike, quality01);
+  }
+  return canvasToJpegBlob(canvas as JpegCanvasLike, quality01);
 }

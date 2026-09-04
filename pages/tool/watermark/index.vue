@@ -1,6 +1,9 @@
 <!--
   批量图片水印：本地选图后在 Canvas 绘制文字水印，支持预览、大图查看与 ZIP 打包下载。
-  水印文案或样式变更时会基于原图重新渲染；导出时可选择 PNG/JPEG 与质量。
+  预览：主线程降采样（最长边 1280）+ 原生 JPEG，不走 WASM。
+  单张下载：主线程导出（保住点击手势，避免 Worker 往返后 a.download 被静默拦截）。
+  批量 ZIP：手势内 showSaveFilePicker 后可用 Worker；无该 API 时回退主线程。
+  绘制逻辑见 utils/watermark-draw；导出客户端见 utils/watermark-export-client。
 -->
 <template>
   <div class="mx-auto w-full max-w-3xl space-y-4">
@@ -272,60 +275,49 @@
 import { messageDanger, messageSuccess } from '@/utils/toast';
 import { debounce } from '@/utils/index';
 import { blobToUint8Array, zipFilesToBlob } from '@/utils/zip-files';
+import {
+  WATERMARK_FONT_OPTIONS,
+  buildWatermarkText,
+  drawWatermarkLayer,
+  ensureWatermarkFont,
+  getExportExtension,
+  resolveFontSize,
+  type ExportFormat,
+  type ExportOptions,
+  type FontSizeMode,
+  type WatermarkColorMode,
+  type WatermarkFontKey,
+  type WatermarkPosition,
+  type WatermarkStyle,
+} from '@/utils/watermark-draw';
+import {
+  canUseWatermarkExportWorker,
+  exportWatermarkInWorker,
+  initWatermarkExportWorker,
+  terminateWatermarkExportWorker,
+} from '@/utils/watermark-export-client';
+import { isSaveAbortError, pickSaveFileHandle, saveBlob } from '@/utils/save-blob';
 
 const { open: openImagePreview } = useImagePreview();
 
 const MAX_PHOTOS = 50;
+/** 预览最长边，与摄影边框页一致，避免全尺寸预览卡顿 */
+const PREVIEW_MAX_DIM = 1280;
+/** 预览 JPEG 质量（仅展示，导出另走原图编码） */
+const PREVIEW_JPEG_QUALITY = 0.85;
 
 interface WatermarkItem {
   id: string;
   name: string;
+  /** 原图 File，供 createImageBitmap / 导出解码 */
+  file: File;
+  /** 原图 blob: URL */
   originalSrc: string;
+  /** 加水印后的预览 blob: URL（降采样 JPEG） */
   previewSrc: string;
 }
 
 type TimeMark = 'yes' | 'no';
-type WatermarkPosition = 'bottom' | 'top' | 'center' | 'bottom-left' | 'bottom-right' | 'tile';
-type FontSizeMode = 'auto' | 'manual';
-type WatermarkColorMode = 'white' | 'black' | 'custom';
-type ExportFormat = 'png' | 'jpeg';
-type WatermarkFontKey = 'harmony' | 'pingfang' | 'yahei' | 'song' | 'kaiti' | 'mono';
-
-interface WatermarkFontOption {
-  value: WatermarkFontKey;
-  label: string;
-  family: string;
-}
-
-const WATERMARK_FONT_OPTIONS: WatermarkFontOption[] = [
-  { value: 'harmony', label: '鸿蒙 Sans（推荐）', family: 'HarmonyOS-Sans, sans-serif' },
-  { value: 'pingfang', label: '苹方', family: '"PingFang SC", "Hiragino Sans GB", sans-serif' },
-  { value: 'yahei', label: '微软雅黑', family: '"Microsoft YaHei", sans-serif' },
-  { value: 'song', label: '宋体', family: '"Songti SC", SimSun, serif' },
-  { value: 'kaiti', label: '楷体', family: '"Kaiti SC", KaiTi, STKaiti, serif' },
-  { value: 'mono', label: '等宽', family: 'ui-monospace, "SF Mono", Consolas, monospace' },
-];
-
-interface WatermarkStyle {
-  position: WatermarkPosition;
-  opacity: number;
-  fontSizeMode: FontSizeMode;
-  customFontSize: number;
-  colorMode: WatermarkColorMode;
-  customColor: string;
-  rotation: number;
-  fontFamily: WatermarkFontKey;
-}
-
-interface ExportOptions {
-  format: ExportFormat;
-  jpegQuality: number;
-}
-
-interface WatermarkColors {
-  fill: string;
-  shadow: string;
-}
 
 const customMark = ref('我的水印');
 const timeMark = ref<TimeMark>('yes');
@@ -384,30 +376,7 @@ const selectedFontFamily = computed(
     ?? WATERMARK_FONT_OPTIONS[0]!.family,
 );
 
-function resolveFontFamily(style: WatermarkStyle): string {
-  return (
-    WATERMARK_FONT_OPTIONS.find(opt => opt.value === style.fontFamily)?.family
-    ?? WATERMARK_FONT_OPTIONS[0]!.family
-  );
-}
-
-function buildCanvasFont(fontSize: number, style: WatermarkStyle): string {
-  return `${fontSize}px ${resolveFontFamily(style)}`;
-}
-
-async function ensureWatermarkFont(style: WatermarkStyle, fontSize: number): Promise<void> {
-  if (!document.fonts) {
-    return;
-  }
-  try {
-    await document.fonts.load(buildCanvasFont(fontSize, style));
-    await document.fonts.ready;
-  }
-  catch {
-    // 系统字体或已加载字体失败时仍尝试绘制
-  }
-}
-
+/** 从表单收集水印样式（预览与导出共用） */
 function getWatermarkStyle(): WatermarkStyle {
   return {
     position: watermarkPosition.value,
@@ -421,6 +390,7 @@ function getWatermarkStyle(): WatermarkStyle {
   };
 }
 
+/** 当前导出格式与 JPEG 质量 */
 function getExportOptions(): ExportOptions {
   return {
     format: exportFormat.value,
@@ -428,205 +398,154 @@ function getExportOptions(): ExportOptions {
   };
 }
 
-function getExportExtension(format: ExportFormat): string {
-  return format === 'jpeg' ? 'jpg' : 'png';
+/** 当前水印完整文案（含可选日期） */
+function getWatermarkText(): string {
+  return buildWatermarkText(customMark.value, timeMark.value === 'yes');
 }
 
-function resolveRotationDeg(style: WatermarkStyle): number {
-  if (style.position === 'tile' && style.rotation === 0) {
-    return -30;
+/** 释放 blob: URL，忽略 data:/http: */
+function revokeBlobUrl(url: string): void {
+  if (url.startsWith('blob:')) {
+    URL.revokeObjectURL(url);
   }
-  return style.rotation;
 }
 
-function buildWatermarkText(): string {
-  const parts: string[] = [];
-  const text = customMark.value.trim();
-  if (text) {
-    parts.push(text);
-  }
-  if (timeMark.value === 'yes') {
-    parts.push(new Date().toLocaleDateString('zh-CN'));
-  }
-  return parts.join('  ');
+/** 释放条目占用的 object URL（原图 + 预览） */
+function revokeItemUrls(item: WatermarkItem): void {
+  revokeBlobUrl(item.originalSrc);
+  revokeBlobUrl(item.previewSrc);
 }
 
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-  const normalized = hex.replace('#', '').trim();
-  if (normalized.length === 3) {
-    return {
-      r: Number.parseInt(normalized[0]! + normalized[0]!, 16),
-      g: Number.parseInt(normalized[1]! + normalized[1]!, 16),
-      b: Number.parseInt(normalized[2]! + normalized[2]!, 16),
-    };
+/** 清空列表并释放全部 blob URL */
+function clearItems(): void {
+  for (const item of items.value) {
+    revokeItemUrls(item);
   }
-  if (normalized.length === 6) {
-    return {
-      r: Number.parseInt(normalized.slice(0, 2), 16),
-      g: Number.parseInt(normalized.slice(2, 4), 16),
-      b: Number.parseInt(normalized.slice(4, 6), 16),
-    };
-  }
-  return null;
+  items.value = [];
 }
 
-function getWatermarkColors(style: WatermarkStyle): WatermarkColors {
-  const alpha = Math.min(100, Math.max(20, style.opacity)) / 100;
-
-  if (style.colorMode === 'black') {
-    return {
-      fill: `rgba(0, 0, 0, ${alpha})`,
-      shadow: `rgba(255, 255, 255, ${alpha * 0.45})`,
-    };
+/**
+   * 解码图片；maxDim 时优先 createImageBitmap 硬件缩放。
+   * @returns bitmap 与相对原图的 scale（导出为 1）
+   */
+async function decodeImageSource(
+  file: File,
+  maxDim?: number,
+): Promise<{ bitmap: ImageBitmap; scale: number }> {
+  if (typeof createImageBitmap !== 'function') {
+    throw new Error('createImageBitmap unsupported');
   }
 
-  if (style.colorMode === 'custom') {
-    const rgb = hexToRgb(style.customColor) ?? { r: 255, g: 255, b: 255 };
-    return {
-      fill: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`,
-      shadow: `rgba(0, 0, 0, ${alpha * 0.4})`,
-    };
+  const full = await createImageBitmap(file);
+  const longest = Math.max(full.width, full.height);
+  if (!maxDim || longest <= maxDim) {
+    return { bitmap: full, scale: 1 };
   }
 
-  return {
-    fill: `rgba(255, 255, 255, ${alpha})`,
-    shadow: `rgba(0, 0, 0, ${alpha * 0.5})`,
-  };
-}
-
-function resolveFontSize(width: number, height: number, style: WatermarkStyle): number {
-  if (style.fontSizeMode === 'manual') {
-    return Math.min(120, Math.max(12, style.customFontSize || 30));
+  const scale = maxDim / longest;
+  try {
+    const resized = await createImageBitmap(file, {
+      resizeWidth: Math.max(1, Math.round(full.width * scale)),
+      resizeHeight: Math.max(1, Math.round(full.height * scale)),
+      resizeQuality: 'medium',
+    });
+    full.close();
+    return { bitmap: resized, scale };
   }
-  return Math.max(16, Math.round(Math.min(width, height) * 0.04));
+  catch {
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(full.width * scale));
+    canvas.height = Math.max(1, Math.round(full.height * scale));
+    canvas.getContext('2d')?.drawImage(full, 0, 0, canvas.width, canvas.height);
+    const resized = await createImageBitmap(canvas);
+    full.close();
+    return { bitmap: resized, scale };
+  }
 }
 
-function drawTextWithShadow(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  colors: WatermarkColors,
-): void {
-  ctx.fillStyle = colors.shadow;
-  ctx.fillText(text, x + 1, y + 1);
-  ctx.fillStyle = colors.fill;
-  ctx.fillText(text, x, y);
+/** HTMLImageElement 回退解码（无 createImageBitmap 时） */
+function loadImageElement(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('image load failed'));
+    img.src = src;
+  });
 }
 
-function drawSingleWatermark(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  width: number,
-  height: number,
-  style: WatermarkStyle,
-): void {
-  const fontSize = resolveFontSize(width, height, style);
-  const pad = Math.round(fontSize * 0.65);
-  const colors = getWatermarkColors(style);
-  const rotationRad = (resolveRotationDeg(style) * Math.PI) / 180;
-
-  ctx.font = buildCanvasFont(fontSize, style);
-  ctx.textBaseline = 'middle';
-
-  let x = width / 2;
-  let y = height - pad - fontSize / 2;
-  let textAlign: 'left' | 'right' | 'center' | 'start' | 'end' = 'center';
-
-  switch (style.position) {
-    case 'top':
-      y = pad + fontSize / 2;
-      break;
-    case 'center':
-      y = height / 2;
-      break;
-    case 'bottom-left':
-      x = pad;
-      y = height - pad - fontSize / 2;
-      textAlign = 'left';
-      break;
-    case 'bottom-right':
-      x = width - pad;
-      y = height - pad - fontSize / 2;
-      textAlign = 'right';
-      break;
-    default:
-      break;
+/**
+   * 绘制加水印 canvas（主线程：预览降采样 / 导出回退全分辨率）。
+   * @param maxDim 传入则降采样（预览）；省略则原图像素（导出）
+   * @param text 完整水印文案
+   */
+async function renderWatermarkedCanvas(
+  file: File,
+  originalSrc: string,
+  style = getWatermarkStyle(),
+  text = getWatermarkText(),
+  maxDim?: number,
+): Promise<HTMLCanvasElement> {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('canvas unsupported');
   }
 
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(rotationRad);
-  ctx.textAlign = textAlign;
-  drawTextWithShadow(ctx, text, 0, 0, colors);
-  ctx.restore();
-}
-
-function drawTiledWatermark(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  width: number,
-  height: number,
-  style: WatermarkStyle,
-): void {
-  const fontSize = resolveFontSize(width, height, style);
-  const colors = getWatermarkColors(style);
-  const rotationRad = (resolveRotationDeg(style) * Math.PI) / 180;
-
-  ctx.save();
-  ctx.font = buildCanvasFont(fontSize, style);
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-
-  const textWidth = ctx.measureText(text).width;
-  const gapX = textWidth + fontSize * 2;
-  const gapY = fontSize * 3;
-  const radius = Math.sqrt(width * width + height * height);
-
-  ctx.translate(width / 2, height / 2);
-  ctx.rotate(rotationRad);
-
-  for (let y = -radius; y < radius; y += gapY) {
-    for (let x = -radius; x < radius; x += gapX) {
-      drawTextWithShadow(ctx, text, x, y, colors);
+  let scale = 1;
+  try {
+    const decoded = await decodeImageSource(file, maxDim);
+    canvas.width = decoded.bitmap.width;
+    canvas.height = decoded.bitmap.height;
+    scale = decoded.scale;
+    ctx.drawImage(decoded.bitmap, 0, 0);
+    decoded.bitmap.close();
+  }
+  catch {
+    // createImageBitmap 不可用或失败时回退 Image + 软缩放
+    const img = await loadImageElement(originalSrc);
+    const longest = Math.max(img.width, img.height);
+    if (maxDim && longest > maxDim) {
+      scale = maxDim / longest;
+      canvas.width = Math.max(1, Math.round(img.width * scale));
+      canvas.height = Math.max(1, Math.round(img.height * scale));
     }
+    else {
+      canvas.width = img.width;
+      canvas.height = img.height;
+    }
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   }
 
-  ctx.restore();
+  const fontSize = resolveFontSize(canvas.width, canvas.height, style, scale);
+  await ensureWatermarkFont(document.fonts, style, fontSize);
+  drawWatermarkLayer(ctx, canvas.width, canvas.height, style, text, scale);
+  return canvas;
 }
 
-function drawWatermarkLayer(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  style: WatermarkStyle,
-): void {
-  const text = buildWatermarkText();
-  if (!text) {
-    return;
-  }
-
-  if (style.position === 'tile') {
-    drawTiledWatermark(ctx, text, width, height, style);
-    return;
-  }
-
-  drawSingleWatermark(ctx, text, width, height, style);
+/** 预览：降采样 + 浏览器原生 JPEG blob URL（不拉 mozjpeg WASM） */
+async function renderPreviewObjectUrl(
+  file: File,
+  originalSrc: string,
+  style = getWatermarkStyle(),
+): Promise<string> {
+  const canvas = await renderWatermarkedCanvas(
+    file,
+    originalSrc,
+    style,
+    getWatermarkText(),
+    PREVIEW_MAX_DIM,
+  );
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      b => (b ? resolve(b) : reject(new Error('preview encode failed'))),
+      'image/jpeg',
+      PREVIEW_JPEG_QUALITY,
+    );
+  });
+  return URL.createObjectURL(blob);
 }
 
-/** 预览用：同步 data URL（不走 WASM，避免首屏拉 codec） */
-function encodeCanvasDataUrl(
-  canvas: HTMLCanvasElement,
-  exportOptions: ExportOptions = { format: 'png', jpegQuality: 90 },
-): string {
-  if (exportOptions.format === 'jpeg') {
-    const quality = Math.min(1, Math.max(0.6, exportOptions.jpegQuality / 100));
-    return canvas.toDataURL('image/jpeg', quality);
-  }
-  return canvas.toDataURL('image/png');
-}
-
-/** 导出用：JPEG 优先 mozjpeg WASM，PNG 用 toBlob */
+/** 导出用：JPEG 优先 mozjpeg WASM，PNG 用 toBlob（主线程回退） */
 async function encodeCanvasBlob(
   canvas: HTMLCanvasElement,
   exportOptions: ExportOptions = { format: 'png', jpegQuality: 90 },
@@ -657,82 +576,44 @@ function sanitizeFileName(name: string): string {
   );
 }
 
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result;
-      if (typeof result === 'string') {
-        resolve(result);
-        return;
-      }
-      reject(new Error('read failed'));
-    };
-    reader.onerror = () => reject(new Error('read failed'));
-    reader.readAsDataURL(file);
-  });
-}
-
-function renderWatermarkedCanvas(
-  src: string,
-  style = getWatermarkStyle(),
-): Promise<HTMLCanvasElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = async () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject(new Error('canvas unsupported'));
-        return;
-      }
-
-      ctx.drawImage(img, 0, 0);
-      const fontSize = resolveFontSize(canvas.width, canvas.height, style);
-      await ensureWatermarkFont(style, fontSize);
-      drawWatermarkLayer(ctx, canvas.width, canvas.height, style);
-      resolve(canvas);
-    };
-    img.onerror = () => reject(new Error('image load failed'));
-    img.src = src;
-  });
-}
-
-async function renderWatermarkedImage(
-  src: string,
-  style = getWatermarkStyle(),
-  exportOptions: ExportOptions = { format: 'png', jpegQuality: 90 },
-): Promise<string> {
-  const canvas = await renderWatermarkedCanvas(src, style);
-  return encodeCanvasDataUrl(canvas, exportOptions);
-}
-
-/** 导出文件用 Blob（JPEG 走 WASM） */
-async function renderWatermarkedBlob(
-  src: string,
-  style = getWatermarkStyle(),
-  exportOptions: ExportOptions = { format: 'png', jpegQuality: 90 },
+/** 主线程全分辨率导出（Worker 不可用或失败时） */
+async function renderWatermarkedBlobOnMain(
+  item: WatermarkItem,
+  text: string,
+  style: WatermarkStyle,
+  exportOptions: ExportOptions,
 ): Promise<Blob> {
-  const canvas = await renderWatermarkedCanvas(src, style);
+  const canvas = await renderWatermarkedCanvas(item.file, item.originalSrc, style, text);
   return encodeCanvasBlob(canvas, exportOptions);
 }
 
-async function getExportBlob(item: WatermarkItem): Promise<Blob> {
-  return renderWatermarkedBlob(item.originalSrc, getWatermarkStyle(), getExportOptions());
+/**
+   * 导出加水印 Blob。
+   * @param allowWorker 为 false 时强制主线程（无 File System Access 时保留用户手势，避免 a.download 被拦截）
+   */
+async function getExportBlob(item: WatermarkItem, allowWorker = true): Promise<Blob> {
+  const style = getWatermarkStyle();
+  const exportOptions = getExportOptions();
+  const text = getWatermarkText();
+
+  if (allowWorker && canUseWatermarkExportWorker()) {
+    try {
+      return await exportWatermarkInWorker({
+        file: item.file,
+        text,
+        style,
+        exportOptions,
+      });
+    }
+    catch (err) {
+      console.warn('[watermark] Worker 导出失败，回退主线程', err);
+    }
+  }
+
+  return renderWatermarkedBlobOnMain(item, text, style, exportOptions);
 }
 
-function downloadFileBlob(blob: Blob, filename: string): void {
-  const link = document.createElement('a');
-  const objectUrl = URL.createObjectURL(blob);
-  link.href = objectUrl;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(objectUrl);
-}
-
+/** 选图 / 拖入：blob URL 存原图，预览降采样后写入列表 */
 async function processFiles(files: FileList | File[]) {
   const picked = Array.from(files).filter(file => file.type.startsWith('image/'));
   if (!picked.length) {
@@ -752,7 +633,7 @@ async function processFiles(files: FileList | File[]) {
   }
 
   if (!appendMode.value) {
-    items.value = [];
+    clearItems();
   }
 
   processing.value = true;
@@ -762,16 +643,23 @@ async function processFiles(files: FileList | File[]) {
 
   try {
     for (const file of toAdd) {
-      const originalSrc = await readFileAsDataUrl(file);
-      const previewSrc = await renderWatermarkedImage(originalSrc, style);
-      const baseName = file.name.replace(/\.[^.]+$/, '') || `image-${items.value.length + 1}`;
+      const originalSrc = URL.createObjectURL(file);
+      try {
+        const previewSrc = await renderPreviewObjectUrl(file, originalSrc, style);
+        const baseName = file.name.replace(/\.[^.]+$/, '') || `image-${items.value.length + 1}`;
 
-      items.value.push({
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        name: sanitizeFileName(baseName),
-        originalSrc,
-        previewSrc,
-      });
+        items.value.push({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          name: sanitizeFileName(baseName),
+          file,
+          originalSrc,
+          previewSrc,
+        });
+      }
+      catch (err) {
+        revokeBlobUrl(originalSrc);
+        throw err;
+      }
       processedCount.value += 1;
       await new Promise(resolve => setTimeout(resolve, 0));
     }
@@ -779,7 +667,7 @@ async function processFiles(files: FileList | File[]) {
   catch {
     messageDanger('图片处理失败，请重试');
     if (!appendMode.value) {
-      items.value = [];
+      clearItems();
     }
   }
   finally {
@@ -792,6 +680,7 @@ async function processFiles(files: FileList | File[]) {
   }
 }
 
+/** 样式变更：仅重绘预览，释放旧 preview URL */
 const rerenderAll = debounce(async () => {
   if (!items.value.length || processing.value) {
     return;
@@ -805,7 +694,8 @@ const rerenderAll = debounce(async () => {
   try {
     const nextItems: WatermarkItem[] = [];
     for (const item of items.value) {
-      const previewSrc = await renderWatermarkedImage(item.originalSrc, style);
+      const previewSrc = await renderPreviewObjectUrl(item.file, item.originalSrc, style);
+      revokeBlobUrl(item.previewSrc);
       nextItems.push({ ...item, previewSrc });
       processedCount.value += 1;
       await new Promise(resolve => setTimeout(resolve, 0));
@@ -856,16 +746,30 @@ const handleDrop = (event: DragEvent) => {
   }
 };
 
+/** 清空已选并释放 blob URL */
 const clearAll = () => {
-  items.value = [];
+  clearItems();
   if (fileInputRef.value) {
     fileInputRef.value.value = '';
   }
 };
 
+/** 移除单张并释放其 object URL */
 const removeItem = (index: number) => {
-  items.value.splice(index, 1);
+  const [removed] = items.value.splice(index, 1);
+  if (removed) {
+    revokeItemUrls(removed);
+  }
 };
+
+onMounted(() => {
+  initWatermarkExportWorker();
+});
+
+onUnmounted(() => {
+  clearItems();
+  terminateWatermarkExportWorker();
+});
 
 const downloadSingle = async (item: WatermarkItem) => {
   if (processing.value) {
@@ -873,11 +777,14 @@ const downloadSingle = async (item: WatermarkItem) => {
     return;
   }
 
+  const ext = getExportExtension(exportFormat.value);
+  const filename = `${item.name}-watermarked.${ext}`;
+
   downloadingId.value = item.id;
   try {
-    const blob = await getExportBlob(item);
-    const ext = getExportExtension(exportFormat.value);
-    downloadFileBlob(blob, `${item.name}-watermarked.${ext}`);
+    // 单张强制主线程：Worker 往返会断开用户手势，导致 a.download 被浏览器静默拦截
+    const blob = await getExportBlob(item, false);
+    await saveBlob(blob, filename, null);
     messageSuccess('已开始下载');
   }
   catch {
@@ -921,20 +828,31 @@ const downloadAllImages = async () => {
     return;
   }
 
+  // 批量 ZIP：手势内先选保存位置，后续可用 Worker 编码而不丢下载权限
+  let saveHandle: FileSystemFileHandle | null = null;
+  try {
+    saveHandle = await pickSaveFileHandle('watermarked-images.zip', 'application/zip');
+  }
+  catch (err) {
+    if (isSaveAbortError(err)) return;
+  }
+
   loading.value = true;
   try {
     const files: Record<string, Uint8Array> = {};
     const ext = getExportExtension(exportFormat.value);
+    // 已拿到句柄时用 Worker 减卡顿；否则主线程 + a.download
+    const allowWorker = Boolean(saveHandle);
 
     for (let index = 0; index < items.value.length; index++) {
       const item = items.value[index]!;
-      const blob = await getExportBlob(item);
+      const blob = await getExportBlob(item, allowWorker);
       files[`${item.name}-watermarked-${index + 1}.${ext}`] = await blobToUint8Array(blob);
       await new Promise(resolve => setTimeout(resolve, 0));
     }
 
     const content = await zipFilesToBlob(files);
-    downloadFileBlob(content, 'watermarked-images.zip');
+    await saveBlob(content, 'watermarked-images.zip', saveHandle);
     messageSuccess('已开始下载');
   }
   catch {
