@@ -223,7 +223,7 @@ yarn dev:ip
 | 路径 | 说明 |
 |------|------|
 | `/` | 首页文章列表 |
-| `/welcome` | Welcome 液态玻璃试验页（Asme 风格；Featured 轮播最新文章 / RPG 榜首 / 项目 Demo；入口见 `/explore`） |
+| `/welcome` | Welcome 液态玻璃试验页（Featured 轮播文章/RPG/项目锚点；Services 含项目出口；入口见 `/explore`） |
 | `/search?q=` | 搜索页 |
 | `/tag/:id` | 标签文章列表 |
 | `/category/:id` | 分类文章列表 |
@@ -234,7 +234,7 @@ yarn dev:ip
 | `/user/profile` | 个人中心（`?tab=inbox` 收件箱、`?tab=dashboard` 看板） |
 | `/rpg` | RPG 冒险中心（含 BGM/音效控制） |
 | `/about` | 关于作者（正文 + 支付宝赞赏流水） |
-| `/projects` | 项目展示（问题→方案→Demo→相关文章；UniApp 为完整示范；含 Zone / Admin 等 iframe） |
+| `/projects` | 项目展示（顶部目录 + 问题→方案→Demo→文章；Welcome/详情经 `#slug` 锚点互链） |
 | `/open-source` | 开源范围、后端闭源说明与付费套餐 |
 | `/login` | 登录注册 |
 | `/tool/watermark` | 批量图片水印（旋转/颜色/格式、追加选图、单张或 ZIP；导出走 Worker） |

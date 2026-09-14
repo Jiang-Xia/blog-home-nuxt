@@ -1,15 +1,17 @@
 /**
  * Welcome Featured：组装文章 / RPG / 项目橱窗幻灯片。
- * 数据来源：POST /article/list、GET /rpg/leaderboard；项目为 constants 静态 Demo。
- * 欢迎页无 RpgGlobalInit，RPG 用公开榜首，避免未登录打 /rpg/status 弹 toast。
+ * 数据：POST /article/list；RPG 优先静默 GET /rpg/status（已登录），否则 GET /rpg/leaderboard；
+ * 项目文案来自 project-stories（buildWelcomeProjectSlides）。
  */
 import { getArticleList } from '@/api/article';
 import { getRpgLeaderboard } from '@/api/rpg';
+import request from '~~/api/request';
+import { readAccessToken } from '@/utils/auth-token-state';
 import type { WelcomeFeaturedSlide } from '~/constants/welcome-featured';
 import {
   WELCOME_FEATURED_FALLBACK_SLIDE,
-  WELCOME_PROJECT_SLIDES,
   WELCOME_RPG_FALLBACK_SLIDE,
+  buildWelcomeProjectSlides,
 } from '~/constants/welcome-featured';
 
 const ROTATE_MS = 5500;
@@ -57,10 +59,33 @@ async function fetchArticleSlide(): Promise<WelcomeFeaturedSlide | null> {
 }
 
 /**
- * 公开排行榜榜首作 RPG 橱窗；失败用静态冒险文案。
- * 欢迎页访客未登录时也能看到「站里正在玩什么」。
+ * 已登录：静默拉本人 RPG 状态作橱窗；失败或未登录再退到公开榜首 / 静态文案。
  */
 async function fetchRpgSlide(): Promise<WelcomeFeaturedSlide> {
+  if (readAccessToken()) {
+    try {
+      const status = await request.get('/rpg/status', {}, { silent: true });
+      if (status != null && status.level != null) {
+        const level = Number(status.level) || 0;
+        const streak = Number(status.consecutiveSignDays) || 0;
+        const life = Number(status.lifeValue) || 100;
+        const parts = [`连续签到 ${streak} 天`, `生命值 ${life}`];
+        return {
+          id: `rpg-me-lv${level}`,
+          kind: 'rpg',
+          eyebrow: 'Adventure',
+          title: `Lv.${level}`,
+          body: parts.join(' · '),
+          cta: '继续冒险',
+          to: '/rpg',
+        };
+      }
+    }
+    catch {
+      // 未授权或网络失败：继续走公开榜
+    }
+  }
+
   try {
     const board = await getRpgLeaderboard('level', 1, 'total');
     const top = Array.isArray(board) ? board[0] : null;
@@ -101,7 +126,7 @@ export function useWelcomeFeaturedSlides() {
         list.push(article);
       }
       list.push(rpg);
-      list.push(...WELCOME_PROJECT_SLIDES);
+      list.push(...buildWelcomeProjectSlides());
       return list.length > 0 ? list : [WELCOME_FEATURED_FALLBACK_SLIDE];
     },
     {

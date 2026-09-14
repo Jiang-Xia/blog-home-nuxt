@@ -1,6 +1,7 @@
 /**
  * 项目叙事配置：问题 → 方案 → Demo（页面内 iframe）→ 相关文章。
  * 文章 id/title 为编辑精选（与站内已发文对应）；改链时请同步校验 /detail/{id} 仍有效。
+ * Welcome Featured 项目文案由此单源生成（见 welcome-featured.buildWelcomeProjectSlides）。
  */
 export interface ProjectStoryArticle {
   id: number;
@@ -14,7 +15,7 @@ export interface ProjectStory {
   /** URL 锚点，如 /projects#blog-uniapp */
   slug: string;
   title: string;
-  /** 一句话定位 */
+  /** 一句话定位（项目页 + Welcome 橱窗共用） */
   tagline: string;
   problem: string;
   solution: string;
@@ -24,8 +25,8 @@ export interface ProjectStory {
 }
 
 /**
- * 与 /projects 区块一一对应。
- * Blog UniApp 为完整示范；其余先短叙事，文章可后续补。
+ * 与 /projects 区块一一对应；顺序即页内目录顺序。
+ * Blog UniApp 为完整示范；Zone 暂无专文，链系统导读作背景。
  */
 export const PROJECT_STORIES: ProjectStory[] = [
   {
@@ -37,7 +38,18 @@ export const PROJECT_STORIES: ProjectStory[] = [
     solution:
       '独立 Zone 站点 + 项目页手机框预览；旁侧放各端二维码，扫码即达，博客只负责导流与说明。',
     full: false,
-    articles: [],
+    articles: [
+      {
+        id: 140,
+        title: '博客系统自文档 · 四端架构与请求链路',
+        note: '系统背景：多端如何分工（暂无 Zone 专文）',
+      },
+      {
+        id: 139,
+        title: '博客系统自文档 · 导读：这个系统是什么',
+        note: '先建立全貌，再理解独立 Zone 的位置',
+      },
+    ],
   },
   {
     slug: 'blog-uniapp',
@@ -90,6 +102,16 @@ export const PROJECT_STORIES: ProjectStory[] = [
         title: '管理端使用手册 · 导读：作者也要会用后台',
         note: '从作者视角上手后台',
       },
+      {
+        id: 125,
+        title: '管理端使用手册 · 工作台与数据大屏',
+        note: '工作台入口与大屏关系',
+      },
+      {
+        id: 130,
+        title: '管理端使用手册 · RPG 运营（8 个子模块）',
+        note: '冒险数值与活动怎么配',
+      },
     ],
   },
   {
@@ -105,6 +127,11 @@ export const PROJECT_STORIES: ProjectStory[] = [
         title: '管理端使用手册 · 工作台与数据大屏',
         note: '大屏与工作台怎么用',
       },
+      {
+        id: 111,
+        title: '博客系统自文档 · 管理后台能力地图',
+        note: '大屏在后台能力中的位置',
+      },
     ],
   },
   {
@@ -114,9 +141,23 @@ export const PROJECT_STORIES: ProjectStory[] = [
     problem: 'Zone 内容与权限不宜和博客后台完全混在同一套菜单里，需要独立运营入口。',
     solution: '独立 Zone Admin 地址，项目页提供登录预览；与 Zone H5 成对出现。',
     full: false,
-    articles: [],
+    articles: [
+      {
+        id: 140,
+        title: '博客系统自文档 · 四端架构与请求链路',
+        note: '独立后台在多端架构中的位置',
+      },
+      {
+        id: 111,
+        title: '博客系统自文档 · 管理后台能力地图',
+        note: '对照博客 Admin，理解能力边界',
+      },
+    ],
   },
 ];
+
+/** Welcome Featured 收录的项目 slug（文案取自 PROJECT_STORIES.tagline） */
+export const WELCOME_FEATURED_PROJECT_SLUGS = ['blog-uniapp', 'zone', 'data-screen'] as const;
 
 /** 按文章 id 查找「出自哪些项目」（详情页回链） */
 export function findProjectsByArticleId(articleId: string | number): ProjectStory[] {

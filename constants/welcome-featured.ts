@@ -1,7 +1,8 @@
 /**
- * Welcome Featured 橱窗轮播条目与项目 Demo 常量。
- * 项目文案为站内展示用静态配置（与 /projects 对应），不接 API。
+ * Welcome Featured 橱窗：类型、兜底文案；项目幻灯片由 project-stories 单源生成。
  */
+import { getProjectStory, WELCOME_FEATURED_PROJECT_SLUGS } from '~/constants/project-stories';
+
 export interface WelcomeFeaturedSlide {
   /** 稳定 key，供 Transition / 圆点 */
   id: string;
@@ -25,7 +26,7 @@ export const WELCOME_FEATURED_FALLBACK_SLIDE: WelcomeFeaturedSlide = {
   to: '/',
 };
 
-/** RPG 无排行数据时的静态橱窗 */
+/** RPG 无排行 / 无登录态数据时的静态橱窗 */
 export const WELCOME_RPG_FALLBACK_SLIDE: WelcomeFeaturedSlide = {
   id: 'rpg-fallback',
   kind: 'rpg',
@@ -37,35 +38,25 @@ export const WELCOME_RPG_FALLBACK_SLIDE: WelcomeFeaturedSlide = {
 };
 
 /**
- * 项目 Demo 橱窗（链到 /projects，避免外链打断沉浸）。
- * 顺序即轮播顺序。
+ * 从 PROJECT_STORIES 生成 Featured 项目幻灯片（锚点 /projects#slug）。
+ * 标题/短句只维护项目叙事一处，避免与 Welcome 双写漂移。
  */
-export const WELCOME_PROJECT_SLIDES: WelcomeFeaturedSlide[] = [
-  {
-    id: 'project-uniapp',
-    kind: 'project',
-    eyebrow: 'Project',
-    title: 'Blog UniApp',
-    body: 'H5 / 小程序多端博客，扫码即可体验。',
-    cta: '查看项目',
-    to: '/projects',
-  },
-  {
-    id: 'project-zone',
-    kind: 'project',
-    eyebrow: 'Project',
-    title: 'Zone',
-    body: 'Zone H5 与管理端 Demo，嵌在项目页里可点开预览。',
-    cta: '查看项目',
-    to: '/projects',
-  },
-  {
-    id: 'project-datascreen',
-    kind: 'project',
-    eyebrow: 'Project',
-    title: 'Data Screen',
-    body: '数据大屏展示页，和后台同一套部署入口。',
-    cta: '查看项目',
-    to: '/projects',
-  },
-];
+export function buildWelcomeProjectSlides(): WelcomeFeaturedSlide[] {
+  const slides: WelcomeFeaturedSlide[] = [];
+  for (const slug of WELCOME_FEATURED_PROJECT_SLUGS) {
+    const story = getProjectStory(slug);
+    if (!story) {
+      continue;
+    }
+    slides.push({
+      id: `project-${story.slug}`,
+      kind: 'project',
+      eyebrow: 'Project',
+      title: story.title,
+      body: story.tagline,
+      cta: '查看项目',
+      to: `/projects#${story.slug}`,
+    });
+  }
+  return slides;
+}
