@@ -772,6 +772,67 @@ html.tech-shell[data-theme='cyber-light'] {
     padding-inline: 1rem;
     line-height: 1.25rem;
   }
+
+  /* Asme 液态玻璃（仅 /welcome） */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .liquid-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.45) 0%,
+      rgba(255, 255, 255, 0.15) 20%,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 0.15) 80%,
+      rgba(255, 255, 255, 0.45) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .welcome-serif {
+    font-family: 'Instrument Serif', ui-serif, Georgia, serif;
+  }
+
+  .welcome-reveal {
+    opacity: 0;
+    transform: translateY(var(--welcome-reveal-y, 32px));
+    transition:
+      opacity 0.7s ease-out,
+      transform 0.7s ease-out;
+    will-change: transform, opacity;
+  }
+
+  .welcome-reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .welcome-reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
 }
 
 @utility login-input {
@@ -989,4 +1050,55 @@ body.article-editor-page-fs .app-layout-footer {
 
 body.article-editor-page-fs .app-layout-body {
   padding-top: 0 !important;
+}
+
+/*
+ * 仅路由 /welcome：强制白字，避免 cyber-light 把 text-white 映成深色。
+ */
+html.welcome-route .welcome-asme .text-white {
+  color: #fff;
+}
+
+html.welcome-route .welcome-asme .text-white\/80 {
+  color: rgb(255 255 255 / 0.8);
+}
+
+html.welcome-route .welcome-asme .text-white\/70 {
+  color: rgb(255 255 255 / 0.7);
+}
+
+html.welcome-route .welcome-asme .text-white\/60 {
+  color: rgb(255 255 255 / 0.6);
+}
+
+html.welcome-route .welcome-asme .text-white\/50 {
+  color: rgb(255 255 255 / 0.5);
+}
+
+html.welcome-route .welcome-asme .text-white\/40 {
+  color: rgb(255 255 255 / 0.4);
+}
+
+html.welcome-route .welcome-asme .placeholder\:text-white\/40::placeholder {
+  color: rgb(255 255 255 / 0.4);
+}
+
+html.welcome-route .welcome-asme .hover\:text-white:hover {
+  color: #fff;
+}
+
+html.welcome-route .welcome-asme .hover\:bg-white\/5:hover {
+  background-color: rgb(255 255 255 / 0.05);
+}
+
+html.welcome-route .welcome-asme .bg-white\/10 {
+  background-color: rgb(255 255 255 / 0.1);
+}
+
+html.welcome-route .welcome-asme .bg-white {
+  background-color: #fff;
+}
+
+html.welcome-route .welcome-asme .text-black {
+  color: #000;
 }

@@ -62,6 +62,15 @@ const entries: QuickEntry[] = [
     color: 'from-emerald-500 to-teal-500',
     span: 'md:col-span-4',
   },
+  {
+    icon: '✨',
+    title: 'Welcome 视觉',
+    desc: '液态玻璃落地试验页：电影感首屏与能力展示，不影响日常博客首页。',
+    tags: ['试验', '落地页', '视觉'],
+    to: '/welcome',
+    color: 'from-slate-500 to-zinc-700',
+    span: 'md:col-span-4',
+  },
 ];
 </script>
 

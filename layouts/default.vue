@@ -9,9 +9,17 @@ onMounted(() => {
     Cookies.set('browserId', dayjs().valueOf().toString(), { expires: 7 });
   }
 });
+
+const route = useRoute();
+/** /welcome 全屏沉浸：无顶栏/页脚/助手/回到顶部，关掉网格底 */
+const isWelcomeCinematic = computed(
+  () => route.path === '/welcome' || route.path.startsWith('/welcome/'),
+);
+
 useHead({
   htmlAttrs: {
     lang: 'zh-CN',
+    class: computed(() => (isWelcomeCinematic.value ? 'welcome-route' : '')),
   },
   meta: [
     // Meta Language
@@ -83,11 +91,15 @@ useHead({
 // 博客运行时间
 const runTime = Math.ceil((dayjs().unix() - dayjs('2022-03-01').unix()) / (24 * 60 * 60));
 
-const route = useRoute();
-const showGlobalBacktop = computed(() => !route.path.startsWith('/detail/'));
-// 登录页无助手；文章详情浮层已多，避免再叠知识库 FAB 干扰阅读
+const showGlobalBacktop = computed(
+  () => !route.path.startsWith('/detail/') && !isWelcomeCinematic.value,
+);
+  // 登录页 / Welcome 沉浸页无助手；文章详情浮层已多，避免再叠知识库 FAB
 const showRagAssistant = computed(
-  () => !route.path.startsWith('/login') && !route.path.startsWith('/detail/'),
+  () =>
+    !route.path.startsWith('/login')
+    && !route.path.startsWith('/detail/')
+    && !isWelcomeCinematic.value,
 );
 const needsRpgGlobal = computed(() => {
   const path = route.path;
@@ -103,15 +115,24 @@ const needsRpgGlobal = computed(() => {
 </script>
 
 <template>
-  <div class="app-layout tech-shell min-h-screen bg-tech-shell text-tech">
-    <CyberBackground />
-    <header class="app-layout-header border-b border-tech bg-tech-header backdrop-blur-md">
+  <div
+    class="app-layout tech-shell min-h-screen bg-tech-shell text-tech"
+    :class="{ 'welcome-shell': isWelcomeCinematic }"
+  >
+    <CyberBackground v-if="!isWelcomeCinematic" />
+    <header
+      v-if="!isWelcomeCinematic"
+      class="app-layout-header border-b border-tech bg-tech-header backdrop-blur-md"
+    >
       <Nav />
     </header>
     <div class="app-layout-body">
       <NuxtPage />
     </div>
-    <footer class="app-layout-footer border-t border-tech text-tech-subtle">
+    <footer
+      v-if="!isWelcomeCinematic"
+      class="app-layout-footer border-t border-tech text-tech-subtle"
+    >
       <p>
         博客已平稳运行 {{ runTime }} 天
         <a
@@ -192,5 +213,11 @@ const needsRpgGlobal = computed(() => {
       height: 120px;
       font-size: 12px;
     }
+  }
+
+  /* /welcome 无顶栏/页脚，内容铺满视口 */
+  .welcome-shell .app-layout-body {
+    padding-top: 0;
+    min-height: 100vh;
   }
 </style>

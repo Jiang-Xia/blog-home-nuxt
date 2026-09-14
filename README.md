@@ -223,13 +223,14 @@ yarn dev:ip
 | 路径 | 说明 |
 |------|------|
 | `/` | 首页文章列表 |
+| `/welcome` | Welcome 液态玻璃试验页（Asme 风格；Featured 轮播最新文章 / RPG 榜首 / 项目 Demo；入口见 `/explore`） |
 | `/search?q=` | 搜索页 |
 | `/tag/:id` | 标签文章列表 |
 | `/category/:id` | 分类文章列表 |
 | `/detail/:id` | 文章详情（相关推荐、分享、移动 TOC、相邻导航） |
 | `/feed.xml` | RSS 订阅 |
 | `/archives` | 时间归档 |
-| `/explore` | 快速入口（常用页面卡片导航） |
+| `/explore` | 快速入口（含 Welcome 视觉试验页等） |
 | `/user/profile` | 个人中心（`?tab=inbox` 收件箱、`?tab=dashboard` 看板） |
 | `/rpg` | RPG 冒险中心（含 BGM/音效控制） |
 | `/about` | 关于作者（正文 + 支付宝赞赏流水） |
