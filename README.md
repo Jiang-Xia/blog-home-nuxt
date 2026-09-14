@@ -234,7 +234,7 @@ yarn dev:ip
 | `/user/profile` | 个人中心（`?tab=inbox` 收件箱、`?tab=dashboard` 看板） |
 | `/rpg` | RPG 冒险中心（含 BGM/音效控制） |
 | `/about` | 关于作者（正文 + 支付宝赞赏流水） |
-| `/projects` | 项目展示（含 Zone、Blog UniApp H5、Admin 等 iframe 演示） |
+| `/projects` | 项目展示（问题→方案→Demo→相关文章；UniApp 为完整示范；含 Zone / Admin 等 iframe） |
 | `/open-source` | 开源范围、后端闭源说明与付费套餐 |
 | `/login` | 登录注册 |
 | `/tool/watermark` | 批量图片水印（旋转/颜色/格式、追加选图、单张或 ZIP；导出走 Worker） |

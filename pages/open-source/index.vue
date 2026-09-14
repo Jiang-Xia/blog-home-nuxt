@@ -73,7 +73,10 @@ const consultMailBody = encodeURIComponent(
       </h2>
       <p class="mb-4 text-sm leading-relaxed text-tech-muted">
         江夏 Blog 采用前后端分离的三端架构：Nuxt3 前台、Vue3 管理端、NestJS 后端。 你可以直接 Fork
-        前台与后台仓库学习 UI 与交互；完整跑通线上同款能力需要后端服务（闭源）。
+        前台与后台仓库学习 UI 与交互；完整跑通线上同款能力需要后端服务（闭源）。 各端在线
+        Demo、问题与方案叙事见
+        <NuxtLink to="/projects" class="link link-primary"> 项目展示 </NuxtLink>
+        （含 UniApp 完整案例）。
       </p>
       <div class="grid gap-4 md:grid-cols-3">
         <CyberCard
