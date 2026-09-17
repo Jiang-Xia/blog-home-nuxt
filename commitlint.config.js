@@ -25,5 +25,7 @@ export default {
       ],
     ],
     'subject-case': [0],
+    // 中文 body 常含路径/文件名，关闭默认 100 字符行宽限制
+    'body-max-line-length': [0],
   },
 };
