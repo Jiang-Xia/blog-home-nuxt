@@ -187,7 +187,7 @@ VITE_NUXT_GATEWAY_CRYPTO=aes
 
 开发模式下，前端 `baseUrl` 为 `/blog-api`，由 `nuxt.config.ts` 代理到 `http://localhost:5000/api/v1`（手机/LAN 调试与 PC 一致，勿直连 `localhost:5000`）。
 
-开启 `VITE_NUXT_OPEN_ENCRYPT=true` 时，请求走 `/encrypt` 网关：每请求随机对称密钥（RSA/SM2 封装）+ 随机 IV + HMAC；协议见 [blog-server README 加密网关](../blog-server/README.md)。`utils/crypto.ts` 静态 AES 仅用于工具页（如 AI 摘要），与网关无关。
+开启 `VITE_NUXT_OPEN_ENCRYPT=true` 时，请求走 `/encrypt` 网关：每请求随机对称密钥（RSA/SM2 封装）+ 随机 IV + HMAC；客户端实现见 `utils/gateway-crypto/`（与 Nest 同构 suite 拆分），协议见 [blog-server README 加密网关](../blog-server/README.md)。`utils/crypto.ts` 静态 AES 仅用于工具页（如 AI 摘要），与网关无关。
 
 ### 安装依赖
 

@@ -1,6 +1,6 @@
 /**
  * 遗留静态 AES（AI 摘要 ?params= 等工具页）。
- * HTTP /encrypt 网关请使用 utils/gateway-crypto.ts，勿混用。
+ * HTTP /encrypt 网关请使用 utils/gateway-crypto/，勿混用。
  * CryptoJS 按需引入（aes / enc-* / format-hex / pad-pkcs7）。
  */
 import AES from 'crypto-js/aes';
