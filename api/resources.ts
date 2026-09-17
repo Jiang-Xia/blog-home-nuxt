@@ -1,19 +1,17 @@
+/**
+ * 静态资源上传 API（头像/封面/文章图）。
+ * 上传前经 compressAndHashImage：Worker 压缩 + 原图 SHA-256 作为 contentHash。
+ */
 import request from '~~/api/request';
 import { resolveStaticUrl } from '@/utils/static-url';
-import { compressImageFile } from '@/utils/image-compress';
-import {
-  isSameAvatarContent,
-  isSameCoverContent,
-  toStaticPath,
-  computeFileSha256,
-} from '@/utils/file-hash';
+import { compressAndHashImage } from '@/utils/image-compress';
+import { isSameAvatarContent, isSameCoverContent, toStaticPath } from '@/utils/file-hash';
 import { messageInfo } from '@/utils/toast';
 
 export type UploadMediaCategory = 'avatar' | 'cover' | 'article';
 
 const postUploadMedia = async (file: File, category: UploadMediaCategory) => {
-  const contentHash = await computeFileSha256(file);
-  const compressed = await compressImageFile(file, category);
+  const { file: compressed, contentHash } = await compressAndHashImage(file, category);
   const form = new FormData();
   form.append('fileContents', compressed);
   form.append('contentHash', contentHash);
@@ -27,8 +25,7 @@ export const uploadRegisterAvatar = async (file: File, currentAvatarUrl?: string
     messageInfo('头像未变更');
     return [{ url: toStaticPath(currentAvatarUrl) }];
   }
-  const contentHash = await computeFileSha256(file);
-  const compressed = await compressImageFile(file, 'avatar');
+  const { file: compressed, contentHash } = await compressAndHashImage(file, 'avatar');
   const form = new FormData();
   form.append('fileContents', compressed);
   form.append('contentHash', contentHash);

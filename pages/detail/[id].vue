@@ -2,7 +2,7 @@
 /**
    * 文章详情页
    * - 评论分页、JSON-LD / canonical SEO
-   * - 集成相关推荐、分享、移动 TOC、相邻文章导航
+   * - 集成项目回链、相关推荐、分享、移动 TOC、相邻文章导航
    */
 import { ref, reactive, computed, watch } from 'vue';
 import { MdPreview } from 'md-editor-v3';
@@ -397,6 +397,7 @@ watch(
               :md-heading-id="mdHeadingId"
               @on-get-catalog="onGetCatalogHandle"
             />
+            <ArticleProjectOrigin v-if="ArticleInfo.id" :article-id="ArticleInfo.id" />
             <ArticleRelated v-if="ArticleInfo.id" :article-id="ArticleInfo.id" />
             <ArticleAdjacentNav :prev="adjacentPrev" :next="adjacentNext" />
             <ArticleShareBar :article-id="ArticleInfo.id" :title="ArticleInfo.title" />

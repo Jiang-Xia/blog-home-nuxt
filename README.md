@@ -62,7 +62,8 @@ Blog Home Nuxt 是一个基于现代前端技术栈构建的个人博客系统�
 ### 🚀 技术特性
 - **SSR/SSG**：支持服务端渲染和静态生成
 - **SEO 优化**：自动生成 sitemap，优化搜索引擎收录
-- **性能优化**：图片懒加载、代码分割、缓存策略；`useAsyncData` 同 key 合并重复请求（见 [页面开发规范 §2.4](./docs/page-development-guide.md#24-useasyncdata-与请求去重)）
+- **性能优化**：图片懒加载、代码分割、缓存策略；`useAsyncData` 同 key 合并重复请求（见 [页面开发规范 §2.4](./docs/page-development-guide.md#24-useasyncdata-与请求去重)）；生产包 esbuild `drop` 剔除 `console` / `debugger`；头像/封面/文章图上传前在 module worker 中缩放并用 `@jsquash/webp` 编码；水印全分辨率导出在 module worker（OffscreenCanvas 叠字 + `@jsquash/jpeg`），失败回退主线程；摄影边框导出 JPEG 同用 mozjpeg WASM；批量 ZIP 使用 `fflate`；分片上传整文件指纹使用 `hash-wasm`（WASM MD5，失败回退 SparkMD5）
+- **控制台彩蛋**：打开 DevTools 打印命令菜单（`help` / `about` / `go`），见 `plugins/console-egg.client.ts`
 - **开发体验**：热重载、TypeScript 支持、ESLint 规范
 
 ## 🛠️ 技术栈
@@ -180,9 +181,13 @@ VITE_NUXT_API_PREFIX=/api/v1
 VITE_NUXT_PREFIX_PATH=/blog-api
 VITE_NUXT_ADMIN_URL=https://admin.jiang-xia.top/login
 VITE_NUXT_OPEN_ENCRYPT=false
+# 网关套件：aes（AES/RSA）| gm（SM4/SM2），须与 Nest app_gatewayCrypto 一致
+VITE_NUXT_GATEWAY_CRYPTO=aes
 ```
 
 开发模式下，前端 `baseUrl` 为 `/blog-api`，由 `nuxt.config.ts` 代理到 `http://localhost:5000/api/v1`（手机/LAN 调试与 PC 一致，勿直连 `localhost:5000`）。
+
+开启 `VITE_NUXT_OPEN_ENCRYPT=true` 时，请求走 `/encrypt` 网关：每请求随机对称密钥（RSA/SM2 封装）+ 随机 IV + HMAC；客户端实现见 `utils/gateway-crypto/`（与 Nest 同构 suite 拆分），协议见 [blog-server README 加密网关](../blog-server/README.md)。`utils/crypto.ts` 静态 AES 仅用于工具页（如 AI 摘要），与网关无关。
 
 ### 安装依赖
 
@@ -222,20 +227,21 @@ yarn dev:ip
 | 路径 | 说明 |
 |------|------|
 | `/` | 首页文章列表 |
+| `/welcome` | Welcome 液态玻璃试验页（Featured 轮播文章/RPG/项目锚点；Services 含项目出口；入口见 `/explore`） |
 | `/search?q=` | 搜索页 |
 | `/tag/:id` | 标签文章列表 |
 | `/category/:id` | 分类文章列表 |
 | `/detail/:id` | 文章详情（相关推荐、分享、移动 TOC、相邻导航） |
 | `/feed.xml` | RSS 订阅 |
 | `/archives` | 时间归档 |
-| `/explore` | 快速入口（常用页面卡片导航） |
+| `/explore` | 快速入口（含 Welcome 视觉试验页等） |
 | `/user/profile` | 个人中心（`?tab=inbox` 收件箱、`?tab=dashboard` 看板） |
 | `/rpg` | RPG 冒险中心（含 BGM/音效控制） |
-| `/about` | 关于作者 |
-| `/projects` | 项目展示（含 Zone、Blog UniApp H5、Admin 等 iframe 演示） |
+| `/about` | 关于作者（正文 + 支付宝赞赏流水） |
+| `/projects` | 项目展示（顶部目录 + 问题→方案→Demo→文章；Welcome/详情经 `#slug` 锚点互链） |
 | `/open-source` | 开源范围、后端闭源说明与付费套餐 |
 | `/login` | 登录注册 |
-| `/tool/watermark` | 批量图片水印（旋转/颜色/格式、追加选图、单张或 ZIP 下载） |
+| `/tool/watermark` | 批量图片水印（旋转/颜色/格式、追加选图、单张或 ZIP；导出走 Worker） |
 | `/tool/webrtc` | WebRTC 调试（媒体采集、本页回环、双 Tab P2P） |
 | `/tool/ai-summary` | AI 文章摘要（Nitro SSE 代理 DeepSeek，需 `AI_SUMMARY_API_KEY`） |
 | `/tool/pdf` | PDF 预览与电子签名（支持本地上传、`?file=` 远程 URL） |

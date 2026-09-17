@@ -1,62 +1,48 @@
 // 'use-client'
-import { enc } from 'crypto-js';
-import { publicKey, privateKey, serverPublicKey } from '~~/config/ssh';
+/**
+ * RSA 加解密（npm jsencrypt，不依赖 CDN 异步加载）。
+ * 网关 aes 套件封 key / 登录密码加密均走此处，避免登录页验证码抢跑导致 JSEncrypt 未定义。
+ */
+import JSEncrypt from 'jsencrypt';
+import Base64 from 'crypto-js/enc-base64';
+import Hex from 'crypto-js/enc-hex';
+import { privateKey, serverPublicKey } from '~~/config/ssh';
 
 /**
- * RSA加密
- * @description 使用公钥加密，私钥解密
- * @param {string} word - 需要加密的参数
- * @param {string} pubKey - 加密公钥
- * @return 16进制字符串
+ * RSA 加密
+ * @description 使用公钥加密；默认输出 Hex（大小写由调用方再规范，网关会转小写）
+ * @param word 明文
+ * @param pubKey PEM 公钥
+ * @param type Hex | Base64
  */
 export function rsaEncrypt(word = '非对称加解密', pubKey = serverPublicKey, type = 'Hex'): string {
   const encrypt = new JSEncrypt();
-  /* 公钥加密 */
-  encrypt.setPublicKey(pubKey); // base64编码字符串
-  const encrypted = encrypt.encrypt(word) as string; // 返回结果可能是false
-  // 转为 16进制字符串
+  encrypt.setPublicKey(pubKey);
+  const encrypted = encrypt.encrypt(word) as string;
+  if (!encrypted) {
+    throw new Error('RSA encrypt failed');
+  }
   if (type === 'Hex') {
-    const hex = enc.Hex.stringify(enc.Base64.parse(encrypted)).toUpperCase();
-    return hex;
+    return Hex.stringify(Base64.parse(encrypted)).toLowerCase();
   }
-  else {
-    return encrypted;
-  }
+  return encrypted;
 }
 
 /**
- * RSA解密
- * @description 使用公钥加密，私钥解密
- * @param {string} encryptedWord - 需要解密的参数
- * @param {string} priKey - 加密密钥（长度必须是 16 的整数倍）
- * @param {string} offset - 偏移量
- * @return utf8 字符串 (解密不出来返回原本字符串)
+ * RSA 解密
+ * @description 私钥解密；失败返回原文
  */
 export function rsaDecrypt(encryptedWord: any, priKey = privateKey, type = 'Hex') {
   const decrypt = new JSEncrypt();
-  /* 私钥解密 */
   decrypt.setPrivateKey(priKey);
   if (type === 'Hex') {
-    // 转为 base64字符串
-    const base64 = enc.Base64.stringify(enc.Hex.parse(encryptedWord));
-    const uncrypted = decrypt.decrypt(base64) as string;
-    return uncrypted;
+    const base64 = Base64.stringify(Hex.parse(encryptedWord));
+    return (decrypt.decrypt(base64) as string) || encryptedWord;
   }
-  else {
-    const uncrypted = decrypt.decrypt(encryptedWord) as string;
-    return uncrypted;
-  }
+  return (decrypt.decrypt(encryptedWord) as string) || encryptedWord;
 }
+
 export default {
-  aesEncrypt,
-  aesDecrypt,
   rsaEncrypt,
   rsaDecrypt,
 };
-// const en = rsaEncrypt('彩票中奖号码:666',publicKey)
-// console.log(en)
-// const de = rsaDecrypt('123',privateKey)
-// console.log(de) // 123
-
-// const serverEn = rsaEncrypt('彩票中奖号码:666',serverPublicKey)
-// console.log(serverEn)

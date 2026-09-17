@@ -28,6 +28,14 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/ui',
   ],
+  // 生产包剔除 console / debugger；控制台彩蛋见 plugins/console-egg.client.ts（间接调用，不受 drop 影响）
+  $production: {
+    vite: {
+      esbuild: {
+        drop: ['console', 'debugger'],
+      },
+    },
+  },
   devtools: { enabled: false },
   app: {
     head: {
@@ -43,7 +51,7 @@ export default defineNuxtConfig({
         {
           rel: 'preload',
           as: 'style',
-          href: 'https://cdn.staticfile.org/csshake/1.5.3/csshake.min.css',
+          href: '/css/cdn/csshake.min.css',
           onload: 'this.rel=\'stylesheet\';',
           // 需设置rel=stylesheet 不然不是样式,不生效
           /* rel: 'stylesheet',
@@ -127,6 +135,12 @@ export default defineNuxtConfig({
     // 优化依赖预构建
     optimizeDeps: {
       include: ['md-editor-v3', 'crypto-js'],
+      // jSquash / hash-wasm 的 WASM 不可被预构建，否则路径解析失败
+      exclude: ['@jsquash/webp', '@jsquash/jpeg', 'hash-wasm'],
+    },
+    // module worker 需 es 格式，才能 import @jsquash/webp
+    worker: {
+      format: 'es',
     },
     // 减少不必要的处理
     css: {
@@ -159,9 +173,7 @@ export default defineNuxtConfig({
       new RegExp('^/tool/photos/(constants|photo-)'),
     ],
   },
-  stylelint: {
-    /* module options */
-  },
+  stylelint: {/* module options */},
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
   },

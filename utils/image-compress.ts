@@ -1,3 +1,14 @@
+/**
+ * 前端图片压缩：头像/封面/文章图上传前缩放编码。
+ * 优先走 Vite module worker（OffscreenCanvas + @jsquash/webp WASM），不可用时回退主线程 Canvas。
+ * 数据流：File → compressImageFile / compressAndHashImage → api/resources 上传。
+ */
+import {
+  canUseMediaCompressWorker,
+  compressAndHashInWorker,
+  type MediaCompressConfig,
+} from '@/utils/media-compress-client';
+
 export type ImageCompressPreset = 'avatar' | 'cover' | 'article';
 
 interface PresetConfig {
@@ -28,6 +39,11 @@ const PRESET_MAP: Record<ImageCompressPreset, PresetConfig> = {
 };
 
 const SKIP_TYPES = new Set(['image/gif', 'image/svg+xml']);
+
+/** 取出与 Worker 约定一致的压缩配置 */
+export function getImageCompressConfig(preset: ImageCompressPreset): MediaCompressConfig {
+  return { ...PRESET_MAP[preset] };
+}
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -99,8 +115,10 @@ function calcTargetSize(
   };
 }
 
-/** 前端 Canvas 压缩图片，输出 WebP（不支持时回退 JPEG） */
-export async function compressImageFile(file: File, preset: ImageCompressPreset): Promise<File> {
+/**
+ * 主线程 Canvas 压缩（Worker 不可用或失败时的回退路径）
+ */
+async function compressImageFileOnMain(file: File, preset: ImageCompressPreset): Promise<File> {
   if (!file.type.startsWith('image/') || SKIP_TYPES.has(file.type)) {
     logCompressResult(preset, file, file, true);
     return file;
@@ -147,5 +165,56 @@ export async function compressImageFile(file: File, preset: ImageCompressPreset)
     return file;
   }
   logCompressResult(preset, file, compressed);
+  return compressed;
+}
+
+/**
+ * 压缩图片并计算原图 SHA-256（上传主路径：一次任务完成两件事）。
+ * 优先 Worker；失败回退主线程压缩 + subtle/crypto-js 哈希。
+ */
+export async function compressAndHashImage(
+  file: File,
+  preset: ImageCompressPreset,
+): Promise<{ file: File; contentHash: string }> {
+  if (canUseMediaCompressWorker()) {
+    try {
+      const result = await compressAndHashInWorker(file, getImageCompressConfig(preset));
+      if (result.skipped) {
+        logCompressResult(preset, file, result.file, true);
+      }
+      else {
+        logCompressResult(preset, file, result.file);
+      }
+      return { file: result.file, contentHash: result.contentHash };
+    }
+    catch (err) {
+      console.warn('[image-compress] Worker 失败，回退主线程', err);
+    }
+  }
+
+  const [contentHash, compressed] = await Promise.all([
+    sha256HexOnMain(file),
+    compressImageFileOnMain(file, preset),
+  ]);
+  return { file: compressed, contentHash };
+}
+
+/** 主线程 SHA-256（与 file-hash 行为一致，避免循环依赖） */
+async function sha256HexOnMain(file: Blob): Promise<string> {
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    const hashBuffer = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
+    return Array.from(new Uint8Array(hashBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+  // 非安全上下文：与 file-hash 相同回退 crypto-js
+  const CryptoJS = (await import('crypto-js')).default;
+  const wordArray = CryptoJS.lib.WordArray.create(new Uint8Array(await file.arrayBuffer()));
+  return CryptoJS.SHA256(wordArray).toString(CryptoJS.enc.Hex);
+}
+
+/** 前端压缩图片，输出 WebP（不支持时回退 JPEG）；优先 Worker */
+export async function compressImageFile(file: File, preset: ImageCompressPreset): Promise<File> {
+  const { file: compressed } = await compressAndHashImage(file, preset);
   return compressed;
 }

@@ -1,3 +1,7 @@
+/**
+ * 摄影边框渲染与导出。
+ * 预览模糊在 photo-worker；导出 JPEG 经 utils/jpeg-encode（mozjpeg WASM）。
+ */
 import { getLogoUrl, resolveLogoName, type PhotoSettings } from './constants';
 import { LRUCache } from './photo-cache';
 import { createBlurInWorker, parseExifInWorker } from './photo-worker-client';
@@ -405,13 +409,9 @@ export async function exportPhotoBlob(input: RenderInput): Promise<Blob> {
     withShadow: true,
   });
 
-  return new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      blob => (blob ? resolve(blob) : reject(new Error('导出失败'))),
-      'image/jpeg',
-      0.92,
-    );
-  });
+  // mozjpeg WASM 编码；失败时 jpeg-encode 内回退 toBlob
+  const { encodeCanvasToJpeg } = await import('@/utils/jpeg-encode');
+  return encodeCanvasToJpeg(canvas, 0.92);
 }
 
 export async function drawPreviewBlurBackground(

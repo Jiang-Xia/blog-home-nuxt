@@ -10,8 +10,7 @@ import { debounce } from '~~/utils/index';
 import { baseUrl } from '~~/config';
 import { isPC } from '~/utils/common';
 import { setToken, TokenKey, RefreshTokenKey } from '@/utils/cookie';
-import { rsaEncrypt as rsaEncryptUtil } from '~~/utils/jsencrypt';
-import { loadRsaScript } from '~/utils/script-loader';
+import { encryptLoginPassword } from '~~/utils/gateway-crypto';
 import { shouldRefreshGraphicCaptcha } from '~~/utils/graphic-captcha-error';
 import {
   createEmailVerificationCodeInputBinding,
@@ -21,14 +20,6 @@ import {
 } from '~~/utils/captcha-input';
 import { LOGIN_ACCOUNT_MAX_LENGTH, validateUsernameForLogin } from '~~/utils/username';
 
-let rsaEncrypt: any;
-// 客户端才加载
-if (import.meta.client) {
-  // 按需加载 RSA 加密脚本
-  loadRsaScript().then(() => {
-    rsaEncrypt = rsaEncryptUtil;
-  });
-}
 const authCodeUrl = ref('');
 const authCodeLoadError = ref(false);
 const captchaId = ref('');
@@ -119,7 +110,8 @@ const okHandle = async () => {
     const params: any = { loginType: loginType.value };
     if (loginType.value === 'account') {
       params.username = form.username;
-      params.password = rsaEncrypt(form.password);
+      // 按 VITE_NUXT_GATEWAY_CRYPTO：aes→RSA（npm jsencrypt），gm→SM2
+      params.password = encryptLoginPassword(form.password);
       params.authCode = form.authCode;
       params.captchaId = captchaId.value;
     }
@@ -152,12 +144,17 @@ const okHandle = async () => {
   // 更换验证码
 const changeAuthCode = async () => {
   try {
+    // request.get 已解出 ApiResponse.data；开启加密时需 RSA 封 key（现用 npm jsencrypt，无 CDN 竞态）
     const res = await request.get('/user/authCode', { t: Date.now() });
+    if (!res?.captchaBase64) {
+      throw new Error('captcha payload missing captchaBase64');
+    }
     authCodeUrl.value = `data:image/svg+xml;base64,${res.captchaBase64}`;
     captchaId.value = res.captchaId || '';
     authCodeLoadError.value = false;
   }
-  catch {
+  catch (err) {
+    console.error('[login] authCode failed', err);
     authCodeUrl.value = '';
     captchaId.value = '';
     authCodeLoadError.value = true;

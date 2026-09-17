@@ -111,6 +111,8 @@ ArticleList（子组件）      useAsyncData('index_GetList', handler)  → 命�
 | `pages/index/index.vue` | `useAsyncData('index_GetList', …)` → Hero 读 `pagination.total` |
 | `components/article-list.vue` | 默认 `asyncDataKey: 'index_GetList'` → 列表读 `list` + `pagination` |
 
+Welcome 试验页（`/welcome`，不进主导航）：Asme 液态玻璃落地页，全屏沉浸无站点顶栏/页脚/助手。入口在 `/explore`「Welcome 视觉」卡片。组件在 `components/welcome/`，示范视频 `constants/welcome-asme.ts`。
+
 父页请求参数须与 `ArticleList` 默认 `queryPrams` 一致（如 `pageSize: 12`、`sort: 'DESC'`）。若以后改列表默认值，**同步改首页**里的同 key handler。
 
 其他落地页通过不同 key 隔离，避免串数据：
@@ -167,7 +169,7 @@ Layout 根节点已设置基础样式：
 - 壳层 class：`html.tech-shell` 挂载设计令牌
 - 初始化：`app.vue` → `useThemeActions().initTheme()`
 
-新增或修改全局样式时，必须在 **深色（cyber）** 和 **浅色（cyber-light）** 下各验证一次。
+新增或修改全局样式时，必须在 **深色（cyber）** 和 **浅色（cyber-light）** 下各验证一次。`/welcome` 为沉浸黑底 + `.liquid-glass` / `.welcome-*`，并靠 `html.welcome-route` 固定白字；首页 `/` 仍为常规 cyber。
 
 ### 4.3 新页面样式如何选择与编写
 

@@ -1,9 +1,16 @@
-// 'use-client'
-import CryptoJS from 'crypto-js';
-// 加密密钥（长度必须是 16 的整数倍，此处为 32 位）
+/**
+ * 遗留静态 AES（AI 摘要 ?params= 等工具页）。
+ * HTTP /encrypt 网关请使用 utils/gateway-crypto/，勿混用。
+ * CryptoJS 按需引入（aes / enc-* / format-hex / pad-pkcs7）。
+ */
+import AES from 'crypto-js/aes';
+import Utf8 from 'crypto-js/enc-utf8';
+import HexFormat from 'crypto-js/format-hex';
+import Pkcs7 from 'crypto-js/pad-pkcs7';
+
 const secretKey = '54050000778e380000fe5a120000b4ce';
-// 偏移量
 const iv = 'jiangxia';
+
 /**
  * AES加密
  * @description 使用加密秘钥，对 需要加密的参数 进行加密
@@ -13,20 +20,16 @@ const iv = 'jiangxia';
  * @return 16进制字符串 256位
  */
 export function aesEncrypt(word: any, key = secretKey, offset = iv) {
-  // 未加密的参数 - 从 UTF-8编码 解析出原始字符串
-  const wordUTF8 = CryptoJS.enc.Utf8.parse(word);
-  // 密钥 - 从 UTF-8编码 解析出原始字符串
-  const keyUTF8 = CryptoJS.enc.Utf8.parse(key);
-  // 偏移量 从 UTF-8编码 解析出原始字符串
-  const offsetUTF8 = CryptoJS.enc.Utf8.parse(offset);
+  const wordUTF8 = Utf8.parse(word);
+  const keyUTF8 = Utf8.parse(key);
+  const offsetUTF8 = Utf8.parse(offset);
 
-  const encrypted = CryptoJS.AES.encrypt(wordUTF8, keyUTF8, {
+  // mode 默认 CBC
+  const encrypted = AES.encrypt(wordUTF8, keyUTF8, {
     iv: offsetUTF8,
-    mode: CryptoJS.mode.CBC,
-    padding: CryptoJS.pad.Pkcs7,
+    padding: Pkcs7,
   });
-  // 转成16进制 变成大写不影响解密
-  return encrypted.toString(CryptoJS.format.Hex).toUpperCase();
+  return encrypted.toString(HexFormat).toUpperCase();
 }
 
 /**
@@ -38,34 +41,18 @@ export function aesEncrypt(word: any, key = secretKey, offset = iv) {
  * @return utf8 字符串
  */
 export function aesDecrypt(encryptedWord: any, key = secretKey, offset = iv) {
-  // 密钥 - 从 UTF-8编码 解析出原始字符串
-  const keyUTF8 = CryptoJS.enc.Utf8.parse(key);
-  // 偏移量 从 UTF-8编码 解析出原始字符串
-  const offsetUTF8 = CryptoJS.enc.Utf8.parse(offset);
-  // 解析十六进制字符串
-  encryptedWord = CryptoJS.format.Hex.parse(encryptedWord);
-  // console.log('encryptedWord:',encryptedWord)
-  const bytes = CryptoJS.AES.decrypt(encryptedWord, keyUTF8, {
+  const keyUTF8 = Utf8.parse(key);
+  const offsetUTF8 = Utf8.parse(offset);
+  const parsed = HexFormat.parse(encryptedWord);
+  const bytes = AES.decrypt(parsed, keyUTF8, {
     iv: offsetUTF8,
-    mode: CryptoJS.mode.CBC,
-    padding: CryptoJS.pad.Pkcs7,
+    padding: Pkcs7,
   });
 
-  return bytes.toString(CryptoJS.enc.Utf8);
+  return bytes.toString(Utf8);
 }
-
-// const encrypted2 =  aesEncrypt('========Message=======')
-// const decrypted2 =  aesDecrypt(encrypted2)
-// console.log('CryptoJS.AES:',{encrypted2,decrypted2});
 
 export default {
   aesEncrypt,
   aesDecrypt,
 };
-// const en = rsaEncrypt('彩票中奖号码:666',publicKey)
-// console.log(en)
-// const de = rsaDecrypt('123',privateKey)
-// console.log(de) // 123
-
-// const serverEn = rsaEncrypt('彩票中奖号码:666',serverPublicKey)
-// console.log(serverEn)

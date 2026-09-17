@@ -3,11 +3,16 @@ import { baseUrl } from '~~/config';
 import { messageDanger } from '~~/utils/toast';
 import { setToken, getToken, removeToken, TokenKey, RefreshTokenKey } from '@/utils/cookie';
 import { readAccessToken, readRefreshToken } from '@/utils/auth-token-state';
-import { aesEncrypt, aesDecrypt } from '~~/utils/crypto';
+import {
+  createGatewayEnvelope,
+  createGatewayKeyHeaders,
+  openGatewayEnvelope,
+  type GatewaySession,
+} from '~~/utils/gateway-crypto';
 
 // 是否开启请求日志记录
 const openRequestLog = import.meta.dev;
-// 是否开启加密功能，从环境变量读取
+// 是否开启加密功能，从环境变量读取（套件见 VITE_NUXT_GATEWAY_CRYPTO）
 // 线上“紧急开关”：本地缓存有值则关闭加密（key 需尽量隐晦，避免被随意调试）
 // 规则：长一些 + 含项目指纹（home）但不直白暴露项目名/用途
 const DISABLE_ENCRYPT_STORAGE_KEY = '__bxp__nuxt_home__k3Y9p2__fuse__v1';
@@ -239,55 +244,24 @@ const getNetworkErrorMessage = (error: any): string => {
 };
 
 /**
- * 加密请求体
- * 如果URL包含'encrypt'关键字，则对请求体进行AES加密
- * @param body 请求体数据
- * @param url 请求URL
- * @returns 加密后的请求体或原始请求体
+ * 判断是否为 FormData（multipart 不可 JSON 加密）
  */
 const isMultipartBody = (body: unknown): body is FormData => {
   return typeof FormData !== 'undefined' && body instanceof FormData;
 };
 
-const encryptMsg = (body: any, url: string) => {
-  const bool = url.includes('encrypt');
-  // FormData 不能 JSON 序列化，加密会破坏 multipart 文件上传
-  if (bool && body && isMultipartBody(body)) {
-    return body;
-  }
-  if (bool && body) {
-    // console.log('encryptMsg-body====>', JSON.stringify(body))
-    body = aesEncrypt(JSON.stringify(body));
-    // console.log('encryptMsg-body====>', body)
-    // console.log('encryptMsg-body====>', { content: body, })
-    return {
-      content: body,
-    };
-  }
-  else {
-    return body;
-  }
-};
-
 /**
- * 解密响应体
- * 如果URL包含'encrypt'关键字，则对响应体进行AES解密
- * @param body 响应体数据
- * @param url 请求URL
- * @returns 解密后的响应体或原始响应体
+ * 解密网关响应；需携带本请求 createGateway* 返回的 session。
+ * @param body 响应体
+ * @param url 请求 URL（含 /encrypt 才解）
+ * @param session 本请求对称密钥会话
  */
-const decryptMsg = (body: any, url: string) => {
+const decryptMsg = (body: any, url: string, session: GatewaySession | null) => {
   const bool = url.includes('encrypt');
-  if (bool && body && body.content) {
-    // console.log('decryptMsg-body', body)
-    body = aesDecrypt(body.content);
-    body = JSON.parse(body);
-    // console.log('decryptMsg-body', body)
-    return body;
+  if (bool && body && body.content && body.iv && session) {
+    return openGatewayEnvelope(body, session);
   }
-  else {
-    return body;
-  }
+  return body;
 };
 
 // 创建fetch实例，设置基础URL
@@ -309,19 +283,37 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
     url = '/encrypt' + url;
   }
 
-  // 加密请求体
-  const body = encryptMsg(options.body, url);
+  const methodUpper = String(method).toUpperCase();
+  const canHaveBody = ['POST', 'PUT', 'PATCH'].includes(methodUpper);
+  let body = options.body;
+  let gatewaySession: GatewaySession | null = null;
+  const gatewayHeaders: Record<string, string> = {};
+
+  // 网关：JSON body → 信封；GET/DELETE/FormData → 头传 encKey（响应仍加密）
+  if (openEncrypt && url.includes('encrypt')) {
+    if (canHaveBody && body && !isMultipartBody(body)) {
+      const packed = createGatewayEnvelope(body);
+      body = packed.envelope;
+      gatewaySession = packed.session;
+    }
+    else {
+      const keyed = createGatewayKeyHeaders();
+      Object.assign(gatewayHeaders, keyed.headers);
+      gatewaySession = keyed.session;
+    }
+  }
 
   // 默认请求配置
   const defaultConfig: any = {
     headers: {
       ...headers,
+      ...gatewayHeaders,
     },
     credentials: 'include', // 携带cookie，用于session管理
     method,
     /* fetch中 params和body不能同时存在 */
-    params: ['GET', 'DELETE'].includes(method.toUpperCase()) ? params : undefined,
-    body: ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) ? body : undefined,
+    params: ['GET', 'DELETE'].includes(methodUpper) ? params : undefined,
+    body: canHaveBody ? body : undefined,
     onRequest(ctx: any) {
       // ctx.options.headers.Authorization = 'Bearer ' + getToken()
     },
@@ -418,7 +410,7 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
         requestMap.delete(requestId); // 清除请求记录
 
         const status: number = ctx.response.status;
-        const body = decryptMsg(ctx.response._data, url); // 解密响应数据
+        const body = decryptMsg(ctx.response._data, url, gatewaySession); // 解密网关响应
 
         // 处理所有成功的状态码
         if (status >= 200 && status < 300) {
@@ -441,7 +433,7 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
         log(`请求结束 fail onResponseError --------------> ${url}`);
         requestMap.delete(requestId);
 
-        const body = decryptMsg(ctx.response._data, url);
+        const body = decryptMsg(ctx.response._data, url, gatewaySession);
         const status: number = ctx.response.status;
 
         try {
