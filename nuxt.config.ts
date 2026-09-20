@@ -85,7 +85,7 @@ export default defineNuxtConfig({
   },
   build: {
     // 打包配置
-    transpile: ['md-editor-v3'], // 预编译大型依赖
+    transpile: ['md-editor-v3', '@lucky-canvas/vue', 'lucky-canvas', 'vue-demi'], // 预编译大型依赖
   },
   routeRules: {
     '/tool': { redirect: '/tool/sm' },

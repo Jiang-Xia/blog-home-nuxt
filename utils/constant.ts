@@ -44,4 +44,5 @@ export const TOOL_LINKS: ToolLink[] = [
   { path: '/tool/sm', title: '国密加密工具', icon: 'blog-lock' },
   { path: '/tool/ai', title: 'AI', icon: 'blog-AI' },
   { path: '/tool/ai-summary', title: 'AI文章摘要', icon: 'blog-zhaiyao2' },
+  { path: '/tool/lucky-canvas', title: '抽奖示例', icon: 'blog-tool' },
 ];

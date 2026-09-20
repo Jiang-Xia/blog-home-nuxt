@@ -57,6 +57,7 @@ Blog Home Nuxt 是一个基于现代前端技术栈构建的个人博客系统�
 - **音视频工具**：音频可视化、WebRTC 视频聊天
 - **文件处理**：PDF 查看、文件上传切片
 - **AI 工具**：集成 AI 对话功能
+- **抽奖示例**：lucky-canvas 大转盘 / 九宫格 / 老虎机完整演示（仅学习，禁止商用与赌博用途）
 - **开发工具**：截图、延迟测试、UniApp 测试
 
 ### 🚀 技术特性
@@ -249,6 +250,7 @@ yarn dev:ip
 | `/tool/des` | 对称加密（AES/DES/RC4/Rabbit/TripleDES/SM4） |
 | `/tool/sm` | 国密 SM2 加解密与密钥生成 |
 | `/tool/rsa` | RSA 加解密与密钥生成 |
+| `/tool/lucky-canvas` | lucky-canvas 抽奖示例（大转盘 / 九宫格 / 老虎机，共 15 套；仅学习演示，禁止商用与赌博用途） |
 
 ### 生产构建
 
