@@ -80,7 +80,7 @@ onBeforeUnmount(() => {
     </p>
     <ClientOnly v-else>
       <MdPreview
-        :editor-id="`rag-${messageId}`"
+        :id="`rag-${messageId}`"
         :model-value="text"
         class="x-md-editor rag-assistant__chat-md rounded-lg bg-transparent"
         preview-only

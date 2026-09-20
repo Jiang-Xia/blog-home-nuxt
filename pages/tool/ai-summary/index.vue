@@ -456,11 +456,17 @@ const clearOriginal = () => {
   originalText.value = '';
 };
 
-const copyToClipboard = (text: string) => {
-  if (copy(text)) {
-    messageSuccess('摘要已复制到剪贴板');
+const copyToClipboard = async (text: string) => {
+  try {
+    const ok = await copy(text);
+    if (ok) {
+      messageSuccess('摘要已复制到剪贴板');
+    }
+    else {
+      messageDanger('复制失败');
+    }
   }
-  else {
+  catch {
     messageDanger('复制失败');
   }
 };

@@ -492,8 +492,9 @@ watch(loading, (isLoading, wasLoading) => {
       min-width: 0;
       box-sizing: border-box;
 
+      /* v7：暗色由 data-theme="dark" 表示，不再挂 .md-editor-dark */
       .md-editor,
-      .md-editor-dark {
+      .md-editor[data-theme='dark'] {
         --md-bk-color: transparent;
         background: transparent !important;
         border: none !important;
@@ -502,7 +503,7 @@ watch(loading, (isLoading, wasLoading) => {
 
       .md-editor-preview-wrapper,
       .md-editor-preview,
-      .md-editor-dark .md-editor-preview {
+      .md-editor[data-theme='dark'] .md-editor-preview {
         background: transparent !important;
         background-image: none !important;
         font-size: inherit;
