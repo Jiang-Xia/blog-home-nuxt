@@ -339,6 +339,7 @@ export const WHEEL_DEMOS: LuckyDemoItem[] = [
     height: '300px',
     externalButton: null,
     options: {
+      // 仅外框灯珠；指针放 buttons，避免 prizes 后绘盖住（canvas 无 z-index）
       blocks: [
         {
           padding: '30px',
@@ -347,15 +348,6 @@ export const WHEEL_DEMOS: LuckyDemoItem[] = [
               src: img('wheel-jd', 'bg.png'),
               width: '100%',
               height: '100%',
-            },
-          ],
-        },
-        {
-          imgs: [
-            {
-              src: img('wheel-jd', 'btn.png'),
-              width: '20px',
-              top: '-20px',
             },
           ],
         },
@@ -502,6 +494,12 @@ export const WHEEL_DEMOS: LuckyDemoItem[] = [
         {
           radius: '40px',
           imgs: [
+            // top 对齐原 blocks 定位：block 半径 120 时 (-20px - 120) = -140px
+            {
+              src: img('wheel-jd', 'btn.png'),
+              width: '20px',
+              top: '-140px',
+            },
             {
               src: img('wheel-jd', 'button.png'),
               width: '100%',

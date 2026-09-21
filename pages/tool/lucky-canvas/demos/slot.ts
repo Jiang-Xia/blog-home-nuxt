@@ -158,6 +158,7 @@ export const SLOT_DEMOS: LuckyDemoItem[] = [
       ],
       prizes: [
         {
+          name: '谢谢参与',
           imgs: [
             {
               width: '100%',
@@ -172,6 +173,7 @@ export const SLOT_DEMOS: LuckyDemoItem[] = [
           ],
         },
         {
+          name: '25元满减券',
           imgs: [
             {
               width: '100%',
@@ -186,6 +188,7 @@ export const SLOT_DEMOS: LuckyDemoItem[] = [
           ],
         },
         {
+          name: '搬家券满120立减30',
           imgs: [
             {
               width: '100%',

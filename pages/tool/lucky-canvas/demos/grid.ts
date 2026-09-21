@@ -3,7 +3,7 @@
  * 图片：public/lucky-canvas/grid/{id}/imgs/
  */
 import type { LuckyDemoItem } from './types';
-import { asset } from './helpers';
+import { asset, GRID_AXIS } from './helpers';
 
 /** 本文件内短写静态资源路径 */
 const img = (id: string, file: string) => asset('grid', id, file);
@@ -38,6 +38,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 0,
           y: 0,
+          name: '谢谢参与',
           imgs: [
             {
               width: '100%',
@@ -50,6 +51,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 1,
           y: 0,
+          name: '¥20优惠券',
           imgs: [
             {
               width: '100%',
@@ -62,6 +64,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 2,
           y: 0,
+          name: '抖音限量周边',
           imgs: [
             {
               width: '100%',
@@ -74,6 +77,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 2,
           y: 1,
+          name: '¥50优惠券',
           imgs: [
             {
               width: '100%',
@@ -86,6 +90,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 2,
           y: 2,
+          name: '¥10优惠券',
           imgs: [
             {
               width: '100%',
@@ -98,6 +103,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 1,
           y: 2,
+          name: '¥100现金红包',
           imgs: [
             {
               width: '100%',
@@ -110,6 +116,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 0,
           y: 2,
+          name: '¥30优惠券',
           imgs: [
             {
               width: '100%',
@@ -122,6 +129,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 0,
           y: 1,
+          name: '¥5优惠券',
           imgs: [
             {
               width: '100%',
@@ -572,230 +580,64 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
     width: '300px',
     height: '300px',
     externalButton: null,
-    options: {
-      blocks: [
-        {
-          padding: '10px',
-          background: '#faeecb',
+    // 与 100px.net / buuing xdf 一致：绿框 + 星球币 + 立即抽奖（勿与好未来素材混用）
+    options: (() => {
+      const smile = img('grid-xdf', '0.png');
+      const coin = img('grid-xdf', '1.png');
+      const items: Array<{ name: string; icon: string }> = [
+        { name: '谢谢参与', icon: smile },
+        { name: '1个星球币', icon: coin },
+        { name: '5个星球币', icon: coin },
+        { name: '10个星球币', icon: coin },
+        { name: '谢谢参与', icon: smile },
+        { name: '1个星球币', icon: coin },
+        { name: '5个星球币', icon: coin },
+        { name: '10个星球币', icon: coin },
+      ];
+      const axis = GRID_AXIS;
+      return {
+        blocks: [
+          { padding: '3px', background: '#92c53a', borderRadius: '8px' },
+          { padding: '2px', background: '#bdd333', borderRadius: '8px' },
+          { padding: '7px', background: '#0D6630', borderRadius: '8px' },
+        ],
+        prizes: items.map((it, i) => ({
+          x: axis[i][0],
+          y: axis[i][1],
+          name: it.name,
+          fonts: [{ text: it.name, top: '68%' }],
+          imgs: [{ src: it.icon, width: '50%', top: '12%' }],
+        })),
+        buttons: [
+          {
+            x: 1,
+            y: 1,
+            shadow: '',
+            imgs: [
+              {
+                src: img('grid-xdf', 'button.png'),
+                width: '100%',
+                height: '112%',
+              },
+            ],
+          },
+        ],
+        defaultConfig: {
+          gutter: 8,
         },
-        {
-          padding: '10px',
-          background: '#eec578',
+        defaultStyle: {
+          background: '#f4f7cc',
+          borderRadius: '13px',
+          fontColor: '#d55a07',
+          fontSize: '11px',
+          shadow: '0 9 0.1 #E9E967',
         },
-      ],
-      prizes: [
-        {
-          x: 0,
-          y: 0,
-          title: '二次元时钟',
-          fonts: [
-            {
-              text: '二次元时钟',
-              top: '67%',
-            },
-          ],
-          imgs: [
-            {
-              width: '100%',
-              height: '100%',
-              src: img('grid-xdf', 'cell.png'),
-              activeSrc: img('grid-xdf', 'cell-active.png'),
-            },
-            {
-              width: '50%',
-              top: '15%',
-              src: img('grid-xdf', '0.png'),
-            },
-          ],
+        activeStyle: {
+          background: '#e9e967',
+          shadow: '0 9 0.1 #E1E13B',
         },
-        {
-          x: 1,
-          y: 0,
-          title: '航天计时器',
-          fonts: [
-            {
-              text: '航天计时器',
-              top: '67%',
-            },
-          ],
-          imgs: [
-            {
-              width: '100%',
-              height: '100%',
-              src: img('grid-xdf', 'cell.png'),
-              activeSrc: img('grid-xdf', 'cell-active.png'),
-            },
-            {
-              width: '50%',
-              top: '15%',
-              src: img('grid-xdf', '1.png'),
-            },
-          ],
-        },
-        {
-          x: 2,
-          y: 0,
-          title: '航天钥匙链',
-          fonts: [
-            {
-              text: '航天钥匙链',
-              top: '67%',
-            },
-          ],
-          imgs: [
-            {
-              width: '100%',
-              height: '100%',
-              src: img('grid-xdf', 'cell.png'),
-              activeSrc: img('grid-xdf', 'cell-active.png'),
-            },
-            {
-              width: '50%',
-              top: '15%',
-              src: img('grid-xdf', '2.png'),
-            },
-          ],
-        },
-        {
-          x: 2,
-          y: 1,
-          title: '航天勋章',
-          fonts: [
-            {
-              text: '航天勋章',
-              top: '67%',
-            },
-          ],
-          imgs: [
-            {
-              width: '100%',
-              height: '100%',
-              src: img('grid-xdf', 'cell.png'),
-              activeSrc: img('grid-xdf', 'cell-active.png'),
-            },
-            {
-              width: '50%',
-              top: '15%',
-              src: img('grid-xdf', '3.png'),
-            },
-          ],
-        },
-        {
-          x: 2,
-          y: 2,
-          title: '谢谢参与',
-          fonts: [
-            {
-              text: '谢谢参与',
-              top: '67%',
-            },
-          ],
-          imgs: [
-            {
-              width: '100%',
-              height: '100%',
-              src: img('grid-xdf', 'cell.png'),
-              activeSrc: img('grid-xdf', 'cell-active.png'),
-            },
-            {
-              width: '50%',
-              top: '15%',
-              src: img('grid-xdf', '4.png'),
-            },
-          ],
-        },
-        {
-          x: 1,
-          y: 2,
-          title: '10金币',
-          fonts: [
-            {
-              text: '10金币',
-              top: '67%',
-            },
-          ],
-          imgs: [
-            {
-              width: '100%',
-              height: '100%',
-              src: img('grid-xdf', 'cell.png'),
-              activeSrc: img('grid-xdf', 'cell-active.png'),
-            },
-            {
-              width: '50%',
-              top: '15%',
-              src: img('grid-xdf', '5.png'),
-            },
-          ],
-        },
-        {
-          x: 0,
-          y: 2,
-          title: '小猴毛绒玩具',
-          fonts: [
-            {
-              text: '小猴毛绒玩具',
-              top: '67%',
-            },
-          ],
-          imgs: [
-            {
-              width: '100%',
-              height: '100%',
-              src: img('grid-xdf', 'cell.png'),
-              activeSrc: img('grid-xdf', 'cell-active.png'),
-            },
-            {
-              width: '50%',
-              top: '15%',
-              src: img('grid-xdf', '6.png'),
-            },
-          ],
-        },
-        {
-          x: 0,
-          y: 1,
-          title: '神秘大礼',
-          fonts: [
-            {
-              text: '神秘大礼',
-              top: '67%',
-            },
-          ],
-          imgs: [
-            {
-              width: '100%',
-              height: '100%',
-              src: img('grid-xdf', 'cell.png'),
-              activeSrc: img('grid-xdf', 'cell-active.png'),
-            },
-            {
-              width: '50%',
-              top: '15%',
-              src: img('grid-xdf', '7.png'),
-            },
-          ],
-        },
-      ],
-      buttons: [
-        {
-          x: 1,
-          y: 1,
-          background: 'rgba(0,0,0,0)',
-          imgs: [
-            {
-              src: img('grid-xdf', 'button.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-      ],
-      defaultStyle: {
-        fontColor: '#ac804f',
-        fontSize: '10px',
-      },
-    },
+      };
+    })(),
   },
   {
     id: 'grid-xq',
@@ -821,6 +663,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 0,
           y: 0,
+          name: '雪球读书大礼包',
           imgs: [
             {
               width: '100%',
@@ -833,6 +676,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 1,
           y: 0,
+          name: '雪球精选周边',
           imgs: [
             {
               width: '100%',
@@ -845,6 +689,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 2,
           y: 0,
+          name: '中信精选纸质书',
           imgs: [
             {
               width: '100%',
@@ -857,6 +702,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 2,
           y: 1,
+          name: 'kindle月卡',
           imgs: [
             {
               width: '100%',
@@ -869,6 +715,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 2,
           y: 2,
+          name: '雪球大V精品课程',
           imgs: [
             {
               width: '100%',
@@ -881,6 +728,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 1,
           y: 2,
+          name: '湛庐阅读礼包',
           imgs: [
             {
               width: '100%',
@@ -893,6 +741,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 0,
           y: 2,
+          name: '樊登读书礼包',
           imgs: [
             {
               width: '100%',
@@ -905,6 +754,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 0,
           y: 1,
+          name: 'kindle电子书礼包',
           imgs: [
             {
               width: '100%',
@@ -1177,200 +1027,95 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
     width: '300px',
     height: '300px',
     externalButton: null,
-    options: {
-      rows: 60,
-      cols: 60,
-      blocks: [
-        {
-          padding: '45px',
+    // 与 100px.net 官网一致：珊瑚底 cell + 图标叠层，中心「放花灯」占 36 格
+    options: (() => {
+      const cell = 12;
+      const names = [
+        '古琴',
+        '灵珠钵',
+        '发型装扮',
+        '金环饰品',
+        '灵露',
+        '宝箱',
+        '角色立绘',
+        '典籍卷轴',
+        '宫殿旗帜',
+        '宫殿文书',
+        '秘籍·高',
+        '灵露滴',
+      ];
+      const slots: Array<{ x: number; y: number }> = [
+        { x: 24, y: 0 },
+        { x: 36, y: 3 },
+        { x: 45, y: 12 },
+        { x: 48, y: 24 },
+        { x: 45, y: 36 },
+        { x: 36, y: 45 },
+        { x: 24, y: 48 },
+        { x: 12, y: 45 },
+        { x: 3, y: 36 },
+        { x: 0, y: 24 },
+        { x: 3, y: 12 },
+        { x: 12, y: 3 },
+      ];
+      return {
+        rows: 60,
+        cols: 60,
+        blocks: [
+          {
+            padding: '45px',
+            imgs: [
+              {
+                src: img('grid-round', 'bg.png'),
+                width: '100%',
+                height: '100%',
+              },
+            ],
+          },
+        ],
+        prizes: slots.map((slot, i) => ({
+          ...slot,
+          col: cell,
+          row: cell,
+          name: names[i],
           imgs: [
             {
-              src: img('grid-round', 'bg.png'),
+              // 珊瑚圆底（#e96b49）+ 选中加深 active.png，对齐参考图配色
               width: '100%',
               height: '100%',
+              src: img('grid-round', 'cell.png'),
+              activeSrc: img('grid-round', 'active.png'),
             },
-          ],
-        },
-      ],
-      prizes: [
-        {
-          x: 24,
-          y: 0,
-          col: 12,
-          row: 12,
-          imgs: [
             {
-              src: img('grid-round', '0.png'),
-              width: '100%',
-              height: '100%',
+              src: img('grid-round', `${i}.png`),
+              width: '80%',
+              // 角色立绘偏高，略上移避免裁切
+              top: i === 6 ? '-20%' : '10%',
             },
           ],
+        })),
+        buttons: [
+          {
+            x: 12,
+            y: 12,
+            col: 36,
+            row: 36,
+            background: 'rgba(0,0,0,0)',
+            fonts: [{ text: '', top: '43%' }],
+            imgs: [
+              {
+                src: img('grid-round', 'btn.png'),
+                width: '100%',
+              },
+            ],
+          },
+        ],
+        defaultStyle: {
+          fontSize: '8px',
+          fontColor: '#fff',
         },
-        {
-          x: 36,
-          y: 3,
-          col: 12,
-          row: 12,
-          imgs: [
-            {
-              src: img('grid-round', '1.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-        {
-          x: 45,
-          y: 12,
-          col: 12,
-          row: 12,
-          imgs: [
-            {
-              src: img('grid-round', '2.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-        {
-          x: 48,
-          y: 24,
-          col: 12,
-          row: 12,
-          imgs: [
-            {
-              src: img('grid-round', '3.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-        {
-          x: 45,
-          y: 36,
-          col: 12,
-          row: 12,
-          imgs: [
-            {
-              src: img('grid-round', '4.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-        {
-          x: 36,
-          y: 45,
-          col: 12,
-          row: 12,
-          imgs: [
-            {
-              src: img('grid-round', '5.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-        {
-          x: 24,
-          y: 48,
-          col: 12,
-          row: 12,
-          imgs: [
-            {
-              src: img('grid-round', '6.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-        {
-          x: 12,
-          y: 45,
-          col: 12,
-          row: 12,
-          imgs: [
-            {
-              src: img('grid-round', '7.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-        {
-          x: 3,
-          y: 36,
-          col: 12,
-          row: 12,
-          imgs: [
-            {
-              src: img('grid-round', '8.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-        {
-          x: 0,
-          y: 24,
-          col: 12,
-          row: 12,
-          imgs: [
-            {
-              src: img('grid-round', '9.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-        {
-          x: 3,
-          y: 12,
-          col: 12,
-          row: 12,
-          imgs: [
-            {
-              src: img('grid-round', '10.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-        {
-          x: 12,
-          y: 3,
-          col: 12,
-          row: 12,
-          imgs: [
-            {
-              src: img('grid-round', '11.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-      ],
-      buttons: [
-        {
-          x: 20,
-          y: 20,
-          col: 20,
-          row: 20,
-          background: 'rgba(0,0,0,0)',
-          imgs: [
-            {
-              src: img('grid-round', 'btn.png'),
-              width: '100%',
-              height: '100%',
-            },
-          ],
-        },
-      ],
-      defaultStyle: {
-        fontSize: '8px',
-        fontColor: '#fff',
-      },
-    },
+      };
+    })(),
   },
   {
     id: 'grid-yqs',
@@ -1396,6 +1141,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 0,
           y: 0,
+          name: '妖力X10000',
           imgs: [
             {
               width: '100%',
@@ -1408,6 +1154,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 1,
           y: 0,
+          name: '贵族：子·尊享体验X3天',
           imgs: [
             {
               width: '100%',
@@ -1420,6 +1167,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 2,
           y: 0,
+          name: '改名卡X1',
           imgs: [
             {
               width: '100%',
@@ -1432,6 +1180,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 2,
           y: 1,
+          name: '100妖力抵扣卡X1',
           imgs: [
             {
               width: '100%',
@@ -1444,6 +1193,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 2,
           y: 2,
+          name: '仙力X50',
           imgs: [
             {
               width: '100%',
@@ -1456,6 +1206,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 1,
           y: 2,
+          name: '礼物排面抵扣卡X1',
           imgs: [
             {
               width: '100%',
@@ -1468,6 +1219,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 0,
           y: 2,
+          name: '头条卡X1',
           imgs: [
             {
               width: '100%',
@@ -1480,6 +1232,7 @@ export const GRID_DEMOS: LuckyDemoItem[] = [
         {
           x: 0,
           y: 1,
+          name: '仙力X200',
           imgs: [
             {
               width: '100%',

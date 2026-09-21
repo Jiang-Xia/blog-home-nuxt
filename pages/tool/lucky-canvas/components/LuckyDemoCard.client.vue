@@ -4,6 +4,7 @@
 -->
 <script setup lang="ts">
 import { LuckyWheel, LuckyGrid, SlotMachine } from '@lucky-canvas/vue';
+import loadingGif from '@/assets/images/gif/loading3-min.gif';
 import type { LuckyDemoItem } from '../demos/catalog';
 
 const props = defineProps<{
@@ -16,15 +17,16 @@ const luckyRef = ref<{ play: () => void; stop: (index: number) => void } | null>
 const resultText = ref('');
 const spinning = ref(false);
 
-/** 从奖品对象拼出结果文案 */
+/** 从奖品对象拼出结果文案（纯图奖品需在配置里写 name/title） */
 function prizeLabel(prize: Record<string, unknown> | undefined | null): string {
-  if (!prize) return '（未命名）';
-  if (typeof prize.name === 'string' && prize.name) return prize.name;
-  if (typeof prize.title === 'string' && prize.title) return prize.title;
+  if (!prize) return '未中奖';
+  if (typeof prize.name === 'string' && prize.name.trim()) return prize.name.trim();
+  if (typeof prize.title === 'string' && prize.title.trim()) return prize.title.trim();
   if (typeof prize.id === 'string' || typeof prize.id === 'number') return String(prize.id);
   const fonts = prize.fonts as Array<{ text?: string }> | undefined;
-  if (fonts?.[0]?.text) return fonts[0].text;
-  return '（未命名）';
+  const fontText = fonts?.map(f => f.text).find(t => typeof t === 'string' && t.trim());
+  if (fontText) return fontText.trim();
+  return '未命名奖品';
 }
 
 /** 播放动画后随机停到某一奖品 */
@@ -96,16 +98,20 @@ onMounted(() => {
     <!-- 未进入视口：占位，避免布局跳动 -->
     <div
       v-if="!inView"
-      class="flex items-center justify-center rounded-lg border border-dashed border-tech/40 bg-tech/5 text-xs text-tech-muted"
+      class="flex items-center justify-center rounded-lg border border-dashed border-tech/40 bg-tech/5"
       :style="{ width: demo.width, height: demo.height }"
     >
-      滚动加载演示…
+      <img
+        :src="loadingGif"
+        alt="加载中"
+        class="max-h-[70%] max-w-[70%] rounded-lg object-contain opacity-90"
+      >
     </div>
 
     <template v-else>
       <div
         v-if="demo.type === 'slot' && hasOverlayBtn"
-        class="relative"
+        class="relative overflow-hidden rounded-xl leading-none"
         :style="{ width: demo.width, height: demo.height }"
       >
         <SlotMachine
@@ -141,48 +147,51 @@ onMounted(() => {
       </div>
 
       <template v-else>
-        <LuckyWheel
-          v-if="demo.type === 'wheel'"
-          ref="luckyRef"
-          :width="demo.width"
-          :height="demo.height"
-          :blocks="opts.blocks || []"
-          :prizes="opts.prizes || []"
-          :buttons="opts.buttons || []"
-          :default-style="opts.defaultStyle || {}"
-          :default-config="opts.defaultConfig || {}"
-          @start="onStart"
-          @end="onEnd"
-        />
-        <LuckyGrid
-          v-else-if="demo.type === 'grid'"
-          ref="luckyRef"
-          :width="demo.width"
-          :height="demo.height"
-          :rows="opts.rows || 3"
-          :cols="opts.cols || 3"
-          :blocks="opts.blocks || []"
-          :prizes="opts.prizes || []"
-          :buttons="opts.buttons || []"
-          :button="opts.button"
-          :default-style="opts.defaultStyle || {}"
-          :active-style="opts.activeStyle || {}"
-          :default-config="opts.defaultConfig || {}"
-          @start="onStart"
-          @end="onEnd"
-        />
-        <SlotMachine
-          v-else
-          ref="luckyRef"
-          :width="demo.width"
-          :height="demo.height"
-          :blocks="opts.blocks || []"
-          :prizes="opts.prizes || []"
-          :slots="opts.slots || []"
-          :default-style="opts.defaultStyle || {}"
-          :default-config="opts.defaultConfig || {}"
-          @end="onEnd"
-        />
+        <!-- 画布外包一层圆角裁剪（如 bilibili 背景图为直角） -->
+        <div class="overflow-hidden rounded-xl leading-none">
+          <LuckyWheel
+            v-if="demo.type === 'wheel'"
+            ref="luckyRef"
+            :width="demo.width"
+            :height="demo.height"
+            :blocks="opts.blocks || []"
+            :prizes="opts.prizes || []"
+            :buttons="opts.buttons || []"
+            :default-style="opts.defaultStyle || {}"
+            :default-config="opts.defaultConfig || {}"
+            @start="onStart"
+            @end="onEnd"
+          />
+          <LuckyGrid
+            v-else-if="demo.type === 'grid'"
+            ref="luckyRef"
+            :width="demo.width"
+            :height="demo.height"
+            :rows="opts.rows || 3"
+            :cols="opts.cols || 3"
+            :blocks="opts.blocks || []"
+            :prizes="opts.prizes || []"
+            :buttons="opts.buttons || []"
+            :button="opts.button"
+            :default-style="opts.defaultStyle || {}"
+            :active-style="opts.activeStyle || {}"
+            :default-config="opts.defaultConfig || {}"
+            @start="onStart"
+            @end="onEnd"
+          />
+          <SlotMachine
+            v-else
+            ref="luckyRef"
+            :width="demo.width"
+            :height="demo.height"
+            :blocks="opts.blocks || []"
+            :prizes="opts.prizes || []"
+            :slots="opts.slots || []"
+            :default-style="opts.defaultStyle || {}"
+            :default-config="opts.defaultConfig || {}"
+            @end="onEnd"
+          />
+        </div>
       </template>
 
       <button
@@ -212,7 +221,7 @@ onMounted(() => {
       </button>
     </template>
 
-    <p class="mt-3 min-h-[1.4em] text-center text-sm text-amber-200/90">
+    <p class="mt-3 min-h-[1.4em] text-center text-sm font-medium text-primary">
       {{ resultText }}
     </p>
   </div>
