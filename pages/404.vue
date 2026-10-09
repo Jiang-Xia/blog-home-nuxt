@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import config from '~~/config';
+import { PAGE_404_GIF } from '@/utils/placeholder-images';
 import { SiteTitle } from '@/utils/constant';
 
 useHead({
@@ -13,7 +13,7 @@ const route = useRoute();
 <template>
   <CyberPageContainer label="ERROR" title="404" subtitle="页面不存在">
     <CyberCard class="flex flex-col items-center py-12 text-center">
-      <img :src="config.gif404" alt="404" class="mb-8 max-h-48 opacity-80">
+      <img :src="PAGE_404_GIF" alt="404" class="mb-8 max-h-48 opacity-80">
       <p class="cyber-gradient-text mb-2 text-2xl font-light md:text-4xl">
         Page not found
       </p>

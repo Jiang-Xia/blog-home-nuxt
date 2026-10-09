@@ -29,8 +29,12 @@ export function isDarkTheme(themeName: string): boolean {
   return getRpgTone(themeName) === 'dark';
 }
 
-/** 首屏防闪烁：写入 html 的 class / data-theme / data-rpg-tone */
+/**
+ * 首屏防闪烁：写入 html 的 class / data-theme / data-rpg-tone。
+ * 非 cyber/cyber-light 时先套同色系 interim（CSS 已在 main），并标记 data-theme-intent，
+ * 等 themes-extra 加载后再由 client 插件切到真实主题，避免「白屏/无样式等一会」。
+ */
 export function buildThemeBootScript(): string {
   const darkList = JSON.stringify([...DAISY_DARK_THEMES]);
-  return `(function(){var t=localStorage.getItem('theme')||'cyber';var dark=new Set(${darkList});var tone=t==='cyber-light'||!dark.has(t)?'light':'dark';var el=document.documentElement;el.className=t;el.setAttribute('data-theme',t);el.classList.add('tech-shell');el.setAttribute('data-rpg-tone',tone);})();`;
+  return `(function(){var t=localStorage.getItem('theme')||'cyber';var dark=new Set(${darkList});var critical=t==='cyber'||t==='cyber-light';var apply=critical?t:(dark.has(t)?'cyber':'cyber-light');var tone=apply==='cyber-light'?'light':'dark';var el=document.documentElement;el.className=apply;el.setAttribute('data-theme',apply);el.classList.add('tech-shell');el.setAttribute('data-rpg-tone',tone);if(!critical)el.setAttribute('data-theme-intent',t);})();`;
 }

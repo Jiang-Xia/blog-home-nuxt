@@ -3,7 +3,7 @@
 import { resolveStaticUrl } from '@/utils/static-url';
 import { SiteTitle } from '@/utils/constant';
 import { getPublicArticles, getPublicCollects, getPublicLikes } from '@/api/profile';
-import { coverAspectRatio } from '@/utils/image-compress';
+import { coverAspectRatio } from '@/utils/cover-aspect';
 import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 import { isNotFoundError } from '@/utils/api-error';
 import { getRarityBadgePresentation } from '~~/utils/rpg-rarity';

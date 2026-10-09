@@ -1,13 +1,19 @@
 <script setup lang="jsx">
+/**
+   * 主题面板：保留全套 DaisyUI 主题项；打开时预取延后主题 CSS。
+   */
+import { ensureExtraThemesCss } from '~/composables/use-extra-themes-css';
+
 const { theme, setTheme } = useThemeActions();
 
-function changeTheme(e) {
+/** 切换主题；非 cyber 时 setTheme 内部会先加载 themes-extra，再改 DOM */
+async function changeTheme(e) {
   const dataTheme = e.currentTarget.dataset.setTheme;
   theme.value = dataTheme;
   setClass(e);
-  setTheme();
-  console.log('当前主题：', dataTheme);
+  await setTheme();
 }
+
 const menu = ref(null);
 
 const setClass = (e) => {
@@ -18,10 +24,17 @@ const setClass = (e) => {
   });
   e.currentTarget.classList.add(dataClass);
 };
+
+/** 指针移入/按下即预取，尽量在点选前完成 themes-extra 下载 */
+const prefetchExtraThemes = () => {
+  void ensureExtraThemesCss();
+};
+
 onMounted(() => {
-  const target = menu.value.querySelector(`[data-set-theme="${theme.value}"]`);
-  const dataClass = target.dataset.actClass;
-  target.classList.add(dataClass);
+  const target = menu.value?.querySelector(`[data-set-theme="${theme.value}"]`);
+  if (target?.dataset?.actClass) {
+    target.classList.add(target.dataset.actClass);
+  }
 });
 
 // 函数式组件
@@ -42,7 +55,13 @@ function CheckIcon(props, context) {
 </script>
 
 <template>
-  <div title="切换主题" class="dropdown dropdown-end block">
+  <div
+    title="切换主题"
+    class="dropdown dropdown-end block"
+    @focusin="prefetchExtraThemes"
+    @mouseenter="prefetchExtraThemes"
+    @pointerdown="prefetchExtraThemes"
+  >
     <div
       tabindex="0"
       role="button"

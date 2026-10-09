@@ -3,6 +3,9 @@
    * 助手 Markdown 预览：流式阶段纯文本；完成后离屏延迟挂载 MdPreview，减轻长对话卡顿。
    */
 import { MdPreview } from 'md-editor-v3';
+import { ensureEditorConfig } from '@/utils/editor-config';
+
+ensureEditorConfig();
 
 const props = defineProps<{
   messageId: string;

@@ -1,8 +1,18 @@
 <script setup lang="ts">
 /* / 路径显示的默认页面 */
+import { defineAsyncComponent } from 'vue';
 import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
 import { originUrl } from '~/config';
+
+/** 全站 RPG 壳懒加载，避免首页同步打入全套动效组件图 */
+const RpgGlobalInitLazy = defineAsyncComponent(
+  () => import('~/components/rpg/RpgGlobalInit.vue'),
+);
+  /** RAG 助手懒加载，避免 md-editor 样式打进首页 SSR CSS */
+const RagAssistantFabLazy = defineAsyncComponent(
+  () => import('~/components/rag/RagAssistantFab.vue'),
+);
 
 onMounted(() => {
   if (!Cookies.get('browserId')) {
@@ -11,6 +21,7 @@ onMounted(() => {
 });
 
 const route = useRoute();
+const token = useToken();
 /** /welcome 全屏沉浸：无顶栏/页脚/助手/回到顶部，关掉网格底 */
 const isWelcomeCinematic = computed(
   () => route.path === '/welcome' || route.path.startsWith('/welcome/'),
@@ -101,16 +112,18 @@ const showRagAssistant = computed(
     && !route.path.startsWith('/detail/')
     && !isWelcomeCinematic.value,
 );
-const needsRpgGlobal = computed(() => {
+  /** 需要 RPG 能力的路由；游客首页不挂（Banner 不依赖真实接口） */
+const showRpgGlobal = computed(() => {
   const path = route.path;
   // 测试页需挂载 RpgGlobalInit，线上 /tool/test 挡板才能走 handlers + 全屏弹窗
   if (path.startsWith('/tool/test')) return true;
-  return (
-    path === '/'
-    || path.startsWith('/rpg')
-    || path.startsWith('/detail/')
-    || path.startsWith('/user/profile')
-  );
+  const onRpgRoute
+    = path === '/'
+      || path.startsWith('/rpg')
+      || path.startsWith('/detail/')
+      || path.startsWith('/user/profile');
+  if (!onRpgRoute) return false;
+  return !!token.value;
 });
 </script>
 
@@ -164,9 +177,9 @@ const needsRpgGlobal = computed(() => {
     <xia-backtop v-if="showGlobalBacktop" class="shake-slow right-4">
       <xia-icon icon="blog-rocket4" width="34px" height="34px" />
     </xia-backtop>
-    <RpgGlobalInit v-if="needsRpgGlobal" />
     <ClientOnly>
-      <RagAssistantFab v-if="showRagAssistant" />
+      <RpgGlobalInitLazy v-if="showRpgGlobal" />
+      <RagAssistantFabLazy v-if="showRagAssistant" />
     </ClientOnly>
     <BaseImagePreviewHost />
   </div>

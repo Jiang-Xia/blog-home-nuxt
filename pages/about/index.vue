@@ -5,8 +5,11 @@
    */
 import { ref } from 'vue';
 import { MdPreview } from 'md-editor-v3';
+import { ensureEditorConfig } from '@/utils/editor-config';
 import { getArticleInfo } from '~~/api/article';
 import { SiteTitle } from '@/utils/constant';
+
+ensureEditorConfig();
 
 const tipPanelRef = ref<HTMLElement | null>(null);
 

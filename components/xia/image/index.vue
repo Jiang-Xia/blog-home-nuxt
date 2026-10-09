@@ -18,10 +18,11 @@
 </template>
 
 <script setup>
-/* 为了解决处理图片开裂，破图样式, 懒加载v-lazyImg执行前给一个默认图片 */
-import loadingImgGif from '@/assets/images/gif/loading-dna-min.gif';
-import errorImg from '@/assets/images/common/LoadFailed.svg';
-
+/**
+   * 图片组件：破图兜底与可选懒加载。
+   * 占位用 public SVG，避免 loading GIF 进首屏图。
+   */
+import { PLACEHOLDER_FAILED, PLACEHOLDER_LOADING } from '@/utils/placeholder-images';
 import { ref } from 'vue';
 import { useIntersectionObserver } from '@vueuse/core';
 
@@ -36,11 +37,11 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: loadingImgGif,
+    default: PLACEHOLDER_LOADING,
   },
   failImg: {
     type: String,
-    default: errorImg,
+    default: PLACEHOLDER_FAILED,
   },
   lazyload: {
     type: Boolean,
@@ -52,39 +53,28 @@ const localSrc = ref(props.src);
 const imageLoaded = ref(false);
 
 const handleLoad = () => {
-  // console.log('handleLoad-------->');
   imageLoaded.value = true;
 };
 
 const handleError = () => {
-  // imageLoaded.value = true;
   localSrc.value = props.failImg;
   console.error('Image failed to load');
 };
 
-// 懒加载
 const xiaImage = ref(null);
 const setLazyLoad = () => {
   if (!props.lazyload) return;
   const el = xiaImage.value;
-  el.src = loadingImgGif;
-  const { stop } = useIntersectionObserver(
-    // 监听目标元素
-    xiaImage.value,
-    ([{ isIntersecting, observerElement }]) => {
-      // console.log(isIntersecting, observerElement);
-      // 正在和root viewport相交
-      if (isIntersecting) {
-        // 图片加载失败显示默认图片
-        el.onerror = function () {
-          el.src = props.failImg;
-        };
-        // 这里显示传过来的图片数据
-        el.src = props.src;
-        stop(); // 中止监听
-      }
-    },
-  );
+  el.src = PLACEHOLDER_LOADING;
+  const { stop } = useIntersectionObserver(xiaImage.value, ([{ isIntersecting }]) => {
+    if (isIntersecting) {
+      el.onerror = function () {
+        el.src = props.failImg;
+      };
+      el.src = props.src;
+      stop();
+    }
+  });
 };
 onMounted(() => {
   setLazyLoad();

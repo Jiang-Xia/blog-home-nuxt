@@ -21,7 +21,7 @@ import { debounce } from '~~/utils';
 import { messageDanger } from '@/utils/toast';
 import { isDarkTheme, useTheme } from '@/composables/use-home';
 import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels';
-import { coverAspectRatio } from '@/utils/image-compress';
+import { coverAspectRatio } from '@/utils/cover-aspect';
 
 const props = withDefaults(
   defineProps<{
