@@ -36,6 +36,7 @@ Blog Home Nuxt 是一个基于现代前端技术栈构建的个人博客系统�
 - **搜索功能**：全文搜索（`/search`）、标签/分类落地页（`/tag/[id]`、`/category/[id]`）
 - **归档系统**：按时间归档文章
 - **RSS 订阅**：`/feed.xml`（Nitro 路由）
+- **按 IP 查天气（试验）**：`GET /api/weather-by-ip`（Nitro：ip-api → Open-Meteo）；首页侧栏保留原 `weatherUrl` 静态天气图卡，并另有 `HomeTimeWeatherCard` 合一时钟与实时天气（可用 `?ip=` / `?city=` / `?lat=&lon=` 覆盖）
 - **SEO**：JSON-LD 结构化数据、canonical、 sitemap
 - **用户中心**：个人资料、前台文章创作、评论收件箱、创作数据看板
 - **通知**：导航栏站内通知铃铛（评论提醒）；详见 `docs/home-features-2026-06.md`

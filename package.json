@@ -47,7 +47,7 @@
     "jsencrypt": "^3.5.4",
     "md-editor-v3": "^7.0.0",
     "modern-screenshot": "^4.7.0",
-    "nuxt": "^4.5.2",
+    "nuxt": "^4.6.1",
     "pinia": "^3.0.4",
     "qrcode": "^1.5.4",
     "sm-crypto": "^0.5.7",
