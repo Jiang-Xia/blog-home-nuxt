@@ -150,17 +150,37 @@ const toggleHistory = () => {
       <span class="section-title">🎁 幸运宝箱</span>
       <span class="ticket-count">🎫 {{ lotteryTickets }} · 💎 {{ rpgStatus?.currency ?? 0 }}</span>
     </div>
+    <!-- v3 ③ 保底进度可视化：epic 90 / legendary 180 -->
     <div
       v-if="rpgStatus?.lotteryPityCounter != null || rpgStatus?.lotteryLegendaryPityCounter != null"
-      class="text-xs text-base-content/60 mb-2 flex flex-wrap gap-x-3 gap-y-1"
+      class="pity-box"
     >
-      <span v-if="rpgStatus?.lotteryPityCounter != null">
-        史诗保底 {{ rpgStatus.lotteryPityCounter }} / {{ LOTTERY_EPIC_PITY_THRESHOLD }}
-      </span>
-      <span v-if="rpgStatus?.lotteryLegendaryPityCounter != null">
-        传说保底 {{ rpgStatus.lotteryLegendaryPityCounter }} /
-        {{ LOTTERY_LEGENDARY_PITY_THRESHOLD }}
-      </span>
+      <div v-if="rpgStatus?.lotteryPityCounter != null" class="pity-row">
+        <small><b>已垫 {{ rpgStatus.lotteryPityCounter }} 抽</b><span>史诗保底 · {{ LOTTERY_EPIC_PITY_THRESHOLD }} 抽必得</span></small>
+        <div class="pity-row__track">
+          <i
+            :style="{
+              width:
+                Math.min(100, (rpgStatus.lotteryPityCounter / LOTTERY_EPIC_PITY_THRESHOLD) * 100)
+                + '%',
+            }"
+          />
+        </div>
+      </div>
+      <div v-if="rpgStatus?.lotteryLegendaryPityCounter != null" class="pity-row">
+        <small><b>已垫 {{ rpgStatus.lotteryLegendaryPityCounter }} 抽</b><span>传说保底 · {{ LOTTERY_LEGENDARY_PITY_THRESHOLD }} 抽必得</span></small>
+        <div class="pity-row__track pity-row__track--gold">
+          <i
+            :style="{
+              width:
+                Math.min(
+                  100,
+                  (rpgStatus.lotteryLegendaryPityCounter / LOTTERY_LEGENDARY_PITY_THRESHOLD) * 100,
+                ) + '%',
+            }"
+          />
+        </div>
+      </div>
     </div>
     <div class="flex gap-2 mb-3 rpg-panel-tabs !mb-3">
       <button
@@ -605,5 +625,54 @@ const toggleHistory = () => {
     50% {
       opacity: 0.55;
     }
+  }
+
+  /* ── v3 ③ 保底进度可视化 ── */
+  .pity-box {
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    background: linear-gradient(
+      160deg,
+      var(--rpg-art-gold-soft, #fdf9ec),
+      var(--rpg-art-violet-soft, #faf9fe)
+    );
+    border: 1px solid rgb(217 161 60 / 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pity-row small {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.65));
+    margin-bottom: 5px;
+  }
+
+  .pity-row small b {
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+    font-size: 12.5px;
+  }
+
+  .pity-row__track {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--rpg-border, #efe7d2);
+    overflow: hidden;
+  }
+
+  .pity-row__track i {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #a78bfa, #7c5cf0);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  .pity-row__track--gold i {
+    background: linear-gradient(90deg, #e8b04b, #d9a13c);
   }
 </style>

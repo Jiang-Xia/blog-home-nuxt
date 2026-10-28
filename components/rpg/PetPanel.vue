@@ -16,6 +16,7 @@ const emit = defineEmits<{
   deploy: [petId: number];
   rest: [];
   rename: [id: number, nickname: string];
+  goto: [target: 'lottery' | 'quests'];
 }>();
 
 const { confirm } = useRpgModal();
@@ -35,6 +36,62 @@ const isOwned = (code: string) => ownedPetCodes.value.has(code);
 const equippedPet = computed(
   () => (props.pets || []).find((p: any) => p.id === props.equippedPetId) || null,
 );
+
+/* ── v3 ④ 宠物图鉴：全集 = 兑换目录 ∪ 已拥有宠物 ∪ 蛋对应物种 ── */
+interface DexEntry {
+  code: string;
+  name: string;
+  icon?: string;
+  iconUrl?: string;
+  owned: boolean;
+}
+
+const dexEntries = computed<DexEntry[]>(() => {
+  const owned = (props.pets || []).map((p: any) => p.petCode).filter(Boolean);
+  const ownedSet = new Set<string>(owned);
+  const map = new Map<string, DexEntry>();
+
+  for (const item of props.catalog || []) {
+    map.set(item.code, {
+      code: item.code,
+      name: item.name,
+      icon: item.icon,
+      iconUrl: item.iconUrl,
+      owned: ownedSet.has(item.code),
+    });
+  }
+
+  // 已拥有但不在兑换目录的宠物（抽奖限定等）补进图鉴
+  for (const p of props.pets || []) {
+    if (p.petCode && !map.has(p.petCode)) {
+      map.set(p.petCode, {
+        code: p.petCode,
+        name: p.nickname || p.config?.name || p.petCode,
+        icon: p.config?.icon,
+        iconUrl: p.config?.iconUrl,
+        owned: true,
+      });
+    }
+  }
+
+  // 蛋对应物种：egg-xxx → xxx（未孵化只算「图鉴未点亮」，不算拥有）
+  for (const e of props.eggs || []) {
+    const code = (e.itemCode || '').replace(/^egg-/, '');
+    if (code && code !== e.itemCode && !map.has(code)) {
+      map.set(code, {
+        code,
+        name: '？？？',
+        icon: e.config?.icon,
+        iconUrl: e.config?.iconUrl,
+        owned: false,
+      });
+    }
+  }
+
+  return [...map.values()];
+});
+
+const dexOwnedCount = computed(() => dexEntries.value.filter(d => d.owned).length);
 
 /** 出战宠物加成 chips（读 effectJson，直出） */
 const petBonusChips = computed(() => {
@@ -129,7 +186,7 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
         </div>
       </div>
 
-      <!-- ② 孵化仓：持有蛋 → 一键即时孵化（无进度条） -->
+      <!-- ② 孵化仓：持有蛋 → 一键即时孵化（无进度条）；v3 ⑦ 空态规范 -->
       <div v-if="eggs.length">
         <h4 class="rpg-section-heading">
           孵化仓 <small class="rpg-section-sub">蛋即点即孵 · pets/summon</small>
@@ -151,6 +208,44 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
             <button class="rpg-pet-btn rpg-pet-btn--gold" @click="emit('hatch', e.itemCode)">
               立即孵化
             </button>
+          </div>
+        </div>
+      </div>
+      <div v-else class="rpg-empty-card">
+        <img class="rpg-empty-card__art" src="/rpg/icons/egg.png" alt="" loading="lazy">
+        <b>孵化仓空空如也</b>
+        <p>去抽奖池碰碰运气，或用钻石直购一只蛋宠。</p>
+        <button class="rpg-pet-btn rpg-pet-btn--gold" @click="emit('goto', 'lottery')">
+          去抽奖
+        </button>
+      </div>
+
+      <!-- v3 ④ 宠物图鉴：收集进度 + 未拥有灰化剪影 -->
+      <div v-if="dexEntries.length">
+        <h4 class="rpg-section-heading">
+          宠物图鉴 <small class="rpg-section-sub">收集全图鉴 → 解锁隐藏成就「万物有灵」</small>
+        </h4>
+        <div class="rpg-dex-bar">
+          <b>{{ dexOwnedCount }}<small> / {{ dexEntries.length }} 图鉴</small></b>
+          <div class="rpg-dex-bar__track">
+            <i :style="{ width: (dexOwnedCount / dexEntries.length) * 100 + '%' }" />
+          </div>
+        </div>
+        <div class="rpg-dex-grid">
+          <div
+            v-for="d in dexEntries"
+            :key="d.code"
+            class="rpg-dex"
+            :class="{ 'rpg-dex--owned': d.owned, 'rpg-dex--locked': !d.owned }"
+          >
+            <RpgItemIcon
+              class="rpg-dex__icon"
+              :icon="d.icon"
+              :icon-url="d.iconUrl"
+              size="md"
+              :tinted="!d.owned"
+            />
+            <b>{{ d.owned ? d.name : '？？？' }}</b>
           </div>
         </div>
       </div>
@@ -617,5 +712,126 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
     .rpg-pet-grid {
       grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
     }
+  }
+
+  /* ── v3 ④ 宠物图鉴 ── */
+  .rpg-dex-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .rpg-dex-bar b {
+    font-size: 18px;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+    white-space: nowrap;
+  }
+
+  .rpg-dex-bar b small {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.6));
+  }
+
+  .rpg-dex-bar__track {
+    flex: 1;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--rpg-border, #efeaf9);
+    overflow: hidden;
+  }
+
+  .rpg-dex-bar__track i {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #e8b04b, #d9a13c);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  .rpg-dex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+    gap: 10px;
+  }
+
+  .rpg-dex {
+    position: relative;
+    text-align: center;
+    border: 2px solid var(--rpg-border, #e8e3f2);
+    border-radius: 14px;
+    padding: 10px 4px 8px;
+    background: var(--rpg-surface, #faf9fe);
+    transition: border-color 0.2s;
+  }
+
+  .rpg-dex__icon {
+    margin: 0 auto;
+  }
+
+  .rpg-dex b {
+    display: block;
+    font-size: 10.5px;
+    margin-top: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+  }
+
+  .rpg-dex--owned {
+    border-color: #c9b9f7;
+    background: var(--rpg-art-violet-soft, #f6f2fe);
+  }
+
+  .rpg-dex--owned::after {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 7px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #2fa46a;
+  }
+
+  .rpg-dex--locked {
+    opacity: 0.55;
+    filter: grayscale(0.65);
+  }
+
+  .rpg-dex--locked b {
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.55));
+  }
+
+  /* ── v3 ⑦ 空态规范：圆图 + 人话 + 行动按钮 ── */
+  .rpg-empty-card {
+    text-align: center;
+    padding: 24px 16px;
+    border: 1.5px dashed var(--rpg-border, #e8e3f2);
+    border-radius: 16px;
+    background: var(--rpg-surface, #fbfaff);
+  }
+
+  .rpg-empty-card__art {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    opacity: 0.9;
+  }
+
+  .rpg-empty-card b {
+    display: block;
+    font-size: 13px;
+    margin: 8px 0 4px;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+  }
+
+  .rpg-empty-card p {
+    font-size: 11.5px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.6));
+    line-height: 1.6;
+    margin-bottom: 10px;
   }
 </style>

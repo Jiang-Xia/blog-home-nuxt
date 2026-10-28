@@ -12,6 +12,10 @@ const props = defineProps<{
   loading: boolean;
 }>();
 
+const emit = defineEmits<{
+  goto: [target: 'status'];
+}>();
+
 const activeType = defineModel<LeaderboardScoreType>('activeType', { default: 'exp' });
 const activePeriod = defineModel<LeaderboardPeriod>('activePeriod', { default: 'total' });
 
@@ -94,6 +98,42 @@ const myEntry = computed(
   () => (props.leaderboard || []).find(e => e.uid === userInfo.value?.uid) || null,
 );
 
+/** 数值型分数（差距条用） */
+const getScoreNum = (entry: any): number => {
+  if (entry.score !== undefined) return Number(entry.score) || 0;
+  switch (activeType.value) {
+    case 'exp':
+      return entry.exp ?? 0;
+    case 'reputation':
+      return entry.reputation ?? 0;
+    case 'currency':
+      return entry.currency ?? 0;
+    case 'signDays':
+      return entry.totalSignDays ?? 0;
+    case 'level':
+      return entry.level ?? 0;
+    default:
+      return 0;
+  }
+};
+
+/** v3 ⑤ 与上一名的差距（仅当我在 TopN 且非第一名时可算） */
+const gapInfo = computed(() => {
+  const me = myEntry.value;
+  if (!me || me.rank <= 1) return null;
+  const prev = (props.leaderboard || []).find(e => e.rank === me.rank - 1);
+  if (!prev) return null;
+  const prevScore = getScoreNum(prev);
+  const myScore = getScoreNum(me);
+  const diff = Math.max(0, prevScore - myScore);
+  return {
+    rank: prev.rank,
+    name: prev.nickname,
+    diff,
+    percent: prevScore > 0 ? Math.min(100, Math.round((myScore / prevScore) * 100)) : 0,
+  };
+});
+
 const myRankText = computed(() => {
   if (myEntry.value) return `#${myEntry.value.rank}`;
   return props.rpgStatus ? '未上榜' : '';
@@ -153,8 +193,13 @@ const myAvatar = computed(() => {
     </div>
 
     <RpgPanelLoading v-if="loading" />
-    <div v-else-if="leaderboard.length === 0" class="rpg-empty-inline">
-      暂无排行数据
+    <div v-else-if="leaderboard.length === 0" class="rpg-empty-card">
+      <img class="rpg-empty-card__art" src="/rpg/icons/trophy.png" alt="" loading="lazy">
+      <b>榜上暂无你的名字</b>
+      <p>签到、读文章、做任务都能攒 EXP，冲一冲本期榜单。</p>
+      <button class="rpg-empty-card__btn" @click="emit('goto', 'status')">
+        去做任务赚 EXP
+      </button>
     </div>
     <template v-else>
       <!-- 领奖台 Top3 -->
@@ -210,7 +255,18 @@ const myAvatar = computed(() => {
           <b>我的排名</b>
           <span>LV{{ rpgStatus.level }} · {{ myScoreText }}</span>
         </div>
-        <div class="me-bar__tip">
+        <!-- v3 ⑤ 距上一名差距可视化（TopN 内可算时展示，否则显示鼓励文案） -->
+        <div v-if="gapInfo" class="me-bar__gap">
+          <div class="me-bar__gap-label">
+            距 #{{ gapInfo.rank }} 「{{ gapInfo.name }}」差 {{ gapInfo.diff.toLocaleString() }}（{{
+              gapInfo.percent
+            }}%）
+          </div>
+          <div class="me-bar__gap-track">
+            <i :style="{ width: gapInfo.percent + '%' }" />
+          </div>
+        </div>
+        <div v-else class="me-bar__tip">
           {{ myEntry ? '进入 TopN · 保持冒险节奏' : '继续冒险，冲进 Top50 就能上榜' }}
         </div>
       </div>
@@ -479,5 +535,81 @@ const myAvatar = computed(() => {
       text-align: left;
       margin-left: 0;
     }
+  }
+
+  /* ── v3 ⑤ 距上一名差距条 ── */
+  .me-bar__gap {
+    margin-left: auto;
+    text-align: right;
+    min-width: 0;
+  }
+
+  .me-bar__gap-label {
+    font-size: 11.5px;
+    opacity: 0.92;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .me-bar__gap-track {
+    width: 180px;
+    max-width: 40vw;
+    height: 7px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.22);
+    overflow: hidden;
+    margin: 6px 0 0 auto;
+  }
+
+  .me-bar__gap-track i {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #e8b04b, #d9a13c);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── v3 ⑦ 空态规范 ── */
+  .rpg-empty-card {
+    text-align: center;
+    padding: 24px 16px;
+    border: 1.5px dashed var(--rpg-border, #e8e3f2);
+    border-radius: 16px;
+    background: var(--rpg-surface, #fbfaff);
+  }
+
+  .rpg-empty-card__art {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    opacity: 0.9;
+  }
+
+  .rpg-empty-card b {
+    display: block;
+    font-size: 13px;
+    margin: 8px 0 4px;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+  }
+
+  .rpg-empty-card p {
+    font-size: 11.5px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.6));
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .rpg-empty-card__btn {
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 7px 16px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7c5cf0, #5b3fd6);
+    color: #fff;
+    box-shadow: 0 4px 12px rgb(92 63 214 / 0.3);
   }
 </style>

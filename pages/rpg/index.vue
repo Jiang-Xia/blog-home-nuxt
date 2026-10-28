@@ -102,6 +102,32 @@ const petTabDot = computed(
     || inventoryItems.value.some(i => (i.itemCode || '').toLowerCase().includes('egg')),
 );
 
+/** 今日可领取任务数（全任务组聚合，英雄面板「今日待办」用） */
+const questClaimable = computed(() => {
+  const groups = questGroups.value || {};
+  return Object.values(groups).reduce(
+    (sum, list) => sum + (list || []).filter(q => q.completed && !q.claimed).length,
+    0,
+  );
+});
+
+/** 英雄面板「今日待办」点击跳转：同 Tab 锚点滚动，跨 Tab 切换 */
+const onHeroTodo = (key: 'sign' | 'quests' | 'hatch' | 'lottery' | 'hp') => {
+  if (key === 'hatch') {
+    switchTab('pet');
+    return;
+  }
+  if (key === 'hp') {
+    switchTab('inventory');
+    return;
+  }
+  if (activeTab.value !== 'status') switchTab('status');
+  nextTick(() => {
+    const anchor = key === 'lottery' ? 'rpg-sec-lottery' : 'rpg-sec-profile';
+    document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+};
+
 const { onDataRefresh } = useRealtimeSocket();
 onDataRefresh(handleSocketRefresh);
 
@@ -163,6 +189,18 @@ const switchTab = (tab: typeof activeTab.value) => {
   activeTab.value = tab;
   const q = tab === 'status' ? {} : { tab };
   router.replace({ query: q });
+};
+
+/** 空态卡「行动按钮」跳转：lottery → 状态页抽奖区锚点，其余回状态页 */
+const onPanelGoto = (target: 'status' | 'lottery' | 'quests') => {
+  if (activeTab.value !== 'status') switchTab('status');
+  if (target === 'lottery') {
+    nextTick(() => {
+      document
+        .getElementById('rpg-sec-lottery')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 };
 
 /** 排行榜筛选变更时重新拉榜（仅在已登录且排行 Tab 激活时） */
@@ -456,6 +494,24 @@ const onLeaveGuild = async () => {
         </button>
       </div>
 
+      <!-- v3 ⑥ 移动端底部拇指 Tab 栏（<640px 固定，顶部 Tab 隐藏） -->
+      <nav v-if="isLoggedIn" class="rpg-bottom-tabs" role="tablist" aria-label="RPG 底部导航">
+        <button
+          v-for="t in rpgTabs"
+          :key="t.key"
+          type="button"
+          role="tab"
+          class="rpg-bottom-tab"
+          :class="{ active: activeTab === t.key }"
+          :aria-selected="activeTab === t.key"
+          @click="switchTab(t.key)"
+        >
+          <img :src="`/rpg/icons/${t.icon}.png`" alt="" loading="lazy">
+          {{ t.label }}
+          <span v-if="t.key === 'pet' && petTabDot" class="rpg-bottom-tab__dot" />
+        </button>
+      </nav>
+
       <client-only>
         <div
           v-if="!isLoggedIn"
@@ -466,7 +522,30 @@ const onLeaveGuild = async () => {
 
         <template v-else>
           <div v-if="activeTab === 'status'">
-            <div class="rpg-page-section p-3 sm:p-5">
+            <!-- v3 ① 英雄面板：三轴数值 + 今日待办 -->
+            <div v-if="!statusLoading && rpgStatus" class="mb-5">
+              <RpgHeroPanel
+                :rpg-status="rpgStatus"
+                :sign-info="signInfo"
+                :quest-claimable="questClaimable"
+                :egg-count="petEggs.length"
+                :lottery-tickets="lotteryTickets"
+                :loadout="loadout"
+                @todo="onHeroTodo"
+              />
+            </div>
+            <!-- v3 ② 加成合计透视 -->
+            <div v-if="!statusLoading && rpgStatus" class="mb-5">
+              <RpgBoostSummary
+                :weather-buff="weatherBuff"
+                :buffs="buffs"
+                :pets="pets"
+                :equipped-pet-id="equippedPetId"
+                :loadout="loadout"
+                :rpg-status="rpgStatus"
+              />
+            </div>
+            <div id="rpg-sec-profile" class="rpg-page-section p-3 sm:p-5">
               <div class="card-body p-2 sm:p-5">
                 <RpgProfileCard
                   v-if="!statusLoading && rpgStatus"
@@ -499,7 +578,7 @@ const onLeaveGuild = async () => {
                 />
               </div>
             </div>
-            <div class="rpg-page-section mt-5 p-3 sm:p-5">
+            <div id="rpg-sec-lottery" class="rpg-page-section mt-5 p-3 sm:p-5">
               <div class="card-body p-2 sm:p-5">
                 <RpgDevEventPanel v-if="isDev" compact :context="{ status: rpgStatus }" />
                 <RpgLotteryDrawMockBar v-if="isDev" :status="rpgStatus" />
@@ -530,6 +609,7 @@ const onLeaveGuild = async () => {
                   @equip="onInventoryEquip"
                   @unequip="onInventoryUnequip"
                   @rest-pet="onRestPet"
+                  @goto="onPanelGoto"
                 />
               </div>
             </div>
@@ -549,6 +629,7 @@ const onLeaveGuild = async () => {
                   @deploy="onDeployPet"
                   @rest="onRestPet"
                   @rename="onRenamePet"
+                  @goto="onPanelGoto"
                 />
               </div>
             </div>
@@ -581,6 +662,7 @@ const onLeaveGuild = async () => {
                   :leaderboard="leaderboard"
                   :rpg-status="rpgStatus"
                   :loading="leaderboardLoading"
+                  @goto="onPanelGoto"
                 />
               </div>
             </div>
@@ -735,10 +817,98 @@ const onLeaveGuild = async () => {
 
   @media (max-width: 639px) {
     .rpg-page-tabs {
-      gap: 4px;
-      padding: 5px;
+      display: none;
     }
 
+    .rpg-bottom-tab {
+      flex: 1;
+      min-width: auto;
+      padding: 6px 2px;
+      font-size: 10px;
+      gap: 0;
+    }
+
+    .rpg-bottom-tab img {
+      width: 30px;
+      height: 30px;
+    }
+
+    .rpg-theme {
+      padding-bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  /* ── v3 ⑥ 移动端底部拇指 Tab 栏（桌面隐藏） ── */
+  .rpg-bottom-tabs {
+    display: none;
+  }
+
+  @media (max-width: 639px) {
+    .rpg-bottom-tabs {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+      display: flex;
+      justify-content: space-around;
+      gap: 2px;
+      padding: 7px 6px calc(9px + env(safe-area-inset-bottom, 0px));
+      background: color-mix(in srgb, var(--rpg-surface, #fff) 94%, transparent);
+      border-top: 1px solid var(--rpg-border, #e8e3f2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 -6px 20px rgb(60 40 110 / 0.14);
+    }
+  }
+
+  .rpg-bottom-tab {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    padding: 5px 2px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--rpg-text-secondary, oklch(var(--bc) / 0.68));
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .rpg-bottom-tab img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: box-shadow 0.2s;
+  }
+
+  .rpg-bottom-tab.active {
+    color: var(--rpg-art-violet-deep, oklch(var(--p)));
+  }
+
+  .rpg-bottom-tab.active img {
+    box-shadow: 0 0 0 2.5px var(--rpg-art-violet, #7c5cf0);
+  }
+
+  .rpg-bottom-tab__dot {
+    position: absolute;
+    top: 2px;
+    right: 26%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f04b4b;
+    border: 1.5px solid var(--rpg-surface, #fff);
+  }
+
+  @media (max-width: 639px) {
     .rpg-page-tab {
       flex: 0 0 auto;
       min-width: auto;

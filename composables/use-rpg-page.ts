@@ -123,28 +123,48 @@ export function useRpgPage() {
 
   /**
    * 冒险状态 Tab 首屏数据：各接口只请求一次，写入页面级 ref 供子组件 props 渲染。
-   * 副作用：请求 11 个 RPG 接口，更新 status 相关 ref，标记 loadedTabs.status。
+   * v3 起同时预取宠物/蛋/图鉴/装备栏（英雄面板与加成透视需要），并标记 pet Tab 已加载。
+   * 副作用：请求 15 个 RPG 接口，更新 status 相关 ref，标记 loadedTabs.status/pet。
    */
   const loadStatusTab = async () => {
     if (loadedTabs.value.has('status')) return;
 
     statusLoading.value = true;
     try {
-      // 合并并发，避免 ProfileCard / LotteryBox / SeasonBanner 等子组件重复打相同接口
-      const [status, sign, ban, ach, quests, buffList, ticketsRes, rewards, pool, act, weather]
-        = await Promise.all([
-          getRpgStatus(),
-          getRpgSignInfo(),
-          getRpgBanStatus(),
-          getMyAchievements(),
-          getMyQuests(),
-          getMyBuffs(),
-          getLotteryTickets(),
-          getRpgLevelRewards(),
-          getLotteryPool(),
-          getCurrentActivity().catch(() => null),
-          getWeatherBuff().catch(() => null),
-        ]);
+      // 合并并发，避免 ProfileCard / LotteryBox / SeasonBanner / HeroPanel 等子组件重复打相同接口
+      const [
+        status,
+        sign,
+        ban,
+        ach,
+        quests,
+        buffList,
+        ticketsRes,
+        rewards,
+        pool,
+        act,
+        weather,
+        petsRes,
+        eggsInvRes,
+        loRes,
+        catRes,
+      ] = await Promise.all([
+        getRpgStatus(),
+        getRpgSignInfo(),
+        getRpgBanStatus(),
+        getMyAchievements(),
+        getMyQuests(),
+        getMyBuffs(),
+        getLotteryTickets(),
+        getRpgLevelRewards(),
+        getLotteryPool(),
+        getCurrentActivity().catch(() => null),
+        getWeatherBuff().catch(() => null),
+        getMyPets().catch(() => []),
+        getRpgInventory('consumable').catch(() => ({ items: [] })),
+        getRpgLoadout().catch(() => null),
+        getPetCatalog().catch(() => []),
+      ]);
       rpgStatus.value = status;
       signInfo.value = sign;
       banStatus.value = ban;
@@ -156,7 +176,16 @@ export function useRpgPage() {
       lotteryPool.value = filterLinkedLotteryPool(pool);
       activityOverview.value = act;
       weatherBuff.value = weather;
+      // v3：宠物核心数据（英雄面板孵化红点 + 加成透视出战宠物行）
+      pets.value = petsRes || [];
+      petEggs.value = (eggsInvRes?.items || []).filter(
+        (i: any) => i.config?.effectJson?.grantType === 'pet',
+      );
+      loadout.value = loRes;
+      petCatalog.value = catRes || [];
+      equippedPetId.value = loRes?.petId ?? null;
       loadedTabs.value.add('status');
+      loadedTabs.value.add('pet');
     }
     finally {
       statusLoading.value = false;

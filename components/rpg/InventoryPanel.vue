@@ -14,6 +14,7 @@ const emit = defineEmits<{
   equip: [slot: string, itemCode: string];
   unequip: [slot: string];
   restPet: [];
+  goto: [target: 'status'];
 }>();
 
 const { playSfx } = useRpgAudio();
@@ -102,8 +103,13 @@ const rarityClass = (item: InventoryItem) => {
       背包
     </div>
     <RpgPanelLoading v-if="loading" compact />
-    <div v-else-if="!items.length" class="rpg-empty-inline">
-      背包为空
+    <div v-else-if="!items.length" class="rpg-empty-card">
+      <img class="rpg-empty-card__art" src="/rpg/icons/library.png" alt="" loading="lazy">
+      <b>背包还没开张</b>
+      <p>完成任务、参与抽奖都能拿到第一件装备。</p>
+      <button class="rpg-empty-card__btn" @click="emit('goto', 'status')">
+        看看今日任务
+      </button>
     </div>
     <template v-else>
       <!-- 三槽装备栏：称号 / 头像框 / 宠物（对齐 loadout 实际槽位） -->
@@ -376,5 +382,52 @@ const rarityClass = (item: InventoryItem) => {
     .equip-strip {
       grid-template-columns: 1fr;
     }
+  }
+
+  /* ── v3 ⑦ 空态规范：圆图 + 人话 + 行动按钮 ── */
+  .rpg-empty-card {
+    text-align: center;
+    padding: 24px 16px;
+    border: 1.5px dashed var(--rpg-border, #e8e3f2);
+    border-radius: 16px;
+    background: var(--rpg-surface, #fbfaff);
+  }
+
+  .rpg-empty-card__art {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    opacity: 0.9;
+  }
+
+  .rpg-empty-card b {
+    display: block;
+    font-size: 13px;
+    margin: 8px 0 4px;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+  }
+
+  .rpg-empty-card p {
+    font-size: 11.5px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.6));
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .rpg-empty-card__btn {
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 7px 16px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7c5cf0, #5b3fd6);
+    color: #fff;
+    box-shadow: 0 4px 12px rgb(92 63 214 / 0.3);
+  }
+
+  .rpg-empty-card__btn:hover {
+    filter: brightness(1.06);
   }
 </style>
