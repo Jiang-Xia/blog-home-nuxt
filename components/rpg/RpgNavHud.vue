@@ -89,11 +89,18 @@ const onHudClick = () => {
     class="rpg-nav-hud rpg-theme hidden items-center gap-1.5 rounded-xl border border-[var(--rpg-amber-border)] bg-[var(--rpg-amber-bg-faint)] px-2.5 py-1.5 text-xs font-medium no-underline text-[var(--rpg-amber-text)] transition-all hover:scale-[1.02] md:flex"
     @click="onHudClick"
   >
-    ⚔️ 开始冒险
+    <img class="hud-art" src="/rpg/icons/dice.png" alt=""> 开始冒险
   </NuxtLink>
 </template>
 
 <style scoped>
+  .hud-art {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    vertical-align: -2px;
+  }
+
   .rpg-hud-level {
     background: var(--rpg-level-badge-gradient);
     box-shadow: 0 1px 4px var(--rpg-level-shadow);

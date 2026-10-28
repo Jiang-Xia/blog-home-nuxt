@@ -151,7 +151,16 @@ const getEffectText = (buff: UserBuff): string => {
             class="rpg-loot-icon rpg-loot-icon--tinted"
             :style="{ background: BUFF_TYPE_MAP[buff.buffType]?.color || '#8b5cf6' }"
           >
-            {{ BUFF_TYPE_MAP[buff.buffType]?.icon || '✨' }}
+            <img
+              v-if="BUFF_TYPE_MAP[buff.buffType]?.art"
+              class="buff-art"
+              :src="`/rpg/icons/${BUFF_TYPE_MAP[buff.buffType].art}.png`"
+              alt=""
+              loading="lazy"
+            >
+            <template v-else>
+              {{ BUFF_TYPE_MAP[buff.buffType]?.icon || '✨' }}
+            </template>
           </div>
           <span class="rpg-loot-status" :class="getStatusClass(buff)">
             {{ getStatusText(buff) }}
@@ -226,5 +235,12 @@ const getEffectText = (buff: UserBuff): string => {
 
   .buff-list .rpg-loot-card {
     min-height: 132px;
+  }
+
+  .buff-art {
+    width: 78%;
+    height: 78%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.25));
   }
 </style>

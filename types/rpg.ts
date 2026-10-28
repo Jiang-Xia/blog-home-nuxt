@@ -313,12 +313,15 @@ export interface UserBuff {
 }
 
 /** Buff类型显示配置 */
-export const BUFF_TYPE_MAP: Record<BuffType, { icon: string; color: string; label: string }> = {
-  exp_boost: { icon: '✨', color: '#8b5cf6', label: '经验加成' },
-  hp_regen: { icon: '❤️‍🔥', color: '#ef4444', label: '生命恢复' },
-  ban_reduction: { icon: '🛡️', color: '#3b82f6', label: '禁言减免' },
-  shield: { icon: '🔰', color: '#10b981', label: '护盾' },
-  lucky: { icon: '⭐', color: '#f59e0b', label: '幸运' },
+export const BUFF_TYPE_MAP: Record<
+  BuffType,
+  { icon: string; color: string; label: string; art: string }
+> = {
+  exp_boost: { icon: '✨', color: '#8b5cf6', label: '经验加成', art: 'exp' },
+  hp_regen: { icon: '❤️‍🔥', color: '#ef4444', label: '生命恢复', art: 'fire' },
+  ban_reduction: { icon: '🛡️', color: '#3b82f6', label: '禁言减免', art: 'megaphone' },
+  shield: { icon: '🔰', color: '#10b981', label: '护盾', art: 'shield' },
+  lucky: { icon: '⭐', color: '#f59e0b', label: '幸运', art: 'star' },
 };
 
 /** 抽奖奖池（rarityLabel/Color/Icon 由后端 attachRarityDisplay 下发） */

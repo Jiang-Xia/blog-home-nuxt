@@ -49,15 +49,7 @@ const handleClose = () => {
       <div v-if="visible && levelUpData" class="level-up-overlay" @click="handleClose">
         <div class="level-up-modal" @click.stop>
           <div class="level-up-icon" aria-hidden="true">
-            <svg class="level-up-star" viewBox="0 0 64 64" fill="none">
-              <path
-                d="M32 6 L38.5 24.5 L58 24.5 L42.5 36.5 L48.5 55 L32 43.5 L15.5 55 L21.5 36.5 L6 24.5 L25.5 24.5 Z"
-                fill="#fbbf24"
-                stroke="#d97706"
-                stroke-width="2"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <img class="level-up-art" src="/rpg/art/level-up.png" alt="">
           </div>
           <div class="level-up-badge">
             升级！
@@ -132,9 +124,10 @@ const handleClose = () => {
     filter: drop-shadow(0 4px 10px rgba(217, 119, 6, 0.3));
   }
 
-  .level-up-star {
-    width: 52px;
-    height: 52px;
+  .level-up-art {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
   }
 
   .level-up-badge {

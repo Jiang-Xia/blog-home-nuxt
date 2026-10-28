@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** 公会成员列表；头像/昵称可跳转至用户公开主页 */
+/** 公会面板：已加入视角（信息+统计+成员列表）/ 未加入视角（空态+公会列表）；头像/昵称可跳转用户主页 */
 import { getGuildRoleLabel } from '~~/types/rpg';
 import { resolveStaticUrl } from '@/utils/static-url';
 
@@ -22,45 +22,82 @@ const isLeader = computed(() => {
   const uid = userInfo.value?.uid;
   return !!uid && props.myGuild?.leaderUid === uid;
 });
+
+/** joinTime → YYYY-MM-DD（后端字段缺失时隐藏） */
+const formatJoinTime = (t?: string | null) => {
+  if (!t) return '';
+  const d = new Date(t);
+  if (Number.isNaN(d.getTime())) return '';
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 </script>
 
 <template>
   <div class="guild-panel">
     <RpgPanelLoading v-if="loading" compact />
+
+    <!-- ① 已加入视角：徽章 + 公告 + 统计 + 成员列表 -->
     <div v-else-if="myGuild" class="rpg-loot-card rpg-loot-card--active guild-mine">
-      <div class="rpg-loot-card-head">
-        <div class="rpg-loot-name">
-          {{ myGuild.name }}
+      <div class="guild-head">
+        <img class="guild-head__emblem" src="/rpg/icons/shield.png" alt="公会徽章" loading="lazy">
+        <div class="guild-head__text">
+          <h3 class="guild-head__name">
+            {{ myGuild.name }}
+            <span
+              class="guild-role"
+              :class="isLeader ? 'guild-role--leader' : 'guild-role--member'"
+            >
+              {{ isLeader ? '会长' : '成员' }}
+            </span>
+          </h3>
+          <p class="guild-head__announcement">
+            {{ myGuild.announcement || '暂无公告' }}
+          </p>
         </div>
-        <span class="rpg-loot-status rpg-loot-status--done">我的公会</span>
       </div>
-      <p class="rpg-loot-desc">
-        {{ myGuild.announcement || '暂无公告' }}
-      </p>
-      <span class="rpg-chip-tag">👥 {{ myGuild.memberCount }} 人</span>
-      <div
-        v-if="myGuild.members?.length"
-        class="rpg-loot-grid rpg-loot-grid--compact member-grid mt-2"
-      >
+
+      <div class="guild-stats">
+        <div class="guild-stat">
+          <b>👥 {{ myGuild.memberCount }}</b>
+          <span>成员</span>
+        </div>
+        <div class="guild-stat">
+          <b>#{{ myGuild.id }}</b>
+          <span>公会 ID</span>
+        </div>
+        <div class="guild-stat">
+          <b>{{ isLeader ? '会长' : '成员' }}</b>
+          <span>我的身份</span>
+        </div>
+      </div>
+
+      <div v-if="myGuild.members?.length" class="guild-members">
         <NuxtLink
           v-for="m in myGuild.members"
           :key="m.uid"
           :to="`/user/${m.uid}`"
-          class="rpg-loot-card member-card member-card--link"
+          class="guild-member"
           :title="`查看 ${m.nickname} 的主页`"
         >
-          <div class="member-avatar">
+          <span class="guild-member__avatar">
             <img v-if="m.avatar" :src="resolveStaticUrl(m.avatar)" :alt="m.nickname">
-            <span v-else class="member-avatar-fallback">{{ m.nickname?.charAt(0) || '?' }}</span>
-          </div>
-          <div class="rpg-loot-name truncate">
-            {{ m.nickname }}
-          </div>
-          <div class="rpg-loot-desc">
-            {{ getGuildRoleLabel(m.role) }}
-          </div>
+            <span v-else class="guild-member__fallback">{{ m.nickname?.charAt(0) || '?' }}</span>
+          </span>
+          <span class="guild-member__who">
+            <b>
+              {{ m.nickname }}
+              <span
+                class="guild-role"
+                :class="m.role === 'leader' ? 'guild-role--leader' : 'guild-role--member'"
+              >{{ getGuildRoleLabel(m.role) }}</span>
+            </b>
+            <small v-if="formatJoinTime(m.joinTime)" class="guild-member__join">
+              {{ formatJoinTime(m.joinTime) }} 加入
+            </small>
+          </span>
         </NuxtLink>
       </div>
+
       <div class="rpg-loot-footer mt-2">
         <button
           v-if="!isLeader"
@@ -74,56 +111,55 @@ const isLeader = computed(() => {
         </span>
       </div>
     </div>
+
+    <!-- ② 未加入视角：空态引导 + 创建 + 公会列表 -->
     <div v-else class="space-y-4">
-      <div class="rpg-loot-card">
-        <h4 class="rpg-section-heading">
-          创建公会
-        </h4>
-        <div class="flex gap-2">
+      <div class="rpg-loot-card guild-empty-card">
+        <div class="guild-empty">
+          <img class="guild-empty__art" src="/rpg/icons/hands.png" alt="" loading="lazy">
+          <b class="guild-empty__title">还没有加入公会</b>
+          <p class="guild-empty__text">
+            浏览下方公会列表，或创建属于你的公会。<br>创建/加入都会推进对应成就与任务。
+          </p>
+        </div>
+        <div class="guild-create">
           <input
             v-model="guildName"
             class="input input-sm input-bordered flex-1"
-            placeholder="公会名称"
+            placeholder="输入公会名称"
+            maxlength="20"
           >
           <button
-            class="rpg-loot-claim-btn !min-w-0"
+            class="rpg-pet-btn rpg-pet-btn--primary"
             @click="
               emit('create', guildName);
               guildName = '';
             "
           >
-            创建
+            创建公会
           </button>
         </div>
       </div>
+
       <div>
         <h4 class="rpg-section-heading">
-          加入公会
+          公会列表 <small class="guild-section-sub">GET guilds</small>
         </h4>
         <div v-if="!guildList.length" class="rpg-empty-inline">
           暂无可加入的公会
         </div>
-        <div v-else class="rpg-loot-grid">
-          <div v-for="g in guildList" :key="g.id" class="rpg-loot-card rpg-loot-card--stacked">
-            <div class="rpg-loot-card-body">
-              <div class="rpg-loot-card-head">
-                <div class="rpg-loot-icon">
-                  ⚔️
-                </div>
-                <span class="rpg-chip-tag">👥 {{ g.memberCount }}</span>
-              </div>
-              <div class="rpg-loot-name">
-                {{ g.name }}
-              </div>
-              <p v-if="g.announcement" class="rpg-loot-desc">
-                {{ g.announcement }}
-              </p>
+        <div v-else class="guild-list">
+          <div v-for="g in guildList" :key="g.id" class="rpg-loot-card guild-list__row">
+            <img class="guild-list__emblem" src="/rpg/icons/shield.png" alt="" loading="lazy">
+            <div class="guild-list__info">
+              <b>{{ g.name }}</b>
+              <span>{{ g.memberCount }} 名成员</span>
             </div>
             <button
-              class="rpg-loot-card-strip rpg-loot-card-strip--active"
+              class="rpg-pet-btn rpg-pet-btn--primary rpg-pet-btn--sm"
               @click="emit('join', g.id)"
             >
-              加入公会
+              加入
             </button>
           </div>
         </div>
@@ -133,43 +169,144 @@ const isLeader = computed(() => {
 </template>
 
 <style scoped>
+  .guild-section-sub {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.55));
+    margin-left: 6px;
+  }
+
   .guild-mine {
-    padding: 12px;
+    padding: 16px 18px;
   }
 
-  .member-grid .member-card {
-    min-height: 72px;
-    padding: 8px 10px;
-    gap: 4px;
-    text-decoration: none;
-    color: inherit;
+  /* ── 公会头部 ── */
+  .guild-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
   }
 
-  .member-grid .member-card--link:hover {
-    border-color: var(--rpg-amber-text-soft);
-  }
-
-  .member-grid .member-card::after {
-    display: none;
-  }
-
-  .member-avatar {
-    width: 32px;
-    height: 32px;
+  .guild-head__emblem {
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
-    overflow: hidden;
-    background: var(--rpg-track);
-    border: 1px solid var(--rpg-border-subtle);
+    object-fit: cover;
+    border: 3px solid var(--rpg-art-gold, #d9a13c);
+    box-shadow: 0 8px 18px rgb(217 161 60 / 0.3);
     flex-shrink: 0;
   }
 
-  .member-avatar img {
+  .guild-head__name {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .guild-head__announcement {
+    margin: 4px 0 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.6));
+  }
+
+  /* ── 职位徽章 ── */
+  .guild-role {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 9px;
+    border-radius: 999px;
+  }
+
+  .guild-role--leader {
+    background: var(--rpg-art-gold-grad);
+    color: var(--rpg-art-gold-ink, #3a2408);
+  }
+
+  .guild-role--member {
+    background: var(--rpg-art-violet-soft, #f1edfb);
+    color: var(--rpg-art-violet-deep, #5b3fd6);
+  }
+
+  /* ── 统计三格 ── */
+  .guild-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .guild-stat {
+    background: var(--rpg-bg-alt, oklch(var(--b2)));
+    border: 1px solid var(--rpg-border-subtle, oklch(var(--b3)));
+    border-radius: 12px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+
+  .guild-stat b {
+    font-size: 15px;
+    display: block;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+  }
+
+  .guild-stat span {
+    font-size: 10.5px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.55));
+  }
+
+  /* ── 成员列表 ── */
+  .guild-members {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .guild-member {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 2px;
+    border-bottom: 1px solid var(--rpg-border-subtle, oklch(var(--b3)));
+    font-size: 13px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+  }
+
+  .guild-member:last-child {
+    border-bottom: 0;
+  }
+
+  .guild-member:hover {
+    background: var(--rpg-stat-hover, oklch(var(--b2)));
+  }
+
+  .guild-member__avatar {
+    display: block;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--rpg-track, oklch(var(--b2)));
+    border: 2px solid var(--rpg-surface, #fff);
+    box-shadow: 0 0 0 2px var(--rpg-border-subtle, oklch(var(--b3)));
+    flex-shrink: 0;
+  }
+
+  .guild-member__avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .member-avatar-fallback {
+  .guild-member__fallback {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -177,6 +314,148 @@ const isLeader = computed(() => {
     height: 100%;
     font-size: 13px;
     font-weight: 700;
-    color: var(--rpg-text-secondary);
+    color: var(--rpg-text-secondary, oklch(var(--bc) / 0.7));
+  }
+
+  .guild-member__who {
+    min-width: 0;
+  }
+
+  .guild-member__who b {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+  }
+
+  .guild-member__join {
+    display: block;
+    font-size: 11px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.55));
+    margin-top: 1px;
+  }
+
+  /* ── 未加入视角 ── */
+  .guild-empty-card {
+    padding: 18px 16px;
+  }
+
+  .guild-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .guild-empty__art {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+    opacity: 0.92;
+  }
+
+  .guild-empty__title {
+    display: block;
+    font-size: 14px;
+    margin-top: 8px;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+  }
+
+  .guild-empty__text {
+    font-size: 12.5px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.6));
+    margin: 6px 0 14px;
+    line-height: 1.7;
+  }
+
+  .guild-create {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid var(--rpg-border-subtle, oklch(var(--b3)));
+    padding-top: 14px;
+  }
+
+  .rpg-pet-btn {
+    border: 0;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 8px 18px;
+    border-radius: 10px;
+    white-space: nowrap;
+    transition:
+      filter 0.2s,
+      transform 0.15s;
+  }
+
+  .rpg-pet-btn:active {
+    transform: translateY(1px);
+  }
+
+  .rpg-pet-btn--primary {
+    background: var(--rpg-art-violet-grad);
+    color: #fff;
+    box-shadow: var(--rpg-art-shadow-violet);
+  }
+
+  .rpg-pet-btn--primary:hover {
+    filter: brightness(1.06);
+  }
+
+  .rpg-pet-btn--sm {
+    font-size: 11.5px;
+    padding: 6px 14px;
+  }
+
+  /* ── 公会列表行 ── */
+  .guild-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .guild-list__row {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+  }
+
+  .guild-list__emblem {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--rpg-art-gold, #d9a13c);
+    flex-shrink: 0;
+  }
+
+  .guild-list__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .guild-list__info b {
+    display: block;
+    font-size: 13px;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+  }
+
+  .guild-list__info span {
+    font-size: 11px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.55));
+  }
+
+  @media (max-width: 639px) {
+    .guild-stats {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .guild-create {
+      flex-wrap: wrap;
+    }
   }
 </style>

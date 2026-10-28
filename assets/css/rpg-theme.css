@@ -105,6 +105,25 @@ html.tech-shell {
   --rpg-life-track: rgba(0, 0, 0, 0.1);
   --rpg-life-track-bg: rgba(0, 0, 0, 0.04);
 
+  /* ═══ 美术改版 v2 — 紫罗兰 + 鎏金 · 圆图徽章风（对齐 rpg-art-redesign/pages.html）═══ */
+  --rpg-art-violet: #7c5cf0;
+  --rpg-art-violet-deep: #5b3fd6;
+  --rpg-art-violet-soft: #f1edfb;
+  --rpg-art-violet-grad: linear-gradient(135deg, #7c5cf0, #5b3fd6);
+  --rpg-art-gold: #d9a13c;
+  --rpg-art-amber: #e8b04b;
+  --rpg-art-gold-ink: #3a2408;
+  --rpg-art-gold-grad: linear-gradient(135deg, #e8b04b, #d9a13c);
+  --rpg-art-gold-soft: #fdf6e4;
+  --rpg-art-shadow-violet: 0 6px 16px rgb(92 63 214 / 0.32);
+  --rpg-art-shadow-gold: 0 6px 16px rgb(217 161 60 / 0.32);
+  --rpg-art-halo: radial-gradient(closest-side, rgb(217 161 60 / 0.28), transparent 72%);
+  /* 稀有度描边 — rare 紫晶 / epic+ 传说鎏金 */
+  --rpg-art-rare: #8d7bf5;
+  --rpg-art-rare-glow: rgb(141 123 245 / 0.18);
+  --rpg-art-epic: #b8842c;
+  --rpg-art-epic-glow: rgb(217 161 60 / 0.25);
+
   --rpg-banner-bg: color-mix(in oklch, var(--color-secondary) 12%, var(--color-base-100));
   --rpg-banner-border: color-mix(in oklch, var(--color-secondary) 28%, var(--color-base-100));
   --rpg-banner-label: var(--color-secondary);
@@ -354,6 +373,12 @@ html.tech-shell[data-theme='cyber'] {
 
   --rpg-life-track: rgb(255 255 255 / 0.12);
   --rpg-life-track-bg: rgb(255 255 255 / 0.06);
+
+  /* 美术改版 v2 令牌 — 暗色适配：soft 底半透明化 */
+  --rpg-art-violet-soft: rgb(124 92 240 / 0.16);
+  --rpg-art-gold-soft: rgb(217 161 60 / 0.14);
+  --rpg-art-rare: #a795f7;
+  --rpg-art-epic: #d9a95c;
 
   --rpg-rarity-badge-common-bg: linear-gradient(145deg, #475569, #94a3b8);
   --rpg-rarity-badge-common-text: #f1f5f9;
@@ -1671,18 +1696,19 @@ html.tech-shell[data-theme='cyber-light'] {
 
   .rpg-pool-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, 108px);
+    grid-template-columns: repeat(auto-fill, 116px);
     justify-content: center;
     gap: 8px;
   }
 
   .rpg-pool-chip {
     display: grid;
-    grid-template-rows: 28px auto minmax(0, 1fr);
+    grid-template-rows: 52px auto minmax(0, 1fr);
     align-content: start;
     gap: 6px;
-    width: 108px;
-    height: 104px;
+    width: 116px;
+    height: auto;
+    min-height: 132px;
     padding: 8px;
     border-radius: 10px;
     border: 1px solid var(--rpg-loot-border);
@@ -1766,10 +1792,10 @@ html.tech-shell[data-theme='cyber-light'] {
   .rpg-pool-chip {
     width: 100%;
     height: auto;
-    min-height: 72px;
+    min-height: 108px;
     padding: 6px;
     gap: 4px;
-    grid-template-rows: 28px auto minmax(0, 1fr);
+    grid-template-rows: 44px auto minmax(0, 1fr);
   }
 
   .rpg-pool-chip__name {

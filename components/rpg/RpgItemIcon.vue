@@ -23,7 +23,7 @@ const props = withDefaults(
     rarityColor?: string | null;
     frameColor?: string | null;
     tinted?: boolean;
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'sm' | 'md' | 'lg' | 'xl';
   }>(),
   {
     tinted: true,
@@ -115,6 +115,7 @@ const onImgError = () => {
       'rpg-loot-icon--bg': !!bgUrl,
       'rpg-loot-icon--sm': size === 'sm',
       'rpg-loot-icon--lg': size === 'lg',
+      'rpg-loot-icon--xl': size === 'xl',
     }"
     :style="containerStyle"
     aria-hidden="true"
@@ -155,6 +156,11 @@ const onImgError = () => {
     height: 78%;
   }
 
+  .rpg-loot-icon--xl .rpg-loot-icon__img {
+    width: 86%;
+    height: 86%;
+  }
+
   .rpg-loot-icon--sm .rpg-loot-icon__img {
     width: 68%;
     height: 68%;
@@ -172,5 +178,13 @@ const onImgError = () => {
     height: 52px;
     font-size: 28px;
     border-radius: 14px;
+  }
+
+  .rpg-loot-icon--xl {
+    width: 88px;
+    height: 88px;
+    font-size: 44px;
+    border-radius: 20px;
+    box-shadow: 0 0 0 4px color-mix(in oklch, var(--rpg-violet, #7c5cf0) 18%, transparent);
   }
 </style>

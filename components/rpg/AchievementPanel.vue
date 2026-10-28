@@ -23,6 +23,15 @@ const props = defineProps<{
 
 const { playSfx } = useRpgAudio();
 
+/** 成就 rarity 四档描边（美术改版 v2）：rare 紫晶 / epic+ 鎏金 */
+const achRarityClass = (ach: UserAchievementProgress) => {
+  const r = (ach.rarity || '').toLowerCase();
+  if (r === 'rare') return 'ach-card--rare';
+  if (r === 'epic') return 'ach-card--epic';
+  if (r === 'legendary' || r === 'ssr') return 'ach-card--legendary';
+  return '';
+};
+
 // 按分类分组
 const groupedAchievements = computed(() => {
   const groups: Record<string, UserAchievementProgress[]> = {};
@@ -90,6 +99,7 @@ const categories = computed(() => {
           已完成成就
         </div>
       </div>
+      <img class="ach-art" src="/rpg/icons/trophy.png" alt="" loading="lazy">
       <div class="ach-progress-ring">
         <svg viewBox="0 0 36 36" class="ring-svg">
           <path
@@ -139,9 +149,13 @@ const categories = computed(() => {
         v-for="ach in displayedAchievements"
         :key="ach.code"
         class="rpg-loot-card rpg-loot-card--achievement"
-        :class="{
-          'rpg-loot-card--locked': !ach.completed,
-        }"
+        :class="[
+          {
+            'rpg-loot-card--locked': !ach.completed,
+            'ach-card--done': ach.completed,
+          },
+          achRarityClass(ach),
+        ]"
       >
         <div class="rpg-loot-card-head">
           <div
@@ -208,7 +222,17 @@ const categories = computed(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     margin-bottom: 12px;
+  }
+
+  .ach-art {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin-left: auto;
+    filter: drop-shadow(0 4px 10px rgb(217 161 60 / 0.35));
   }
 
   .ach-summary {
@@ -296,5 +320,35 @@ const categories = computed(() => {
     color: var(--rpg-text-body);
     border-color: var(--rpg-border);
     background: var(--rpg-stat-hover);
+  }
+
+  /* ── rarity 四档描边（美术改版 v2）── */
+  .ach-card--done {
+    border-color: color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 55%, transparent) !important;
+    background: linear-gradient(
+      160deg,
+      var(--rpg-art-gold-soft, #fdf6e4),
+      var(--rpg-loot-bg)
+    ) !important;
+  }
+
+  .ach-card--rare {
+    border-color: var(--rpg-art-rare, #8d7bf5) !important;
+    box-shadow: 0 0 0 3px var(--rpg-art-rare-glow, rgb(141 123 245 / 0.18));
+  }
+
+  .ach-card--epic {
+    border-color: var(--rpg-art-epic, #b8842c) !important;
+    box-shadow: 0 0 0 3px var(--rpg-art-epic-glow, rgb(217 161 60 / 0.25));
+  }
+
+  .ach-card--legendary {
+    border-color: var(--rpg-art-gold, #d9a13c) !important;
+    background: linear-gradient(
+      160deg,
+      var(--rpg-art-gold-soft, #fdf6e4),
+      var(--rpg-loot-bg)
+    ) !important;
+    box-shadow: 0 0 18px rgb(217 161 60 / 0.35);
   }
 </style>

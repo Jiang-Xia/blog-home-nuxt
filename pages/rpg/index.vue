@@ -3,7 +3,7 @@
    * RPG 冒险模块 - 冒险状态、等级奖励、抽奖与排行榜
    * 所有接口请求在本页统一发起，子组件仅负责渲染
    */
-import { ref, watch, computed, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { messageError, messageSuccess } from '~~/utils/toast';
 import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 import { useRpgPage } from '~~/composables/use-rpg-page';
@@ -26,6 +26,15 @@ const onboardingRef = ref<{ open: () => void } | null>(null);
 const { isLoggedIn } = useAuthSession();
 
 const activeTab = ref<'status' | 'inventory' | 'pet' | 'guild' | 'leaderboard'>('status');
+
+/** Tab 导航配置 — 圆徽章图 + 文字（美术改版 v2） */
+const rpgTabs: { key: typeof activeTab.value; label: string; icon: string }[] = [
+  { key: 'status', label: '冒险状态', icon: 'shield' },
+  { key: 'inventory', label: '背包', icon: 'library' },
+  { key: 'pet', label: '宠物', icon: 'paw' },
+  { key: 'guild', label: '公会', icon: 'hands' },
+  { key: 'leaderboard', label: '排行榜', icon: 'trophy' },
+];
 
 const isDev = import.meta.dev;
 
@@ -85,6 +94,13 @@ const {
   handleLeaveGuild,
   handleSocketRefresh,
 } = useRpgPage();
+
+/** 宠物 Tab 红点：宠物蛋仓库或背包里有蛋未孵化 */
+const petTabDot = computed(
+  () =>
+    petEggs.value.length > 0
+    || inventoryItems.value.some(i => (i.itemCode || '').toLowerCase().includes('egg')),
+);
 
 const { onDataRefresh } = useRealtimeSocket();
 onDataRefresh(handleSocketRefresh);
@@ -417,7 +433,7 @@ const onLeaveGuild = async () => {
           </label>
         </template>
         <button type="button" class="rpg-page-toolbar__guide" @click="onboardingRef?.open()">
-          📖 新手引导
+          <img class="guide-art" src="/rpg/icons/books.png" alt=""> 新手引导
         </button>
       </div>
 
@@ -425,54 +441,18 @@ const onLeaveGuild = async () => {
 
       <div v-if="isLoggedIn" class="rpg-page-tabs mb-4" role="tablist">
         <button
+          v-for="t in rpgTabs"
+          :key="t.key"
           type="button"
           role="tab"
           class="rpg-page-tab"
-          :class="{ active: activeTab === 'status' }"
-          :aria-selected="activeTab === 'status'"
-          @click="switchTab('status')"
+          :class="{ active: activeTab === t.key }"
+          :aria-selected="activeTab === t.key"
+          @click="switchTab(t.key)"
         >
-          冒险状态
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="rpg-page-tab"
-          :class="{ active: activeTab === 'inventory' }"
-          :aria-selected="activeTab === 'inventory'"
-          @click="switchTab('inventory')"
-        >
-          背包
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="rpg-page-tab"
-          :class="{ active: activeTab === 'pet' }"
-          :aria-selected="activeTab === 'pet'"
-          @click="switchTab('pet')"
-        >
-          宠物
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="rpg-page-tab"
-          :class="{ active: activeTab === 'guild' }"
-          :aria-selected="activeTab === 'guild'"
-          @click="switchTab('guild')"
-        >
-          公会
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="rpg-page-tab"
-          :class="{ active: activeTab === 'leaderboard' }"
-          :aria-selected="activeTab === 'leaderboard'"
-          @click="switchTab('leaderboard')"
-        >
-          排行
+          <img class="rpg-page-tab__ico" :src="`/rpg/icons/${t.icon}.png`" alt="" loading="lazy">
+          {{ t.label }}
+          <span v-if="t.key === 'pet' && petTabDot" class="rpg-page-tab__dot" />
         </button>
       </div>
 
@@ -544,9 +524,12 @@ const onLeaveGuild = async () => {
                 <RpgInventoryPanel
                   :items="inventoryItems"
                   :loadout="loadout"
+                  :pets="pets"
+                  :equipped-pet-id="equippedPetId"
                   :loading="inventoryLoading"
                   @equip="onInventoryEquip"
                   @unequip="onInventoryUnequip"
+                  @rest-pet="onRestPet"
                 />
               </div>
             </div>
@@ -596,6 +579,7 @@ const onLeaveGuild = async () => {
                   v-model:active-type="leaderboardType"
                   v-model:active-period="leaderboardPeriod"
                   :leaderboard="leaderboard"
+                  :rpg-status="rpgStatus"
                   :loading="leaderboardLoading"
                 />
               </div>
@@ -628,6 +612,14 @@ const onLeaveGuild = async () => {
     cursor: pointer;
     white-space: nowrap;
     flex-shrink: 0;
+  }
+
+  .guide-art {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    vertical-align: -2px;
+    margin-right: 3px;
   }
 
   .rpg-page-toolbar__guide {
@@ -667,11 +659,12 @@ const onLeaveGuild = async () => {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    gap: 6px;
-    padding: 6px;
-    border-radius: 12px;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 16px;
     border: 1px solid var(--rpg-border, oklch(var(--b3)));
     background: var(--rpg-surface, oklch(var(--b1)));
+    box-shadow: 0 10px 30px rgb(60 40 110 / 0.08);
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
@@ -681,14 +674,18 @@ const onLeaveGuild = async () => {
   }
 
   .rpg-page-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 7px;
     flex: 1 1 auto;
     min-width: 0;
-    padding: 8px 10px;
+    padding: 9px 16px;
     border: 1px solid transparent;
-    border-radius: 8px;
+    border-radius: 11px;
     background: transparent;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 13.5px;
+    font-weight: 700;
     line-height: 1.2;
     white-space: nowrap;
     color: var(--rpg-text-secondary, oklch(var(--bc) / 0.72));
@@ -696,21 +693,44 @@ const onLeaveGuild = async () => {
     transition:
       background-color 0.2s,
       color 0.2s,
-      border-color 0.2s;
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .rpg-page-tab__ico {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .rpg-page-tab__dot {
+    position: absolute;
+    top: 7px;
+    right: 9px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f04b4b;
+    box-shadow: 0 0 0 2px var(--rpg-surface, oklch(var(--b1)));
   }
 
   .rpg-page-tab:hover {
-    background: var(--rpg-bg-alt, oklch(var(--b2)));
-    color: var(--rpg-text-heading, oklch(var(--bc)));
+    background: var(--rpg-art-violet-soft, oklch(var(--b2)));
+    color: var(--rpg-art-violet-deep, oklch(var(--p)));
   }
 
   .rpg-page-tab.active {
-    background: var(--rpg-violet-bg, oklch(var(--p) / 0.12));
-    color: var(--rpg-violet, oklch(var(--p)));
+    background: var(--rpg-art-violet-grad);
+    color: #fff;
     font-weight: 700;
-    border-color: color-mix(in oklch, var(--rpg-violet, oklch(var(--p))) 45%, transparent);
-    box-shadow: inset 0 0 0 1px
-      color-mix(in oklch, var(--rpg-violet, oklch(var(--p))) 35%, transparent);
+    border-color: transparent;
+    box-shadow: var(--rpg-art-shadow-violet);
+  }
+
+  .rpg-page-tab.active .rpg-page-tab__ico {
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 0.65);
   }
 
   @media (max-width: 639px) {
@@ -724,19 +744,21 @@ const onLeaveGuild = async () => {
       min-width: auto;
       padding: 7px 11px;
       font-size: 12px;
+      gap: 5px;
+    }
+
+    .rpg-page-tab__ico {
+      width: 18px;
+      height: 18px;
     }
   }
 
   :global(html.tech-shell[data-theme='cyber-light']) .rpg-page-tab:not(.active) {
     color: var(--rpg-text-label, #475569);
-    background: var(--rpg-bg-alt, #f1f5f9);
-    border-color: var(--rpg-border, #e2e8f0);
   }
 
-  :global(html.tech-shell[data-theme='cyber-light']) .rpg-page-tab.active {
-    background: rgb(139 92 246 / 0.1);
-    color: #6d28d9;
-    border-color: rgb(139 92 246 / 0.45);
-    box-shadow: inset 0 0 0 1px rgb(139 92 246 / 0.28);
+  :global(html.tech-shell[data-theme='cyber-light']) .rpg-page-tab:not(.active):hover {
+    background: var(--rpg-art-violet-soft, #f1edfb);
+    color: var(--rpg-art-violet-deep, #5b3fd6);
   }
 </style>

@@ -1,16 +1,19 @@
 <script setup lang="ts">
-/** 背包面板：展示字段来自 item.config / item.sourceLabel */
+/** 背包面板：三槽装备栏（称号/头像框/宠物）+ 分类筛选 + 稀有度描边网格 */
 import type { InventoryItem } from '~~/types/rpg';
 
 const props = defineProps<{
   items: InventoryItem[];
   loadout: any;
+  pets: any[];
+  equippedPetId: number | null;
   loading: boolean;
 }>();
 
 const emit = defineEmits<{
   equip: [slot: string, itemCode: string];
   unequip: [slot: string];
+  restPet: [];
 }>();
 
 const { playSfx } = useRpgAudio();
@@ -72,6 +75,25 @@ const switchTypeTab = (key: string) => {
   if (key !== activeType.value) void playSfx('tabSwitch');
   activeType.value = key;
 };
+
+/* ── 三槽装备栏数据（loadout：title / avatar_frame / pet）── */
+const titleItem = computed(
+  () => props.items.find(i => i.itemCode === props.loadout?.titleCode) || null,
+);
+const frameItem = computed(
+  () => props.items.find(i => i.itemCode === props.loadout?.avatarFrameCode) || null,
+);
+const equippedPet = computed(
+  () => (props.pets || []).find(p => p.id === props.equippedPetId) || null,
+);
+
+/** 稀有度描边 class：rare 紫晶 / epic+ 鎏金（美术改版 v2） */
+const rarityClass = (item: InventoryItem) => {
+  const r = (item.config?.rarity || '').toLowerCase();
+  if (r === 'rare') return 'inv-cell--rare';
+  if (r === 'epic' || r === 'legendary' || r === 'ssr') return 'inv-cell--epic';
+  return '';
+};
 </script>
 
 <template>
@@ -84,6 +106,65 @@ const switchTypeTab = (key: string) => {
       背包为空
     </div>
     <template v-else>
+      <!-- 三槽装备栏：称号 / 头像框 / 宠物（对齐 loadout 实际槽位） -->
+      <div class="equip-strip">
+        <div class="equip-slot" :class="{ filled: titleItem }">
+          <img v-if="titleItem" class="equip-slot__ico" src="/rpg/icons/crown.png" alt="">
+          <span v-else class="equip-slot__empty">
+            <img class="equip-slot__ico" src="/rpg/icons/crown.png" alt="">
+          </span>
+          <div class="equip-slot__text">
+            <small>称号</small>
+            <b>{{
+              titleItem?.config?.name || (loadout?.titleCode ? loadout.titleCode : '未穿戴')
+            }}</b>
+          </div>
+          <button
+            v-if="titleItem"
+            type="button"
+            class="equip-slot__off"
+            @click="emit('unequip', 'title')"
+          >
+            卸下
+          </button>
+        </div>
+        <div class="equip-slot" :class="{ filled: frameItem }">
+          <img v-if="frameItem" class="equip-slot__ico" src="/rpg/icons/frame-gold.png" alt="">
+          <span v-else class="equip-slot__empty">
+            <img class="equip-slot__ico" src="/rpg/icons/frame-gold.png" alt="">
+          </span>
+          <div class="equip-slot__text">
+            <small>头像框</small>
+            <b>{{
+              frameItem?.config?.name
+                || (loadout?.avatarFrameCode ? loadout.avatarFrameCode : '未穿戴')
+            }}</b>
+          </div>
+          <button
+            v-if="frameItem"
+            type="button"
+            class="equip-slot__off"
+            @click="emit('unequip', 'avatar_frame')"
+          >
+            卸下
+          </button>
+        </div>
+        <div class="equip-slot" :class="{ filled: equippedPet }">
+          <img v-if="equippedPet" class="equip-slot__ico" src="/rpg/icons/paw.png" alt="">
+          <span v-else class="equip-slot__empty">
+            <img class="equip-slot__ico" src="/rpg/icons/paw.png" alt="">
+          </span>
+          <div class="equip-slot__text">
+            <small>宠物</small>
+            <b>{{ equippedPet ? equippedPet.nickname || equippedPet.config?.name : '未出战' }}</b>
+          </div>
+          <button v-if="equippedPet" type="button" class="equip-slot__off" @click="emit('restPet')">
+            休息
+          </button>
+        </div>
+      </div>
+
+      <!-- 分类 pills：映射 GET inventory 的 itemTypes 过滤 -->
       <div v-if="typeTabs.length > 2" class="rpg-panel-tabs">
         <button
           v-for="tab in typeTabs"
@@ -95,12 +176,13 @@ const switchTypeTab = (key: string) => {
           {{ tab.label }}
         </button>
       </div>
+
       <div class="rpg-loot-grid inventory-grid">
         <div
           v-for="item in filteredItems"
           :key="item.id || item.itemCode"
-          class="rpg-loot-card rpg-loot-card--stacked"
-          :class="{ 'rpg-loot-card--active': isEquipped(item) }"
+          class="rpg-loot-card rpg-loot-card--stacked inv-cell"
+          :class="[rarityClass(item), { 'rpg-loot-card--active': isEquipped(item) }]"
         >
           <div class="rpg-loot-card-body">
             <div class="rpg-loot-card-head">
@@ -111,7 +193,7 @@ const switchTypeTab = (key: string) => {
                 :item-type-icon="item.config?.itemTypeIcon"
                 :rarity-color="item.config?.rarityColor"
               />
-              <span class="rpg-loot-progress-text">×{{ item.quantity }}</span>
+              <span class="inv-cell__qty">×{{ item.quantity }}</span>
             </div>
             <div class="rpg-loot-name">
               {{ item.config?.name || item.itemCode }}
@@ -176,17 +258,123 @@ const switchTypeTab = (key: string) => {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--rpg-violet-light);
-    box-shadow: 0 0 6px color-mix(in oklch, var(--rpg-violet-light) 60%, transparent);
+    background: var(--rpg-art-violet, #7c5cf0);
+    box-shadow: 0 0 6px color-mix(in oklch, var(--rpg-art-violet, #7c5cf0) 60%, transparent);
   }
 
   .rpg-loot-card-strip--recharge {
-    color: var(--rpg-violet-light);
+    color: var(--rpg-art-violet-deep, #5b3fd6);
     font-weight: 600;
   }
 
   .rpg-loot-card-strip--recharge:hover {
-    color: var(--rpg-violet);
-    background: color-mix(in oklch, var(--rpg-violet) 12%, transparent);
+    color: var(--rpg-art-violet, #7c5cf0);
+    background: color-mix(in oklch, var(--rpg-art-violet, #7c5cf0) 12%, transparent);
+  }
+
+  /* ── 稀有度描边（art v2）：rare 紫晶 / epic+ 鎏金 ── */
+  .inv-cell--rare {
+    border-color: var(--rpg-art-rare, #8d7bf5) !important;
+    box-shadow: 0 0 0 3px var(--rpg-art-rare-glow, rgb(141 123 245 / 0.18));
+  }
+
+  .inv-cell--epic {
+    border-color: var(--rpg-art-epic, #b8842c) !important;
+    box-shadow: 0 0 0 3px var(--rpg-art-epic-glow, rgb(217 161 60 / 0.25));
+  }
+
+  .inv-cell__qty {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    padding: 1px 6px;
+    border-radius: 6px;
+    background: color-mix(in oklch, var(--rpg-text-heading, #2b2440) 85%, transparent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  /* ── 三槽装备栏 ── */
+  .equip-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .equip-slot {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    border: 1px dashed var(--rpg-border, oklch(var(--b3)));
+    border-radius: 14px;
+    padding: 10px;
+    background: var(--rpg-bg-alt, oklch(var(--b2)));
+  }
+
+  .equip-slot.filled {
+    border-style: solid;
+    border-color: color-mix(in oklch, var(--rpg-art-violet, #7c5cf0) 45%, transparent);
+    background: var(--rpg-art-violet-soft, #f6f2fe);
+  }
+
+  .equip-slot__ico {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--rpg-surface, #fff);
+    box-shadow: 0 0 0 2px color-mix(in oklch, var(--rpg-art-violet, #7c5cf0) 40%, transparent);
+    flex-shrink: 0;
+  }
+
+  .equip-slot__empty .equip-slot__ico {
+    opacity: 0.45;
+    border-style: dashed;
+    box-shadow: none;
+    border-color: var(--rpg-border, oklch(var(--b3)));
+  }
+
+  .equip-slot__text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .equip-slot__text small {
+    display: block;
+    font-size: 10.5px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.55));
+  }
+
+  .equip-slot__text b {
+    display: block;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+  }
+
+  .equip-slot__off {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--rpg-art-violet-deep, #5b3fd6);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .equip-slot__off:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 639px) {
+    .equip-strip {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

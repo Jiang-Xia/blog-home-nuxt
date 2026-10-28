@@ -14,7 +14,7 @@ import type {
   UserQuestProgress,
 } from '~~/types/rpg';
 import { getRpgLifeColor } from '~~/composables/use-rpg-theme';
-import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
+import { hasRpgIconAsset } from '~~/utils/rpg-item-asset';
 import { formactDate } from '@/utils/common';
 import RpgQuestPanel from './QuestPanel.vue';
 import RpgAchievementPanel from './AchievementPanel.vue';
@@ -68,6 +68,13 @@ const lifePercent = computed(() => props.rpgStatus.lifeValue ?? 100);
 const isBanned = computed(() => props.banStatus?.banned ?? false);
 const roleReward = computed(() => props.rpgStatus.roleReward ?? null);
 
+/** 角色专属头像框美术图（icon 键命中本地资产时使用，否则回退 🛡 emoji） */
+const roleFrameArt = computed(() => {
+  const code = roleReward.value?.avatarFrame;
+  if (!code || !hasRpgIconAsset(code)) return null;
+  return `/rpg/icons/${code}.png`;
+});
+
 const completedAchievementCount = computed(
   () => props.achievements.filter(a => a.completed).length,
 );
@@ -88,6 +95,23 @@ const questProgressText = computed(() => {
 const claimableQuests = computed(() => allQuests.value.filter(q => q.completed && !q.claimed));
 
 const activeBuffCount = computed(() => props.buffs.length);
+
+/** 连续签到里程碑（对齐 sign.service bonusExp 阶梯 3/7/14/30 · 美术改版 v2） */
+const signMilestones = [
+  { days: 3, reward: '+5 EXP', icon: 'exp' },
+  { days: 7, reward: '+15 EXP', icon: 'ticket' },
+  { days: 14, reward: '+25 EXP', icon: 'gem' },
+  { days: 30, reward: '+50 EXP', icon: 'frame-gold' },
+];
+
+const signMilestoneStates = computed(() => {
+  const streak = props.signInfo?.consecutiveSignDays ?? 0;
+  return signMilestones.map(m => ({
+    ...m,
+    reached: streak >= m.days,
+    nextBonusAt: props.signInfo?.nextBonusAt ?? null,
+  }));
+});
 
 const lastSignInResult = ref<SignInResult | null>(null);
 
@@ -129,7 +153,8 @@ const toggleHitRecords = () => {
       class="role-badge"
       :style="{ borderColor: roleReward.avatarFrameColor || '#ccc' }"
     >
-      <span class="role-frame" :style="{ color: roleReward.avatarFrameColor || '#ccc' }">🛡</span>
+      <img v-if="roleFrameArt" class="role-frame-art" :src="roleFrameArt" alt="">
+      <span v-else class="role-frame" :style="{ color: roleReward.avatarFrameColor || '#ccc' }">🛡</span>
       <span class="role-title">{{ roleReward.titleName }}</span>
       <span class="role-frame-name">{{
         roleReward.avatarFrameName || roleReward.avatarFrame
@@ -162,7 +187,9 @@ const toggleHitRecords = () => {
 
     <!-- 生命值 -->
     <div class="life-row">
-      <span class="life-icon">❤️</span>
+      <span class="life-icon" aria-hidden="true">
+        <img class="chip-art" src="/rpg/icons/heart.png" alt="">
+      </span>
       <div class="life-bar-wrap">
         <div class="life-bar">
           <div
@@ -186,13 +213,17 @@ const toggleHitRecords = () => {
         </button>
         <div class="sign-stats">
           <span class="sign-chip" title="累计签到天数">
-            <span class="chip-icon" aria-hidden="true">📅</span>
+            <span class="chip-icon" aria-hidden="true">
+              <img class="chip-art" src="/rpg/icons/calendar.png" alt="">
+            </span>
             <span class="chip-text">
               累计 <strong class="chip-num">{{ signInfo?.totalSignDays ?? 0 }}</strong> 天
             </span>
           </span>
           <span v-if="signInfo?.consecutiveSignDays" class="sign-chip streak" title="连续签到天数">
-            <span class="chip-icon" aria-hidden="true">🔥</span>
+            <span class="chip-icon" aria-hidden="true">
+              <img class="chip-art" src="/rpg/icons/fire.png" alt="">
+            </span>
             <span class="chip-text">
               连续 <strong class="chip-num">{{ signInfo.consecutiveSignDays }}</strong> 天
             </span>
@@ -203,8 +234,33 @@ const toggleHitRecords = () => {
         v-if="lastSignInResult?.bonusExp || lastSignInResult?.lifeRecovered"
         class="sign-result-tip"
       >
-        <span v-if="lastSignInResult.bonusExp" class="bonus-tip">🎁 +{{ lastSignInResult.bonusExp }}经验</span>
-        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip">❤️ +{{ lastSignInResult.lifeRecovered }}生命</span>
+        <span v-if="lastSignInResult.bonusExp" class="bonus-tip">
+          <img class="tip-art" src="/rpg/icons/gift.png" alt=""> +{{
+            lastSignInResult.bonusExp
+          }}经验
+        </span>
+        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip">
+          <img class="tip-art" src="/rpg/icons/heart.png" alt=""> +{{
+            lastSignInResult.lifeRecovered
+          }}生命
+        </span>
+      </div>
+    </div>
+
+    <!-- 连续签到里程碑轨道（3/7/14/30 · bonusExp 阶梯） -->
+    <div class="milestone-track" aria-label="连续签到里程碑">
+      <div
+        v-for="m in signMilestoneStates"
+        :key="m.days"
+        class="milestone"
+        :class="{ 'milestone--reached': m.reached }"
+      >
+        <span class="milestone__node">
+          <img class="milestone__ico" :src="`/rpg/icons/${m.icon}.png`" alt="" loading="lazy">
+          <span v-if="m.reached" class="milestone__check">✓</span>
+        </span>
+        <small class="milestone__days">连续 {{ m.days }} 天</small>
+        <span class="milestone__reward">{{ m.reward }}</span>
       </div>
     </div>
 
@@ -265,7 +321,9 @@ const toggleHitRecords = () => {
       class="collections"
     >
       <div v-if="rpgStatus.unlockedAvatarFrames?.length" class="collection-row">
-        <span class="collection-label">🖼 头像框</span>
+        <span class="collection-label">
+          <img class="label-art" src="/rpg/icons/frame-gold.png" alt=""> 头像框
+        </span>
         <div class="collection-items">
           <span
             v-for="frame in rpgStatus.unlockedAvatarFrames"
@@ -282,13 +340,16 @@ const toggleHitRecords = () => {
                 : emit('equip', 'avatar_frame', frame.code)
             "
           >
-            {{ resolveRpgItemEmoji(frame) }} {{ frame.name }}
+            <RpgItemIcon class="collection-tag__art" :icon="frame.icon" size="sm" :tinted="false" />
+            {{ frame.name }}
             <span v-if="rpgStatus.equippedAvatarFrame === frame.code" class="equipped-badge">已穿戴</span>
           </span>
         </div>
       </div>
       <div v-if="rpgStatus.unlockedTitles?.length" class="collection-row">
-        <span class="collection-label">🏆 称号</span>
+        <span class="collection-label">
+          <img class="label-art" src="/rpg/icons/crown.png" alt=""> 称号
+        </span>
         <div class="collection-items">
           <span
             v-for="title in rpgStatus.unlockedTitles"
@@ -301,7 +362,8 @@ const toggleHitRecords = () => {
                 : emit('equip', 'title', title.code)
             "
           >
-            {{ resolveRpgItemEmoji(title) }} {{ title.name }}
+            <RpgItemIcon class="collection-tag__art" :icon="title.icon" size="sm" :tinted="false" />
+            {{ title.name }}
             <span v-if="rpgStatus.equippedTitle === title.code" class="equipped-badge">已穿戴</span>
           </span>
         </div>
@@ -359,6 +421,14 @@ const toggleHitRecords = () => {
 
   .role-frame {
     font-size: 16px;
+  }
+
+  .role-frame-art {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.18));
   }
   .role-title {
     font-weight: 800;
@@ -457,6 +527,8 @@ const toggleHitRecords = () => {
 
   .life-icon {
     font-size: 14px;
+    display: inline-flex;
+    align-items: center;
   }
 
   .life-bar-wrap {
@@ -555,6 +627,20 @@ const toggleHitRecords = () => {
     flex-shrink: 0;
     font-size: 12px;
     line-height: 1;
+  }
+
+  .chip-art {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    vertical-align: -2px;
+  }
+
+  .tip-art {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+    vertical-align: -2px;
   }
 
   .chip-text {
@@ -696,10 +782,19 @@ const toggleHitRecords = () => {
   }
 
   .collection-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 11px;
     color: var(--rpg-text-secondary);
     white-space: nowrap;
     min-width: 52px;
+  }
+
+  .label-art {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
   }
 
   .collection-items {
@@ -709,7 +804,10 @@ const toggleHitRecords = () => {
   }
 
   .collection-tag {
-    padding: 3px 9px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px 3px 4px;
     border-radius: 999px;
     border: 1px solid;
     font-size: 11px;
@@ -717,6 +815,16 @@ const toggleHitRecords = () => {
     cursor: default;
     background: var(--rpg-loot-bg);
     box-shadow: var(--rpg-loot-inset);
+
+    :deep(.collection-tag__art.rpg-loot-icon) {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 12px;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+    }
 
     &.clickable {
       cursor: pointer;
@@ -802,5 +910,124 @@ const toggleHitRecords = () => {
     font-size: 9px;
     color: var(--rpg-text-muted);
     margin-top: 1px;
+  }
+
+  /* ── 连续签到里程碑轨道（美术改版 v2）── */
+  .milestone-track {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 10px;
+    padding: 12px 6px 4px;
+    border-radius: 12px;
+    background: var(--rpg-bg-alt, oklch(var(--b2)));
+    border: 1px solid var(--rpg-border-subtle, oklch(var(--b3)));
+  }
+
+  .milestone {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* 节点间连线 */
+  .milestone::before {
+    content: '';
+    position: absolute;
+    top: 19px;
+    right: 50%;
+    width: 100%;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--rpg-track, oklch(var(--b3)));
+    z-index: 0;
+  }
+
+  .milestone:first-child::before {
+    display: none;
+  }
+
+  .milestone--reached::before {
+    background: var(--rpg-art-gold-grad);
+  }
+
+  .milestone__node {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--rpg-surface, oklch(var(--b1)));
+    border: 3px solid var(--rpg-border, oklch(var(--b3)));
+  }
+
+  .milestone--reached .milestone__node {
+    border-color: var(--rpg-art-gold, #d9a13c);
+    box-shadow: 0 0 0 3px var(--rpg-art-epic-glow, rgb(217 161 60 / 0.2));
+  }
+
+  .milestone__ico {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .milestone__check {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--rpg-art-gold-grad);
+    color: var(--rpg-art-gold-ink, #3a2408);
+    font-size: 9px;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    line-height: 1;
+  }
+
+  .milestone__days {
+    margin-top: 5px;
+    font-size: 10px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.55));
+    white-space: nowrap;
+  }
+
+  .milestone--reached .milestone__days {
+    color: var(--rpg-art-gold, #d9a13c);
+    font-weight: 700;
+  }
+
+  .milestone__reward {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--rpg-art-violet-deep, #5b3fd6);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 639px) {
+    .milestone__days {
+      font-size: 9px;
+    }
+
+    .milestone__reward {
+      font-size: 9.5px;
+    }
+
+    .milestone__node {
+      width: 32px;
+      height: 32px;
+    }
+
+    .milestone::before {
+      top: 16px;
+    }
   }
 </style>

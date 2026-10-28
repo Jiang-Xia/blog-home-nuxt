@@ -24,6 +24,9 @@ let readyTimer: ReturnType<typeof setTimeout> | null = null;
 const tier = computed(() => rarityLabelToTier(props.data?.config?.rarityLabel));
 const glowStyle = computed(() => ({ '--rarity-glow': getRarityGlow(tier.value) }));
 
+/** 传说级揭晓时展示 legend 大立绘 */
+const isLegendary = computed(() => tier.value === 'legendary');
+
 const clearReadyTimer = () => {
   if (readyTimer) {
     clearTimeout(readyTimer);
@@ -64,6 +67,13 @@ const handleClose = () => {
             <div class="reveal-banner">
               ✨ 恭喜获得 ✨
             </div>
+            <img
+              v-if="isLegendary"
+              class="reveal-legend-art"
+              src="/rpg/art/legend.png"
+              alt=""
+              aria-hidden="true"
+            >
             <RpgRarityBadge
               class="reveal-rarity"
               :rarity="tier"
@@ -168,6 +178,25 @@ const handleClose = () => {
 
   .reveal-rarity {
     margin-bottom: 10px;
+  }
+
+  .reveal-legend-art {
+    width: 104px;
+    height: 104px;
+    object-fit: contain;
+    margin: -6px auto 4px;
+    animation: legendFloat 2.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 22px rgb(251 191 36 / 0.55));
+  }
+
+  @keyframes legendFloat {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-8px) scale(1.05);
+    }
   }
 
   .reveal-item-icon {

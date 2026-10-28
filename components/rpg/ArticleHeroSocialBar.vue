@@ -88,7 +88,7 @@ const onTipped = () => {
         )
       "
     >
-      👏 加油
+      <img class="hero-social-btn__art" src="/rpg/icons/hands.png" alt="" loading="lazy"> 加油
     </button>
     <button
       class="btn btn-sm btn-outline btn-warning hero-social-btn"
@@ -101,7 +101,8 @@ const onTipped = () => {
         )
       "
     >
-      🥚 扔鸡蛋 (-15钻石)
+      <img class="hero-social-btn__art" src="/rpg/icons/egg.png" alt="" loading="lazy"> 扔鸡蛋
+      (-15钻石)
     </button>
     <button
       class="btn btn-sm btn-outline btn-secondary hero-social-btn"
@@ -114,17 +115,18 @@ const onTipped = () => {
         )
       "
     >
-      🌸 送鲜花 (-10钻石)
+      <img class="hero-social-btn__art" src="/rpg/icons/flower.png" alt="" loading="lazy"> 送鲜花
+      (-10钻石)
     </button>
     <button class="btn btn-sm btn-accent hero-social-btn" :disabled="loading" @click="openTipModal">
-      💎 打赏作者
+      <img class="hero-social-btn__art" src="/rpg/icons/gem.png" alt="" loading="lazy"> 打赏作者
     </button>
   </div>
 
   <dialog class="modal rpg-theme" :class="{ 'modal-open': showTipModal }">
     <div class="modal-box max-w-sm">
       <h3 class="font-bold text-lg mb-2">
-        💎 打赏作者
+        <img class="hero-social-btn__art" src="/rpg/icons/gem.png" alt=""> 打赏作者
       </h3>
       <RpgArticleTipPanel
         :article-id="Number(articleId)"
@@ -162,6 +164,15 @@ const onTipped = () => {
     background-color: var(--rpg-hero-social-btn-bg, transparent);
     border-color: var(--rpg-hero-social-btn-border, var(--rpg-border));
     color: var(--rpg-hero-social-btn-fg, var(--rpg-text-body));
+  }
+
+  .hero-social-btn__art {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    vertical-align: -3px;
+    margin-right: 2px;
   }
 
   .hero-social-btn.btn-warning {

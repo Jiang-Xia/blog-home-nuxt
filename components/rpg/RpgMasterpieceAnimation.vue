@@ -34,7 +34,7 @@ const handleClose = () => {
       <div v-if="visible && data" class="masterpiece-overlay" @click="handleClose">
         <div class="masterpiece-modal" @click.stop>
           <div class="masterpiece-icon">
-            ✨
+            <img class="masterpiece-art" src="/rpg/art/masterpiece.png" alt="" aria-hidden="true">
           </div>
           <div class="masterpiece-badge">
             神作诞生
@@ -84,6 +84,12 @@ const handleClose = () => {
     margin-bottom: 6px;
     animation: sparkleSpin 2.4s ease-in-out infinite;
     filter: drop-shadow(0 4px 12px rgba(146, 64, 14, 0.3));
+  }
+
+  .masterpiece-art {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
   }
 
   .masterpiece-badge {

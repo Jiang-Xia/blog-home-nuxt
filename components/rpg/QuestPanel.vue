@@ -51,24 +51,31 @@ const switchQuestTab = (key: QuestTab) => {
 };
 
 const QUEST_ICON_MAP: Record<string, string> = {
-  sign_in: '📅',
-  comment: '💬',
-  article: '✍️',
-  like: '❤️',
-  collect: '🔖',
-  msgboard: '📝',
-  tip: '💎',
-  reply: '↩️',
-  lottery_draw: '🎰',
-  social_cheer: '💪',
-  social_flower: '🌸',
-  social_egg: '🥚',
-  guild_join: '🛡️',
-  pet_hatch: '🐾',
+  sign_in: 'calendar',
+  comment: 'chat',
+  article: 'pen',
+  like: 'heart',
+  collect: 'bookmark',
+  msgboard: 'chat-star',
+  tip: 'gem',
+  reply: 'reply',
+  lottery_draw: 'slot',
+  social_cheer: 'hands',
+  social_flower: 'flower',
+  social_egg: 'egg',
+  guild_join: 'shield',
+  pet_hatch: 'paws',
 };
 
 const totalCompleted = computed(() => currentQuests.value.filter(q => q.completed).length);
 const hasUnclaimed = computed(() => currentQuests.value.some(q => q.completed && !q.claimed));
+
+/** 每日圆环进度（美术改版 v2） */
+const progressPercent = computed(() =>
+  currentQuests.value.length > 0
+    ? Math.round((totalCompleted.value / currentQuests.value.length) * 100)
+    : 0,
+);
 
 /** 默认折叠已领取任务，优先展示可领与进行中 */
 const showCompleted = ref(false);
@@ -104,6 +111,14 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
 
     <div class="quest-header">
       <div class="quest-summary">
+        <span
+          class="daily-ring"
+          :style="{
+            background: `conic-gradient(var(--rpg-art-violet, #7c5cf0) 0 ${progressPercent}%, var(--rpg-track, #efeaf9) ${progressPercent}% 100%)`,
+          }"
+        >
+          <i class="daily-ring__num">{{ totalCompleted }}/{{ currentQuests.length }}</i>
+        </span>
         <span class="quest-label">{{ tabOptions.find((t) => t.key === activeTab)?.label }}任务</span>
         <span class="quest-count">{{ totalCompleted }}/{{ currentQuests.length }} 完成</span>
       </div>
@@ -125,11 +140,21 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
           'rpg-loot-card--done': quest.completed,
           'rpg-loot-card--claimed': quest.claimed,
           'rpg-loot-card--claimable': quest.completed && !quest.claimed,
+          'rpg-loot-card--gold': activeTab === 'bounty',
         }"
       >
         <div class="rpg-loot-card-head">
           <div class="rpg-loot-icon">
-            {{ QUEST_ICON_MAP[quest.targetAction] || '📋' }}
+            <img
+              v-if="QUEST_ICON_MAP[quest.targetAction]"
+              class="quest-art"
+              :src="`/rpg/icons/${QUEST_ICON_MAP[quest.targetAction]}.png`"
+              alt=""
+              loading="lazy"
+            >
+            <template v-else>
+              📋
+            </template>
           </div>
           <span v-if="quest.claimed" class="rpg-loot-status rpg-loot-status--done">✓ 已领</span>
           <span v-else-if="!quest.completed" class="rpg-loot-status rpg-loot-status--pending">进行中</span>
@@ -190,6 +215,41 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
 </template>
 
 <style scoped>
+  .quest-art {
+    width: 78%;
+    height: 78%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  /* 任务进度条 → 紫罗兰渐变（美术改版 v2） */
+  .quest-list .rpg-loot-progress__fill {
+    background: var(--rpg-art-violet-grad, linear-gradient(90deg, #7c5cf0, #a78bfa));
+  }
+
+  /* 每日圆环 */
+  .daily-ring {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .daily-ring__num {
+    width: 31px;
+    height: 31px;
+    border-radius: 50%;
+    background: var(--rpg-surface, #fff);
+    display: grid;
+    place-items: center;
+    font-style: normal;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--rpg-art-violet-deep, #5b3fd6);
+  }
+
   .quest-panel {
     padding: 0;
   }

@@ -36,6 +36,20 @@ const showHistory = ref(false);
 
 const { playSfx } = useRpgAudio();
 
+/** 传说/史诗级奖池 → 金底特殊卡（美术改版 v2） */
+const isLegendRarity = (item: LotteryPoolItem) => {
+  const r = (item.rarity || '').toLowerCase();
+  return r === 'epic' || r === 'legendary' || r === 'ssr';
+};
+
+/** 概率展示：0-1 的小数按百分比换算，≥1 视为已是百分数 */
+const formatProbability = (p?: number) => {
+  if (p == null || Number.isNaN(p)) return '';
+  const percent = p > 0 && p < 1 ? p * 100 : p;
+  const rounded = Math.round(percent * 10) / 10;
+  return `${Number.isInteger(rounded) ? rounded.toFixed(0) : rounded}%`;
+};
+
 /** 切换抽奖支付方式（券 / 钻石） */
 const setDrawCurrency = (currency: 'ticket' | 'currency') => {
   if (drawCurrency.value === currency) return;
@@ -191,14 +205,14 @@ const toggleHistory = () => {
 
       <div class="draw-actions">
         <button class="draw-btn" :disabled="isDrawDisabled(1)" @click="handleDraw(1)">
-          单抽 x1
+          {{ drawCurrency === 'ticket' ? `单抽 🎫×1` : `单抽 💎×${LOTTERY_CURRENCY_COST}` }}
         </button>
         <button
           class="draw-btn draw-btn-multi"
-          :disabled="isDrawDisabled(5)"
-          @click="handleDraw(5)"
+          :disabled="isDrawDisabled(10)"
+          @click="handleDraw(10)"
         >
-          五连 x5
+          {{ drawCurrency === 'ticket' ? `十连 🎫×10` : `十连 💎×${LOTTERY_CURRENCY_COST * 10}` }}
         </button>
       </div>
     </div>
@@ -215,13 +229,14 @@ const toggleHistory = () => {
 
     <div class="pool-preview">
       <div class="pool-title">
-        奖池一览
+        奖池一览 <span class="pool-title__sub">probability 直出</span>
       </div>
       <div class="rpg-pool-grid">
         <div
           v-for="item in lotteryPool"
           :key="item.id"
           class="rpg-pool-chip"
+          :class="{ 'pool-chip--legend': isLegendRarity(item) }"
           :style="{ borderColor: item.rarityColor || 'var(--rpg-loot-border)' }"
         >
           <RpgItemIcon
@@ -231,7 +246,7 @@ const toggleHistory = () => {
             :bg-url="item.bgUrl"
             :item-type-icon="item.itemTypeIcon"
             :rarity-color="item.rarityColor"
-            size="sm"
+            size="lg"
             :tinted="true"
           />
           <RpgRarityBadge
@@ -242,13 +257,15 @@ const toggleHistory = () => {
             :rarity-icon="item.rarityIcon"
           />
           <span class="rpg-pool-chip__name">{{ item.name }}</span>
+          <span class="rpg-pool-chip__prob">{{ formatProbability(item.probability) }}</span>
         </div>
       </div>
     </div>
 
     <div class="history-toggle">
       <div class="history-btn" @click="toggleHistory">
-        📜 抽奖记录 <span class="toggle-icon">{{ showHistory ? '▼' : '▶' }}</span>
+        <img class="history-art" src="/rpg/icons/scroll.png" alt=""> 抽奖记录
+        <span class="toggle-icon">{{ showHistory ? '▼' : '▶' }}</span>
       </div>
       <div v-if="showHistory" class="history-list">
         <div v-if="lotteryHistory.length === 0" class="rpg-empty-inline !py-2">
@@ -416,14 +433,15 @@ const toggleHistory = () => {
   }
 
   .draw-btn {
-    padding: 7px 18px;
+    padding: 9px 20px;
     border: none;
-    border-radius: 8px;
-    background: var(--rpg-violet-gradient);
+    border-radius: 12px;
+    background: var(--rpg-art-violet-grad, var(--rpg-violet-gradient));
     color: white;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 13.5px;
     cursor: pointer;
+    box-shadow: var(--rpg-art-shadow-violet);
     transition:
       opacity 0.2s,
       transform 0.2s;
@@ -440,7 +458,9 @@ const toggleHistory = () => {
   }
 
   .draw-btn-multi {
-    background: var(--rpg-level-badge-gradient);
+    background: var(--rpg-art-gold-grad, var(--rpg-level-badge-gradient));
+    color: var(--rpg-art-gold-ink, #3a2408);
+    box-shadow: var(--rpg-art-shadow-gold);
   }
 
   .pool-preview {
@@ -455,17 +475,54 @@ const toggleHistory = () => {
     text-align: center;
   }
 
+  .pool-title__sub {
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--rpg-text-muted);
+    margin-left: 4px;
+  }
+
+  .rpg-pool-chip {
+    position: relative;
+  }
+
+  .pool-chip--legend {
+    background: linear-gradient(160deg, var(--rpg-art-gold-soft, #fdf6e4), var(--rpg-loot-bg));
+    box-shadow: 0 0 0 3px var(--rpg-art-epic-glow, rgb(217 161 60 / 0.25));
+  }
+
+  .rpg-pool-chip__prob {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--rpg-art-violet-soft, #f1edfb);
+    color: var(--rpg-art-violet-deep, #5b3fd6);
+  }
+
   .history-toggle {
     margin-top: 8px;
   }
 
   .history-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 12px;
     font-weight: 600;
     color: var(--rpg-text-label);
     cursor: pointer;
     user-select: none;
     margin-bottom: 6px;
+  }
+
+  .history-art {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
   }
 
   .toggle-icon {
