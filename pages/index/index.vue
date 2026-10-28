@@ -49,12 +49,6 @@ const { displayedContent, displayedAuthor, isTypingContent, isTypingAuthor }
 const scrollToArticles = () => {
   document.getElementById('articles')?.scrollIntoView({ behavior: 'smooth' });
 };
-
-const heroStats = computed(() => [
-  { value: articleTotalLabel.value, label: '技术文章', gradient: false },
-  { value: toolCountLabel, label: '实用工具', gradient: false },
-  { value: '8 大', label: 'RPG 冒险玩法', gradient: true },
-]);
 </script>
 
 <template>
@@ -109,6 +103,9 @@ const heroStats = computed(() => [
               <span class="mx-1.5 text-tech-subtle">·</span>
               读文章 · 做任务 · 冲排行榜
             </p>
+            <p class="home-hero-meta text-xs text-tech-subtle">
+              {{ articleTotalLabel }} 篇技术文章 · {{ toolCountLabel }} 个实用工具
+            </p>
 
             <div class="home-hero-buttons flex flex-wrap items-center justify-center gap-3">
               <CyberButton
@@ -132,23 +129,6 @@ const heroStats = computed(() => [
                 </svg>
                 浏览文章
               </CyberButton>
-              <CyberButton variant="secondary" to="/tool" class="home-hero-btn">
-                查看工具
-              </CyberButton>
-            </div>
-
-            <div class="home-hero-stats flex flex-wrap items-center justify-center gap-6 md:gap-10">
-              <div v-for="stat in heroStats" :key="stat.label" class="text-center">
-                <div
-                  class="home-hero-stat-value font-bold"
-                  :class="stat.gradient ? 'home-hero-gradient-text' : 'text-primary'"
-                >
-                  {{ stat.value }}
-                </div>
-                <div class="mt-1 text-xs text-tech-subtle md:text-sm">
-                  {{ stat.label }}
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -305,14 +285,12 @@ const heroStats = computed(() => [
     margin-bottom: 0;
   }
 
-  .home-hero-buttons {
-    margin-bottom: 0;
+  .home-hero-meta {
+    margin-top: -0.35rem;
   }
 
-  .home-hero-stats {
-    margin-top: 0;
-    gap: clamp(1.5rem, 4vw, 2.5rem);
-    opacity: 0.92;
+  .home-hero-buttons {
+    margin-bottom: 0;
   }
 
   .home-hero-btn {
@@ -320,26 +298,9 @@ const heroStats = computed(() => [
     font-size: 0.875rem;
   }
 
-  .home-hero-stat-value {
-    font-size: clamp(0.9375rem, 0.45vw + 0.75rem, 1.25rem);
-  }
-
   .home-first-screen-banner {
     flex: 0 0 auto;
     margin-top: auto;
-  }
-
-  .home-hero-gradient-text {
-    background: linear-gradient(
-      to right,
-      var(--tech-gradient-from),
-      var(--rpg-amber-light),
-      var(--tech-gradient-to)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
   }
 
   /* 大屏：舞台区更突出 */
@@ -451,14 +412,6 @@ const heroStats = computed(() => [
     .home-hero-btn {
       padding: 0.75rem 1.5rem !important;
       font-size: 0.9375rem;
-    }
-
-    .home-hero-stat-value {
-      font-size: 1.125rem;
-    }
-
-    .home-hero-stats {
-      gap: 1.5rem;
     }
 
     .home-first-screen-banner {
