@@ -1129,6 +1129,7 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-loot-card:hover {
+    transform: translateY(-2px);
     box-shadow: var(--rpg-loot-shadow-hover), var(--rpg-loot-inset);
   }
 
@@ -1185,6 +1186,16 @@ html.tech-shell[data-theme='cyber-light'] {
     box-shadow:
       var(--rpg-loot-icon-shadow),
       0 0 0 3px color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 9%, transparent);
+  }
+
+  /* 按钮内嵌美术小图（兑换/充值等） */
+  .rpg-loot-claim-btn .btn-art,
+  .rpg-loot-card-strip .btn-art {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    vertical-align: -2px;
+    margin-right: 4px;
   }
 
   .rpg-loot-card--gold .rpg-loot-icon,

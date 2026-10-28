@@ -335,7 +335,8 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
             </div>
             <div class="rpg-loot-footer rpg-loot-footer--center">
               <button v-if="canExchange(c)" class="rpg-loot-claim-btn w-full" @click="handleBuy(c)">
-                💎 {{ c.effectJson?.currencyCost }} 兑换
+                <img class="btn-art" src="/rpg/icons/gem.png" alt="" loading="lazy">
+                {{ c.effectJson?.currencyCost }} 兑换
               </button>
               <span v-else class="rpg-loot-owned-mark">已拥有</span>
             </div>

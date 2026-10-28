@@ -213,15 +213,16 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
       "
       class="quest-all-done"
     >
-      🎉 今日任务已全部完成！
+      <img class="quest-all-done-art" src="/rpg/icons/sparkle.png" alt="" loading="lazy">
+      今日任务已全部完成！
     </div>
   </div>
 </template>
 
 <style scoped>
   .quest-art {
-    width: 78%;
-    height: 78%;
+    width: 90%;
+    height: 90%;
     object-fit: contain;
     pointer-events: none;
   }
@@ -231,6 +232,14 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
     height: 14px;
     object-fit: contain;
     vertical-align: -2px;
+  }
+
+  .quest-all-done-art {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    vertical-align: -3px;
+    margin-right: 3px;
   }
 
   /* 任务进度条 → 紫罗兰渐变（美术改版 v2） */

@@ -246,7 +246,8 @@ const rarityClass = (item: InventoryItem) => {
             class="rpg-loot-card-strip rpg-loot-card-strip--recharge"
             @click="openRechargeModal"
           >
-            💎 充值
+            <img class="btn-art" src="/rpg/icons/gem.png" alt="" loading="lazy">
+            充值
           </button>
           <button
             v-else-if="isEquippable(item)"
@@ -364,8 +365,8 @@ const rarityClass = (item: InventoryItem) => {
   }
 
   .equip-slot__art :deep(img.rpg-loot-icon__img) {
-    width: 92%;
-    height: 92%;
+    width: 96%;
+    height: 96%;
   }
 
   .equip-slot__empty .equip-slot__ico {

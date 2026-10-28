@@ -238,8 +238,8 @@ const getEffectText = (buff: UserBuff): string => {
   }
 
   .buff-art {
-    width: 78%;
-    height: 78%;
+    width: 90%;
+    height: 90%;
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.25));
   }

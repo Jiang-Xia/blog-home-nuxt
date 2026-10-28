@@ -186,7 +186,10 @@ const categories = computed(() => {
             />
             <span class="rpg-loot-progress-text"> {{ ach.progress }}/{{ ach.maxProgress }} </span>
             <div v-if="ach.expReward" class="rpg-loot-rewards">
-              <span class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">⭐ +{{ ach.expReward }}</span>
+              <span class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">
+                <img class="reward-chip-art" src="/rpg/icons/exp.png" alt="" loading="lazy">
+                +{{ ach.expReward }}
+              </span>
             </div>
           </div>
         </div>
@@ -215,11 +218,18 @@ const categories = computed(() => {
   }
 
   .ach-art-img {
-    width: 78%;
-    height: 78%;
+    width: 90%;
+    height: 90%;
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgb(60 40 110 / 0.18));
     pointer-events: none;
+  }
+
+  .reward-chip-art {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    vertical-align: -2px;
   }
 
   .ach-overview {
