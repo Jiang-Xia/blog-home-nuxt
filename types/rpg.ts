@@ -230,27 +230,28 @@ export const ACHIEVEMENT_CATEGORY_MAP: Record<string, string> = {
 };
 
 /** 成就图标映射 */
+/** 成就图标 → /rpg/icons/{key}.png（美术改版 v4：emoji → 美术图，缺失 key 回退 🏆） */
 export const ACHIEVEMENT_ICON_MAP: Record<string, string> = {
-  'pen': '✍️',
-  'books': '📚',
-  'library': '🏛️',
-  'crown': '👑',
-  'chat': '💬',
-  'megaphone': '📢',
-  'reply': '↩️',
-  'board': '📝',
-  'calendar': '📅',
-  'calendar-check': '🗓️',
-  'trophy': '🏆',
-  'fire': '🔥',
-  'flame': '🔥',
-  'heart': '❤️',
-  'hearts': '💕',
-  'bookmark': '🔖',
-  'bookmarks': '📑',
-  'star': '⭐',
-  'stars': '✨',
-  'crown-star': '👑',
+  'pen': 'pen',
+  'books': 'books',
+  'library': 'library',
+  'crown': 'crown',
+  'chat': 'chat',
+  'megaphone': 'megaphone',
+  'reply': 'reply',
+  'board': 'board',
+  'calendar': 'calendar',
+  'calendar-check': 'calendar-check',
+  'trophy': 'trophy',
+  'fire': 'fire',
+  'flame': 'flame',
+  'heart': 'heart',
+  'hearts': 'hearts',
+  'bookmark': 'bookmark',
+  'bookmarks': 'bookmarks',
+  'star': 'star',
+  'stars': 'stars',
+  'crown-star': 'crown-star',
 };
 
 /** 每日任务定义 */

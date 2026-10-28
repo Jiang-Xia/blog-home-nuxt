@@ -4,18 +4,9 @@
    */
 import { ACHIEVEMENT_CATEGORY_MAP, ACHIEVEMENT_ICON_MAP } from '~~/types/rpg';
 import type { UserAchievementProgress } from '~~/types/rpg';
-import { resolveRpgItemTint } from '~~/utils/rpg-item-icon';
-import {
-  getRarityFallbackColor,
-  isSilverRarityColor,
-  shouldUseSilverRarityStyle,
-} from '~~/utils/rpg-rarity';
 
-/** 成就图标底：银色用 CSS 渐变 class */
-const achievementIconStyle = (ach: UserAchievementProgress) => {
-  if (shouldUseSilverRarityStyle(ach) || isSilverRarityColor(ach.rarityColor)) return undefined;
-  return { background: resolveRpgItemTint(ach) || getRarityFallbackColor() };
-};
+/** 成就图标：emoji → 美术图（v4），无资产 key 时回退 emoji */
+const achArtKey = (ach: UserAchievementProgress) => ACHIEVEMENT_ICON_MAP[ach.icon] || null;
 
 const props = defineProps<{
   achievements: UserAchievementProgress[];
@@ -158,17 +149,17 @@ const categories = computed(() => {
         ]"
       >
         <div class="rpg-loot-card-head">
-          <div
-            class="rpg-loot-icon"
-            :class="{
-              'rpg-loot-icon--silver':
-                shouldUseSilverRarityStyle(ach) || isSilverRarityColor(ach.rarityColor),
-              'rpg-loot-icon--tinted':
-                !!achievementIconStyle(ach) && !shouldUseSilverRarityStyle(ach),
-            }"
-            :style="achievementIconStyle(ach)"
-          >
-            {{ ACHIEVEMENT_ICON_MAP[ach.icon] || '🏆' }}
+          <div class="rpg-loot-icon rpg-loot-icon--ach">
+            <img
+              v-if="achArtKey(ach)"
+              class="ach-art-img"
+              :src="`/rpg/icons/${achArtKey(ach)}.png`"
+              alt=""
+              loading="lazy"
+            >
+            <template v-else>
+              🏆
+            </template>
           </div>
           <span v-if="ach.completed" class="rpg-loot-status rpg-loot-status--done">✓ 达成</span>
         </div>
@@ -216,6 +207,19 @@ const categories = computed(() => {
 <style scoped>
   .achievement-panel {
     padding: 0;
+  }
+
+  .rpg-loot-icon--ach {
+    /* 成就美术图为彩色徽章盘，统一中性底避免撞色 */
+    background: var(--rpg-surface, #fff);
+  }
+
+  .ach-art-img {
+    width: 78%;
+    height: 78%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgb(60 40 110 / 0.18));
+    pointer-events: none;
   }
 
   .ach-overview {

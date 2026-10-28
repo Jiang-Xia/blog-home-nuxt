@@ -1170,18 +1170,21 @@ html.tech-shell[data-theme='cyber-light'] {
     gap: 6px;
   }
 
+  /* v4：图标为主视觉 —— 46px 圆形徽章 + 金圈光环 */
   .rpg-loot-icon {
     flex-shrink: 0;
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 22px;
     background: var(--rpg-loot-icon-bg);
-    border: 1px solid var(--rpg-loot-icon-border);
-    box-shadow: var(--rpg-loot-icon-shadow);
+    border: 2px solid color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 34%, transparent);
+    box-shadow:
+      var(--rpg-loot-icon-shadow),
+      0 0 0 3px color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 9%, transparent);
   }
 
   .rpg-loot-card--gold .rpg-loot-icon,
@@ -1264,7 +1267,7 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-loot-name {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 800;
     color: var(--rpg-text-heading);
     line-height: 1.35;
@@ -1272,9 +1275,9 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-loot-desc {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--rpg-text-muted);
-    line-height: 1.4;
+    line-height: 1.45;
     flex: 1;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -1283,7 +1286,7 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-loot-progress {
-    height: 6px;
+    height: 7px;
     padding: 1px;
     border-radius: 999px;
     background: var(--rpg-track);

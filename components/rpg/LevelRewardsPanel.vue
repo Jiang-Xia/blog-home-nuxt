@@ -4,7 +4,6 @@
    * 直接使用 API 返回的 avatarFrame/title/currencyName，不做本地物品 map
    */
 import type { LevelReward, RpgStatus } from '~~/types/rpg';
-import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 
 const props = defineProps<{
   rpgStatus: RpgStatus | null;
@@ -94,17 +93,30 @@ const hasAnyReward = (reward: LevelReward) =>
             v-if="reward.currencyReward"
             class="rpg-loot-reward-chip rpg-loot-reward-chip--diamond"
           >
-            💎 {{ reward.currencyReward }} {{ reward.currencyName || '钻石' }}
+            <img class="reward-tag-art" src="/rpg/icons/gem.png" alt="" loading="lazy">
+            {{ reward.currencyReward }} {{ reward.currencyName || '钻石' }}
           </span>
           <span
             v-if="reward.avatarFrame?.name"
             class="reward-tag frame"
             :style="{ borderColor: reward.avatarFrame.color || '#ccc' }"
           >
-            {{ resolveRpgItemEmoji(reward.avatarFrame) }} {{ reward.avatarFrame.name }}
+            <RpgItemIcon
+              class="reward-tag-icon"
+              :icon="reward.avatarFrame.icon"
+              size="sm"
+              :tinted="false"
+            />
+            {{ reward.avatarFrame.name }}
           </span>
           <span v-if="reward.title?.name" class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">
-            {{ resolveRpgItemEmoji(reward.title) }} {{ reward.title.name }}
+            <RpgItemIcon
+              class="reward-tag-icon"
+              :icon="reward.title.icon"
+              size="sm"
+              :tinted="false"
+            />
+            {{ reward.title.name }}
           </span>
           <span v-if="!hasAnyReward(reward)" class="rpg-loot-status rpg-loot-status--pending">暂无奖励</span>
         </div>
@@ -206,9 +218,26 @@ const hasAnyReward = (reward: LevelReward) =>
     border: 1px solid var(--rpg-amber-border);
   }
 
+  .reward-tag-art {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    vertical-align: -2px;
+  }
+
+  .reward-tag-icon {
+    flex-shrink: 0;
+  }
+
+  .reward-tag-icon :deep(img.rpg-loot-icon__img) {
+    width: 100%;
+    height: 100%;
+  }
+
   .reward-tags {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 4px;
     flex: 1;
   }

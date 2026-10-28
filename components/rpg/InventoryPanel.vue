@@ -115,7 +115,14 @@ const rarityClass = (item: InventoryItem) => {
       <!-- 三槽装备栏：称号 / 头像框 / 宠物（对齐 loadout 实际槽位） -->
       <div class="equip-strip">
         <div class="equip-slot" :class="{ filled: titleItem }">
-          <img v-if="titleItem" class="equip-slot__ico" src="/rpg/icons/crown.png" alt="">
+          <RpgItemIcon
+            v-if="titleItem"
+            class="equip-slot__art"
+            :icon="titleItem.config?.icon"
+            :icon-url="titleItem.config?.iconUrl"
+            :rarity-color="titleItem.config?.rarityColor"
+            :tinted="false"
+          />
           <span v-else class="equip-slot__empty">
             <img class="equip-slot__ico" src="/rpg/icons/crown.png" alt="">
           </span>
@@ -135,7 +142,14 @@ const rarityClass = (item: InventoryItem) => {
           </button>
         </div>
         <div class="equip-slot" :class="{ filled: frameItem }">
-          <img v-if="frameItem" class="equip-slot__ico" src="/rpg/icons/frame-gold.png" alt="">
+          <RpgItemIcon
+            v-if="frameItem"
+            class="equip-slot__art"
+            :icon="frameItem.config?.icon"
+            :icon-url="frameItem.config?.iconUrl"
+            :rarity-color="frameItem.config?.rarityColor"
+            :tinted="false"
+          />
           <span v-else class="equip-slot__empty">
             <img class="equip-slot__ico" src="/rpg/icons/frame-gold.png" alt="">
           </span>
@@ -156,7 +170,14 @@ const rarityClass = (item: InventoryItem) => {
           </button>
         </div>
         <div class="equip-slot" :class="{ filled: equippedPet }">
-          <img v-if="equippedPet" class="equip-slot__ico" src="/rpg/icons/paw.png" alt="">
+          <RpgItemIcon
+            v-if="equippedPet"
+            class="equip-slot__art"
+            :icon="equippedPet.config?.icon"
+            :icon-url="equippedPet.config?.iconUrl"
+            :rarity-color="equippedPet.config?.rarityColor"
+            :tinted="false"
+          />
           <span v-else class="equip-slot__empty">
             <img class="equip-slot__ico" src="/rpg/icons/paw.png" alt="">
           </span>
@@ -334,6 +355,17 @@ const rarityClass = (item: InventoryItem) => {
     border: 2px solid var(--rpg-surface, #fff);
     box-shadow: 0 0 0 2px color-mix(in oklch, var(--rpg-art-violet, #7c5cf0) 40%, transparent);
     flex-shrink: 0;
+  }
+
+  .equip-slot__art {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .equip-slot__art :deep(img.rpg-loot-icon__img) {
+    width: 92%;
+    height: 92%;
   }
 
   .equip-slot__empty .equip-slot__ico {

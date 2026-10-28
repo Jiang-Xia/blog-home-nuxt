@@ -167,24 +167,25 @@ const onImgError = () => {
   }
 
   .rpg-loot-icon--sm {
-    width: 28px;
-    height: 28px;
-    font-size: 14px;
-    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+    border-radius: 50%;
+    border-width: 1.5px;
   }
 
   .rpg-loot-icon--lg {
-    width: 52px;
-    height: 52px;
-    font-size: 28px;
-    border-radius: 14px;
+    width: 56px;
+    height: 56px;
+    font-size: 30px;
+    border-radius: 50%;
   }
 
   .rpg-loot-icon--xl {
     width: 88px;
     height: 88px;
     font-size: 44px;
-    border-radius: 20px;
+    border-radius: 50%;
     box-shadow: 0 0 0 4px color-mix(in oklch, var(--rpg-violet, #7c5cf0) 18%, transparent);
   }
 </style>

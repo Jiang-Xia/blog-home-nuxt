@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
-   * 个人空间RPG综合卡片 - 整合等级、成就、任务（含周常）、Buff 等（纯展示 + 事件上报）
+   * 个人空间RPG综合卡片（v4 去重版）—— 等级/经验/生命/签到里程已由 RpgHeroPanel 统一展示，
+   * 本卡只保留：角色专属标识、签到站（按钮+累计天数+里程碑）、任务/成就/增益面板、收藏穿戴、敏感词记录
    * 任务数据：GET /rpg/my-quests → questGroups.daily/bounty/weekly/special
    */
 import type {
@@ -13,7 +14,6 @@ import type {
   UserBuff,
   UserQuestProgress,
 } from '~~/types/rpg';
-import { getRpgLifeColor } from '~~/composables/use-rpg-theme';
 import { hasRpgIconAsset } from '~~/utils/rpg-item-asset';
 import { formactDate } from '@/utils/common';
 import RpgQuestPanel from './QuestPanel.vue';
@@ -46,25 +46,6 @@ const emit = defineEmits<{
   toggleBuff: [buff: UserBuff & { triggerMode?: string; isActive?: boolean }];
 }>();
 
-const getLevelThreshold = (level: number): number => {
-  if (level <= 1) return 0;
-  return level * (level - 1) * 50;
-};
-
-/** 当前等级段内经验进度（current/required/percent） */
-const expProgress = computed(() => {
-  const { level, exp } = props.rpgStatus;
-  const currentThreshold = getLevelThreshold(level);
-  const nextThreshold = getLevelThreshold(level + 1);
-  const current = exp - currentThreshold;
-  const required = nextThreshold - currentThreshold;
-  const percent = required > 0 ? Math.min(100, Math.round((current / required) * 100)) : 100;
-  return { current, required, percent };
-});
-
-const lifeColor = computed(() => getRpgLifeColor(props.rpgStatus.lifeValue ?? 100));
-
-const lifePercent = computed(() => props.rpgStatus.lifeValue ?? 100);
 const isBanned = computed(() => props.banStatus?.banned ?? false);
 const roleReward = computed(() => props.rpgStatus.roleReward ?? null);
 
@@ -164,44 +145,7 @@ const toggleHitRecords = () => {
     <!-- 禁言警告 -->
     <RpgBanWarning :ban-status="banStatus" />
 
-    <!-- 等级与头像区域 -->
-    <div class="card-header">
-      <div class="level-badge">
-        <span class="lv-text">LV</span>
-        <span class="lv-num">{{ rpgStatus.level }}</span>
-      </div>
-      <div class="header-info">
-        <div class="exp-row">
-          <span class="exp-label">累计经验</span>
-          <span class="exp-num">{{ rpgStatus.exp.toLocaleString() }}</span>
-        </div>
-        <div class="exp-row exp-level-row">
-          <span class="exp-label">Lv{{ rpgStatus.level }} → Lv{{ rpgStatus.level + 1 }}</span>
-          <span class="exp-fraction">{{ expProgress.current }} / {{ expProgress.required }}</span>
-        </div>
-        <div class="exp-bar">
-          <div class="exp-bar-fill" :style="{ width: expProgress.percent + '%' }" />
-        </div>
-      </div>
-    </div>
-
-    <!-- 生命值 -->
-    <div class="life-row">
-      <span class="life-icon" aria-hidden="true">
-        <img class="chip-art" src="/rpg/icons/heart.png" alt="">
-      </span>
-      <div class="life-bar-wrap">
-        <div class="life-bar">
-          <div
-            class="life-bar-fill"
-            :style="{ width: lifePercent + '%', backgroundColor: lifeColor }"
-          />
-        </div>
-      </div>
-      <span class="life-num" :style="{ color: lifeColor }">{{ rpgStatus.lifeValue }}</span>
-    </div>
-
-    <!-- 签到区域 -->
+    <!-- 签到区域（等级/经验/生命由顶部英雄面板统一展示，v4 去重） -->
     <div class="sign-section">
       <div class="sign-main">
         <button
@@ -218,14 +162,6 @@ const toggleHitRecords = () => {
             </span>
             <span class="chip-text">
               累计 <strong class="chip-num">{{ signInfo?.totalSignDays ?? 0 }}</strong> 天
-            </span>
-          </span>
-          <span v-if="signInfo?.consecutiveSignDays" class="sign-chip streak" title="连续签到天数">
-            <span class="chip-icon" aria-hidden="true">
-              <img class="chip-art" src="/rpg/icons/fire.png" alt="">
-            </span>
-            <span class="chip-text">
-              连续 <strong class="chip-num">{{ signInfo.consecutiveSignDays }}</strong> 天
             </span>
           </span>
         </div>
@@ -441,122 +377,6 @@ const toggleHitRecords = () => {
     margin-left: auto;
   }
 
-  /* Header: level + exp */
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 12px;
-  }
-
-  .level-badge {
-    flex-shrink: 0;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: var(--rpg-level-badge-gradient);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    box-shadow: 0 3px 10px var(--rpg-level-shadow);
-  }
-
-  .lv-text {
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 1px;
-  }
-  .lv-num {
-    font-size: 18px;
-    font-weight: 900;
-    line-height: 1;
-  }
-
-  .header-info {
-    flex: 1;
-  }
-
-  .exp-row {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-bottom: 5px;
-  }
-
-  .exp-level-row {
-    margin-bottom: 5px;
-  }
-
-  .exp-label {
-    font-size: 12px;
-    color: var(--rpg-text-secondary);
-  }
-  .exp-num {
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--rpg-text);
-  }
-  .exp-fraction {
-    font-size: 11px;
-    color: var(--rpg-text-muted);
-  }
-
-  .exp-bar {
-    height: 7px;
-    background: var(--rpg-track);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .exp-bar-fill {
-    height: 100%;
-    background: var(--rpg-exp-gradient);
-    border-radius: 4px;
-    transition: width 0.5s ease;
-  }
-
-  /* Life */
-  .life-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .life-icon {
-    font-size: 14px;
-    display: inline-flex;
-    align-items: center;
-  }
-
-  .life-bar-wrap {
-    flex: 1;
-  }
-
-  .life-bar {
-    height: 8px;
-    background: var(--rpg-track);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .life-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition:
-      width 0.5s ease,
-      background-color 0.5s ease;
-  }
-
-  .life-num {
-    font-size: 13px;
-    font-weight: 700;
-    min-width: 28px;
-    text-align: right;
-  }
-
   /* Sign */
   .sign-section {
     margin-bottom: 12px;
@@ -617,12 +437,6 @@ const toggleHitRecords = () => {
     flex-shrink: 0;
   }
 
-  .sign-chip.streak {
-    background: var(--rpg-amber-bg);
-    border-color: color-mix(in oklch, var(--rpg-amber) 25%, transparent);
-    color: var(--rpg-amber-text-soft);
-  }
-
   .chip-icon {
     flex-shrink: 0;
     font-size: 12px;
@@ -652,10 +466,6 @@ const toggleHitRecords = () => {
   .chip-num {
     font-weight: 800;
     color: var(--rpg-text);
-  }
-
-  .sign-chip.streak .chip-num {
-    color: var(--rpg-amber-text);
   }
 
   .sign-result-tip {

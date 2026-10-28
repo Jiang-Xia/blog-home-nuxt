@@ -175,9 +175,13 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
           <div class="rpg-loot-meta">
             <span class="rpg-loot-progress-text">{{ quest.progress }}/{{ quest.targetCount }}</span>
             <div class="rpg-loot-rewards">
-              <span class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">⭐ +{{ quest.expReward }}</span>
+              <span class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">
+                <img class="reward-chip-art" src="/rpg/icons/exp.png" alt="" loading="lazy">
+                +{{ quest.expReward }}
+              </span>
               <span v-if="quest.hpReward" class="rpg-loot-reward-chip rpg-loot-reward-chip--hp">
-                ❤ +{{ quest.hpReward }}
+                <img class="reward-chip-art" src="/rpg/icons/heart.png" alt="" loading="lazy">
+                +{{ quest.hpReward }}
               </span>
             </div>
           </div>
@@ -220,6 +224,13 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
     height: 78%;
     object-fit: contain;
     pointer-events: none;
+  }
+
+  .reward-chip-art {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    vertical-align: -2px;
   }
 
   /* 任务进度条 → 紫罗兰渐变（美术改版 v2） */
