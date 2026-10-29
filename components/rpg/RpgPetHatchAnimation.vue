@@ -69,7 +69,7 @@ const handleClose = () => {
           <div v-if="phase === 'egg'" class="egg-stage">
             <div class="egg-wrap">
               <span class="egg-glow" aria-hidden="true" />
-              <span class="egg-emoji">🥚</span>
+              <img class="egg-emoji" src="/rpg/icons/egg.png" alt="">
               <span class="crack crack-1" aria-hidden="true" />
               <span class="crack crack-2" aria-hidden="true" />
             </div>
@@ -157,8 +157,9 @@ const handleClose = () => {
   }
 
   .egg-emoji {
-    font-size: 72px;
-    line-height: 1;
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
     filter: drop-shadow(0 6px 12px rgb(0 0 0 / 0.25));
   }
 

@@ -5,7 +5,7 @@
    */
 import type { RpgRankChangePayload } from '~~/composables/use-realtime-socket';
 import {
-  getRankMedalEmoji,
+  getRankMedalArtKey,
   LEADERBOARD_PERIOD_LABEL,
   LEADERBOARD_TYPE_LABEL,
 } from '~~/constants/rpg-ws-display';
@@ -30,7 +30,7 @@ watch(
   },
 );
 
-const medal = computed(() => getRankMedalEmoji(props.data?.rank ?? 10));
+const medalArtKey = computed(() => getRankMedalArtKey(props.data?.rank ?? 10));
 const confettiTier = computed(() => rankToConfettiTier(props.data?.rank ?? 10));
 
 const periodLabel = computed(() => {
@@ -98,7 +98,7 @@ const handleClose = () => {
             荣登 Top10
           </div>
           <div class="medal-wrap">
-            <span class="medal-emoji">{{ medal }}</span>
+            <img class="medal-art" :src="`/rpg/icons/${medalArtKey}.png`" alt="">
             <span class="rank-number" :style="{ color: rankTheme.heading }">
               {{ data.rank }}
             </span>
@@ -165,11 +165,12 @@ const handleClose = () => {
     margin-bottom: 12px;
   }
 
-  .medal-emoji {
-    font-size: 64px;
-    line-height: 1;
+  .medal-art {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
     animation: medalBounce 0.9s ease infinite;
-    filter: drop-shadow(0 6px 12px rgb(0 0 0 / 0.2));
+    filter: drop-shadow(0 6px 14px rgb(217 161 60 / 0.5));
   }
 
   .rank-number {

@@ -10,6 +10,7 @@ import {
   getMyAchievements,
   getMyQuests,
   claimQuestReward,
+  getMyRpgRank,
   getMyBuffs,
   getLotteryPool,
   lotteryDraw,
@@ -81,6 +82,10 @@ export function useRpgPage() {
   const hitRecordsTotal = ref(0);
   const activityOverview = ref<CurrentActivitiesOverview | null>(null);
   const weatherBuff = ref<any>(null);
+  /** v6/C：我的排名（赛季横幅展示，未上榜 rank 为 null） */
+  const myRank = ref<{ rank: number | null; score: number; seasonEndTime: string | null } | null>(
+    null,
+  );
 
   const inventoryItems = ref<InventoryItem[]>([]);
   const loadout = ref<any>(null);
@@ -226,6 +231,16 @@ export function useRpgPage() {
   /** 刷新 Buff 列表（手动激活/停用或 WebSocket 后） */
   const reloadBuffs = async () => {
     buffs.value = await getMyBuffs();
+  };
+
+  /** v6/C：拉取我的排名（轻接口；未上榜 rank 为 null） */
+  const fetchMyRank = async () => {
+    try {
+      myRank.value = await getMyRpgRank('exp', 'total');
+    }
+    catch (e) {
+      console.error('[useRpgPage] 获取我的排名失败:', e);
+    }
   };
 
   /** 懒加载敏感词命中记录（用户展开面板时由父组件触发） */
@@ -575,6 +590,8 @@ export function useRpgPage() {
     hitRecordsTotal,
     activityOverview,
     weatherBuff,
+    myRank,
+    fetchMyRank,
     inventoryItems,
     loadout,
     pets,

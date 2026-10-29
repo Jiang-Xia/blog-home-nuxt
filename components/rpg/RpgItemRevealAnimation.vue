@@ -65,7 +65,8 @@ const handleClose = () => {
         <div class="reveal-panel" @click.stop>
           <div class="reveal-card" :class="{ ready: revealReady }" :style="glowStyle">
             <div class="reveal-banner">
-              ✨ 恭喜获得 ✨
+              <img class="banner-spark" src="/rpg/icons/sparkle.png" alt=""> 恭喜获得
+              <img class="banner-spark" src="/rpg/icons/sparkle.png" alt="">
             </div>
             <img
               v-if="isLegendary"
@@ -169,11 +170,20 @@ const handleClose = () => {
   }
 
   .reveal-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 13px;
     font-weight: 800;
     letter-spacing: 0.14em;
     color: #fde68a;
     margin-bottom: 16px;
+  }
+
+  .banner-spark {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
   }
 
   .reveal-rarity {

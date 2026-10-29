@@ -27,7 +27,7 @@ withDefaults(
     <div class="rpg-panel-loading__visual" aria-hidden="true">
       <span class="rpg-panel-loading__ring" />
       <span class="rpg-panel-loading__ring rpg-panel-loading__ring--inner" />
-      <span class="rpg-panel-loading__core">⚔️</span>
+      <img class="rpg-panel-loading__core" src="/rpg/icons/dice.png" alt="">
     </div>
     <p class="rpg-panel-loading__label">
       {{ label }}
@@ -89,14 +89,16 @@ withDefaults(
   }
 
   .rpg-panel-loading__core {
-    font-size: 18px;
-    line-height: 1;
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
     animation: rpgLoadPulse 1.2s ease-in-out infinite;
     filter: drop-shadow(0 0 6px rgb(251 191 36 / 0.45));
   }
 
   .compact .rpg-panel-loading__core {
-    font-size: 15px;
+    width: 18px;
+    height: 18px;
   }
 
   .rpg-panel-loading__label {

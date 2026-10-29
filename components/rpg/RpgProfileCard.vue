@@ -124,6 +124,17 @@ const toggleHitRecords = () => {
     emit('loadHitRecords');
   }
 };
+
+/* ── v6/H 敏感词警示行卡：来源标题 + 命中词红 chips（不复述原文） ── */
+const hitSourceLabel = (t: string) =>
+  t === 'comment' ? '评论被拦截' : t === 'reply' ? '回复被拦截' : '留言被拦截';
+
+const hitWordList = (raw: string) =>
+  (raw || '')
+    .split(/[,，;；、/|]+/)
+    .map(s => s.trim())
+    .filter(Boolean)
+    .slice(0, 5);
 </script>
 
 <template>
@@ -135,7 +146,13 @@ const toggleHitRecords = () => {
       :style="{ borderColor: roleReward.avatarFrameColor || '#ccc' }"
     >
       <img v-if="roleFrameArt" class="role-frame-art" :src="roleFrameArt" alt="">
-      <span v-else class="role-frame" :style="{ color: roleReward.avatarFrameColor || '#ccc' }">🛡</span>
+      <img
+        v-else
+        class="role-frame"
+        :style="{ filter: 'drop-shadow(0 2px 6px rgb(60 40 110 / 0.3))' }"
+        src="/rpg/icons/shield.png"
+        alt=""
+      >
       <span class="role-title">{{ roleReward.titleName }}</span>
       <span class="role-frame-name">{{
         roleReward.avatarFrameName || roleReward.avatarFrame
@@ -200,7 +217,7 @@ const toggleHitRecords = () => {
       </div>
     </div>
 
-    <!-- 数据概览 / Tab 切换 -->
+    <!-- 数据概览 / Tab 切换（v6/A3：美术圆章 Tab） -->
     <div class="stats-bar" role="tablist" aria-label="RPG 数据面板">
       <button
         type="button"
@@ -210,6 +227,7 @@ const toggleHitRecords = () => {
         :aria-selected="activeTab === 'achievements'"
         @click="switchTab('achievements')"
       >
+        <span class="stat-coin"><img src="/rpg/icons/trophy.png" alt="" loading="lazy"></span>
         <span class="stat-num">{{ completedAchievementCount }}</span>
         <span class="stat-label">成就</span>
       </button>
@@ -221,6 +239,7 @@ const toggleHitRecords = () => {
         :aria-selected="activeTab === 'quests'"
         @click="switchTab('quests')"
       >
+        <span class="stat-coin"><img src="/rpg/icons/scroll.png" alt="" loading="lazy"></span>
         <span class="stat-num">{{ questProgressText }}</span>
         <span class="stat-label">任务</span>
         <span v-if="claimableQuests.length" class="stat-badge">{{ claimableQuests.length }}</span>
@@ -233,6 +252,7 @@ const toggleHitRecords = () => {
         :aria-selected="activeTab === 'buffs'"
         @click="switchTab('buffs')"
       >
+        <span class="stat-coin"><img src="/rpg/icons/sparkle.png" alt="" loading="lazy"></span>
         <span class="stat-num">{{ activeBuffCount }}</span>
         <span class="stat-label">增益</span>
       </button>
@@ -310,22 +330,24 @@ const toggleHitRecords = () => {
     <div class="hits-toggle">
       <div class="section-title clickable" @click="toggleHitRecords">
         敏感词记录 ({{ hitRecordsTotal || rpgStatus.sensitiveHitsCount || 0 }})
-        <span class="toggle-icon">{{ showHitRecords ? '▼' : '▶' }}</span>
+        <span class="toggle-chevron" :class="{ 'toggle-chevron--open': showHitRecords }" />
       </div>
       <div v-if="showHitRecords" class="hits-list">
         <div v-if="hitRecords.length === 0" class="hits-empty">
           暂无记录
         </div>
-        <div v-for="hit in hitRecords" :key="hit.id" class="hit-item">
-          <div class="hit-content">
-            {{ hit.content }}
+        <div v-for="hit in hitRecords" :key="hit.id" class="hit-card">
+          <div class="hit-card__ico">
+            <img src="/rpg/icons/shield.png" alt="" loading="lazy">
           </div>
-          <div class="hit-words">
-            命中: {{ hit.hitWords }}
+          <div class="hit-card__body">
+            <b>{{ hitSourceLabel(hit.sourceType) }}</b>
+            <div class="hit-card__chips">
+              <span v-for="w in hitWordList(hit.hitWords)" :key="w" class="hit-word">命中 · {{ w }}</span>
+              <span class="hit-note">该次内容未计入</span>
+            </div>
           </div>
-          <div class="hit-time">
-            {{ formactDate(hit.createTime) }}
-          </div>
+          <span class="hit-time">{{ formactDate(hit.createTime) }}</span>
         </div>
       </div>
     </div>
@@ -356,7 +378,9 @@ const toggleHitRecords = () => {
   }
 
   .role-frame {
-    font-size: 16px;
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
   }
 
   .role-frame-art {
@@ -515,12 +539,36 @@ const toggleHitRecords = () => {
     align-items: center;
     padding: 6px 4px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     background: transparent;
     cursor: pointer;
     transition:
       background-color 0.2s,
       color 0.2s;
+  }
+
+  /* v6/A3：圆章主视觉 —— 32px 美术图 + 灰细环，激活换金环金底 */
+  .stat-coin {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--rpg-border);
+    background: var(--rpg-bg-alt);
+    margin-bottom: 3px;
+    transition:
+      border-color 0.2s,
+      background 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .stat-coin img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    filter: grayscale(0.2) opacity(0.78);
+    transition: filter 0.2s;
   }
 
   .stat-item:hover {
@@ -529,6 +577,18 @@ const toggleHitRecords = () => {
 
   .stat-item.active {
     background: var(--rpg-violet-bg);
+  }
+
+  .stat-item.active .stat-coin {
+    border-color: var(--rpg-art-gold, #d9a13c);
+    background: radial-gradient(circle at 34% 30%, #fffaf0, #fdf3da);
+    box-shadow:
+      0 0 0 3px rgb(217 161 60 / 0.16),
+      0 2px 8px rgb(217 161 60 / 0.3);
+  }
+
+  .stat-item.active .stat-coin img {
+    filter: none;
   }
 
   .stat-item.active .stat-num {
@@ -680,9 +740,21 @@ const toggleHitRecords = () => {
     cursor: pointer;
     user-select: none;
   }
-  .toggle-icon {
-    font-size: 9px;
+  /* v6/H：折叠箭头换 CSS chevron 旋转过渡 */
+  .toggle-chevron {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
     margin-left: 4px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.2s ease;
+    vertical-align: 1px;
+  }
+
+  .toggle-chevron--open {
+    transform: rotate(45deg);
   }
 
   .hits-list {
@@ -699,27 +771,76 @@ const toggleHitRecords = () => {
     padding: 6px;
   }
 
-  .hit-item {
-    padding: 8px 10px;
+  /* ── v6/H 敏感词警示行卡：红左缘 + 盾形圆章 + 红 chips，克制不描金 ── */
+  .hit-card {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    border: 1px solid color-mix(in oklch, var(--rpg-danger, #d6455d) 22%, transparent);
+    border-left: 3px solid var(--rpg-danger, #d6455d);
     border-radius: 10px;
-    background: var(--rpg-loot-bg);
-    border: 1px solid var(--rpg-loot-border);
-    box-shadow: var(--rpg-loot-inset);
+    padding: 10px 12px;
+    background: color-mix(in oklch, var(--rpg-danger, #d6455d) 4%, var(--rpg-surface, #fdf7f7));
   }
 
-  .hit-content {
-    font-size: 11px;
-    color: var(--rpg-text-body);
-    word-break: break-all;
+  .hit-card__ico {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: color-mix(in oklch, var(--rpg-danger, #d6455d) 10%, transparent);
+    flex-shrink: 0;
   }
-  .hit-words {
+
+  .hit-card__ico img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+  }
+
+  .hit-card__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hit-card__body > b {
+    font-size: 12px;
+    color: var(--rpg-text-heading);
+  }
+
+  .hit-card__chips {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .hit-word {
     font-size: 10px;
-    color: var(--rpg-danger);
+    color: #b03636;
+    background: color-mix(in oklch, var(--rpg-danger, #d6455d) 10%, transparent);
+    border-radius: 999px;
+    padding: 1px 8px;
+    font-weight: 700;
   }
-  .hit-time {
-    font-size: 9px;
+
+  html.tech-shell[data-theme='cyber'] .hit-word {
+    color: color-mix(in oklch, var(--rpg-danger, #d6455d) 80%, #fff);
+  }
+
+  .hit-note {
+    font-size: 10.5px;
     color: var(--rpg-text-muted);
-    margin-top: 1px;
+  }
+
+  .hit-time {
+    margin-left: auto;
+    font-size: 10.5px;
+    color: var(--rpg-text-muted);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
 
   /* ── 连续签到里程碑轨道（美术改版 v2）── */

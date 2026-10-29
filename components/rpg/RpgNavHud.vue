@@ -72,12 +72,10 @@ const onHudClick = () => {
       />
     </div>
 
-    <span v-if="hasClaimable" class="badge badge-warning badge-xs shrink-0 border-0 text-[10px]">
+    <span v-if="hasClaimable" class="hud-coin-badge hud-coin-badge--gold">
       {{ claimableQuests.length }} 可领
     </span>
-    <span v-else-if="needSignIn" class="badge badge-primary badge-xs shrink-0 border-0 text-[10px]">
-      签到
-    </span>
+    <span v-else-if="needSignIn" class="hud-coin-badge hud-coin-badge--violet"> 签到 </span>
     <span v-else class="hidden shrink-0 text-[10px] text-[var(--rpg-text-muted)] xl:inline">
       任务 {{ questProgressText }}
     </span>
@@ -112,5 +110,27 @@ const onHudClick = () => {
 
   .rpg-hud-exp-fill {
     background: var(--rpg-exp-gradient);
+  }
+
+  /* v6/I3：金点圆徽章角标（同 A2 墙卡右上角标语言） */
+  .hud-coin-badge {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+
+  .hud-coin-badge--gold {
+    color: var(--rpg-art-gold-ink, #3a2408);
+    background: var(--rpg-art-gold-grad, linear-gradient(160deg, #f5c76a, #d9a13c));
+    box-shadow: 0 2px 8px rgb(217 161 60 / 0.4);
+  }
+
+  .hud-coin-badge--violet {
+    color: #fff;
+    background: var(--rpg-art-violet-grad, linear-gradient(160deg, #7c5cf0, #a78bfa));
+    box-shadow: 0 2px 8px rgb(124 92 240 / 0.35);
   }
 </style>

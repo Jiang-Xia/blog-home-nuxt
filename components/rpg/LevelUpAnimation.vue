@@ -74,7 +74,8 @@ const handleClose = () => {
               解锁奖励
             </div>
             <div v-for="r in rewards" :key="r.level" class="reward-item">
-              <span v-if="r.currencyReward" class="reward-diamond">💎 {{ r.currencyReward }} {{ r.currencyName }}</span>
+              <span v-if="r.currencyReward" class="reward-diamond"><img class="reward-art" src="/rpg/icons/gem.png" alt=""> {{ r.currencyReward }}
+                {{ r.currencyName }}</span>
               <span v-if="r.frameName" class="reward-frame">{{ r.frameEmoji }} {{ r.frameName }}</span>
               <span v-if="r.titleName" class="reward-title">{{ r.titleEmoji }} {{ r.titleName }}</span>
             </div>
@@ -251,5 +252,13 @@ const handleClose = () => {
   .level-up-leave-to .level-up-modal {
     opacity: 0;
     transform: scale(0.92);
+  }
+  /* v6/G：货币奖励美术小图 */
+  .reward-art {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    vertical-align: -2px;
+    margin-right: 2px;
   }
 </style>

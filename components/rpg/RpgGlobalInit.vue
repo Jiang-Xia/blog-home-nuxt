@@ -80,6 +80,7 @@ const {
   achievementRarityColor,
   achievementRarityLabel,
   achievementRarityIcon,
+  achievementIconKey,
   masterpieceVisible,
   masterpieceData,
   socialFeedbackVisible,
@@ -196,7 +197,7 @@ onMounted(() => {
     (info) => {
       if (signHintShown.value || !info || info.signedToday) return;
       signHintShown.value = true;
-      messageInfo('📅 今日尚未签到，去冒险页签到领 EXP 吧！');
+      messageInfo('今日尚未签到，去冒险页签到领 EXP 吧！');
     },
     { immediate: true },
   );
@@ -218,6 +219,7 @@ onMounted(() => {
       :rarity-color="achievementRarityColor"
       :rarity-label="achievementRarityLabel"
       :rarity-icon="achievementRarityIcon"
+      :icon-key="achievementIconKey"
       @close="closeAchievement"
     />
     <RpgMasterpieceAnimation

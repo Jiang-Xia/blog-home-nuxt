@@ -277,7 +277,7 @@ watch(
             <div class="header-glow" aria-hidden="true" />
             <div class="header-main">
               <div class="header-icon">
-                💎
+                <img class="header-icon__art" src="/rpg/icons/gem.png" alt="">
               </div>
               <div class="header-text">
                 <h3 class="header-title">
@@ -291,6 +291,7 @@ watch(
           </header>
 
           <div v-if="isIosDevice" class="ios-panel">
+            <img class="ios-panel__art" src="/rpg/icons/megaphone.png" alt="">
             <p>iOS 设备暂不支持网页内拉起小程序支付。</p>
             <p class="ios-sub">
               请直接在支付宝打开个人小程序，进入收银页（all-pay）完成支付。
@@ -372,6 +373,11 @@ watch(
                   </div>
 
                   <div class="qr-frame" :class="{ loading: loading && shouldShowQr }">
+                    <span
+                      v-if="orderInfo && !paid && shouldShowQr && !qrError"
+                      class="status-dot-pulse"
+                      aria-hidden="true"
+                    />
                     <div v-show="loading && shouldShowQr" class="qr-state">
                       <span class="qr-spinner" />
                       生成二维码…
@@ -489,13 +495,22 @@ watch(
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
-    border-radius: 11px;
-    background: color-mix(in oklch, var(--color-secondary-content) 16%, transparent);
-    font-size: 18px;
-    box-shadow: 0 4px 12px color-mix(in oklch, var(--color-base-content) 12%, transparent);
+    border-radius: 50%;
+    border: 2px solid var(--rpg-art-gold, #d9a13c);
+    background: radial-gradient(circle at 34% 30%, #fffaf0, #fdf3da);
+    box-shadow:
+      0 0 0 3px rgb(217 161 60 / 0.14),
+      0 4px 12px rgb(217 161 60 / 0.3);
+  }
+
+  /* v6/I1：金环圆章美术图 */
+  .header-icon__art {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
   }
 
   .header-title {
@@ -597,11 +612,15 @@ watch(
     color: var(--rpg-text-body);
   }
 
+  /* v6/I1：选中态金框金底（与全局收银语言一致） */
   .amount-chip.active {
-    border-color: var(--rpg-violet);
-    color: var(--rpg-violet);
-    background: var(--rpg-violet-bg);
-    box-shadow: 0 0 0 1px color-mix(in oklch, var(--rpg-violet) 25%, transparent);
+    border-color: var(--rpg-art-gold, #d9a13c);
+    color: var(--rpg-art-gold-ink, #3a2408);
+    background: linear-gradient(160deg, #fffaf0, #fdf3da);
+    box-shadow:
+      0 0 0 3px rgb(217 161 60 / 0.14),
+      0 3px 10px rgb(217 161 60 / 0.28);
+    transform: translateY(-1px);
   }
 
   .amount-chip--custom {
@@ -744,6 +763,7 @@ watch(
   }
 
   .qr-frame {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -753,8 +773,30 @@ watch(
     margin-bottom: 8px;
     padding: 8px;
     border-radius: 16px;
-    background: #fff;
-    box-shadow: inset 0 0 0 1px rgb(15 23 42 / 0.06);
+    background: #fffdf6;
+    border: 2px solid color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 55%, transparent);
+    box-shadow:
+      inset 0 0 0 1px rgb(15 23 42 / 0.05),
+      0 0 0 4px rgb(217 161 60 / 0.08);
+  }
+
+  /* v6/I1：金框呼吸状态灯（等待支付时展示） */
+  .qr-frame .status-dot-pulse {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--rpg-art-gold, #d9a13c);
+    box-shadow: 0 0 8px var(--rpg-art-gold, #d9a13c);
+    animation: qrdot-pulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes qrdot-pulse {
+    50% {
+      opacity: 0.35;
+    }
   }
 
   .qr-frame.loading {
@@ -862,6 +904,14 @@ watch(
     font-size: 13px;
     line-height: 1.55;
     color: var(--rpg-text-body);
+  }
+
+  .ios-panel__art {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    margin-bottom: 6px;
+    filter: grayscale(0.3) opacity(0.8);
   }
 
   .ios-sub {

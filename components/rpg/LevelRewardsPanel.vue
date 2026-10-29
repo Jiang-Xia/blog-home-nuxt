@@ -78,7 +78,7 @@ const rewardCards = computed(() =>
     <div class="panel-header">
       <div class="panel-summary">
         <div class="summary-title">
-          🗺️ 冒险征程
+          <img class="rc-title-art" src="/rpg/icons/books.png" alt="" loading="lazy"> 冒险征程
         </div>
         <div class="summary-label">
           已解锁 <strong class="summary-num">{{ unlockedCount }}</strong> /
@@ -129,8 +129,11 @@ const rewardCards = computed(() =>
             <span class="rc-medal-num">{{ card.level }}</span>
             <span v-if="card.unlocked" class="rc-medal-check">✓</span>
           </div>
-          <span v-if="card.unlocked" class="rpg-loot-status rpg-loot-status--done">已达成</span>
-          <span v-else class="rpg-loot-status rpg-loot-status--pending">
+          <span
+            v-if="card.unlocked"
+            class="rpg-loot-status rpg-loot-status--done rpg-loot-status--corner"
+          >已达成</span>
+          <span v-else class="rpg-loot-status rpg-loot-status--pending rpg-loot-status--corner">
             还差 {{ card.remaining }} 级
           </span>
         </div>
@@ -478,5 +481,13 @@ const rewardCards = computed(() =>
     flex-shrink: 0;
     font-size: 10px;
     color: var(--rpg-text-muted);
+  }
+  /* v6/G：标题美术小图 */
+  .rc-title-art {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    vertical-align: -2px;
+    margin-right: 4px;
   }
 </style>

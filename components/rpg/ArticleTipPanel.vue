@@ -41,7 +41,7 @@ const submit = async () => {
 
 <template>
   <div class="tip-panel flex items-center gap-2 mt-3 p-3 rounded-lg bg-base-200/50">
-    <span class="text-sm">💎 打赏作者</span>
+    <span class="text-sm"><img class="tip-art" src="/rpg/icons/gem.png" alt="" loading="lazy"> 打赏作者</span>
     <input
       v-model.number="amount"
       type="number"
@@ -53,3 +53,14 @@ const submit = async () => {
     </button>
   </div>
 </template>
+
+<style scoped>
+  /* v6/G：打赏美术小图 */
+  .tip-art {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    vertical-align: -3px;
+    margin-right: 2px;
+  }
+</style>

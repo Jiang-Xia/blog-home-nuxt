@@ -30,6 +30,13 @@ const formatJoinTime = (t?: string | null) => {
   if (Number.isNaN(d.getTime())) return '';
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
+
+/* ── v6/H 公会列表徽章行：徽章主色按 id 哈希取四档色，图标双手/盾交替 ── */
+const GUILD_TONES = ['gold', 'violet', 'green', 'blue'] as const;
+const GUILD_ICONS = ['hands', 'shield'] as const;
+
+const guildTone = (id: number) => GUILD_TONES[(Number(id) || 0) % GUILD_TONES.length];
+const guildIcon = (id: number) => GUILD_ICONS[(Number(id) || 0) % GUILD_ICONS.length];
 </script>
 
 <template>
@@ -58,7 +65,8 @@ const formatJoinTime = (t?: string | null) => {
 
       <div class="guild-stats">
         <div class="guild-stat">
-          <b>👥 {{ myGuild.memberCount }}</b>
+          <b><img class="guild-stat__art" src="/rpg/icons/hands.png" alt="" loading="lazy">
+            {{ myGuild.memberCount }}</b>
           <span>成员</span>
         </div>
         <div class="guild-stat">
@@ -149,16 +157,23 @@ const formatJoinTime = (t?: string | null) => {
           暂无可加入的公会
         </div>
         <div v-else class="guild-list">
-          <div v-for="g in guildList" :key="g.id" class="rpg-loot-card guild-list__row">
-            <img class="guild-list__emblem" src="/rpg/icons/shield.png" alt="" loading="lazy">
-            <div class="guild-list__info">
-              <b>{{ g.name }}</b>
-              <span>{{ g.memberCount }} 名成员</span>
+          <div
+            v-for="g in guildList"
+            :key="g.id"
+            class="guild-grow"
+            :class="`guild-grow--${guildTone(g.id)}`"
+          >
+            <div class="guild-grow__emb">
+              <img :src="`/rpg/icons/${guildIcon(g.id)}.png`" alt="" loading="lazy">
             </div>
-            <button
-              class="rpg-pet-btn rpg-pet-btn--primary rpg-pet-btn--sm"
-              @click="emit('join', g.id)"
-            >
+            <div class="guild-grow__info">
+              <b>{{ g.name }}</b>
+              <span>{{ g.memberCount }} 名成员 · 招募中</span>
+            </div>
+            <div class="guild-avstack">
+              <span class="guild-avstack__more">+{{ g.memberCount }}</span>
+            </div>
+            <button type="button" class="guild-grow__join" @click="emit('join', g.id)">
               加入
             </button>
           </div>
@@ -169,6 +184,15 @@ const formatJoinTime = (t?: string | null) => {
 </template>
 
 <style scoped>
+  /* v6/G：成员数美术小图 */
+  .guild-stat__art {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    vertical-align: -2px;
+    margin-right: 2px;
+  }
+
   .guild-section-sub {
     font-size: 11px;
     font-weight: 500;
@@ -416,36 +440,120 @@ const formatJoinTime = (t?: string | null) => {
     gap: 8px;
   }
 
-  .guild-list__row {
-    flex-direction: row;
+  /* ── v6/H 公会徽章行（原型 .grow）── */
+  .guild-grow {
+    display: flex;
     align-items: center;
     gap: 12px;
-    padding: 11px 14px;
+    border: 1.5px solid var(--rpg-border-subtle, oklch(var(--b3)));
+    border-radius: 14px;
+    padding: 10px 14px;
+    background: var(--rpg-surface, #fbfaff);
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
   }
 
-  .guild-list__emblem {
+  .guild-grow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgb(60 40 110 / 0.14);
+  }
+
+  .guild-grow__emb {
+    display: grid;
+    place-items: center;
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--rpg-art-gold, #d9a13c);
+    border: 2.5px solid;
     flex-shrink: 0;
   }
 
-  .guild-list__info {
+  .guild-grow__emb img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .guild-grow--gold .guild-grow__emb {
+    border-color: var(--rpg-art-gold, #d9a13c);
+    background: radial-gradient(circle at 34% 30%, #fff8e6, #f0d9a0);
+  }
+
+  .guild-grow--violet .guild-grow__emb {
+    border-color: var(--rpg-art-violet, #7c5cf0);
+    background: radial-gradient(circle at 34% 30%, #f6f2fe, #d9c8f7);
+  }
+
+  .guild-grow--green .guild-grow__emb {
+    border-color: #22c55e;
+    background: radial-gradient(circle at 34% 30%, #f0fdf4, #bbf7d0);
+  }
+
+  .guild-grow--blue .guild-grow__emb {
+    border-color: #38bdf8;
+    background: radial-gradient(circle at 34% 30%, #f0f9ff, #bae6fd);
+  }
+
+  .guild-grow__info {
     flex: 1;
     min-width: 0;
   }
 
-  .guild-list__info b {
+  .guild-grow__info b {
     display: block;
-    font-size: 13px;
+    font-size: 12.5px;
     color: var(--rpg-text-heading, oklch(var(--bc)));
   }
 
-  .guild-list__info span {
-    font-size: 11px;
+  .guild-grow__info span {
+    font-size: 10.5px;
     color: var(--rpg-text-muted, oklch(var(--bc) / 0.55));
+  }
+
+  .guild-avstack {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .guild-avstack__more {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #2b2440;
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 800;
+    border: 2px solid #fff;
+  }
+
+  html.tech-shell[data-theme='cyber'] .guild-avstack__more {
+    background: rgb(255 255 255 / 0.16);
+  }
+
+  .guild-grow__join {
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 6px 16px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f0c979, #d9a13c);
+    color: #3a2408;
+    box-shadow: 0 3px 10px rgb(217 161 60 / 0.35);
+    flex-shrink: 0;
+    transition: filter 0.15s ease;
+  }
+
+  .guild-grow__join:hover {
+    filter: brightness(1.06);
+  }
+
+  html.tech-shell[data-theme='cyber'] .guild-grow__join {
+    color: #241538;
   }
 
   @media (max-width: 639px) {

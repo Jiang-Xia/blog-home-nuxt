@@ -134,6 +134,12 @@ const onOverlayClose = () => {
   finishDrawAnimation();
 };
 
+/** 「再来五连」：收下本轮并立刻重抽数（余额不足时走充值弹窗） */
+const onOverlayRedraw = () => {
+  finishDrawAnimation();
+  handleDraw(5);
+};
+
 /** 展开/收起抽奖记录；变更时播放 tabSwitch */
 const toggleHistory = () => {
   showHistory.value = !showHistory.value;
@@ -147,8 +153,12 @@ const toggleHistory = () => {
 <template>
   <div class="lottery-section">
     <div class="lottery-header">
-      <span class="section-title">🎁 幸运宝箱</span>
-      <span class="ticket-count">🎫 {{ lotteryTickets }} · 💎 {{ rpgStatus?.currency ?? 0 }}</span>
+      <span class="section-title"><img class="title-art" src="/rpg/icons/gift.png" alt=""> 幸运宝箱</span>
+      <span class="ticket-count">
+        <img class="count-art" src="/rpg/icons/ticket.png" alt=""> {{ lotteryTickets }}
+        <i class="count-sep" />
+        <img class="count-art" src="/rpg/icons/gem.png" alt=""> {{ rpgStatus?.currency ?? 0 }}
+      </span>
     </div>
     <!-- v3 ③ 保底进度可视化：epic 90 / legendary 180 -->
     <div
@@ -210,12 +220,36 @@ const toggleHistory = () => {
         @click="!isAnimating && !drawing && handleDraw(1)"
       >
         <span v-if="drawPhase === 'charging'" class="chest-aura" aria-hidden="true" />
-        <span v-if="drawPhase === 'charging'" class="chest-spark chest-spark--1" aria-hidden="true">✦</span>
-        <span v-if="drawPhase === 'charging'" class="chest-spark chest-spark--2" aria-hidden="true">✦</span>
+        <img
+          v-if="drawPhase === 'charging'"
+          class="chest-spark"
+          src="/rpg/icons/sparkle.png"
+          alt=""
+        >
+        <img
+          v-if="drawPhase === 'charging'"
+          class="chest-spark chest-spark--1"
+          src="/rpg/icons/sparkle.png"
+          alt=""
+        >
+        <img
+          v-if="drawPhase === 'charging'"
+          class="chest-spark chest-spark--2"
+          src="/rpg/icons/sparkle.png"
+          alt=""
+        >
         <div class="chest-body">
-          <span class="chest-icon">
-            {{ drawPhase === 'charging' ? '✨' : drawPhase === 'spinning' ? '🎲' : '🎁' }}
-          </span>
+          <img
+            class="chest-icon"
+            :src="
+              drawPhase === 'charging'
+                ? '/rpg/icons/sparkle.png'
+                : drawPhase === 'spinning'
+                  ? '/rpg/icons/dice.png'
+                  : '/rpg/icons/gift.png'
+            "
+            alt=""
+          >
           <span v-if="!isAnimating" class="chest-label">点击开启</span>
           <span v-else class="chest-label chest-label--active">
             {{ drawPhase === 'charging' ? '开启中…' : '抽奖中…' }}
@@ -225,14 +259,24 @@ const toggleHistory = () => {
 
       <div class="draw-actions">
         <button class="draw-btn" :disabled="isDrawDisabled(1)" @click="handleDraw(1)">
-          {{ drawCurrency === 'ticket' ? `单抽 🎫×1` : `单抽 💎×${LOTTERY_CURRENCY_COST}` }}
+          <img
+            class="btn-art"
+            :src="drawCurrency === 'ticket' ? '/rpg/icons/ticket.png' : '/rpg/icons/gem.png'"
+            alt=""
+          >
+          单抽 ×1
         </button>
         <button
           class="draw-btn draw-btn-multi"
-          :disabled="isDrawDisabled(10)"
-          @click="handleDraw(10)"
+          :disabled="isDrawDisabled(5)"
+          @click="handleDraw(5)"
         >
-          {{ drawCurrency === 'ticket' ? `十连 🎫×10` : `十连 💎×${LOTTERY_CURRENCY_COST * 10}` }}
+          <img
+            class="btn-art"
+            :src="drawCurrency === 'ticket' ? '/rpg/icons/ticket.png' : '/rpg/icons/gem.png'"
+            alt=""
+          >
+          五连 ×5
         </button>
       </div>
     </div>
@@ -243,8 +287,10 @@ const toggleHistory = () => {
       :pool="lotteryPool"
       :results="drawResults"
       :draw-count="pendingCount"
+      :can-redraw="pendingCount === 5 && canDraw(5) && !drawing"
       @skip="onOverlaySkip"
       @close="onOverlayClose"
+      @redraw="onOverlayRedraw"
     />
 
     <div class="pool-preview">
@@ -285,7 +331,7 @@ const toggleHistory = () => {
     <div class="history-toggle">
       <div class="history-btn" @click="toggleHistory">
         <img class="history-art" src="/rpg/icons/scroll.png" alt=""> 抽奖记录
-        <span class="toggle-icon">{{ showHistory ? '▼' : '▶' }}</span>
+        <span class="toggle-chevron" :class="{ 'toggle-chevron--open': showHistory }" />
       </div>
       <div v-if="showHistory" class="history-list">
         <div v-if="lotteryHistory.length === 0" class="rpg-empty-inline !py-2">
@@ -332,18 +378,43 @@ const toggleHistory = () => {
   }
 
   .section-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 14px;
     font-weight: 700;
     color: var(--rpg-text);
   }
 
+  .title-art {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+  }
+
   .ticket-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 13px;
     font-weight: 700;
     color: var(--rpg-violet);
     background: var(--rpg-violet-bg);
     padding: 3px 10px;
     border-radius: 12px;
+  }
+
+  .count-art {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
+
+  .count-sep {
+    width: 1px;
+    height: 10px;
+    margin: 0 3px;
+    background: var(--rpg-border);
   }
 
   .chest-area {
@@ -401,10 +472,11 @@ const toggleHistory = () => {
 
   .chest-spark {
     position: absolute;
-    font-size: 12px;
-    color: var(--rpg-amber-light);
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
     animation: sparkOrbit 1.6s linear infinite;
-    text-shadow: 0 0 8px rgb(251 191 36 / 0.8);
+    filter: drop-shadow(0 0 6px rgb(251 191 36 / 0.8));
   }
 
   .chest-spark--1 {
@@ -427,7 +499,10 @@ const toggleHistory = () => {
   }
 
   .chest-icon {
-    font-size: 38px;
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 8px rgb(217 161 60 / 0.45));
     transition: transform 0.2s;
   }
 
@@ -453,6 +528,10 @@ const toggleHistory = () => {
   }
 
   .draw-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     padding: 9px 20px;
     border: none;
     border-radius: 12px;
@@ -465,6 +544,14 @@ const toggleHistory = () => {
     transition:
       opacity 0.2s,
       transform 0.2s;
+  }
+
+  .btn-art {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: rgb(255 255 255 / 0.16);
   }
 
   .draw-btn:disabled {
@@ -545,9 +632,20 @@ const toggleHistory = () => {
     object-fit: contain;
   }
 
-  .toggle-icon {
-    font-size: 9px;
+  /* v6/H：折叠箭头换 CSS chevron 旋转过渡 */
+  .toggle-chevron {
+    width: 7px;
+    height: 7px;
     margin-left: 4px;
+    flex-shrink: 0;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.2s ease;
+  }
+
+  .toggle-chevron--open {
+    transform: rotate(45deg);
   }
 
   .history-list {
@@ -556,6 +654,20 @@ const toggleHistory = () => {
     display: flex;
     flex-direction: column;
     gap: 4px;
+  }
+
+  /* v6/H：行 hover 浮起 + 金描边 */
+  .history-list .rpg-rank-row {
+    transition:
+      transform 0.15s ease,
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .history-list .rpg-rank-row:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 55%, transparent);
+    box-shadow: 0 3px 10px rgb(217 161 60 / 0.12);
   }
 
   .history-rarity-badge {
@@ -572,6 +684,7 @@ const toggleHistory = () => {
   .history-time {
     font-size: 10px;
     color: var(--rpg-text-muted);
+    font-variant-numeric: tabular-nums;
   }
 
   @keyframes chestCharge {

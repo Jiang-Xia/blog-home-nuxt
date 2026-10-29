@@ -53,6 +53,8 @@ const {
   hitRecordsTotal,
   activityOverview,
   weatherBuff,
+  myRank,
+  fetchMyRank,
   inventoryItems,
   loadout,
   pets,
@@ -143,6 +145,8 @@ onMounted(() => {
   // 冒险页进入：初始化音频引擎；BGM 默认关闭，由工具条滑条手动开启
   void initAudio();
   void ensureLoggedIn();
+  // v6/C：赛季横幅「我的排名 #N + 翻牌倒计时」数据源
+  if (isLoggedIn.value) void fetchMyRank();
 });
 
 /** BGM 滑条 > 0 且未静音时播放，归零或静音时停止 */
@@ -446,11 +450,12 @@ const onLeaveGuild = async () => {
         <button
           type="button"
           class="rpg-page-toolbar__mute"
+          :class="muted ? 'vol-off' : 'vol-on'"
           :title="muted ? '开启音效' : '静音'"
           :aria-label="muted ? '开启音效' : '静音'"
           @click="toggleMute"
         >
-          {{ muted ? '🔇' : '🔊' }}
+          <img :src="muted ? '/rpg/icons/star-half.png' : '/rpg/icons/star-full.png'" alt="">
         </button>
         <template v-if="!muted">
           <label class="rpg-page-toolbar__vol">
@@ -475,7 +480,11 @@ const onLeaveGuild = async () => {
         </button>
       </div>
 
-      <RpgSeasonBanner :activity-overview="activityOverview" :weather-buff="weatherBuff" />
+      <RpgSeasonBanner
+        :activity-overview="activityOverview"
+        :weather-buff="weatherBuff"
+        :my-rank="myRank"
+      />
 
       <div v-if="isLoggedIn" class="rpg-page-tabs mb-4" role="tablist">
         <button
@@ -683,7 +692,62 @@ const onLeaveGuild = async () => {
     margin-bottom: 6px;
   }
 
-  .rpg-page-toolbar__mute,
+  .rpg-page-toolbar__mute {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 2.5px solid;
+    border-radius: 50%;
+    background: #fbfaff;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s,
+      transform 0.2s;
+  }
+
+  /* v6/F：两态语义 —— 金环点亮 = 有声；虚线灰圈 = 静音 */
+  .rpg-page-toolbar__mute img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    border-radius: 50%;
+  }
+
+  .rpg-page-toolbar__mute.vol-on {
+    border-color: var(--rpg-art-gold, #d9a13c);
+    background: radial-gradient(circle at 34% 30%, #fffaf0, #fdf3da);
+    box-shadow:
+      0 0 0 3px rgb(217 161 60 / 0.12),
+      0 2px 8px rgb(217 161 60 / 0.3);
+  }
+
+  .rpg-page-toolbar__mute.vol-on:hover {
+    transform: translateY(-1px);
+  }
+
+  .rpg-page-toolbar__mute.vol-off {
+    border-color: var(--rpg-border, #d8d2e8);
+    border-style: dashed;
+    opacity: 0.65;
+  }
+
+  .rpg-page-toolbar__mute.vol-off img {
+    filter: grayscale(0.6);
+  }
+
+  .guide-art {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    vertical-align: -2px;
+    margin-right: 3px;
+  }
+
   .rpg-page-toolbar__guide {
     border: none;
     background: transparent;
@@ -694,14 +758,6 @@ const onLeaveGuild = async () => {
     cursor: pointer;
     white-space: nowrap;
     flex-shrink: 0;
-  }
-
-  .guide-art {
-    width: 15px;
-    height: 15px;
-    object-fit: contain;
-    vertical-align: -2px;
-    margin-right: 3px;
   }
 
   .rpg-page-toolbar__guide {

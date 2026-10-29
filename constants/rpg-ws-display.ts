@@ -49,6 +49,14 @@ export function getRankMedalEmoji(rank: number): string {
   return '🏅';
 }
 
+/** v6/I4：排名 → 美术奖牌 key（medal-gold/silver/bronze，Top10 外回退 medal-gold 兜底图） */
+export function getRankMedalArtKey(rank: number): string {
+  if (rank === 1) return 'medal-gold';
+  if (rank === 2) return 'medal-silver';
+  if (rank === 3) return 'medal-bronze';
+  return 'medal-gold';
+}
+
 /** 公会事件 type → 中文文案（GuildEventPayload.type） */
 export function formatGuildEventMessage(
   type: 'memberJoined' | 'memberLeft' | 'guildCreated',

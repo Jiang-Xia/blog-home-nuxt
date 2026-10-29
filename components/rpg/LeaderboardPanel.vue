@@ -227,8 +227,15 @@ const myAvatar = computed(() => {
 
       <!-- 4 名之后列表 -->
       <div v-if="restList.length" class="rank-list">
-        <div v-for="entry in restList" :key="entry.uid" class="rpg-rank-row">
-          <span class="rank-num">{{ entry.rank }}</span>
+        <div
+          v-for="entry in restList"
+          :key="entry.uid"
+          class="rpg-rank-row"
+          :class="{ 'rpg-rank-row--me': entry.uid === userInfo?.uid }"
+        >
+          <span class="rank-num" :class="{ 'rank-num--gold': entry.rank > 3 }">{{
+            entry.rank
+          }}</span>
           <NuxtLink
             :to="`/user/${entry.uid}`"
             class="rank-avatar"
@@ -243,7 +250,10 @@ const myAvatar = computed(() => {
             }}</NuxtLink>
             <span class="rank-sub">LV{{ entry.level }}</span>
           </div>
-          <span class="rank-score">{{ getScoreText(entry) }}</span>
+          <span class="rank-score">
+            <img class="rank-score__art" src="/rpg/icons/exp.png" alt="" loading="lazy">{{
+              getScoreText(entry)
+            }}</span>
         </div>
       </div>
 
@@ -399,6 +409,20 @@ const myAvatar = computed(() => {
     color: var(--rpg-text-muted);
   }
 
+  /* v6/H：4~10 名淡金序号章 */
+  .rank-num--gold {
+    min-width: 0;
+    font-size: 11px;
+    color: #a3801f;
+    background: color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 14%, transparent);
+    border-radius: 999px;
+    padding: 2px 7px;
+  }
+
+  html.tech-shell[data-theme='cyber'] .rank-num--gold {
+    color: var(--rpg-art-gold, #d9a13c);
+  }
+
   .rank-avatar {
     display: block;
     width: 36px;
@@ -460,6 +484,28 @@ const myAvatar = computed(() => {
     color: var(--rpg-art-violet-deep, #5b3fd6);
     font-size: 13px;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* v6/H：分数前 exp 小图 */
+  .rank-score__art {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    object-fit: contain;
+  }
+
+  /* v6/H：我方行金框高亮（列表里滚到自己时） */
+  .rpg-rank-row--me {
+    border-color: var(--rpg-art-gold, #d9a13c);
+    background: linear-gradient(170deg, #fffdf5, #fdf7e7);
+    box-shadow: 0 4px 10px rgb(217 161 60 / 0.15);
+  }
+
+  html.tech-shell[data-theme='cyber'] .rpg-rank-row--me {
+    background: rgb(217 161 60 / 0.08);
   }
 
   /* ── 我的排名条 ── */

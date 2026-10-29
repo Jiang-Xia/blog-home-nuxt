@@ -135,12 +135,12 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
       <div
         v-for="quest in sortedQuests"
         :key="quest.code"
-        class="rpg-loot-card rpg-loot-card--quest"
+        class="rpg-loot-card rpg-loot-card--quest rpg-loot-card--wall"
         :class="{
           'rpg-loot-card--done': quest.completed,
           'rpg-loot-card--claimed': quest.claimed,
           'rpg-loot-card--claimable': quest.completed && !quest.claimed,
-          'rpg-loot-card--gold': activeTab === 'bounty',
+          'rpg-loot-card--locked': !quest.completed && quest.progress === 0,
         }"
       >
         <div class="rpg-loot-card-head">
@@ -152,18 +152,27 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
               alt=""
               loading="lazy"
             >
-            <template v-else>
-              📋
-            </template>
+            <img
+              v-else class="quest-art" src="/rpg/icons/scroll.png"
+              alt=""
+              loading="lazy"
+            >
           </div>
-          <span v-if="quest.claimed" class="rpg-loot-status rpg-loot-status--done">✓ 已领</span>
-          <span v-else-if="!quest.completed" class="rpg-loot-status rpg-loot-status--pending">进行中</span>
+          <span
+            v-if="quest.claimed"
+            class="rpg-loot-status rpg-loot-status--done rpg-loot-status--corner"
+          >✓ 已领</span>
+          <span
+            v-else-if="quest.completed"
+            class="rpg-loot-status rpg-loot-status--corner quest-corner-claim"
+          >可领取</span>
+          <span
+            v-else-if="quest.progress > 0"
+            class="rpg-loot-status rpg-loot-status--pending rpg-loot-status--corner"
+          >进行中</span>
         </div>
         <div class="rpg-loot-name">
           {{ quest.name }}
-        </div>
-        <div class="rpg-loot-desc">
-          {{ quest.description }}
         </div>
         <div class="rpg-loot-progress">
           <div
@@ -171,29 +180,17 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
             :style="{ width: Math.min(100, (quest.progress / quest.targetCount) * 100) + '%' }"
           />
         </div>
-        <div class="rpg-loot-footer">
-          <div class="rpg-loot-meta">
-            <span class="rpg-loot-progress-text">{{ quest.progress }}/{{ quest.targetCount }}</span>
-            <div class="rpg-loot-rewards">
-              <span class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">
-                <img class="reward-chip-art" src="/rpg/icons/exp.png" alt="" loading="lazy">
-                +{{ quest.expReward }}
-              </span>
-              <span v-if="quest.hpReward" class="rpg-loot-reward-chip rpg-loot-reward-chip--hp">
-                <img class="reward-chip-art" src="/rpg/icons/heart.png" alt="" loading="lazy">
-                +{{ quest.hpReward }}
-              </span>
-            </div>
-          </div>
-          <div v-if="quest.completed && !quest.claimed" class="rpg-loot-action">
-            <button
-              class="rpg-loot-claim-btn"
-              :disabled="claimingCode === quest.code"
-              @click="handleClaim(quest.code)"
-            >
-              {{ claimingCode === quest.code ? '...' : '领取奖励' }}
-            </button>
-          </div>
+        <div class="rpg-loot-desc">
+          {{ quest.progress }}/{{ quest.targetCount }} · +{{ quest.expReward }} EXP
+        </div>
+        <div v-if="quest.completed && !quest.claimed" class="rpg-loot-action">
+          <button
+            class="rpg-loot-claim-btn"
+            :disabled="claimingCode === quest.code"
+            @click="handleClaim(quest.code)"
+          >
+            {{ claimingCode === quest.code ? '...' : '领取奖励' }}
+          </button>
         </div>
       </div>
     </div>
@@ -227,13 +224,6 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
     pointer-events: none;
   }
 
-  .reward-chip-art {
-    width: 14px;
-    height: 14px;
-    object-fit: contain;
-    vertical-align: -2px;
-  }
-
   .quest-all-done-art {
     width: 16px;
     height: 16px;
@@ -245,6 +235,21 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
   /* 任务进度条 → 紫罗兰渐变（美术改版 v2） */
   .quest-list .rpg-loot-progress__fill {
     background: var(--rpg-art-violet-grad, linear-gradient(90deg, #7c5cf0, #a78bfa));
+  }
+
+  /* v6/A2 墙卡：单行进度说明 */
+  .quest-list .rpg-loot-desc {
+    font-size: 10.5px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.6));
+    margin-top: -2px;
+  }
+
+  /* v6/A2：可领取角标（金底，区别于绿色完成章） */
+  .quest-corner-claim {
+    color: var(--rpg-art-gold-ink, #3a2408);
+    background: var(--rpg-art-gold-grad, linear-gradient(160deg, #f5c76a, #d9a13c));
+    border-color: var(--rpg-art-gold, #d9a13c);
+    box-shadow: 0 2px 8px rgb(217 161 60 / 0.35);
   }
 
   /* 每日圆环（cyber 下走 --rpg-daily-ring-*，避免暗底看不清） */

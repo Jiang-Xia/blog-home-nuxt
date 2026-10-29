@@ -145,12 +145,15 @@ const getEffectText = (buff: UserBuff): string => {
     </div>
 
     <div v-else class="rpg-loot-grid buff-list">
-      <div v-for="buff in buffs" :key="buff.id" class="rpg-loot-card rpg-loot-card--buff">
+      <div
+        v-for="buff in buffs"
+        :key="buff.id"
+        class="rpg-loot-card rpg-loot-card--buff rpg-loot-card--wall"
+        :class="buff.isActive ? 'is-medal-active' : 'is-medal-progress'"
+        :style="{ '--rc': BUFF_TYPE_MAP[buff.buffType]?.color || '#8b5cf6' }"
+      >
         <div class="rpg-loot-card-head">
-          <div
-            class="rpg-loot-icon rpg-loot-icon--tinted"
-            :style="{ background: BUFF_TYPE_MAP[buff.buffType]?.color || '#8b5cf6' }"
-          >
+          <div class="rpg-loot-icon">
             <img
               v-if="BUFF_TYPE_MAP[buff.buffType]?.art"
               class="buff-art"
@@ -162,7 +165,7 @@ const getEffectText = (buff: UserBuff): string => {
               {{ BUFF_TYPE_MAP[buff.buffType]?.icon || '✨' }}
             </template>
           </div>
-          <span class="rpg-loot-status" :class="getStatusClass(buff)">
+          <span class="rpg-loot-status rpg-loot-status--corner" :class="getStatusClass(buff)">
             {{ getStatusText(buff) }}
           </span>
         </div>
@@ -181,12 +184,11 @@ const getEffectText = (buff: UserBuff): string => {
             }"
           />
         </div>
-        <div class="rpg-loot-footer">
-          <div class="rpg-loot-meta">
-            <span class="rpg-loot-progress-text">{{ getTimeLabel(buff) }}</span>
-          </div>
+        <div class="buff-time">
+          {{ getTimeLabel(buff) }}
+        </div>
+        <div v-if="buff.triggerMode === 'manual'" class="rpg-loot-action">
           <button
-            v-if="buff.triggerMode === 'manual'"
             class="rpg-loot-claim-btn"
             :class="{ 'rpg-loot-claim-btn--pause': buff.isActive }"
             @click="toggleBuff(buff)"
@@ -234,7 +236,16 @@ const getEffectText = (buff: UserBuff): string => {
   }
 
   .buff-list .rpg-loot-card {
-    min-height: 132px;
+    min-height: 148px;
+  }
+
+  /* 倒计时一行说明（同任务墙 rpg-loot-desc 规格） */
+  .buff-time {
+    width: 100%;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.6));
+    text-align: center;
   }
 
   .buff-art {

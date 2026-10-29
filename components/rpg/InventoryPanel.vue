@@ -208,7 +208,7 @@ const rarityClass = (item: InventoryItem) => {
         <div
           v-for="item in filteredItems"
           :key="item.id || item.itemCode"
-          class="rpg-loot-card rpg-loot-card--stacked inv-cell"
+          class="rpg-loot-card rpg-loot-card--stacked rpg-loot-card--wall inv-cell"
           :class="[rarityClass(item), { 'rpg-loot-card--active': isEquipped(item) }]"
         >
           <div class="rpg-loot-card-body">
@@ -222,22 +222,21 @@ const rarityClass = (item: InventoryItem) => {
               />
               <span class="inv-cell__qty">×{{ item.quantity }}</span>
             </div>
+            <div
+              v-if="item.config?.rarityLabel"
+              class="inv-cell__rarity"
+              :style="{ color: item.config?.rarityColor || undefined }"
+            >
+              {{ item.config.rarityLabel }}
+            </div>
             <div class="rpg-loot-name">
               {{ item.config?.name || item.itemCode }}
             </div>
-            <div class="inventory-meta">
-              <span v-if="item.config?.itemType" class="rpg-chip-tag">
-                {{ item.config.itemTypeLabel || item.config.itemType }}
-              </span>
-              <RpgRarityBadge
-                :rarity="item.config?.rarity"
-                :rarity-label="item.config?.rarityLabel"
-                :rarity-color="item.config?.rarityColor"
-                :rarity-icon="item.config?.rarityIcon"
-              />
-            </div>
             <span v-if="item.sourceLabel || item.source" class="rpg-loot-desc">
               {{ item.sourceLabel || item.source }}
+            </span>
+            <span v-else-if="item.config?.itemTypeLabel" class="rpg-loot-desc">
+              {{ item.config.itemTypeLabel }}
             </span>
           </div>
           <button
@@ -275,13 +274,6 @@ const rarityClass = (item: InventoryItem) => {
     min-height: 118px;
   }
 
-  .inventory-meta {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-wrap: wrap;
-  }
-
   .equip-dot {
     width: 6px;
     height: 6px;
@@ -313,14 +305,25 @@ const rarityClass = (item: InventoryItem) => {
 
   .inv-cell__qty {
     position: absolute;
-    right: 8px;
-    bottom: 8px;
+    right: 7px;
+    top: 7px;
     padding: 1px 6px;
-    border-radius: 6px;
+    border-radius: 999px;
     background: color-mix(in oklch, var(--rpg-text-heading, #2b2440) 85%, transparent);
     color: #fff;
     font-size: 10px;
     font-weight: 700;
+    z-index: 2;
+  }
+
+  /* 稀有度标注行（对齐成就奖章 .medal-rn） */
+  .inv-cell__rarity {
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-top: 2px;
   }
 
   /* ── 三槽装备栏 ── */

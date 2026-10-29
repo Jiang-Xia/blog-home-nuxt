@@ -106,6 +106,16 @@ const petBonusChips = computed(() => {
 const canExchange = (item: ItemConfigView) =>
   (item.effectJson?.currencyCost ?? 0) > 0 && !isOwned(item.code);
 
+/** 兑换卡加成 chips（对齐原型 .chip：EXP/金币/声望） */
+const exchangeChips = (item: ItemConfigView): string[] => {
+  const fx = item.effectJson || {};
+  const chips: string[] = [];
+  if (fx.expBoost) chips.push(`EXP +${Math.round(fx.expBoost * 100)}%`);
+  if (fx.currencyBoost) chips.push(`金币 +${Math.round(fx.currencyBoost * 100)}%`);
+  if (fx.reputationBoost) chips.push(`声望 +${Math.round(fx.reputationBoost * 100)}%`);
+  return chips;
+};
+
 const showRenameModal = ref(false);
 const renamePetId = ref<number | null>(null);
 const renamePetName = ref('');
@@ -285,6 +295,19 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
             />
             <b class="rpg-pet-card__name">{{ p.nickname || p.config?.name }}</b>
             <span class="rpg-pet-card__lv">Lv{{ p.level }}</span>
+            <!-- v6/D：金色 EXP 条（petExp/petNextExp 由 /rpg/pets 下发） -->
+            <div
+              class="rpg-pet-card__exp"
+              :title="p.petNextExp ? `${p.petExp ?? 0} / ${p.petNextExp}` : ''"
+            >
+              <i
+                :style="{
+                  width: p.petNextExp
+                    ? Math.min(100, Math.round(((p.petExp ?? 0) / p.petNextExp) * 100)) + '%'
+                    : '0%',
+                }"
+              />
+            </div>
             <div v-if="equippedPetId !== p.id" class="rpg-pet-card__actions">
               <button
                 class="rpg-pet-btn rpg-pet-btn--ghost rpg-pet-btn--sm"
@@ -306,8 +329,8 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
           <div
             v-for="c in exchangeCatalog"
             :key="c.code"
-            class="rpg-loot-card rpg-loot-card--stacked"
-            :class="{ 'rpg-loot-card--claimed': isOwned(c.code) }"
+            class="rpg-loot-card rpg-loot-card--stacked rpg-loot-card--wall"
+            :class="{ 'is-medal-active': isOwned(c.code) }"
           >
             <div class="rpg-loot-card-body">
               <div class="rpg-loot-card-head">
@@ -318,20 +341,29 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
                   :item-type-icon="c.itemTypeIcon"
                   :rarity-color="c.rarityColor"
                 />
-                <span v-if="isOwned(c.code)" class="rpg-loot-status rpg-loot-status--done">已兑换</span>
+                <span
+                  v-if="isOwned(c.code)"
+                  class="rpg-loot-status rpg-loot-status--done rpg-loot-status--corner"
+                >已兑换</span>
+              </div>
+              <div
+                v-if="c.rarityLabel"
+                class="rpg-exchange__rarity"
+                :style="{ color: c.rarityColor || undefined }"
+              >
+                {{ c.rarityLabel }}
               </div>
               <div class="rpg-loot-name">
                 {{ c.name }}
               </div>
-              <p v-if="c.description" class="rpg-loot-desc">
+              <div v-if="exchangeChips(c).length" class="rpg-exchange__chips">
+                <span v-for="chip in exchangeChips(c)" :key="chip" class="rpg-exchange__chip">{{
+                  chip
+                }}</span>
+              </div>
+              <p v-else-if="c.description" class="rpg-loot-desc">
                 {{ c.description }}
               </p>
-              <RpgRarityBadge
-                :rarity="c.rarity"
-                :rarity-label="c.rarityLabel"
-                :rarity-color="c.rarityColor"
-                :rarity-icon="c.rarityIcon"
-              />
             </div>
             <div class="rpg-loot-footer rpg-loot-footer--center">
               <button v-if="canExchange(c)" class="rpg-loot-claim-btn" @click="handleBuy(c)">
@@ -388,6 +420,33 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
 <style scoped>
   .pet-panel .rpg-loot-card {
     min-height: 128px;
+  }
+
+  /* ── 兑换墙卡：稀有度标注 + 加成 chips（对齐成就奖章 / 原型 .chip）── */
+  .rpg-exchange__rarity {
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .rpg-exchange__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  .rpg-exchange__chip {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--rpg-art-violet-deep, #5b3fd6);
+    background: var(--rpg-art-violet-soft, #f1edfb);
+    border-radius: 999px;
+    padding: 2px 8px;
   }
 
   .rpg-section-sub {
@@ -640,9 +699,33 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
     color: var(--rpg-text-heading, oklch(var(--bc)));
   }
 
+  /* v6/D：等级章 + 金色 EXP 条 */
   .rpg-pet-card__lv {
-    font-size: 10.5px;
-    color: var(--rpg-text-muted, oklch(var(--bc) / 0.55));
+    font-size: 9.5px;
+    font-weight: 800;
+    color: var(--rpg-art-gold-ink, #3a2408);
+    background: linear-gradient(160deg, #f5c76a, #d9a13c);
+    padding: 1px 8px;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgb(217 161 60 / 0.3);
+  }
+
+  .rpg-pet-card__exp {
+    width: 82%;
+    height: 5px;
+    margin-top: 3px;
+    border-radius: 999px;
+    background: var(--rpg-track, #efeaf9);
+    overflow: hidden;
+  }
+
+  .rpg-pet-card__exp i {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--rpg-amber, #f59e0b), var(--rpg-art-gold, #d9a13c));
+    box-shadow: 0 0 6px rgb(245 158 11 / 0.45);
+    transition: width 0.4s ease;
   }
 
   .rpg-pet-card__actions {

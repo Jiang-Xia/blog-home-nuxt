@@ -31,7 +31,7 @@ watch(
       to="/rpg?tab=status"
       class="rpg-quest-floater rpg-theme fixed bottom-24 left-4 z-[10015] flex max-w-[240px] items-start gap-3 rounded-2xl border border-[var(--rpg-amber-border)] bg-[var(--rpg-surface)] p-3 shadow-xl no-underline backdrop-blur-md"
     >
-      <span class="text-2xl leading-none">🎁</span>
+      <img class="floater-art" src="/rpg/icons/gift.png" alt="">
       <div class="min-w-0 flex-1">
         <p class="mb-0.5 text-sm font-semibold text-[var(--rpg-text-heading)]"> 任务奖励待领取 </p>
         <p class="text-xs text-[var(--rpg-text-muted)]">
@@ -63,5 +63,12 @@ watch(
   .rpg-float-leave-to {
     opacity: 0;
     transform: translateX(-16px);
+  }
+  /* v6/G：任务浮窗美术主角 */
+  .floater-art {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgb(217 161 60 / 0.5));
   }
 </style>

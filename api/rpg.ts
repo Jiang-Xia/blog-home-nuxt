@@ -37,6 +37,15 @@ export const getRpgLeaderboard = (
     request.get('/rpg/leaderboard', { type, limit, period }),
   );
 
+/** v6/C：我的排名 + 赛季结束时间（赛季横幅） */
+export const getMyRpgRank = (
+  type: 'exp' | 'signDays' | 'level' | 'reputation' | 'currency' = 'exp',
+  period: 'total' | 'week' | 'month' | 'season' = 'total',
+) =>
+  rpgDedupedGet(`my-rank:${type}:${period}`, () =>
+    request.get('/rpg/leaderboard/my-rank', { type, period }),
+  );
+
 /** 获取禁言状态 */
 export const getRpgBanStatus = () =>
   rpgDedupedGet('ban-status', () => request.get('/rpg/ban-status'));

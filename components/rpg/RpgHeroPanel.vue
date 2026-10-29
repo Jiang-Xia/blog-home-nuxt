@@ -88,7 +88,7 @@ const todoChips = computed<TodoChip[]>(() => {
     key: 'lottery',
     icon: 'gift',
     label: '抽奖',
-    badge: props.lotteryTickets > 0 ? `🎟 ×${props.lotteryTickets}` : undefined,
+    badge: props.lotteryTickets > 0 ? `券 ×${props.lotteryTickets}` : undefined,
   });
   if (hpLow.value) {
     chips.push({ key: 'hp', icon: 'heart', label: '恢复 HP', badge: '偏低' });
@@ -140,7 +140,7 @@ const onTodo = (key: TodoChip['key']) => {
         </div>
       </div>
       <div class="rpg-hbar rpg-hbar--hp">
-        <small><span>❤ 生命 HP</span><span>{{ rpgStatus.lifeValue ?? 100 }} / 100</span></small>
+        <small><span><img class="hbar-art" src="/rpg/icons/heart.png" alt=""> 生命 HP</span><span>{{ rpgStatus.lifeValue ?? 100 }} / 100</span></small>
         <div class="rpg-hbar__track">
           <i :style="{ width: hpPercent + '%' }" />
         </div>
@@ -295,6 +295,15 @@ const onTodo = (key: TodoChip['key']) => {
     opacity: 0.88;
     margin-bottom: 5px;
     white-space: nowrap;
+  }
+
+  /* v6/G：条内美术小图 */
+  .hbar-art {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+    vertical-align: -1px;
+    margin-right: 2px;
   }
 
   .rpg-hbar__track {

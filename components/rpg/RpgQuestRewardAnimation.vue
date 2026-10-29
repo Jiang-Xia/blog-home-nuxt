@@ -68,8 +68,8 @@ const handleClose = () => {
           <div v-if="phase === 'opening'" class="chest-stage">
             <div class="chest-wrap">
               <span class="chest-glow" aria-hidden="true" />
-              <span class="chest-lid" aria-hidden="true">🎁</span>
-              <span class="chest-base" aria-hidden="true">📦</span>
+              <img class="chest-lid" src="/rpg/icons/gift.png" alt="" aria-hidden="true">
+              <img class="chest-base" src="/rpg/icons/gift.png" alt="" aria-hidden="true">
             </div>
             <p class="chest-tip">
               开启奖励中…
@@ -81,9 +81,7 @@ const handleClose = () => {
             <div class="reward-badge">
               奖励已发放
             </div>
-            <div class="reward-icon">
-              ✨
-            </div>
+            <img class="reward-icon" src="/rpg/icons/sparkle.png" alt="">
             <div class="quest-name">
               {{ questLabel }}
             </div>
@@ -148,16 +146,18 @@ const handleClose = () => {
   .chest-lid {
     position: relative;
     z-index: 2;
-    font-size: 48px;
-    line-height: 1;
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
     animation: lidPop 0.75s ease-in-out forwards;
     filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.25));
   }
 
   .chest-base {
-    font-size: 36px;
-    line-height: 1;
-    margin-top: -8px;
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    margin-top: -14px;
     opacity: 0.85;
   }
 
@@ -189,10 +189,13 @@ const handleClose = () => {
   }
 
   .reward-icon {
-    font-size: 48px;
-    line-height: 1;
-    margin-bottom: 8px;
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    margin: 0 auto 8px;
+    display: block;
     animation: sparkleBounce 0.9s ease infinite;
+    filter: drop-shadow(0 3px 8px rgb(217 161 60 / 0.5));
   }
 
   .quest-name {

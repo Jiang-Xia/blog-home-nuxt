@@ -50,7 +50,7 @@ const act = async (
         )
       "
     >
-      👏 加油
+      <img class="social-btn__art" src="/rpg/icons/hands.png" alt="" loading="lazy"> 加油
     </button>
     <button
       class="btn btn-sm btn-outline btn-warning"
@@ -63,7 +63,8 @@ const act = async (
         )
       "
     >
-      🥚 扔鸡蛋 (-15钻石)
+      <img class="social-btn__art" src="/rpg/icons/egg.png" alt="" loading="lazy"> 扔鸡蛋
+      (-15钻石)
     </button>
     <button
       class="btn btn-sm btn-outline btn-secondary"
@@ -76,7 +77,19 @@ const act = async (
         )
       "
     >
-      🌸 送鲜花 (-10钻石)
+      <img class="social-btn__art" src="/rpg/icons/flower.png" alt="" loading="lazy"> 送鲜花
+      (-10钻石)
     </button>
   </div>
 </template>
+
+<style scoped>
+  /* v6/G：美术小图统一 16px 内联（同 ArticleHeroSocialBar 规范） */
+  .social-btn__art {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    vertical-align: -3px;
+    margin-right: 2px;
+  }
+</style>

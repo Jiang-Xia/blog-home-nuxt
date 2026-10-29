@@ -135,10 +135,10 @@ watch(
           class="btn btn-circle btn-primary text-xl shadow-lg ring-2 ring-[var(--rpg-amber-border)]"
           @click="fabOpen = true"
         >
-          ⚔️
+          <img class="fab-art" src="/rpg/icons/dice.png" alt="">
         </div>
         <div class="fab-close" @click="fabOpen = false">
-          <span class="btn btn-circle btn-primary text-xl shadow-lg">⚔️</span>
+          <span class="btn btn-circle btn-primary text-xl shadow-lg"><img class="fab-art" src="/rpg/icons/dice.png" alt=""></span>
         </div>
         <div class="tooltip tooltip-left" :data-tip="isLiked ? '取消点赞' : '点赞'">
           <button
@@ -156,12 +156,16 @@ watch(
             :disabled="collectLoading"
             @click="handleCollect"
           >
-            {{ collected ? '🔖' : '📑' }}
+            <img
+              class="fab-art"
+              :src="collected ? '/rpg/icons/bookmarks.png' : '/rpg/icons/bookmark.png'"
+              alt=""
+            >
           </button>
         </div>
         <div class="tooltip tooltip-left" data-tip="打赏作者">
           <button class="btn btn-circle btn-accent shadow-md" @click="openTipModal">
-            💎
+            <img class="fab-art" src="/rpg/icons/gem.png" alt="">
           </button>
         </div>
         <div v-if="showBackTop" class="tooltip tooltip-left" data-tip="返回顶部">
@@ -176,7 +180,13 @@ watch(
   <dialog class="modal rpg-theme" :class="{ 'modal-open': showTipModal }">
     <div class="modal-box max-w-sm">
       <h3 class="font-bold text-lg mb-2">
-        💎 打赏作者
+        <img
+          class="fab-art"
+          style="width: 18px; height: 18px; vertical-align: -3px"
+          src="/rpg/icons/gem.png"
+          alt=""
+        >
+        打赏作者
       </h3>
       <RpgArticleTipPanel
         :article-id="Number(articleId)"
@@ -231,5 +241,13 @@ watch(
     visibility: visible;
     scale: 1;
     opacity: 1;
+  }
+
+  /* v6/G：FAB 美术图（主球 dice / 收藏 bookmark / 打赏 gem） */
+  .fab-art {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 3px rgb(0 0 0 / 0.25));
   }
 </style>
