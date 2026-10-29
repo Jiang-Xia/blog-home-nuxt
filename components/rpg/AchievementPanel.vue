@@ -1,27 +1,38 @@
 <script setup lang="ts">
 /**
-   * 成就展示面板 - 分类展示用户成就进度（纯展示）
+   * 成就展示面板 - 奖章墙（美术改版 v6 · A 方案）
+   * 图标为主视觉：已达成 = 金环 + 流光旋转；未达成 = 虚线环按稀有度点色
    */
-import { ACHIEVEMENT_CATEGORY_MAP, ACHIEVEMENT_ICON_MAP } from '~~/types/rpg';
-import type { UserAchievementProgress } from '~~/types/rpg';
-import { resolveRpgItemTint } from '~~/utils/rpg-item-icon';
 import {
-  getRarityFallbackColor,
-  isSilverRarityColor,
-  shouldUseSilverRarityStyle,
-} from '~~/utils/rpg-rarity';
+  ACHIEVEMENT_CATEGORY_ICON_FALLBACK,
+  ACHIEVEMENT_CATEGORY_MAP,
+  ACHIEVEMENT_ICON_MAP,
+} from '~~/types/rpg';
+import type { UserAchievementProgress } from '~~/types/rpg';
 
-/** 成就图标底：银色用 CSS 渐变 class */
-const achievementIconStyle = (ach: UserAchievementProgress) => {
-  if (shouldUseSilverRarityStyle(ach) || isSilverRarityColor(ach.rarityColor)) return undefined;
-  return { background: resolveRpgItemTint(ach) || getRarityFallbackColor() };
-};
+/** 成就图标：emoji → 美术图（v4），无资产 key 时回退 emoji */
+const achArtKey = (ach: UserAchievementProgress) =>
+  ACHIEVEMENT_ICON_MAP[ach.icon] || ACHIEVEMENT_CATEGORY_ICON_FALLBACK[ach.category] || null;
 
 const props = defineProps<{
   achievements: UserAchievementProgress[];
 }>();
 
 const { playSfx } = useRpgAudio();
+
+/** 稀有度四档环色（传说金 / 史诗紫 / 稀有绿 / 普通银），后端色优先 */
+const RARITY_RING_FALLBACK: Record<string, string> = {
+  common: '#9aa3b2',
+  rare: '#34a85a',
+  epic: '#8d5cf0',
+  legendary: '#d9a13c',
+  ssr: '#d9a13c',
+};
+
+const achRingColor = (ach: UserAchievementProgress) => {
+  const r = (ach.rarity || '').toLowerCase();
+  return ach.rarityColor || RARITY_RING_FALLBACK[r] || RARITY_RING_FALLBACK.common;
+};
 
 // 按分类分组
 const groupedAchievements = computed(() => {
@@ -90,6 +101,7 @@ const categories = computed(() => {
           已完成成就
         </div>
       </div>
+      <img class="ach-art" src="/rpg/icons/trophy.png" alt="" loading="lazy">
       <div class="ach-progress-ring">
         <svg viewBox="0 0 36 36" class="ring-svg">
           <path
@@ -120,6 +132,7 @@ const categories = computed(() => {
         @click="switchCategory('all')"
       >
         全部
+        <span class="tab-count">{{ completedCount }}/{{ totalCount }}</span>
       </button>
       <button
         v-for="cat in categories"
@@ -133,57 +146,42 @@ const categories = computed(() => {
       </button>
     </div>
 
-    <!-- 成就列表 -->
-    <div class="rpg-loot-grid rpg-loot-grid--compact ach-list">
+    <!-- 奖章墙 -->
+    <div class="medal-grid">
       <div
         v-for="ach in displayedAchievements"
         :key="ach.code"
-        class="rpg-loot-card rpg-loot-card--achievement"
-        :class="{
-          'rpg-loot-card--locked': !ach.completed,
-        }"
+        class="medal"
+        :class="{ 'medal--done': ach.completed }"
+        :style="{ '--rc': achRingColor(ach) }"
       >
-        <div class="rpg-loot-card-head">
-          <div
-            class="rpg-loot-icon"
-            :class="{
-              'rpg-loot-icon--silver':
-                shouldUseSilverRarityStyle(ach) || isSilverRarityColor(ach.rarityColor),
-              'rpg-loot-icon--tinted':
-                !!achievementIconStyle(ach) && !shouldUseSilverRarityStyle(ach),
-            }"
-            :style="achievementIconStyle(ach)"
+        <div class="medal-ring">
+          <img
+            v-if="achArtKey(ach)"
+            :src="`/rpg/icons/${achArtKey(ach)}.png`"
+            alt=""
+            loading="lazy"
           >
-            {{ ACHIEVEMENT_ICON_MAP[ach.icon] || '🏆' }}
-          </div>
-          <span v-if="ach.completed" class="rpg-loot-status rpg-loot-status--done">✓ 达成</span>
+          <span v-else class="medal-fallback">🏆</span>
         </div>
-        <div class="rpg-loot-name">
+        <div class="medal-rn">
+          {{ ach.rarityLabel || '成就' }}
+        </div>
+        <div class="medal-name">
           {{ ach.name }}
         </div>
-        <div class="rpg-loot-desc">
-          {{ ach.description }}
-        </div>
-        <div class="rpg-loot-progress">
-          <div
-            class="rpg-loot-progress__fill rpg-loot-progress__fill--exp"
-            :style="{ width: Math.min(100, (ach.progress / ach.maxProgress) * 100) + '%' }"
+        <div class="medal-track">
+          <i
+            :style="{
+              width: Math.min(100, (ach.progress / Math.max(ach.maxProgress, 1)) * 100) + '%',
+              background: ach.completed
+                ? 'linear-gradient(90deg, var(--rpg-amber), var(--rpg-art-gold, #d9a13c))'
+                : 'var(--rc)',
+            }"
           />
         </div>
-        <div class="rpg-loot-footer">
-          <div class="rpg-loot-meta">
-            <RpgRarityBadge
-              v-if="ach.rarityLabel"
-              :rarity="ach.rarity"
-              :rarity-label="ach.rarityLabel"
-              :rarity-color="ach.rarityColor"
-              :rarity-icon="ach.rarityIcon"
-            />
-            <span class="rpg-loot-progress-text"> {{ ach.progress }}/{{ ach.maxProgress }} </span>
-            <div v-if="ach.expReward" class="rpg-loot-rewards">
-              <span class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">⭐ +{{ ach.expReward }}</span>
-            </div>
-          </div>
+        <div class="medal-pct" :class="{ 'medal-pct--done': ach.completed }">
+          {{ ach.completed ? '已达成' : `${ach.progress} / ${ach.maxProgress}` }}
         </div>
       </div>
     </div>
@@ -208,7 +206,17 @@ const categories = computed(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     margin-bottom: 12px;
+  }
+
+  .ach-art {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin-left: auto;
+    filter: drop-shadow(0 4px 10px rgb(217 161 60 / 0.35));
   }
 
   .ach-summary {
@@ -264,14 +272,146 @@ const categories = computed(() => {
     margin-bottom: 10px;
   }
 
-  .ach-list {
-    max-height: 360px;
+  /* ── 奖章墙 ── */
+  .medal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 10px;
+    max-height: 400px;
     overflow-y: auto;
-    padding-right: 2px;
+    padding: 4px 2px 6px;
   }
 
-  .ach-list .rpg-loot-card {
-    min-height: 136px;
+  .medal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 12px 8px 10px;
+    border-radius: 14px;
+    border: 1px solid var(--rpg-border);
+    background: var(--rpg-loot-bg);
+    text-align: center;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .medal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgb(60 40 110 / 0.12);
+  }
+
+  .medal-ring {
+    position: relative;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 2.5px dashed var(--rc);
+    background: var(--rpg-surface);
+    margin-bottom: 4px;
+  }
+
+  .medal-ring img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    filter: grayscale(0.25) opacity(0.82);
+    pointer-events: none;
+  }
+
+  .medal-fallback {
+    font-size: 24px;
+    filter: grayscale(0.25) opacity(0.82);
+  }
+
+  /* 已达成：金环 + conic 流光旋转 */
+  .medal--done .medal-ring {
+    border: 3px solid var(--rpg-art-gold, #d9a13c);
+    background: radial-gradient(circle at 34% 30%, #fffaf0, #fdf3da);
+    box-shadow: 0 0 0 3px rgb(217 161 60 / 0.16);
+  }
+
+  .medal--done .medal-ring img,
+  .medal--done .medal-fallback {
+    filter: none;
+  }
+
+  .medal--done .medal-ring::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      transparent 240deg,
+      rgb(251 191 36 / 0.9) 300deg,
+      transparent 352deg
+    );
+    animation: medalShine 2.8s linear infinite;
+    -webkit-mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 5.5px),
+      #000 calc(100% - 4.5px)
+    );
+    mask: radial-gradient(farthest-side, transparent calc(100% - 5.5px), #000 calc(100% - 4.5px));
+    pointer-events: none;
+  }
+
+  @keyframes medalShine {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .medal-rn {
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--rc);
+    line-height: 1;
+  }
+
+  .medal-name {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--rpg-text);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.6em;
+  }
+
+  .medal-track {
+    width: 100%;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--rpg-track);
+    overflow: hidden;
+  }
+
+  .medal-track i {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  .medal-pct {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--rpg-text-muted);
+  }
+
+  .medal-pct--done {
+    color: var(--rpg-amber);
+    font-weight: 800;
   }
 
   .ach-expand-btn {

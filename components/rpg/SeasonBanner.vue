@@ -22,10 +22,57 @@ const POSTER_TYPE_LABELS: Record<string, string> = {
   event: '限时活动',
 };
 
-const props = defineProps<{
-  activityOverview: CurrentActivitiesOverview | null;
-  weatherBuff: any;
-}>();
+const props = withDefaults(
+  defineProps<{
+    activityOverview: CurrentActivitiesOverview | null;
+    weatherBuff: any;
+    /** v6/C：我的排名（/rpg/leaderboard/my-rank），未上榜 rank 为 null */
+    myRank?: { rank: number | null; score: number; seasonEndTime: string | null } | null;
+  }>(),
+  { myRank: null },
+);
+
+/** v6/G：天气 → 美术图映射（未知类型回退 sparkle） */
+const WEATHER_ART_MAP: Record<string, string> = {
+  sunny: 'star-full',
+  clear: 'star-full',
+  hot: 'flame',
+  cloudy: 'sparkle',
+  overcast: 'sparkle',
+  rain: 'gem',
+  storm: 'gem',
+  snow: 'star',
+  windy: 'sparkle',
+  fog: 'sparkle',
+};
+
+const weatherArtKey = computed(() => {
+  const w = String(props.weatherBuff?.weather || '').toLowerCase();
+  return WEATHER_ART_MAP[w] || 'sparkle';
+});
+
+/** v6/C：赛季结束时间（优先 myRank 下发，回退活动总览 season.endTime） */
+const seasonEndTime = computed<string | null>(() => {
+  const iso
+    = props.myRank?.seasonEndTime || (props.activityOverview?.season as any)?.endTime || null;
+  if (!iso) return null;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+});
+
+/** 翻牌倒计时：天 / 时 / 分（赛季未结束才有值） */
+const countdown = computed<{ d: string; h: string; m: string } | null>(() => {
+  if (!seasonEndTime.value) return null;
+  const diff = new Date(seasonEndTime.value).getTime() - Date.now();
+  if (diff <= 0) return null;
+  const mins = Math.floor(diff / 60000);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return {
+    d: String(Math.floor(mins / 1440)),
+    h: pad(Math.floor((mins % 1440) / 60)),
+    m: pad(mins % 60),
+  };
+});
 
 const userInfo = useUserInfo();
 const { playSfx } = useRpgAudio();
@@ -236,7 +283,11 @@ const previewPoster = (activity: RpgActivitySummary) => {
       <span class="activity-hud-label">活动加成</span>
       <div class="activity-hud-pills">
         <span v-if="weatherBuff" class="activity-hud-pill is-weather">
-          🌤 {{ weatherBuff.label }}
+          <img class="weather-art" :src="`/rpg/icons/${weatherArtKey}.png`" alt="">
+          {{ weatherBuff.label }}
+        </span>
+        <span v-if="myRank?.rank != null" class="activity-hud-pill is-myrank" title="我的总榜排名">
+          <img class="myrank-art" src="/rpg/icons/trophy.png" alt=""> 我的排名 #{{ myRank.rank }}
         </span>
         <span class="activity-hud-pill is-effective">
           经验 ×{{ effectiveExpBuffRate }} 生效中
@@ -301,6 +352,15 @@ const previewPoster = (activity: RpgActivitySummary) => {
               <p class="activity-hero-desc hero-animate-item">
                 {{ activity.description || '\u00A0' }}
               </p>
+              <div
+                v-if="countdown && activity.activityType === 'season'"
+                class="season-countdown hero-animate-item"
+              >
+                <span class="season-countdown__label">赛季倒计时</span>
+                <span class="flip-card"><i>{{ countdown.d }}</i><small>天</small></span>
+                <span class="flip-card"><i>{{ countdown.h }}</i><small>时</small></span>
+                <span class="flip-card"><i>{{ countdown.m }}</i><small>分</small></span>
+              </div>
               <div class="activity-hero-actions hero-animate-item">
                 <span
                   class="activity-hero-chip activity-hero-rate"
@@ -396,9 +456,12 @@ const previewPoster = (activity: RpgActivitySummary) => {
             alt=""
             crossorigin="anonymous"
           >
-          <span v-else class="activity-tab-emoji">
-            {{ activity.activityType === 'season' ? '🏆' : '🎉' }}
-          </span>
+          <img
+            v-else
+            class="activity-tab-art"
+            :src="`/rpg/icons/${activity.activityType === 'season' ? 'trophy' : 'starburst'}.png`"
+            alt=""
+          >
         </span>
         <span class="activity-tab-meta">
           <span class="activity-tab-name">{{ activity.name }}</span>
@@ -1024,5 +1087,85 @@ const previewPoster = (activity: RpgActivitySummary) => {
     color: rgba(255, 255, 255, 0.65);
     margin: 0;
     line-height: 1.4;
+  }
+  /* v6/C：我的排名章 + 翻牌倒计时 */
+  .activity-hud-pill.is-myrank {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--rpg-art-gold-ink, #3a2408);
+    background: linear-gradient(160deg, #f5c76a, #d9a13c);
+    border-color: var(--rpg-art-gold, #d9a13c);
+    font-weight: 800;
+    box-shadow: 0 2px 8px rgb(217 161 60 / 0.35);
+  }
+
+  .myrank-art {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+  }
+
+  .season-countdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .season-countdown__label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    /* 横幅底是深色渐变，固定浅色，避免亮色主题继承页面深色文字看不清 */
+    color: rgb(255 255 255 / 0.92);
+  }
+
+  .flip-card {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2px;
+    padding: 3px 7px;
+    border-radius: 7px;
+    background: linear-gradient(170deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.06));
+    border: 1px solid rgb(255 255 255 / 0.22);
+    box-shadow: inset 0 -6px 10px rgb(0 0 0 / 0.12);
+    animation: flipTick 60s step-end infinite;
+  }
+
+  .flip-card i {
+    font-style: normal;
+    font-size: 14px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: #fde68a;
+  }
+
+  .flip-card small {
+    font-size: 9px;
+    color: rgb(255 255 255 / 0.8);
+    opacity: 0.75;
+  }
+
+  @keyframes flipTick {
+    0% {
+      transform: translateY(0);
+    }
+  }
+
+  /* v6/G：天气 / 活动 tab 美术小图 */
+  .weather-art {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+    margin-right: 3px;
+    vertical-align: -2px;
+  }
+
+  .activity-tab-art {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 4px;
   }
 </style>

@@ -10,6 +10,7 @@ import {
   getMyAchievements,
   getMyQuests,
   claimQuestReward,
+  getMyRpgRank,
   getMyBuffs,
   getLotteryPool,
   lotteryDraw,
@@ -81,6 +82,10 @@ export function useRpgPage() {
   const hitRecordsTotal = ref(0);
   const activityOverview = ref<CurrentActivitiesOverview | null>(null);
   const weatherBuff = ref<any>(null);
+  /** v6/C：我的排名（赛季横幅展示，未上榜 rank 为 null） */
+  const myRank = ref<{ rank: number | null; score: number; seasonEndTime: string | null } | null>(
+    null,
+  );
 
   const inventoryItems = ref<InventoryItem[]>([]);
   const loadout = ref<any>(null);
@@ -123,28 +128,48 @@ export function useRpgPage() {
 
   /**
    * 冒险状态 Tab 首屏数据：各接口只请求一次，写入页面级 ref 供子组件 props 渲染。
-   * 副作用：请求 11 个 RPG 接口，更新 status 相关 ref，标记 loadedTabs.status。
+   * v3 起同时预取宠物/蛋/图鉴/装备栏（英雄面板与加成透视需要），并标记 pet Tab 已加载。
+   * 副作用：请求 15 个 RPG 接口，更新 status 相关 ref，标记 loadedTabs.status/pet。
    */
   const loadStatusTab = async () => {
     if (loadedTabs.value.has('status')) return;
 
     statusLoading.value = true;
     try {
-      // 合并并发，避免 ProfileCard / LotteryBox / SeasonBanner 等子组件重复打相同接口
-      const [status, sign, ban, ach, quests, buffList, ticketsRes, rewards, pool, act, weather]
-        = await Promise.all([
-          getRpgStatus(),
-          getRpgSignInfo(),
-          getRpgBanStatus(),
-          getMyAchievements(),
-          getMyQuests(),
-          getMyBuffs(),
-          getLotteryTickets(),
-          getRpgLevelRewards(),
-          getLotteryPool(),
-          getCurrentActivity().catch(() => null),
-          getWeatherBuff().catch(() => null),
-        ]);
+      // 合并并发，避免 ProfileCard / LotteryBox / SeasonBanner / HeroPanel 等子组件重复打相同接口
+      const [
+        status,
+        sign,
+        ban,
+        ach,
+        quests,
+        buffList,
+        ticketsRes,
+        rewards,
+        pool,
+        act,
+        weather,
+        petsRes,
+        eggsInvRes,
+        loRes,
+        catRes,
+      ] = await Promise.all([
+        getRpgStatus(),
+        getRpgSignInfo(),
+        getRpgBanStatus(),
+        getMyAchievements(),
+        getMyQuests(),
+        getMyBuffs(),
+        getLotteryTickets(),
+        getRpgLevelRewards(),
+        getLotteryPool(),
+        getCurrentActivity().catch(() => null),
+        getWeatherBuff().catch(() => null),
+        getMyPets().catch(() => []),
+        getRpgInventory('consumable').catch(() => ({ items: [] })),
+        getRpgLoadout().catch(() => null),
+        getPetCatalog().catch(() => []),
+      ]);
       rpgStatus.value = status;
       signInfo.value = sign;
       banStatus.value = ban;
@@ -156,7 +181,16 @@ export function useRpgPage() {
       lotteryPool.value = filterLinkedLotteryPool(pool);
       activityOverview.value = act;
       weatherBuff.value = weather;
+      // v3：宠物核心数据（英雄面板孵化红点 + 加成透视出战宠物行）
+      pets.value = petsRes || [];
+      petEggs.value = (eggsInvRes?.items || []).filter(
+        (i: any) => i.config?.effectJson?.grantType === 'pet',
+      );
+      loadout.value = loRes;
+      petCatalog.value = catRes || [];
+      equippedPetId.value = loRes?.petId ?? null;
       loadedTabs.value.add('status');
+      loadedTabs.value.add('pet');
     }
     finally {
       statusLoading.value = false;
@@ -197,6 +231,16 @@ export function useRpgPage() {
   /** 刷新 Buff 列表（手动激活/停用或 WebSocket 后） */
   const reloadBuffs = async () => {
     buffs.value = await getMyBuffs();
+  };
+
+  /** v6/C：拉取我的排名（轻接口；未上榜 rank 为 null） */
+  const fetchMyRank = async () => {
+    try {
+      myRank.value = await getMyRpgRank('exp', 'total');
+    }
+    catch (e) {
+      console.error('[useRpgPage] 获取我的排名失败:', e);
+    }
   };
 
   /** 懒加载敏感词命中记录（用户展开面板时由父组件触发） */
@@ -546,6 +590,8 @@ export function useRpgPage() {
     hitRecordsTotal,
     activityOverview,
     weatherBuff,
+    myRank,
+    fetchMyRank,
     inventoryItems,
     loadout,
     pets,

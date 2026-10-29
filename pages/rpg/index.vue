@@ -3,7 +3,7 @@
    * RPG 冒险模块 - 冒险状态、等级奖励、抽奖与排行榜
    * 所有接口请求在本页统一发起，子组件仅负责渲染
    */
-import { ref, watch, computed, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { messageError, messageSuccess } from '~~/utils/toast';
 import { handleRpgCurrencyError } from '~~/utils/rpg-currency-error';
 import { useRpgPage } from '~~/composables/use-rpg-page';
@@ -27,6 +27,15 @@ const { isLoggedIn } = useAuthSession();
 
 const activeTab = ref<'status' | 'inventory' | 'pet' | 'guild' | 'leaderboard'>('status');
 
+/** Tab 导航配置 — 圆徽章图 + 文字（美术改版 v2） */
+const rpgTabs: { key: typeof activeTab.value; label: string; icon: string }[] = [
+  { key: 'status', label: '冒险状态', icon: 'shield' },
+  { key: 'inventory', label: '背包', icon: 'library' },
+  { key: 'pet', label: '宠物', icon: 'paw' },
+  { key: 'guild', label: '公会', icon: 'hands' },
+  { key: 'leaderboard', label: '排行榜', icon: 'trophy' },
+];
+
 const isDev = import.meta.dev;
 
 const {
@@ -44,6 +53,8 @@ const {
   hitRecordsTotal,
   activityOverview,
   weatherBuff,
+  myRank,
+  fetchMyRank,
   inventoryItems,
   loadout,
   pets,
@@ -86,6 +97,39 @@ const {
   handleSocketRefresh,
 } = useRpgPage();
 
+/** 宠物 Tab 红点：宠物蛋仓库或背包里有蛋未孵化 */
+const petTabDot = computed(
+  () =>
+    petEggs.value.length > 0
+    || inventoryItems.value.some(i => (i.itemCode || '').toLowerCase().includes('egg')),
+);
+
+/** 今日可领取任务数（全任务组聚合，英雄面板「今日待办」用） */
+const questClaimable = computed(() => {
+  const groups = questGroups.value || {};
+  return Object.values(groups).reduce(
+    (sum, list) => sum + (list || []).filter(q => q.completed && !q.claimed).length,
+    0,
+  );
+});
+
+/** 英雄面板「今日待办」点击跳转：同 Tab 锚点滚动，跨 Tab 切换 */
+const onHeroTodo = (key: 'sign' | 'quests' | 'hatch' | 'lottery' | 'hp') => {
+  if (key === 'hatch') {
+    switchTab('pet');
+    return;
+  }
+  if (key === 'hp') {
+    switchTab('inventory');
+    return;
+  }
+  if (activeTab.value !== 'status') switchTab('status');
+  nextTick(() => {
+    const anchor = key === 'lottery' ? 'rpg-sec-lottery' : 'rpg-sec-profile';
+    document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+};
+
 const { onDataRefresh } = useRealtimeSocket();
 onDataRefresh(handleSocketRefresh);
 
@@ -101,6 +145,8 @@ onMounted(() => {
   // 冒险页进入：初始化音频引擎；BGM 默认关闭，由工具条滑条手动开启
   void initAudio();
   void ensureLoggedIn();
+  // v6/C：赛季横幅「我的排名 #N + 翻牌倒计时」数据源
+  if (isLoggedIn.value) void fetchMyRank();
 });
 
 /** BGM 滑条 > 0 且未静音时播放，归零或静音时停止 */
@@ -147,6 +193,18 @@ const switchTab = (tab: typeof activeTab.value) => {
   activeTab.value = tab;
   const q = tab === 'status' ? {} : { tab };
   router.replace({ query: q });
+};
+
+/** 空态卡「行动按钮」跳转：lottery → 状态页抽奖区锚点，其余回状态页 */
+const onPanelGoto = (target: 'status' | 'lottery' | 'quests') => {
+  if (activeTab.value !== 'status') switchTab('status');
+  if (target === 'lottery') {
+    nextTick(() => {
+      document
+        .getElementById('rpg-sec-lottery')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 };
 
 /** 排行榜筛选变更时重新拉榜（仅在已登录且排行 Tab 激活时） */
@@ -392,11 +450,12 @@ const onLeaveGuild = async () => {
         <button
           type="button"
           class="rpg-page-toolbar__mute"
+          :class="muted ? 'vol-off' : 'vol-on'"
           :title="muted ? '开启音效' : '静音'"
           :aria-label="muted ? '开启音效' : '静音'"
           @click="toggleMute"
         >
-          {{ muted ? '🔇' : '🔊' }}
+          <img :src="muted ? '/rpg/icons/star-half.png' : '/rpg/icons/star-full.png'" alt="">
         </button>
         <template v-if="!muted">
           <label class="rpg-page-toolbar__vol">
@@ -417,64 +476,50 @@ const onLeaveGuild = async () => {
           </label>
         </template>
         <button type="button" class="rpg-page-toolbar__guide" @click="onboardingRef?.open()">
-          📖 新手引导
+          <img class="guide-art" src="/rpg/icons/books.png" alt=""> 新手引导
         </button>
       </div>
 
-      <RpgSeasonBanner :activity-overview="activityOverview" :weather-buff="weatherBuff" />
+      <RpgSeasonBanner
+        :activity-overview="activityOverview"
+        :weather-buff="weatherBuff"
+        :my-rank="myRank"
+      />
 
       <div v-if="isLoggedIn" class="rpg-page-tabs mb-4" role="tablist">
         <button
+          v-for="t in rpgTabs"
+          :key="t.key"
           type="button"
           role="tab"
           class="rpg-page-tab"
-          :class="{ active: activeTab === 'status' }"
-          :aria-selected="activeTab === 'status'"
-          @click="switchTab('status')"
+          :class="{ active: activeTab === t.key }"
+          :aria-selected="activeTab === t.key"
+          @click="switchTab(t.key)"
         >
-          冒险状态
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="rpg-page-tab"
-          :class="{ active: activeTab === 'inventory' }"
-          :aria-selected="activeTab === 'inventory'"
-          @click="switchTab('inventory')"
-        >
-          背包
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="rpg-page-tab"
-          :class="{ active: activeTab === 'pet' }"
-          :aria-selected="activeTab === 'pet'"
-          @click="switchTab('pet')"
-        >
-          宠物
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="rpg-page-tab"
-          :class="{ active: activeTab === 'guild' }"
-          :aria-selected="activeTab === 'guild'"
-          @click="switchTab('guild')"
-        >
-          公会
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="rpg-page-tab"
-          :class="{ active: activeTab === 'leaderboard' }"
-          :aria-selected="activeTab === 'leaderboard'"
-          @click="switchTab('leaderboard')"
-        >
-          排行
+          <img class="rpg-page-tab__ico" :src="`/rpg/icons/${t.icon}.png`" alt="" loading="lazy">
+          {{ t.label }}
+          <span v-if="t.key === 'pet' && petTabDot" class="rpg-page-tab__dot" />
         </button>
       </div>
+
+      <!-- v3 ⑥ 移动端底部拇指 Tab 栏（<640px 固定，顶部 Tab 隐藏） -->
+      <nav v-if="isLoggedIn" class="rpg-bottom-tabs" role="tablist" aria-label="RPG 底部导航">
+        <button
+          v-for="t in rpgTabs"
+          :key="t.key"
+          type="button"
+          role="tab"
+          class="rpg-bottom-tab"
+          :class="{ active: activeTab === t.key }"
+          :aria-selected="activeTab === t.key"
+          @click="switchTab(t.key)"
+        >
+          <img :src="`/rpg/icons/${t.icon}.png`" alt="" loading="lazy">
+          {{ t.label }}
+          <span v-if="t.key === 'pet' && petTabDot" class="rpg-bottom-tab__dot" />
+        </button>
+      </nav>
 
       <client-only>
         <div
@@ -486,7 +531,30 @@ const onLeaveGuild = async () => {
 
         <template v-else>
           <div v-if="activeTab === 'status'">
-            <div class="rpg-page-section p-3 sm:p-5">
+            <!-- v3 ① 英雄面板：三轴数值 + 今日待办 -->
+            <div v-if="!statusLoading && rpgStatus" class="mb-5">
+              <RpgHeroPanel
+                :rpg-status="rpgStatus"
+                :sign-info="signInfo"
+                :quest-claimable="questClaimable"
+                :egg-count="petEggs.length"
+                :lottery-tickets="lotteryTickets"
+                :loadout="loadout"
+                @todo="onHeroTodo"
+              />
+            </div>
+            <!-- v3 ② 加成合计透视 -->
+            <div v-if="!statusLoading && rpgStatus" class="mb-5">
+              <RpgBoostSummary
+                :weather-buff="weatherBuff"
+                :buffs="buffs"
+                :pets="pets"
+                :equipped-pet-id="equippedPetId"
+                :loadout="loadout"
+                :rpg-status="rpgStatus"
+              />
+            </div>
+            <div id="rpg-sec-profile" class="rpg-page-section p-3 sm:p-5">
               <div class="card-body p-2 sm:p-5">
                 <RpgProfileCard
                   v-if="!statusLoading && rpgStatus"
@@ -519,7 +587,7 @@ const onLeaveGuild = async () => {
                 />
               </div>
             </div>
-            <div class="rpg-page-section mt-5 p-3 sm:p-5">
+            <div id="rpg-sec-lottery" class="rpg-page-section mt-5 p-3 sm:p-5">
               <div class="card-body p-2 sm:p-5">
                 <RpgDevEventPanel v-if="isDev" compact :context="{ status: rpgStatus }" />
                 <RpgLotteryDrawMockBar v-if="isDev" :status="rpgStatus" />
@@ -544,9 +612,13 @@ const onLeaveGuild = async () => {
                 <RpgInventoryPanel
                   :items="inventoryItems"
                   :loadout="loadout"
+                  :pets="pets"
+                  :equipped-pet-id="equippedPetId"
                   :loading="inventoryLoading"
                   @equip="onInventoryEquip"
                   @unequip="onInventoryUnequip"
+                  @rest-pet="onRestPet"
+                  @goto="onPanelGoto"
                 />
               </div>
             </div>
@@ -566,6 +638,7 @@ const onLeaveGuild = async () => {
                   @deploy="onDeployPet"
                   @rest="onRestPet"
                   @rename="onRenamePet"
+                  @goto="onPanelGoto"
                 />
               </div>
             </div>
@@ -596,7 +669,9 @@ const onLeaveGuild = async () => {
                   v-model:active-type="leaderboardType"
                   v-model:active-period="leaderboardPeriod"
                   :leaderboard="leaderboard"
+                  :rpg-status="rpgStatus"
                   :loading="leaderboardLoading"
+                  @goto="onPanelGoto"
                 />
               </div>
             </div>
@@ -617,7 +692,62 @@ const onLeaveGuild = async () => {
     margin-bottom: 6px;
   }
 
-  .rpg-page-toolbar__mute,
+  .rpg-page-toolbar__mute {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 2.5px solid;
+    border-radius: 50%;
+    background: #fbfaff;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s,
+      transform 0.2s;
+  }
+
+  /* v6/F：两态语义 —— 金环点亮 = 有声；虚线灰圈 = 静音 */
+  .rpg-page-toolbar__mute img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    border-radius: 50%;
+  }
+
+  .rpg-page-toolbar__mute.vol-on {
+    border-color: var(--rpg-art-gold, #d9a13c);
+    background: radial-gradient(circle at 34% 30%, #fffaf0, #fdf3da);
+    box-shadow:
+      0 0 0 3px rgb(217 161 60 / 0.12),
+      0 2px 8px rgb(217 161 60 / 0.3);
+  }
+
+  .rpg-page-toolbar__mute.vol-on:hover {
+    transform: translateY(-1px);
+  }
+
+  .rpg-page-toolbar__mute.vol-off {
+    border-color: var(--rpg-border, #d8d2e8);
+    border-style: dashed;
+    opacity: 0.65;
+  }
+
+  .rpg-page-toolbar__mute.vol-off img {
+    filter: grayscale(0.6);
+  }
+
+  .guide-art {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    vertical-align: -2px;
+    margin-right: 3px;
+  }
+
   .rpg-page-toolbar__guide {
     border: none;
     background: transparent;
@@ -667,11 +797,12 @@ const onLeaveGuild = async () => {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    gap: 6px;
-    padding: 6px;
-    border-radius: 12px;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 16px;
     border: 1px solid var(--rpg-border, oklch(var(--b3)));
     background: var(--rpg-surface, oklch(var(--b1)));
+    box-shadow: 0 10px 30px rgb(60 40 110 / 0.08);
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
@@ -681,14 +812,18 @@ const onLeaveGuild = async () => {
   }
 
   .rpg-page-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 7px;
     flex: 1 1 auto;
     min-width: 0;
-    padding: 8px 10px;
+    padding: 9px 16px;
     border: 1px solid transparent;
-    border-radius: 8px;
+    border-radius: 11px;
     background: transparent;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 13.5px;
+    font-weight: 700;
     line-height: 1.2;
     white-space: nowrap;
     color: var(--rpg-text-secondary, oklch(var(--bc) / 0.72));
@@ -696,47 +831,160 @@ const onLeaveGuild = async () => {
     transition:
       background-color 0.2s,
       color 0.2s,
-      border-color 0.2s;
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .rpg-page-tab__ico {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .rpg-page-tab__dot {
+    position: absolute;
+    top: 7px;
+    right: 9px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f04b4b;
+    box-shadow: 0 0 0 2px var(--rpg-surface, oklch(var(--b1)));
   }
 
   .rpg-page-tab:hover {
-    background: var(--rpg-bg-alt, oklch(var(--b2)));
-    color: var(--rpg-text-heading, oklch(var(--bc)));
+    background: var(--rpg-art-violet-soft, oklch(var(--b2)));
+    color: var(--rpg-art-violet-deep, oklch(var(--p)));
   }
 
   .rpg-page-tab.active {
-    background: var(--rpg-violet-bg, oklch(var(--p) / 0.12));
-    color: var(--rpg-violet, oklch(var(--p)));
+    background: var(--rpg-art-violet-grad);
+    color: #fff;
     font-weight: 700;
-    border-color: color-mix(in oklch, var(--rpg-violet, oklch(var(--p))) 45%, transparent);
-    box-shadow: inset 0 0 0 1px
-      color-mix(in oklch, var(--rpg-violet, oklch(var(--p))) 35%, transparent);
+    border-color: transparent;
+    box-shadow: var(--rpg-art-shadow-violet);
+  }
+
+  .rpg-page-tab.active .rpg-page-tab__ico {
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 0.65);
   }
 
   @media (max-width: 639px) {
     .rpg-page-tabs {
-      gap: 4px;
-      padding: 5px;
+      display: none;
     }
 
+    .rpg-bottom-tab {
+      flex: 1;
+      min-width: auto;
+      padding: 6px 2px;
+      font-size: 10px;
+      gap: 0;
+    }
+
+    .rpg-bottom-tab img {
+      width: 30px;
+      height: 30px;
+    }
+
+    .rpg-theme {
+      padding-bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  /* ── v3 ⑥ 移动端底部拇指 Tab 栏（桌面隐藏） ── */
+  .rpg-bottom-tabs {
+    display: none;
+  }
+
+  @media (max-width: 639px) {
+    .rpg-bottom-tabs {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+      display: flex;
+      justify-content: space-around;
+      gap: 2px;
+      padding: 7px 6px calc(9px + env(safe-area-inset-bottom, 0px));
+      background: color-mix(in srgb, var(--rpg-surface, #fff) 94%, transparent);
+      border-top: 1px solid var(--rpg-border, #e8e3f2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 -6px 20px rgb(60 40 110 / 0.14);
+    }
+  }
+
+  .rpg-bottom-tab {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    padding: 5px 2px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--rpg-text-secondary, oklch(var(--bc) / 0.68));
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .rpg-bottom-tab img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: box-shadow 0.2s;
+  }
+
+  .rpg-bottom-tab.active {
+    color: var(--rpg-art-violet-deep, oklch(var(--p)));
+  }
+
+  .rpg-bottom-tab.active img {
+    box-shadow: 0 0 0 2.5px var(--rpg-art-violet, #7c5cf0);
+  }
+
+  .rpg-bottom-tab__dot {
+    position: absolute;
+    top: 2px;
+    right: 26%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f04b4b;
+    border: 1.5px solid var(--rpg-surface, #fff);
+  }
+
+  @media (max-width: 639px) {
     .rpg-page-tab {
       flex: 0 0 auto;
       min-width: auto;
       padding: 7px 11px;
       font-size: 12px;
+      gap: 5px;
+    }
+
+    .rpg-page-tab__ico {
+      width: 18px;
+      height: 18px;
     }
   }
 
   :global(html.tech-shell[data-theme='cyber-light']) .rpg-page-tab:not(.active) {
     color: var(--rpg-text-label, #475569);
-    background: var(--rpg-bg-alt, #f1f5f9);
-    border-color: var(--rpg-border, #e2e8f0);
   }
 
-  :global(html.tech-shell[data-theme='cyber-light']) .rpg-page-tab.active {
-    background: rgb(139 92 246 / 0.1);
-    color: #6d28d9;
-    border-color: rgb(139 92 246 / 0.45);
-    box-shadow: inset 0 0 0 1px rgb(139 92 246 / 0.28);
+  :global(html.tech-shell[data-theme='cyber-light']) .rpg-page-tab:not(.active):hover {
+    background: var(--rpg-art-violet-soft, #f1edfb);
+    color: var(--rpg-art-violet-deep, #5b3fd6);
   }
 </style>

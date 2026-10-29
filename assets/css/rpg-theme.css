@@ -105,6 +105,25 @@ html.tech-shell {
   --rpg-life-track: rgba(0, 0, 0, 0.1);
   --rpg-life-track-bg: rgba(0, 0, 0, 0.04);
 
+  /* ═══ 美术改版 v2 — 紫罗兰 + 鎏金 · 圆图徽章风（对齐 rpg-art-redesign/pages.html）═══ */
+  --rpg-art-violet: #7c5cf0;
+  --rpg-art-violet-deep: #5b3fd6;
+  --rpg-art-violet-soft: #f1edfb;
+  --rpg-art-violet-grad: linear-gradient(135deg, #7c5cf0, #5b3fd6);
+  --rpg-art-gold: #d9a13c;
+  --rpg-art-amber: #e8b04b;
+  --rpg-art-gold-ink: #3a2408;
+  --rpg-art-gold-grad: linear-gradient(135deg, #e8b04b, #d9a13c);
+  --rpg-art-gold-soft: #fdf6e4;
+  --rpg-art-shadow-violet: 0 6px 16px rgb(92 63 214 / 0.32);
+  --rpg-art-shadow-gold: 0 6px 16px rgb(217 161 60 / 0.32);
+  --rpg-art-halo: radial-gradient(closest-side, rgb(217 161 60 / 0.28), transparent 72%);
+  /* 稀有度描边 — rare 紫晶 / epic+ 传说鎏金 */
+  --rpg-art-rare: #8d7bf5;
+  --rpg-art-rare-glow: rgb(141 123 245 / 0.18);
+  --rpg-art-epic: #b8842c;
+  --rpg-art-epic-glow: rgb(217 161 60 / 0.25);
+
   --rpg-banner-bg: color-mix(in oklch, var(--color-secondary) 12%, var(--color-base-100));
   --rpg-banner-border: color-mix(in oklch, var(--color-secondary) 28%, var(--color-base-100));
   --rpg-banner-label: var(--color-secondary);
@@ -354,6 +373,18 @@ html.tech-shell[data-theme='cyber'] {
 
   --rpg-life-track: rgb(255 255 255 / 0.12);
   --rpg-life-track-bg: rgb(255 255 255 / 0.06);
+
+  /* 美术改版 v2 令牌 — 暗色适配：soft 底半透明化 */
+  --rpg-art-violet-soft: rgb(124 92 240 / 0.16);
+  --rpg-art-gold-soft: rgb(217 161 60 / 0.14);
+  --rpg-art-rare: #a795f7;
+  --rpg-art-epic: #d9a95c;
+
+  /* 每日任务饼图：暗底上提高轨/填充/中心/数字对比 */
+  --rpg-daily-ring-track: rgb(255 255 255 / 0.28);
+  --rpg-daily-ring-fill: #a78bfa;
+  --rpg-daily-ring-center: #1e293b;
+  --rpg-daily-ring-text: #c4b5fd;
 
   --rpg-rarity-badge-common-bg: linear-gradient(145deg, #475569, #94a3b8);
   --rpg-rarity-badge-common-text: #f1f5f9;
@@ -1104,6 +1135,7 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-loot-card:hover {
+    transform: translateY(-2px);
     box-shadow: var(--rpg-loot-shadow-hover), var(--rpg-loot-inset);
   }
 
@@ -1145,18 +1177,31 @@ html.tech-shell[data-theme='cyber-light'] {
     gap: 6px;
   }
 
+  /* v4：图标为主视觉 —— 54px 圆形徽章 + 金圈光环（v6/A2 统一规范） */
   .rpg-loot-icon {
     flex-shrink: 0;
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 24px;
     background: var(--rpg-loot-icon-bg);
-    border: 1px solid var(--rpg-loot-icon-border);
-    box-shadow: var(--rpg-loot-icon-shadow);
+    border: 2px solid color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 34%, transparent);
+    box-shadow:
+      var(--rpg-loot-icon-shadow),
+      0 0 0 3px color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 9%, transparent);
+  }
+
+  /* 按钮内嵌美术小图（兑换/充值等）；覆盖 DaisyUI img{display:block} 避免竖排撑大 */
+  .rpg-loot-claim-btn .btn-art,
+  .rpg-loot-card-strip .btn-art {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    flex-shrink: 0;
   }
 
   .rpg-loot-card--gold .rpg-loot-icon,
@@ -1184,6 +1229,128 @@ html.tech-shell[data-theme='cyber-light'] {
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 0.35),
       var(--rpg-loot-icon-shadow);
+  }
+
+  /* ── v6/A2 统一墙体：圆徽章竖卡（严格对齐原型 .wcard）──
+     任务墙 / 背包墙 / 兑换墙共用：54px 强金环居中 + 内容居中 + 角标右上 + hover 浮起 */
+  .rpg-loot-card--wall {
+    text-align: center;
+    align-items: center;
+    padding: 14px 8px 10px;
+    border-radius: 14px;
+    border-width: 1.5px;
+  }
+
+  .rpg-loot-card--wall .rpg-loot-card-head {
+    flex-direction: column;
+    align-self: stretch;
+  }
+
+  .rpg-loot-card--wall .rpg-loot-icon {
+    border-width: 2.5px;
+    border-color: var(--rpg-art-gold, #d9a13c);
+    background: radial-gradient(circle at 34% 30%, #fff, #f5ecd4 72%);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 12%, transparent);
+  }
+
+  .rpg-loot-card--wall .rpg-loot-icon--tinted {
+    border-color: rgb(255 255 255 / 0.24);
+    background: var(--rpg-loot-icon-bg);
+  }
+
+  .rpg-loot-card--wall .rpg-loot-progress,
+  .rpg-loot-card--wall .rpg-loot-desc,
+  .rpg-loot-card--wall .rpg-loot-action {
+    width: 100%;
+  }
+
+  /* 墙卡未完成/未拥有 → 灰虚线圈（原型 .wcard--locked） */
+  .rpg-loot-card--wall.rpg-loot-card--locked .rpg-loot-icon,
+  .rpg-loot-card--wall .rpg-loot-icon--dim {
+    border-color: #cfd4de;
+    border-style: dashed;
+    background: #f4f2fa;
+    filter: grayscale(0.4);
+  }
+
+  html.tech-shell[data-theme='cyber'] .rpg-loot-card--wall .rpg-loot-icon {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  html.tech-shell[data-theme='cyber'] .rpg-loot-card--wall.rpg-loot-card--locked .rpg-loot-icon,
+  html.tech-shell[data-theme='cyber'] .rpg-loot-card--wall .rpg-loot-icon--dim {
+    border-color: rgb(255 255 255 / 0.3);
+    background: rgb(255 255 255 / 0.05);
+  }
+
+  /* ── v6 徽章状态统一（严格对齐成就奖章 .medal）──
+     is-medal-active（激活中/已拥有/已达成/可领取）= 实线金环 + 径向光底 + conic 流光旋转
+     is-medal-progress（进行中/待激活）= 虚线稀有度环（--rc）+ 轻灰化 */
+  .rpg-loot-icon {
+    position: relative;
+  }
+
+  .rpg-loot-card--wall.is-medal-active .rpg-loot-icon,
+  .rpg-loot-card--wall.rpg-loot-card--done .rpg-loot-icon,
+  .rpg-loot-card--wall.rpg-loot-card--claimable .rpg-loot-icon {
+    border-style: solid;
+    border-width: 3px;
+    border-color: var(--rpg-art-gold, #d9a13c);
+    background: radial-gradient(circle at 34% 30%, #fffaf0, #fdf3da 72%);
+    box-shadow: 0 0 0 3px rgb(217 161 60 / 0.16);
+    filter: none;
+  }
+
+  .rpg-loot-card--wall.is-medal-active .rpg-loot-icon::after,
+  .rpg-loot-card--wall.rpg-loot-card--done .rpg-loot-icon::after,
+  .rpg-loot-card--wall.rpg-loot-card--claimable .rpg-loot-icon::after {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      transparent 240deg,
+      rgb(251 191 36 / 0.9) 300deg,
+      transparent 352deg
+    );
+    animation: rpgMedalShine 2.8s linear infinite;
+    -webkit-mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 6px),
+      #000 calc(100% - 5px)
+    );
+    mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+    pointer-events: none;
+  }
+
+  @keyframes rpgMedalShine {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .rpg-loot-card--wall.is-medal-progress .rpg-loot-icon {
+    border-style: dashed;
+    border-color: var(--rc, var(--rpg-art-gold, #d9a13c));
+    filter: grayscale(0.25) opacity(0.85);
+  }
+
+  html.tech-shell[data-theme='cyber'] .rpg-loot-card--wall.is-medal-active .rpg-loot-icon,
+  html.tech-shell[data-theme='cyber'] .rpg-loot-card--wall.rpg-loot-card--done .rpg-loot-icon,
+  html.tech-shell[data-theme='cyber'] .rpg-loot-card--wall.rpg-loot-card--claimable .rpg-loot-icon {
+    background: rgb(255 255 255 / 0.1);
+  }
+
+  /* 墙卡操作按钮通栏（原型 .wcard .act .btn 100%） */
+  .rpg-loot-card--wall .rpg-loot-action {
+    justify-content: stretch;
+  }
+
+  .rpg-loot-card--wall .rpg-loot-action .rpg-loot-claim-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   /* 稀有度徽章 — 四档共用同一套局部变量 + tier 映射 */
@@ -1239,7 +1406,7 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-loot-name {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 800;
     color: var(--rpg-text-heading);
     line-height: 1.35;
@@ -1247,9 +1414,9 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-loot-desc {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--rpg-text-muted);
-    line-height: 1.4;
+    line-height: 1.45;
     flex: 1;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -1258,7 +1425,7 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-loot-progress {
-    height: 6px;
+    height: 7px;
     padding: 1px;
     border-radius: 999px;
     background: var(--rpg-track);
@@ -1286,7 +1453,7 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-loot-footer--center {
-    align-items: stretch;
+    align-items: center;
   }
 
   .rpg-loot-meta {
@@ -1375,13 +1542,28 @@ html.tech-shell[data-theme='cyber-light'] {
     border-color: var(--rpg-empty-border);
   }
 
+  /* v6/A2：右上角标变体 —— 状态章绝对定位于卡片右上，腾出头部空间给圆徽章 */
+  .rpg-loot-status--corner {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    z-index: 2;
+    margin: 0;
+  }
+
   .rpg-loot-claim-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
     padding: 4px 12px;
     border-radius: 999px;
     background: var(--rpg-level-badge-gradient);
     color: #fff;
     font-size: 11px;
     font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
     border: none;
     cursor: pointer;
     box-shadow: 0 2px 10px var(--rpg-level-shadow);
@@ -1402,12 +1584,11 @@ html.tech-shell[data-theme='cyber-light'] {
     cursor: not-allowed;
   }
 
-  /** 已拥有：与兑换按钮同宽高，灰色态，不用金色高亮 */
+  /** 已拥有：与兑换按钮同尺寸感，灰色态，不用金色高亮 */
   .rpg-loot-owned-mark {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
     box-sizing: border-box;
     padding: 4px 12px;
     border-radius: 999px;
@@ -1462,10 +1643,16 @@ html.tech-shell[data-theme='cyber-light'] {
   }
 
   .rpg-panel-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
     padding: 5px 12px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
     border: 1px solid var(--rpg-border);
     background: var(--rpg-bg-alt);
     color: var(--rpg-text-secondary);
@@ -1671,18 +1858,19 @@ html.tech-shell[data-theme='cyber-light'] {
 
   .rpg-pool-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, 108px);
+    grid-template-columns: repeat(auto-fill, 116px);
     justify-content: center;
     gap: 8px;
   }
 
   .rpg-pool-chip {
     display: grid;
-    grid-template-rows: 28px auto minmax(0, 1fr);
+    grid-template-rows: 52px auto minmax(0, 1fr);
     align-content: start;
     gap: 6px;
-    width: 108px;
-    height: 104px;
+    width: 116px;
+    height: auto;
+    min-height: 132px;
     padding: 8px;
     border-radius: 10px;
     border: 1px solid var(--rpg-loot-border);
@@ -1766,10 +1954,10 @@ html.tech-shell[data-theme='cyber-light'] {
   .rpg-pool-chip {
     width: 100%;
     height: auto;
-    min-height: 72px;
+    min-height: 108px;
     padding: 6px;
     gap: 4px;
-    grid-template-rows: 28px auto minmax(0, 1fr);
+    grid-template-rows: 44px auto minmax(0, 1fr);
   }
 
   .rpg-pool-chip__name {

@@ -80,7 +80,7 @@ const reasonLabel = computed(() =>
     <div v-if="active && data" class="currency-gain-fx" aria-hidden="true">
       <div class="gain-core">
         <span class="gain-glow" />
-        <span class="gain-emoji">💎</span>
+        <img class="gain-emoji" src="/rpg/icons/gem.png" alt="">
         <span class="gain-amount">+{{ data.delta }}</span>
         <span class="gain-reason">{{ reasonLabel }}</span>
       </div>
@@ -93,7 +93,7 @@ const reasonLabel = computed(() =>
           'animationDelay': p.delay,
           '--drift': p.drift,
         }"
-      >💎</span>
+      ><img class="gain-particle__art" src="/rpg/icons/gem.png" alt=""></span>
     </div>
   </Teleport>
 </template>
@@ -129,8 +129,9 @@ const reasonLabel = computed(() =>
 
   .gain-emoji {
     position: relative;
-    font-size: 52px;
-    line-height: 1;
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
     filter: drop-shadow(0 6px 14px rgb(37 99 235 / 0.45));
     animation: gemFloat 1.1s ease-in-out infinite;
   }
@@ -213,5 +214,12 @@ const reasonLabel = computed(() =>
       opacity: 0;
       transform: translateY(-180px) translateX(var(--drift)) scale(1);
     }
+  }
+  /* v6/G：钻石粒子美术图 */
+  .gain-particle__art {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgb(37 99 235 / 0.45));
   }
 </style>

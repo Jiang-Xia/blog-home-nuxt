@@ -24,6 +24,9 @@ let readyTimer: ReturnType<typeof setTimeout> | null = null;
 const tier = computed(() => rarityLabelToTier(props.data?.config?.rarityLabel));
 const glowStyle = computed(() => ({ '--rarity-glow': getRarityGlow(tier.value) }));
 
+/** 传说级揭晓时展示 legend 大立绘 */
+const isLegendary = computed(() => tier.value === 'legendary');
+
 const clearReadyTimer = () => {
   if (readyTimer) {
     clearTimeout(readyTimer);
@@ -62,8 +65,16 @@ const handleClose = () => {
         <div class="reveal-panel" @click.stop>
           <div class="reveal-card" :class="{ ready: revealReady }" :style="glowStyle">
             <div class="reveal-banner">
-              ✨ 恭喜获得 ✨
+              <img class="banner-spark" src="/rpg/icons/sparkle.png" alt=""> 恭喜获得
+              <img class="banner-spark" src="/rpg/icons/sparkle.png" alt="">
             </div>
+            <img
+              v-if="isLegendary"
+              class="reveal-legend-art"
+              src="/rpg/art/legend.png"
+              alt=""
+              aria-hidden="true"
+            >
             <RpgRarityBadge
               class="reveal-rarity"
               :rarity="tier"
@@ -159,6 +170,9 @@ const handleClose = () => {
   }
 
   .reveal-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 13px;
     font-weight: 800;
     letter-spacing: 0.14em;
@@ -166,8 +180,33 @@ const handleClose = () => {
     margin-bottom: 16px;
   }
 
+  .banner-spark {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
+
   .reveal-rarity {
     margin-bottom: 10px;
+  }
+
+  .reveal-legend-art {
+    width: 104px;
+    height: 104px;
+    object-fit: contain;
+    margin: -6px auto 4px;
+    animation: legendFloat 2.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 22px rgb(251 191 36 / 0.55));
+  }
+
+  @keyframes legendFloat {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-8px) scale(1.05);
+    }
   }
 
   .reveal-item-icon {

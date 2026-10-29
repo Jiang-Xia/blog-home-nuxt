@@ -8,6 +8,7 @@ import {
   getRpgHitRecords,
   getRpgBanStatus,
   getRpgLeaderboard,
+  getMyRpgRank,
   getRpgLevelRewards,
   getMyAchievements,
   getMyQuests,
@@ -66,6 +67,15 @@ export function useRpg() {
   const hitRecords = useState<SensitiveHitRecord[]>('rpg-hit-records', () => []);
   const hitRecordsTotal = useState('rpg-hit-records-total', () => 0);
   const leaderboard = useState<LeaderboardEntry[]>('rpg-leaderboard', () => []);
+  /** v6/C：我的排名 + 赛季结束时间（赛季横幅「我的排名 #N + 翻牌倒计时」） */
+  const myRank = useState<{
+    uid: number;
+    type: string;
+    period: string;
+    rank: number | null;
+    score: number;
+    seasonEndTime: string | null;
+  } | null>('rpg-my-rank', () => null);
   const levelRewards = useState<LevelReward[]>('rpg-level-rewards', () => []);
   const achievements = useState<UserAchievementProgress[]>('rpg-achievements', () => []);
   const quests = useState<UserQuestProgress[]>('rpg-quests', () => []);
@@ -264,6 +274,16 @@ export function useRpg() {
     }
   };
 
+  /** v6/C：拉取我的排名（轻接口；未上榜 rank 为 null） */
+  const fetchMyRank = async () => {
+    try {
+      myRank.value = await getMyRpgRank('exp', 'total');
+    }
+    catch (e) {
+      console.error('[useRpg] 获取我的排名失败:', e);
+    }
+  };
+
   const fetchLevelRewards = async () => {
     try {
       levelRewards.value = await getRpgLevelRewards();
@@ -392,6 +412,8 @@ export function useRpg() {
     fetchBanStatus,
     fetchHitRecords,
     fetchLeaderboard,
+    fetchMyRank,
+    myRank,
     fetchLevelRewards,
     fetchAchievements,
     fetchQuests,

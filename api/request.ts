@@ -37,7 +37,7 @@ const isEncryptEnabled = (): boolean => {
 };
 
 /**
- * 日志记录函数
+ * 开发态简单日志（防抖/网络错误等）
  * @param msg 日志消息
  * @param type 日志类型，默认为 'log'
  */
@@ -46,6 +46,83 @@ const log = (msg: string, type = 'log') => {
     // @ts-expect-error: 不需要进行ts检测
     console[type](msg);
   }
+};
+
+/**
+ * 将 body 收成可打印摘要：FormData 不可序列化，仅标记类型
+ */
+const summarizeBodyForLog = (body: unknown): unknown => {
+  if (body === undefined || body === null) {
+    return undefined;
+  }
+  if (typeof FormData !== 'undefined' && body instanceof FormData) {
+    return '[FormData]';
+  }
+  return body;
+};
+
+/** DevTools 彩色徽章样式（加密请求紫底，普通蓝底，错误红底） */
+const LOG_BADGE_ENCRYPT
+  = 'background:#7c3aed;color:#fff;padding:2px 8px;border-radius:4px;font-weight:700;';
+const LOG_BADGE_HTTP
+  = 'background:#2563eb;color:#fff;padding:2px 8px;border-radius:4px;font-weight:700;';
+const LOG_BADGE_ERR
+  = 'background:#dc2626;color:#fff;padding:2px 8px;border-radius:4px;font-weight:700;';
+const LOG_PHASE = 'font-weight:700;margin-left:6px;';
+const LOG_RESET = 'color:inherit;font-weight:400;';
+
+/**
+ * 开发态 HTTP 日志：彩色徽章 + method/url；加密时附带明文/解密 body
+ * （加密后 Network 面板只有信封，控制台需看业务明文）
+ */
+const logHttp = (
+  phase: 'req' | 'res' | 'err',
+  info: {
+    method: string;
+    url: string;
+    encrypted: boolean;
+    status?: number;
+    /** 请求明文 body/params，或解密后的响应体 */
+    payload?: unknown;
+  },
+) => {
+  if (!openRequestLog) {
+    return;
+  }
+  const method = info.method.toUpperCase();
+  const payload = summarizeBodyForLog(info.payload);
+  const isErr = phase === 'err';
+  const badgeStyle = isErr ? LOG_BADGE_ERR : info.encrypted ? LOG_BADGE_ENCRYPT : LOG_BADGE_HTTP;
+  const badgeText = info.encrypted ? 'ENCRYPT' : 'HTTP';
+  let phaseText: string;
+  let phaseColor: string;
+  if (phase === 'req') {
+    phaseText = '↑ REQ';
+    phaseColor = info.encrypted ? '#7c3aed' : '#2563eb';
+  }
+  else if (phase === 'res') {
+    phaseText = `↓ RES ${info.status ?? '?'}`;
+    phaseColor = '#16a34a';
+  }
+  else {
+    phaseText = `✕ ERR ${info.status ?? ''}`.trim();
+    phaseColor = '#dc2626';
+  }
+
+  // 例：紫色 ENCRYPT 徽章 + ↑ REQ + GET /encrypt/user/info
+  console.log(
+    `%c${badgeText}%c ${phaseText} %c${method} ${info.url}`,
+    badgeStyle,
+    `${LOG_PHASE}color:${phaseColor};`,
+    LOG_RESET,
+  );
+
+  if (payload === undefined) {
+    return;
+  }
+  // 加密场景标明「明文/解密」，避免和 Network 里的信封混淆
+  const bodyLabel = info.encrypted ? (phase === 'req' ? '  明文 body' : '  解密 body') : '  body';
+  console.log(bodyLabel, payload);
 };
 
 // 注释掉的错误响应模板
@@ -340,14 +417,25 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
 
     // 生成请求唯一标识，用于防重复请求
     const requestId = `${url}_${JSON.stringify(options)}`;
-    log(`请求开始 req --------------> ${url}`);
+    // 加密前明文：POST 用 options.body，GET/DELETE 用 params（加密后 Network 只见信封）
+    const plainOutbound = canHaveBody
+      ? options.body
+      : Object.keys(params || {}).length
+        ? params
+        : undefined;
+    logHttp('req', {
+      method: methodUpper,
+      url,
+      encrypted: openEncrypt,
+      payload: openEncrypt || plainOutbound !== undefined ? plainOutbound : undefined,
+    });
 
     try {
       // 白名单 / multipart 上传跳过防重检测
       const skipDebounce = shouldSkipRequestDebounce(url, options.body, method);
       // 检查是否正在请求中，防止重复请求
       if (!skipDebounce && requestMap.has(requestId)) {
-        log(`防抖，禁止重复请求！--------------> ${url}`, 'warn');
+        log(`[http] 防抖跳过 ${methodUpper} ${url}`, 'warn');
         safeReject(new Error('防抖，禁止重复请求！'));
         return;
       }
@@ -384,7 +472,12 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
        * 请求发送前错误处理
        */
       onRequestError(ctx) {
-        log(`请求发送失败 onRequestError --------------> ${url}`, 'error');
+        logHttp('err', {
+          method: methodUpper,
+          url,
+          encrypted: openEncrypt,
+          payload: ctx.error?.message || ctx.error,
+        });
         requestMap.delete(requestId);
 
         let errorMessage: string;
@@ -406,11 +499,18 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
        * 响应成功回调
        */
       onResponse(ctx) {
-        log(`请求结束 res --------------> ${url}`);
         requestMap.delete(requestId); // 清除请求记录
 
         const status: number = ctx.response.status;
         const body = decryptMsg(ctx.response._data, url, gatewaySession); // 解密网关响应
+        logHttp('res', {
+          method: methodUpper,
+          url,
+          encrypted: openEncrypt,
+          status,
+          // 加密时必须打解密后明文；未加密时同样打印便于联调
+          payload: body,
+        });
 
         // 处理所有成功的状态码
         if (status >= 200 && status < 300) {
@@ -429,12 +529,18 @@ const $http = async (url: string, options: any & RequestHttpOptions): Promise<Ap
        * 处理401未授权、token刷新等逻辑
        */
       async onResponseError(ctx: any) {
-        const { url } = ctx.response;
-        log(`请求结束 fail onResponseError --------------> ${url}`);
+        const { url: errUrl } = ctx.response;
         requestMap.delete(requestId);
 
         const body = decryptMsg(ctx.response._data, url, gatewaySession);
         const status: number = ctx.response.status;
+        logHttp('err', {
+          method: methodUpper,
+          url: errUrl || url,
+          encrypted: openEncrypt,
+          status,
+          payload: body,
+        });
 
         try {
           // 处理 401 未授权：单飞 refresh，失败则清登录态并阻断后续重试
