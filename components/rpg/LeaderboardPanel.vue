@@ -279,12 +279,13 @@ const myAvatar = computed(() => {
     font-size: 14px;
   }
 
+  /* DaisyUI reset 把 img 设为 block，需改回行内以免筛选项竖排变圆 */
   .type-ico {
+    display: inline-block;
     width: 15px;
     height: 15px;
     object-fit: contain;
-    vertical-align: -2px;
-    margin-left: 4px;
+    flex-shrink: 0;
   }
 
   /* ── 领奖台 ── */

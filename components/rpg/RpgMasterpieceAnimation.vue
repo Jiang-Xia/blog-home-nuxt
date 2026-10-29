@@ -79,14 +79,16 @@ const handleClose = () => {
   }
 
   .masterpiece-icon {
-    font-size: 50px;
-    line-height: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin-bottom: 6px;
     animation: sparkleSpin 2.4s ease-in-out infinite;
     filter: drop-shadow(0 4px 12px rgba(146, 64, 14, 0.3));
   }
 
   .masterpiece-art {
+    display: block;
     width: 96px;
     height: 96px;
     object-fit: contain;
