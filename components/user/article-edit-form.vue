@@ -8,6 +8,7 @@ import { computed, nextTick, onMounted, reactive, ref, watch, onBeforeUnmount } 
 import { onBeforeRouteLeave } from 'vue-router';
 import { useDebounceFn } from '@vueuse/core';
 import { MdEditor } from 'md-editor-v3';
+import { ensureEditorConfig } from '@/utils/editor-config';
 import dayjs from 'dayjs';
 import { createArticle, editArticle, getArticleInfo, uploadArticleImage } from '@/api/article';
 import { getAllCategory } from '@/api/category';
@@ -16,7 +17,9 @@ import { uploadCover, parseUploadedUrl } from '@/api/resources';
 import { resolveStaticUrl } from '@/utils/static-url';
 import { messageDanger, messageSuccess } from '@/utils/toast';
 import { useRpgModal } from '@/composables/use-rpg-modal';
-import { COVER_IMAGE, coverAspectRatio } from '@/utils/image-compress';
+import { COVER_IMAGE, coverAspectRatio } from '@/utils/cover-aspect';
+
+ensureEditorConfig();
 
 const props = defineProps<{
   articleId?: string;

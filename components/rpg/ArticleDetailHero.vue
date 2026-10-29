@@ -64,12 +64,12 @@ const hasRpgHighlights = computed(
     <div class="hero-overlay" aria-hidden="true" />
     <div class="hero-glow" aria-hidden="true" />
     <div class="hero-watermark" aria-hidden="true">
-      ⚔️
+      <img src="/rpg/icons/dice.png" alt="" loading="lazy">
     </div>
 
     <div class="hero-inner">
       <p class="hero-eyebrow">
-        <span class="hero-eyebrow-icon">⚔️</span>
+        <span class="hero-eyebrow-icon"><img src="/rpg/icons/dice.png" alt="" loading="lazy"></span>
         QUEST · 冒险篇章
       </p>
 
@@ -85,7 +85,9 @@ const hasRpgHighlights = computed(
           variant="article"
           size="sm"
         />
-        <span v-if="article.tipTotal" class="hero-tip-badge"> 💎 {{ article.tipTotal }} 打赏 </span>
+        <span v-if="article.tipTotal" class="hero-tip-badge"><img class="hero-tip-badge__art" src="/rpg/icons/gem.png" alt="" loading="lazy">
+          {{ article.tipTotal }} 打赏
+        </span>
       </div>
 
       <div class="hero-stats">
@@ -113,7 +115,10 @@ const hasRpgHighlights = computed(
           </span>
         </button>
         <span v-if="article.tipTotal" class="hero-stat hero-stat--tip">
-          <span class="hero-stat-icon-wrap hero-stat-icon-wrap--emoji" aria-hidden="true">💎</span>
+          <span class="hero-stat-icon-wrap hero-stat-icon-wrap--emoji" aria-hidden="true"><img
+            class="hero-stat-emoji-art" src="/rpg/icons/gem.png" alt=""
+            loading="lazy"
+          ></span>
           <span class="hero-stat-text">
             <span class="hero-stat-value">{{ article.tipTotal }}</span>
             <span class="hero-stat-label">打赏</span>
@@ -222,6 +227,12 @@ const hasRpgHighlights = computed(
     user-select: none;
   }
 
+  .hero-watermark img {
+    display: block;
+    width: clamp(5rem, 14vw, 9rem);
+    height: auto;
+  }
+
   .hero-inner {
     position: relative;
     z-index: 1;
@@ -255,8 +266,16 @@ const hasRpgHighlights = computed(
   }
 
   .hero-eyebrow-icon {
+    display: inline-flex;
+    align-items: center;
     font-size: 0.75rem;
     line-height: 1;
+  }
+
+  .hero-eyebrow-icon img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
   }
 
   .hero-title {
@@ -368,6 +387,15 @@ const hasRpgHighlights = computed(
   .hero-stat-icon-wrap--emoji {
     font-size: 0.875rem;
     line-height: 1;
+  }
+
+  .hero-tip-badge__art,
+  .hero-stat-emoji-art {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    margin-right: 2px;
+    vertical-align: -2px;
   }
 
   .hero-stat-text {

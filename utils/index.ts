@@ -38,8 +38,8 @@ export function debounce(fn: Fn, t: number) {
   };
 }
 
-export function copy(text: string) {
-  // ElMessage.success("copy!");
+/** 复制到剪贴板（copy-to-clipboard v4 起为异步） */
+export async function copy(text: string): Promise<boolean> {
   return _copy(text);
 }
 export interface tocInter {
@@ -51,8 +51,8 @@ export interface tocInter {
 // 生成目录
 export function makeToc(html: string): tocInter[] {
   const reg = /<h([\d]) id="([^<]+)">([^<]+)<\/h([\d])>/gi;
-  let ret = null;
   const toc: tocInter[] = [];
+  let ret: RegExpExecArray | null;
   while ((ret = reg.exec(html)) !== null) {
     toc.push({ level: ret[1], id: ret[2], text: ret[3] });
   }

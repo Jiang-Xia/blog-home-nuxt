@@ -35,7 +35,7 @@ const statusText = computed(() => {
       />
     </div>
     <span class="life-text" :style="{ color: lifeColor }">
-      ❤ {{ lifeValue }}/{{ maxLife }}
+      <img class="life-art" src="/rpg/icons/heart.png" alt=""> {{ lifeValue }}/{{ maxLife }}
       <span class="life-status">{{ statusText }}</span>
     </span>
   </div>
@@ -71,6 +71,14 @@ const statusText = computed(() => {
   .life-text {
     font-weight: 600;
     white-space: nowrap;
+  }
+
+  /* v6/G：生命美术小图（随文字色） */
+  .life-art {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+    vertical-align: -1px;
   }
 
   .life-status {

@@ -7,7 +7,6 @@
 
 <script setup lang="ts">
 import '@/styles/index.less';
-import './utils/editor-config';
 import { fnTextPopup } from './utils/plugins';
 
 const { initTheme } = useThemeActions();

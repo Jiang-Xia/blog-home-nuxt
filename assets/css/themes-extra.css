@@ -1,0 +1,73 @@
+/**
+ * 延后加载的 DaisyUI 内置主题（不含 cyber / cyber-light）。
+ * 勿直接 @import "daisyui/themes.css"：其中 light 绑到 :root，加载后会覆盖当前 cyber 变量。
+ * light 见文件末尾手写块（无 :root）；其余用官方单文件。
+ */
+@import 'daisyui/theme/dark.css';
+@import 'daisyui/theme/cupcake.css';
+@import 'daisyui/theme/bumblebee.css';
+@import 'daisyui/theme/emerald.css';
+@import 'daisyui/theme/corporate.css';
+@import 'daisyui/theme/synthwave.css';
+@import 'daisyui/theme/retro.css';
+@import 'daisyui/theme/cyberpunk.css';
+@import 'daisyui/theme/valentine.css';
+@import 'daisyui/theme/halloween.css';
+@import 'daisyui/theme/garden.css';
+@import 'daisyui/theme/forest.css';
+@import 'daisyui/theme/aqua.css';
+@import 'daisyui/theme/lofi.css';
+@import 'daisyui/theme/pastel.css';
+@import 'daisyui/theme/fantasy.css';
+@import 'daisyui/theme/wireframe.css';
+@import 'daisyui/theme/black.css';
+@import 'daisyui/theme/luxury.css';
+@import 'daisyui/theme/dracula.css';
+@import 'daisyui/theme/cmyk.css';
+@import 'daisyui/theme/autumn.css';
+@import 'daisyui/theme/business.css';
+@import 'daisyui/theme/acid.css';
+@import 'daisyui/theme/lemonade.css';
+@import 'daisyui/theme/night.css';
+@import 'daisyui/theme/coffee.css';
+@import 'daisyui/theme/winter.css';
+@import 'daisyui/theme/dim.css';
+@import 'daisyui/theme/nord.css';
+@import 'daisyui/theme/sunset.css';
+@import 'daisyui/theme/caramellatte.css';
+@import 'daisyui/theme/abyss.css';
+@import 'daisyui/theme/silk.css';
+
+/* light：去掉 :root，避免异步注入时冲掉首屏 cyber */
+:root:has(input.theme-controller[value='light']:checked),
+[data-theme='light'] {
+  color-scheme: light;
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(98% 0 0);
+  --color-base-300: oklch(95% 0 0);
+  --color-base-content: oklch(21% 0.006 285.885);
+  --color-primary: oklch(45% 0.24 277.023);
+  --color-primary-content: oklch(93% 0.034 272.788);
+  --color-secondary: oklch(65% 0.241 354.308);
+  --color-secondary-content: oklch(94% 0.028 342.258);
+  --color-accent: oklch(77% 0.152 181.912);
+  --color-accent-content: oklch(38% 0.063 188.416);
+  --color-neutral: oklch(14% 0.005 285.823);
+  --color-neutral-content: oklch(92% 0.004 286.32);
+  --color-info: oklch(74% 0.16 232.661);
+  --color-info-content: oklch(29% 0.066 243.157);
+  --color-success: oklch(76% 0.177 163.223);
+  --color-success-content: oklch(37% 0.077 168.94);
+  --color-warning: oklch(82% 0.189 84.429);
+  --color-warning-content: oklch(41% 0.112 45.904);
+  --color-error: oklch(71% 0.194 13.428);
+  --color-error-content: oklch(27% 0.105 12.094);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}

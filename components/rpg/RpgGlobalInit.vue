@@ -20,12 +20,48 @@
    * - banStatus（禁言）     → RpgBanPunishAnimation
    * - 钻石不足              → RpgRechargeDynamicModal（动态小程序码建单）
    */
+import { defineAsyncComponent } from 'vue';
 import { useRpg } from '~~/composables/use-rpg';
 import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
 import { useRpgRealtimeHandlers } from '~~/composables/use-rpg-realtime-handlers';
 import { refreshUserInfo } from '@/composables/use-common';
 import { syncUserLikes } from '@/utils/common';
 import { messageInfo } from '@/utils/toast';
+
+/** 全屏动效按块异步拆分，减轻 RpgGlobalInit 同步图 */
+const RpgLevelUpAnimation = defineAsyncComponent(
+  () => import('~/components/rpg/LevelUpAnimation.vue'),
+);
+const RpgAchievementAnimation = defineAsyncComponent(
+  () => import('~/components/rpg/AchievementAnimation.vue'),
+);
+const RpgMasterpieceAnimation = defineAsyncComponent(
+  () => import('~/components/rpg/RpgMasterpieceAnimation.vue'),
+);
+const RpgSocialFeedbackAnimation = defineAsyncComponent(
+  () => import('~/components/rpg/RpgSocialFeedbackAnimation.vue'),
+);
+const RpgPetHatchAnimation = defineAsyncComponent(
+  () => import('~/components/rpg/RpgPetHatchAnimation.vue'),
+);
+const RpgItemRevealAnimation = defineAsyncComponent(
+  () => import('~/components/rpg/RpgItemRevealAnimation.vue'),
+);
+const RpgRankChangeAnimation = defineAsyncComponent(
+  () => import('~/components/rpg/RpgRankChangeAnimation.vue'),
+);
+const RpgQuestRewardAnimation = defineAsyncComponent(
+  () => import('~/components/rpg/RpgQuestRewardAnimation.vue'),
+);
+const RpgBanPunishAnimation = defineAsyncComponent(
+  () => import('~/components/rpg/RpgBanPunishAnimation.vue'),
+);
+const RpgRechargeDynamicModal = defineAsyncComponent(
+  () => import('~/components/rpg/RpgRechargeDynamicModal.vue'),
+);
+const RpgRechargeModal = defineAsyncComponent(
+  () => import('~/components/rpg/RpgRechargeModal.vue'),
+);
 
 const token = useToken();
 const userInfo = useUserInfo();
@@ -44,6 +80,7 @@ const {
   achievementRarityColor,
   achievementRarityLabel,
   achievementRarityIcon,
+  achievementIconKey,
   masterpieceVisible,
   masterpieceData,
   socialFeedbackVisible,
@@ -160,7 +197,7 @@ onMounted(() => {
     (info) => {
       if (signHintShown.value || !info || info.signedToday) return;
       signHintShown.value = true;
-      messageInfo('📅 今日尚未签到，去冒险页签到领 EXP 吧！');
+      messageInfo('今日尚未签到，去冒险页签到领 EXP 吧！');
     },
     { immediate: true },
   );
@@ -182,6 +219,7 @@ onMounted(() => {
       :rarity-color="achievementRarityColor"
       :rarity-label="achievementRarityLabel"
       :rarity-icon="achievementRarityIcon"
+      :icon-key="achievementIconKey"
       @close="closeAchievement"
     />
     <RpgMasterpieceAnimation

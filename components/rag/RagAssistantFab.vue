@@ -2,10 +2,16 @@
 /**
    * 全站 RAG 助手：Cyber FAB + UChatMessages（AI SDK Chat 流式，需登录，每日配额）
    */
+import { defineAsyncComponent } from 'vue';
 import { isTextUIPart } from 'ai';
 import { getRagStatus, type RagCitation } from '@/api/rag';
 import { useRagAssistant } from '@/composables/use-rag-assistant';
 import { messageError } from '@/utils/toast';
+
+/** 有助手消息再拉 MdPreview + editor-config CSS，避免 FAB 挂载即打入 md-editor */
+const RagAssistantMdPreview = defineAsyncComponent(
+  () => import('~/components/rag/RagAssistantMdPreview.vue'),
+);
 
 const mdEditorTheme = useMdEditorTheme();
 
@@ -492,8 +498,9 @@ watch(loading, (isLoading, wasLoading) => {
       min-width: 0;
       box-sizing: border-box;
 
+      /* v7：暗色由 data-theme="dark" 表示，不再挂 .md-editor-dark */
       .md-editor,
-      .md-editor-dark {
+      .md-editor[data-theme='dark'] {
         --md-bk-color: transparent;
         background: transparent !important;
         border: none !important;
@@ -502,7 +509,7 @@ watch(loading, (isLoading, wasLoading) => {
 
       .md-editor-preview-wrapper,
       .md-editor-preview,
-      .md-editor-dark .md-editor-preview {
+      .md-editor[data-theme='dark'] .md-editor-preview {
         background: transparent !important;
         background-image: none !important;
         font-size: inherit;

@@ -4,14 +4,19 @@
    */
 import { resolveRarityDisplayColor } from '~~/utils/rpg-rarity';
 
-const props = defineProps<{
-  visible: boolean;
-  name: string;
-  expReward?: number;
-  rarityColor?: string;
-  rarityLabel?: string;
-  rarityIcon?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    visible: boolean;
+    name: string;
+    expReward?: number;
+    rarityColor?: string;
+    rarityLabel?: string;
+    rarityIcon?: string;
+    /** v6/G：成就美术图 key（/rpg/icons 下文件名），命中则用美术图替代 emoji 主角 */
+    iconKey?: string;
+  }>(),
+  { expReward: 0, rarityColor: '', rarityLabel: '', rarityIcon: '', iconKey: '' },
+);
 
 const emit = defineEmits<{
   close: [];
@@ -45,7 +50,21 @@ const handleClose = () => {
       <div v-if="visible" class="achievement-overlay" @click="handleClose">
         <div class="achievement-modal" @click.stop>
           <div class="achievement-icon rpg-loot-icon rpg-loot-icon--tinted" :style="iconStyle">
-            {{ rarityIcon || '🏆' }}
+            <img
+              v-if="iconKey"
+              class="achievement-icon__art"
+              :src="`/rpg/icons/${iconKey}.png`"
+              alt=""
+            >
+            <img
+              v-else-if="!rarityIcon"
+              class="achievement-icon__art"
+              src="/rpg/icons/trophy.png"
+              alt=""
+            >
+            <template v-else>
+              {{ rarityIcon }}
+            </template>
           </div>
           <div class="achievement-badge">
             成就达成
@@ -97,6 +116,14 @@ const handleClose = () => {
     font-size: 28px;
     border-radius: 14px;
     animation: iconBounce 0.9s ease infinite;
+  }
+
+  /* v6/G：美术图主角 */
+  .achievement-icon__art {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 5px rgb(0 0 0 / 0.3));
   }
 
   .achievement-badge {

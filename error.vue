@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import config from './config';
+import { PAGE_404_GIF, PAGE_ERROR_GIF } from '@/utils/placeholder-images';
 
 const props = defineProps({
   error: {
@@ -24,11 +24,11 @@ const handleError = () => clearError({ redirect: '/' });
 <template>
   <CyberPageContainer label="ERROR" :title="errorTitle" :subtitle="errorSubtitle">
     <CyberCard class="flex flex-col items-center py-12 text-center">
-      <img v-if="is404" :src="config.gif404" alt="404" class="mb-8 max-h-48 opacity-80">
+      <img v-if="is404" :src="PAGE_404_GIF" alt="404" class="mb-8 max-h-48 opacity-80">
       <div
         v-else
         class="mb-8 h-40 w-64 bg-contain bg-center bg-no-repeat opacity-80"
-        :style="{ backgroundImage: `url(${config.gifError})` }"
+        :style="{ backgroundImage: `url(${PAGE_ERROR_GIF})` }"
       />
       <p class="cyber-gradient-text mb-2 text-xl md:text-4xl">
         <template v-if="is404">

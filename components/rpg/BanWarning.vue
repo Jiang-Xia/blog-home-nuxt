@@ -33,7 +33,7 @@ const banEndTimeText = computed(() => {
 <template>
   <div v-if="banStatus?.banned" class="ban-warning">
     <div class="ban-icon">
-      🔇
+      <img class="ban-icon__art" src="/rpg/icons/megaphone.png" alt="">
     </div>
     <div class="ban-info">
       <div class="ban-title">
@@ -53,23 +53,38 @@ const banEndTimeText = computed(() => {
 </template>
 
 <style scoped>
+  /* v6/I2：灰章 + 红左缘警示（同 H 敏感词卡纪律感语言） */
   .ban-warning {
     display: flex;
     gap: 12px;
-    padding: 16px;
-    border-radius: 12px;
-    background: linear-gradient(
-      135deg,
-      var(--rpg-danger-bg),
-      color-mix(in srgb, var(--rpg-danger-bg) 80%, var(--rpg-danger-border))
-    );
+    padding: 14px 16px;
+    border-radius: 0 12px 12px 0;
     border: 1px solid var(--rpg-danger-border);
+    border-left: 4px solid var(--rpg-danger);
+    background: linear-gradient(
+      90deg,
+      var(--rpg-danger-bg),
+      color-mix(in srgb, var(--rpg-danger-bg) 55%, transparent)
+    );
     margin: 12px 0;
   }
 
   .ban-icon {
-    font-size: 32px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
     flex-shrink: 0;
+    border: 2px solid var(--rpg-danger-border);
+    background: var(--rpg-surface);
+  }
+
+  .ban-icon__art {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    filter: grayscale(0.35) opacity(0.85);
   }
 
   .ban-info {

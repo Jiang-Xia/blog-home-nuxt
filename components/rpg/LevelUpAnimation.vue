@@ -49,15 +49,7 @@ const handleClose = () => {
       <div v-if="visible && levelUpData" class="level-up-overlay" @click="handleClose">
         <div class="level-up-modal" @click.stop>
           <div class="level-up-icon" aria-hidden="true">
-            <svg class="level-up-star" viewBox="0 0 64 64" fill="none">
-              <path
-                d="M32 6 L38.5 24.5 L58 24.5 L42.5 36.5 L48.5 55 L32 43.5 L15.5 55 L21.5 36.5 L6 24.5 L25.5 24.5 Z"
-                fill="#fbbf24"
-                stroke="#d97706"
-                stroke-width="2"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <img class="level-up-art" src="/rpg/art/level-up.png" alt="">
           </div>
           <div class="level-up-badge">
             升级！
@@ -82,7 +74,8 @@ const handleClose = () => {
               解锁奖励
             </div>
             <div v-for="r in rewards" :key="r.level" class="reward-item">
-              <span v-if="r.currencyReward" class="reward-diamond">💎 {{ r.currencyReward }} {{ r.currencyName }}</span>
+              <span v-if="r.currencyReward" class="reward-diamond"><img class="reward-art" src="/rpg/icons/gem.png" alt=""> {{ r.currencyReward }}
+                {{ r.currencyName }}</span>
               <span v-if="r.frameName" class="reward-frame">{{ r.frameEmoji }} {{ r.frameName }}</span>
               <span v-if="r.titleName" class="reward-title">{{ r.titleEmoji }} {{ r.titleName }}</span>
             </div>
@@ -132,9 +125,10 @@ const handleClose = () => {
     filter: drop-shadow(0 4px 10px rgba(217, 119, 6, 0.3));
   }
 
-  .level-up-star {
-    width: 52px;
-    height: 52px;
+  .level-up-art {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
   }
 
   .level-up-badge {
@@ -258,5 +252,13 @@ const handleClose = () => {
   .level-up-leave-to .level-up-modal {
     opacity: 0;
     transform: scale(0.92);
+  }
+  /* v6/G：货币奖励美术小图 */
+  .reward-art {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    vertical-align: -2px;
+    margin-right: 2px;
   }
 </style>

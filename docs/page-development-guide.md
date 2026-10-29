@@ -165,9 +165,11 @@ Layout 根节点已设置基础样式：
 
 ### 4.2 主题机制
 
-- 主题切换：`document.documentElement` 的 `class` + `data-theme`（`cyber` / `cyber-light`）
+- 主题切换：`document.documentElement` 的 `class` + `data-theme`（默认 `cyber` / `cyber-light`；面板仍可选全部 DaisyUI 主题）
 - 壳层 class：`html.tech-shell` 挂载设计令牌
 - 初始化：`app.vue` → `useThemeActions().initTheme()`
+- **首屏 CSS**：`assets/css/main.css` 仅内嵌 `cyber` / `cyber-light`；其余内置主题在 `assets/css/themes-extra.css`，由 `ensureExtraThemesCss()` 异步加载。本地非 cyber 时 boot 先套同色系 interim，`plugins/theme-extra.client.ts` 尽早拉 extra 再切真实主题；面板 `pointerdown`/`mouseenter` 预取。勿把 `themes: all` 写回 main
+- **图片占位**：默认 `public/img/loading3-min.gif` / `load-failed.svg`（public 路径字符串，勿静态 import 大 GIF）
 
 新增或修改全局样式时，必须在 **深色（cyber）** 和 **浅色（cyber-light）** 下各验证一次。`/welcome` 为沉浸黑底 + `.liquid-glass` / `.welcome-*`，并靠 `html.welcome-route` 固定白字；首页 `/` 仍为常规 cyber。
 
@@ -419,6 +421,9 @@ Layout 根节点已带 `bg-tech-shell text-tech`，普通内容页**无需再包
 - 首屏/列表页避免多层 `shadow`、`blur`、滤镜叠加
 - 路由过渡已配置：`pageTransition: { name: 'scale', mode: 'out-in' }`，勿添加冲突的全页 opacity 动画
 - 大特效组件（粒子、3D）按需加载，避免阻塞首屏
+- **勿在 `app.vue` 静态引入 `md-editor-v3` / `editor-config`**；详情、关于、文章编辑、RAG 预览入口调用 `ensureEditorConfig()`（幂等）
+- 仅需封面宽高比时 import `utils/cover-aspect.ts`，勿从 `image-compress` 引入（会连带 media-compress worker）
+- 全局插件/通用图片组件勿静态 import 大体积 loading GIF；占位用 `public/img` 下 SVG（见 `utils/placeholder-images.ts`）
 
 ---
 

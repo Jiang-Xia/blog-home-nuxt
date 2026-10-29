@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
-   * 个人空间RPG综合卡片 - 整合等级、成就、任务（含周常）、Buff 等（纯展示 + 事件上报）
+   * 个人空间RPG综合卡片（v4 去重版）—— 等级/经验/生命/签到里程已由 RpgHeroPanel 统一展示，
+   * 本卡只保留：角色专属标识、签到站（按钮+累计天数+里程碑）、任务/成就/增益面板、收藏穿戴、敏感词记录
    * 任务数据：GET /rpg/my-quests → questGroups.daily/bounty/weekly/special
    */
 import type {
@@ -13,8 +14,7 @@ import type {
   UserBuff,
   UserQuestProgress,
 } from '~~/types/rpg';
-import { getRpgLifeColor } from '~~/composables/use-rpg-theme';
-import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
+import { hasRpgIconAsset } from '~~/utils/rpg-item-asset';
 import { formactDate } from '@/utils/common';
 import RpgQuestPanel from './QuestPanel.vue';
 import RpgAchievementPanel from './AchievementPanel.vue';
@@ -46,27 +46,15 @@ const emit = defineEmits<{
   toggleBuff: [buff: UserBuff & { triggerMode?: string; isActive?: boolean }];
 }>();
 
-const getLevelThreshold = (level: number): number => {
-  if (level <= 1) return 0;
-  return level * (level - 1) * 50;
-};
-
-/** 当前等级段内经验进度（current/required/percent） */
-const expProgress = computed(() => {
-  const { level, exp } = props.rpgStatus;
-  const currentThreshold = getLevelThreshold(level);
-  const nextThreshold = getLevelThreshold(level + 1);
-  const current = exp - currentThreshold;
-  const required = nextThreshold - currentThreshold;
-  const percent = required > 0 ? Math.min(100, Math.round((current / required) * 100)) : 100;
-  return { current, required, percent };
-});
-
-const lifeColor = computed(() => getRpgLifeColor(props.rpgStatus.lifeValue ?? 100));
-
-const lifePercent = computed(() => props.rpgStatus.lifeValue ?? 100);
 const isBanned = computed(() => props.banStatus?.banned ?? false);
 const roleReward = computed(() => props.rpgStatus.roleReward ?? null);
+
+/** 角色专属头像框美术图（icon 键命中本地资产时使用，否则回退 🛡 emoji） */
+const roleFrameArt = computed(() => {
+  const code = roleReward.value?.avatarFrame;
+  if (!code || !hasRpgIconAsset(code)) return null;
+  return `/rpg/icons/${code}.png`;
+});
 
 const completedAchievementCount = computed(
   () => props.achievements.filter(a => a.completed).length,
@@ -88,6 +76,23 @@ const questProgressText = computed(() => {
 const claimableQuests = computed(() => allQuests.value.filter(q => q.completed && !q.claimed));
 
 const activeBuffCount = computed(() => props.buffs.length);
+
+/** 连续签到里程碑（对齐 sign.service bonusExp 阶梯 3/7/14/30 · 美术改版 v2） */
+const signMilestones = [
+  { days: 3, reward: '+5 EXP', icon: 'exp' },
+  { days: 7, reward: '+15 EXP', icon: 'ticket' },
+  { days: 14, reward: '+25 EXP', icon: 'gem' },
+  { days: 30, reward: '+50 EXP', icon: 'frame-gold' },
+];
+
+const signMilestoneStates = computed(() => {
+  const streak = props.signInfo?.consecutiveSignDays ?? 0;
+  return signMilestones.map(m => ({
+    ...m,
+    reached: streak >= m.days,
+    nextBonusAt: props.signInfo?.nextBonusAt ?? null,
+  }));
+});
 
 const lastSignInResult = ref<SignInResult | null>(null);
 
@@ -119,6 +124,17 @@ const toggleHitRecords = () => {
     emit('loadHitRecords');
   }
 };
+
+/* ── v6/H 敏感词警示行卡：来源标题 + 命中词红 chips（不复述原文） ── */
+const hitSourceLabel = (t: string) =>
+  t === 'comment' ? '评论被拦截' : t === 'reply' ? '回复被拦截' : '留言被拦截';
+
+const hitWordList = (raw: string) =>
+  (raw || '')
+    .split(/[,，;；、/|]+/)
+    .map(s => s.trim())
+    .filter(Boolean)
+    .slice(0, 5);
 </script>
 
 <template>
@@ -129,7 +145,14 @@ const toggleHitRecords = () => {
       class="role-badge"
       :style="{ borderColor: roleReward.avatarFrameColor || '#ccc' }"
     >
-      <span class="role-frame" :style="{ color: roleReward.avatarFrameColor || '#ccc' }">🛡</span>
+      <img v-if="roleFrameArt" class="role-frame-art" :src="roleFrameArt" alt="">
+      <img
+        v-else
+        class="role-frame"
+        :style="{ filter: 'drop-shadow(0 2px 6px rgb(60 40 110 / 0.3))' }"
+        src="/rpg/icons/shield.png"
+        alt=""
+      >
       <span class="role-title">{{ roleReward.titleName }}</span>
       <span class="role-frame-name">{{
         roleReward.avatarFrameName || roleReward.avatarFrame
@@ -139,42 +162,7 @@ const toggleHitRecords = () => {
     <!-- 禁言警告 -->
     <RpgBanWarning :ban-status="banStatus" />
 
-    <!-- 等级与头像区域 -->
-    <div class="card-header">
-      <div class="level-badge">
-        <span class="lv-text">LV</span>
-        <span class="lv-num">{{ rpgStatus.level }}</span>
-      </div>
-      <div class="header-info">
-        <div class="exp-row">
-          <span class="exp-label">累计经验</span>
-          <span class="exp-num">{{ rpgStatus.exp.toLocaleString() }}</span>
-        </div>
-        <div class="exp-row exp-level-row">
-          <span class="exp-label">Lv{{ rpgStatus.level }} → Lv{{ rpgStatus.level + 1 }}</span>
-          <span class="exp-fraction">{{ expProgress.current }} / {{ expProgress.required }}</span>
-        </div>
-        <div class="exp-bar">
-          <div class="exp-bar-fill" :style="{ width: expProgress.percent + '%' }" />
-        </div>
-      </div>
-    </div>
-
-    <!-- 生命值 -->
-    <div class="life-row">
-      <span class="life-icon">❤️</span>
-      <div class="life-bar-wrap">
-        <div class="life-bar">
-          <div
-            class="life-bar-fill"
-            :style="{ width: lifePercent + '%', backgroundColor: lifeColor }"
-          />
-        </div>
-      </div>
-      <span class="life-num" :style="{ color: lifeColor }">{{ rpgStatus.lifeValue }}</span>
-    </div>
-
-    <!-- 签到区域 -->
+    <!-- 签到区域（等级/经验/生命由顶部英雄面板统一展示，v4 去重） -->
     <div class="sign-section">
       <div class="sign-main">
         <button
@@ -186,15 +174,11 @@ const toggleHitRecords = () => {
         </button>
         <div class="sign-stats">
           <span class="sign-chip" title="累计签到天数">
-            <span class="chip-icon" aria-hidden="true">📅</span>
+            <span class="chip-icon" aria-hidden="true">
+              <img class="chip-art" src="/rpg/icons/calendar.png" alt="">
+            </span>
             <span class="chip-text">
               累计 <strong class="chip-num">{{ signInfo?.totalSignDays ?? 0 }}</strong> 天
-            </span>
-          </span>
-          <span v-if="signInfo?.consecutiveSignDays" class="sign-chip streak" title="连续签到天数">
-            <span class="chip-icon" aria-hidden="true">🔥</span>
-            <span class="chip-text">
-              连续 <strong class="chip-num">{{ signInfo.consecutiveSignDays }}</strong> 天
             </span>
           </span>
         </div>
@@ -203,12 +187,37 @@ const toggleHitRecords = () => {
         v-if="lastSignInResult?.bonusExp || lastSignInResult?.lifeRecovered"
         class="sign-result-tip"
       >
-        <span v-if="lastSignInResult.bonusExp" class="bonus-tip">🎁 +{{ lastSignInResult.bonusExp }}经验</span>
-        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip">❤️ +{{ lastSignInResult.lifeRecovered }}生命</span>
+        <span v-if="lastSignInResult.bonusExp" class="bonus-tip">
+          <img class="tip-art" src="/rpg/icons/gift.png" alt=""> +{{
+            lastSignInResult.bonusExp
+          }}经验
+        </span>
+        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip">
+          <img class="tip-art" src="/rpg/icons/heart.png" alt=""> +{{
+            lastSignInResult.lifeRecovered
+          }}生命
+        </span>
       </div>
     </div>
 
-    <!-- 数据概览 / Tab 切换 -->
+    <!-- 连续签到里程碑轨道（3/7/14/30 · bonusExp 阶梯） -->
+    <div class="milestone-track" aria-label="连续签到里程碑">
+      <div
+        v-for="m in signMilestoneStates"
+        :key="m.days"
+        class="milestone"
+        :class="{ 'milestone--reached': m.reached }"
+      >
+        <span class="milestone__node">
+          <img class="milestone__ico" :src="`/rpg/icons/${m.icon}.png`" alt="" loading="lazy">
+          <span v-if="m.reached" class="milestone__check">✓</span>
+        </span>
+        <small class="milestone__days">连续 {{ m.days }} 天</small>
+        <span class="milestone__reward">{{ m.reward }}</span>
+      </div>
+    </div>
+
+    <!-- 数据概览 / Tab 切换（v6/A3：美术圆章 Tab） -->
     <div class="stats-bar" role="tablist" aria-label="RPG 数据面板">
       <button
         type="button"
@@ -218,6 +227,7 @@ const toggleHitRecords = () => {
         :aria-selected="activeTab === 'achievements'"
         @click="switchTab('achievements')"
       >
+        <span class="stat-coin"><img src="/rpg/icons/trophy.png" alt="" loading="lazy"></span>
         <span class="stat-num">{{ completedAchievementCount }}</span>
         <span class="stat-label">成就</span>
       </button>
@@ -229,6 +239,7 @@ const toggleHitRecords = () => {
         :aria-selected="activeTab === 'quests'"
         @click="switchTab('quests')"
       >
+        <span class="stat-coin"><img src="/rpg/icons/scroll.png" alt="" loading="lazy"></span>
         <span class="stat-num">{{ questProgressText }}</span>
         <span class="stat-label">任务</span>
         <span v-if="claimableQuests.length" class="stat-badge">{{ claimableQuests.length }}</span>
@@ -241,6 +252,7 @@ const toggleHitRecords = () => {
         :aria-selected="activeTab === 'buffs'"
         @click="switchTab('buffs')"
       >
+        <span class="stat-coin"><img src="/rpg/icons/sparkle.png" alt="" loading="lazy"></span>
         <span class="stat-num">{{ activeBuffCount }}</span>
         <span class="stat-label">增益</span>
       </button>
@@ -265,7 +277,9 @@ const toggleHitRecords = () => {
       class="collections"
     >
       <div v-if="rpgStatus.unlockedAvatarFrames?.length" class="collection-row">
-        <span class="collection-label">🖼 头像框</span>
+        <span class="collection-label">
+          <img class="label-art" src="/rpg/icons/frame-gold.png" alt=""> 头像框
+        </span>
         <div class="collection-items">
           <span
             v-for="frame in rpgStatus.unlockedAvatarFrames"
@@ -282,13 +296,16 @@ const toggleHitRecords = () => {
                 : emit('equip', 'avatar_frame', frame.code)
             "
           >
-            {{ resolveRpgItemEmoji(frame) }} {{ frame.name }}
+            <RpgItemIcon class="collection-tag__art" :icon="frame.icon" size="sm" :tinted="false" />
+            {{ frame.name }}
             <span v-if="rpgStatus.equippedAvatarFrame === frame.code" class="equipped-badge">已穿戴</span>
           </span>
         </div>
       </div>
       <div v-if="rpgStatus.unlockedTitles?.length" class="collection-row">
-        <span class="collection-label">🏆 称号</span>
+        <span class="collection-label">
+          <img class="label-art" src="/rpg/icons/crown.png" alt=""> 称号
+        </span>
         <div class="collection-items">
           <span
             v-for="title in rpgStatus.unlockedTitles"
@@ -301,7 +318,8 @@ const toggleHitRecords = () => {
                 : emit('equip', 'title', title.code)
             "
           >
-            {{ resolveRpgItemEmoji(title) }} {{ title.name }}
+            <RpgItemIcon class="collection-tag__art" :icon="title.icon" size="sm" :tinted="false" />
+            {{ title.name }}
             <span v-if="rpgStatus.equippedTitle === title.code" class="equipped-badge">已穿戴</span>
           </span>
         </div>
@@ -312,22 +330,24 @@ const toggleHitRecords = () => {
     <div class="hits-toggle">
       <div class="section-title clickable" @click="toggleHitRecords">
         敏感词记录 ({{ hitRecordsTotal || rpgStatus.sensitiveHitsCount || 0 }})
-        <span class="toggle-icon">{{ showHitRecords ? '▼' : '▶' }}</span>
+        <span class="toggle-chevron" :class="{ 'toggle-chevron--open': showHitRecords }" />
       </div>
       <div v-if="showHitRecords" class="hits-list">
         <div v-if="hitRecords.length === 0" class="hits-empty">
           暂无记录
         </div>
-        <div v-for="hit in hitRecords" :key="hit.id" class="hit-item">
-          <div class="hit-content">
-            {{ hit.content }}
+        <div v-for="hit in hitRecords" :key="hit.id" class="hit-card">
+          <div class="hit-card__ico">
+            <img src="/rpg/icons/shield.png" alt="" loading="lazy">
           </div>
-          <div class="hit-words">
-            命中: {{ hit.hitWords }}
+          <div class="hit-card__body">
+            <b>{{ hitSourceLabel(hit.sourceType) }}</b>
+            <div class="hit-card__chips">
+              <span v-for="w in hitWordList(hit.hitWords)" :key="w" class="hit-word">命中 · {{ w }}</span>
+              <span class="hit-note">该次内容未计入</span>
+            </div>
           </div>
-          <div class="hit-time">
-            {{ formactDate(hit.createTime) }}
-          </div>
+          <span class="hit-time">{{ formactDate(hit.createTime) }}</span>
         </div>
       </div>
     </div>
@@ -358,7 +378,17 @@ const toggleHitRecords = () => {
   }
 
   .role-frame {
-    font-size: 16px;
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+  }
+
+  .role-frame-art {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.18));
   }
   .role-title {
     font-weight: 800;
@@ -369,120 +399,6 @@ const toggleHitRecords = () => {
     font-size: 11px;
     color: var(--rpg-amber-text-soft);
     margin-left: auto;
-  }
-
-  /* Header: level + exp */
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 12px;
-  }
-
-  .level-badge {
-    flex-shrink: 0;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: var(--rpg-level-badge-gradient);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    box-shadow: 0 3px 10px var(--rpg-level-shadow);
-  }
-
-  .lv-text {
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 1px;
-  }
-  .lv-num {
-    font-size: 18px;
-    font-weight: 900;
-    line-height: 1;
-  }
-
-  .header-info {
-    flex: 1;
-  }
-
-  .exp-row {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-bottom: 5px;
-  }
-
-  .exp-level-row {
-    margin-bottom: 5px;
-  }
-
-  .exp-label {
-    font-size: 12px;
-    color: var(--rpg-text-secondary);
-  }
-  .exp-num {
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--rpg-text);
-  }
-  .exp-fraction {
-    font-size: 11px;
-    color: var(--rpg-text-muted);
-  }
-
-  .exp-bar {
-    height: 7px;
-    background: var(--rpg-track);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .exp-bar-fill {
-    height: 100%;
-    background: var(--rpg-exp-gradient);
-    border-radius: 4px;
-    transition: width 0.5s ease;
-  }
-
-  /* Life */
-  .life-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .life-icon {
-    font-size: 14px;
-  }
-
-  .life-bar-wrap {
-    flex: 1;
-  }
-
-  .life-bar {
-    height: 8px;
-    background: var(--rpg-track);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .life-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition:
-      width 0.5s ease,
-      background-color 0.5s ease;
-  }
-
-  .life-num {
-    font-size: 13px;
-    font-weight: 700;
-    min-width: 28px;
-    text-align: right;
   }
 
   /* Sign */
@@ -545,16 +461,24 @@ const toggleHitRecords = () => {
     flex-shrink: 0;
   }
 
-  .sign-chip.streak {
-    background: var(--rpg-amber-bg);
-    border-color: color-mix(in oklch, var(--rpg-amber) 25%, transparent);
-    color: var(--rpg-amber-text-soft);
-  }
-
   .chip-icon {
     flex-shrink: 0;
     font-size: 12px;
     line-height: 1;
+  }
+
+  .chip-art {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    vertical-align: -2px;
+  }
+
+  .tip-art {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+    vertical-align: -2px;
   }
 
   .chip-text {
@@ -566,10 +490,6 @@ const toggleHitRecords = () => {
   .chip-num {
     font-weight: 800;
     color: var(--rpg-text);
-  }
-
-  .sign-chip.streak .chip-num {
-    color: var(--rpg-amber-text);
   }
 
   .sign-result-tip {
@@ -619,12 +539,36 @@ const toggleHitRecords = () => {
     align-items: center;
     padding: 6px 4px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     background: transparent;
     cursor: pointer;
     transition:
       background-color 0.2s,
       color 0.2s;
+  }
+
+  /* v6/A3：圆章主视觉 —— 32px 美术图 + 灰细环，激活换金环金底 */
+  .stat-coin {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--rpg-border);
+    background: var(--rpg-bg-alt);
+    margin-bottom: 3px;
+    transition:
+      border-color 0.2s,
+      background 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .stat-coin img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    filter: grayscale(0.2) opacity(0.78);
+    transition: filter 0.2s;
   }
 
   .stat-item:hover {
@@ -633,6 +577,18 @@ const toggleHitRecords = () => {
 
   .stat-item.active {
     background: var(--rpg-violet-bg);
+  }
+
+  .stat-item.active .stat-coin {
+    border-color: var(--rpg-art-gold, #d9a13c);
+    background: radial-gradient(circle at 34% 30%, #fffaf0, #fdf3da);
+    box-shadow:
+      0 0 0 3px rgb(217 161 60 / 0.16),
+      0 2px 8px rgb(217 161 60 / 0.3);
+  }
+
+  .stat-item.active .stat-coin img {
+    filter: none;
   }
 
   .stat-item.active .stat-num {
@@ -696,10 +652,19 @@ const toggleHitRecords = () => {
   }
 
   .collection-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 11px;
     color: var(--rpg-text-secondary);
     white-space: nowrap;
     min-width: 52px;
+  }
+
+  .label-art {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
   }
 
   .collection-items {
@@ -709,7 +674,10 @@ const toggleHitRecords = () => {
   }
 
   .collection-tag {
-    padding: 3px 9px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px 3px 4px;
     border-radius: 999px;
     border: 1px solid;
     font-size: 11px;
@@ -717,6 +685,16 @@ const toggleHitRecords = () => {
     cursor: default;
     background: var(--rpg-loot-bg);
     box-shadow: var(--rpg-loot-inset);
+
+    :deep(.collection-tag__art.rpg-loot-icon) {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 12px;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+    }
 
     &.clickable {
       cursor: pointer;
@@ -762,9 +740,21 @@ const toggleHitRecords = () => {
     cursor: pointer;
     user-select: none;
   }
-  .toggle-icon {
-    font-size: 9px;
+  /* v6/H：折叠箭头换 CSS chevron 旋转过渡 */
+  .toggle-chevron {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
     margin-left: 4px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.2s ease;
+    vertical-align: 1px;
+  }
+
+  .toggle-chevron--open {
+    transform: rotate(45deg);
   }
 
   .hits-list {
@@ -781,26 +771,194 @@ const toggleHitRecords = () => {
     padding: 6px;
   }
 
-  .hit-item {
-    padding: 8px 10px;
+  /* ── v6/H 敏感词警示行卡：红左缘 + 盾形圆章 + 红 chips，克制不描金 ── */
+  .hit-card {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    border: 1px solid color-mix(in oklch, var(--rpg-danger, #d6455d) 22%, transparent);
+    border-left: 3px solid var(--rpg-danger, #d6455d);
     border-radius: 10px;
-    background: var(--rpg-loot-bg);
-    border: 1px solid var(--rpg-loot-border);
-    box-shadow: var(--rpg-loot-inset);
+    padding: 10px 12px;
+    background: color-mix(in oklch, var(--rpg-danger, #d6455d) 4%, var(--rpg-surface, #fdf7f7));
   }
 
-  .hit-content {
-    font-size: 11px;
-    color: var(--rpg-text-body);
-    word-break: break-all;
+  .hit-card__ico {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: color-mix(in oklch, var(--rpg-danger, #d6455d) 10%, transparent);
+    flex-shrink: 0;
   }
-  .hit-words {
+
+  .hit-card__ico img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+  }
+
+  .hit-card__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hit-card__body > b {
+    font-size: 12px;
+    color: var(--rpg-text-heading);
+  }
+
+  .hit-card__chips {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .hit-word {
     font-size: 10px;
-    color: var(--rpg-danger);
+    color: #b03636;
+    background: color-mix(in oklch, var(--rpg-danger, #d6455d) 10%, transparent);
+    border-radius: 999px;
+    padding: 1px 8px;
+    font-weight: 700;
   }
-  .hit-time {
-    font-size: 9px;
+
+  html.tech-shell[data-theme='cyber'] .hit-word {
+    color: color-mix(in oklch, var(--rpg-danger, #d6455d) 80%, #fff);
+  }
+
+  .hit-note {
+    font-size: 10.5px;
     color: var(--rpg-text-muted);
-    margin-top: 1px;
+  }
+
+  .hit-time {
+    margin-left: auto;
+    font-size: 10.5px;
+    color: var(--rpg-text-muted);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── 连续签到里程碑轨道（美术改版 v2）── */
+  .milestone-track {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 10px;
+    padding: 12px 6px 4px;
+    border-radius: 12px;
+    background: var(--rpg-bg-alt, oklch(var(--b2)));
+    border: 1px solid var(--rpg-border-subtle, oklch(var(--b3)));
+  }
+
+  .milestone {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* 节点间连线 */
+  .milestone::before {
+    content: '';
+    position: absolute;
+    top: 19px;
+    right: 50%;
+    width: 100%;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--rpg-track, oklch(var(--b3)));
+    z-index: 0;
+  }
+
+  .milestone:first-child::before {
+    display: none;
+  }
+
+  .milestone--reached::before {
+    background: var(--rpg-art-gold-grad);
+  }
+
+  .milestone__node {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--rpg-surface, oklch(var(--b1)));
+    border: 3px solid var(--rpg-border, oklch(var(--b3)));
+  }
+
+  .milestone--reached .milestone__node {
+    border-color: var(--rpg-art-gold, #d9a13c);
+    box-shadow: 0 0 0 3px var(--rpg-art-epic-glow, rgb(217 161 60 / 0.2));
+  }
+
+  .milestone__ico {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .milestone__check {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--rpg-art-gold-grad);
+    color: var(--rpg-art-gold-ink, #3a2408);
+    font-size: 9px;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    line-height: 1;
+  }
+
+  .milestone__days {
+    margin-top: 5px;
+    font-size: 10px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.55));
+    white-space: nowrap;
+  }
+
+  .milestone--reached .milestone__days {
+    color: var(--rpg-art-gold, #d9a13c);
+    font-weight: 700;
+  }
+
+  .milestone__reward {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--rpg-art-violet-deep, #5b3fd6);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 639px) {
+    .milestone__days {
+      font-size: 9px;
+    }
+
+    .milestone__reward {
+      font-size: 9.5px;
+    }
+
+    .milestone__node {
+      width: 32px;
+      height: 32px;
+    }
+
+    .milestone::before {
+      top: 16px;
+    }
   }
 </style>

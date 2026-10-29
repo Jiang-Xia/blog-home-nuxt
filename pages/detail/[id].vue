@@ -6,6 +6,7 @@
    */
 import { ref, reactive, computed, watch } from 'vue';
 import { MdPreview } from 'md-editor-v3';
+import { ensureEditorConfig } from '@/utils/editor-config';
 
 import { getArticleInfo, getComment } from '@/api/article';
 import {
@@ -21,7 +22,9 @@ import { resolvePublicAvatarFrame } from '@/composables/use-avatar-frame';
 import type { tocInter } from '@/utils';
 import Qie from '@/assets/images/animal/qie.svg';
 import { SiteTitle } from '@/utils/constant';
-import { coverAspectRatio } from '@/utils/image-compress';
+import { coverAspectRatio } from '@/utils/cover-aspect';
+
+ensureEditorConfig();
 
 const mdEditorTheme = useMdEditorTheme();
 const { open: openImagePreview } = useImagePreview();

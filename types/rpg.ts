@@ -111,6 +111,10 @@ export interface AvatarFrameInfo {
   code?: string;
   name?: string;
   color?: string | null;
+  /** 装扮物品的 icon 键（如 frame-gold），命中本地资产时渲染为图片框 */
+  icon?: string | null;
+  /** 管理端上传的框图 URL，优先于本地 icon 资产 */
+  iconUrl?: string | null;
 }
 
 /** 敏感词命中记录 */
@@ -230,27 +234,68 @@ export const ACHIEVEMENT_CATEGORY_MAP: Record<string, string> = {
 };
 
 /** 成就图标映射 */
+/** 成就图标 → /rpg/icons/{key}.png（美术改版 v4：emoji → 美术图；v5 补全后端全部 icon key，未收录走分类兜底） */
 export const ACHIEVEMENT_ICON_MAP: Record<string, string> = {
-  'pen': '✍️',
-  'books': '📚',
-  'library': '🏛️',
-  'crown': '👑',
-  'chat': '💬',
-  'megaphone': '📢',
-  'reply': '↩️',
-  'board': '📝',
-  'calendar': '📅',
-  'calendar-check': '🗓️',
-  'trophy': '🏆',
-  'fire': '🔥',
-  'flame': '🔥',
-  'heart': '❤️',
-  'hearts': '💕',
-  'bookmark': '🔖',
-  'bookmarks': '📑',
-  'star': '⭐',
-  'stars': '✨',
-  'crown-star': '👑',
+  'pen': 'pen',
+  'books': 'books',
+  'library': 'library',
+  'crown': 'crown',
+  'chat': 'chat',
+  'megaphone': 'megaphone',
+  'reply': 'reply',
+  'board': 'board',
+  'calendar': 'calendar',
+  'calendar-check': 'calendar-check',
+  'trophy': 'trophy',
+  'fire': 'fire',
+  'flame': 'flame',
+  'heart': 'heart',
+  'hearts': 'hearts',
+  'bookmark': 'bookmark',
+  'bookmarks': 'bookmarks',
+  'star': 'star',
+  'stars': 'stars',
+  'crown-star': 'crown-star',
+  'share': 'share',
+  'gem': 'gem',
+  'gems': 'gems',
+  'gift': 'gift',
+  'crown-gem': 'crown-gem',
+  'dice': 'dice',
+  'slot': 'slot',
+  'sparkle': 'sparkle',
+  'hand': 'hand',
+  'hands': 'hands',
+  'flower': 'flower',
+  'bouquet': 'bouquet',
+  'egg': 'egg',
+  'paw': 'paw',
+  'paws': 'paws',
+  'dragon-pet': 'dragon-pet',
+  'shield': 'shield',
+  'banner': 'banner',
+  'masterpiece': 'masterpiece',
+  'library-star': 'library-star',
+  'level-up': 'level-up',
+  'star-half': 'star-half',
+  'star-full': 'star-full',
+  'legend': 'legend',
+  'heart-star': 'heart-star',
+  'chat-star': 'chat-star',
+};
+
+/** 成就分类 → 兜底美术图（icon key 未收录或后端未下发 icon 时使用，替代奖杯 emoji） */
+export const ACHIEVEMENT_CATEGORY_ICON_FALLBACK: Record<string, string> = {
+  creation: 'pen',
+  social: 'chat',
+  exploration: 'scroll',
+  sign: 'calendar-check',
+  special: 'sparkle',
+  economy: 'gem',
+  lottery: 'dice',
+  pet: 'paw',
+  guild: 'shield',
+  author: 'quill',
 };
 
 /** 每日任务定义 */
@@ -313,12 +358,15 @@ export interface UserBuff {
 }
 
 /** Buff类型显示配置 */
-export const BUFF_TYPE_MAP: Record<BuffType, { icon: string; color: string; label: string }> = {
-  exp_boost: { icon: '✨', color: '#8b5cf6', label: '经验加成' },
-  hp_regen: { icon: '❤️‍🔥', color: '#ef4444', label: '生命恢复' },
-  ban_reduction: { icon: '🛡️', color: '#3b82f6', label: '禁言减免' },
-  shield: { icon: '🔰', color: '#10b981', label: '护盾' },
-  lucky: { icon: '⭐', color: '#f59e0b', label: '幸运' },
+export const BUFF_TYPE_MAP: Record<
+  BuffType,
+  { icon: string; color: string; label: string; art: string }
+> = {
+  exp_boost: { icon: '✨', color: '#8b5cf6', label: '经验加成', art: 'exp' },
+  hp_regen: { icon: '❤️‍🔥', color: '#ef4444', label: '生命恢复', art: 'fire' },
+  ban_reduction: { icon: '🛡️', color: '#3b82f6', label: '禁言减免', art: 'megaphone' },
+  shield: { icon: '🔰', color: '#10b981', label: '护盾', art: 'shield' },
+  lucky: { icon: '⭐', color: '#f59e0b', label: '幸运', art: 'star' },
 };
 
 /** 抽奖奖池（rarityLabel/Color/Icon 由后端 attachRarityDisplay 下发） */

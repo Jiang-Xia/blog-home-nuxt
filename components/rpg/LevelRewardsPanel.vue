@@ -1,10 +1,15 @@
 <script setup lang="ts">
 /**
-   * 等级奖励路线图
-   * 直接使用 API 返回的 avatarFrame/title/currencyName，不做本地物品 map
+   * 等级奖励 · 冒险征程（v5 重设计）
+   * 卡片语言：等级金币印章 + 主奖励大图标 + 次奖励清单行
+   * 主奖励优先级：称号 > 头像框 > 货币；未解锁卡整体压灰
    */
-import type { LevelReward, RpgStatus } from '~~/types/rpg';
-import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
+import type { CosmeticItemSummary, LevelReward, RpgStatus } from '~~/types/rpg';
+
+type RewardRow
+  = | { kind: 'currency'; amount: number; name: string }
+    | { kind: 'frame'; item: CosmeticItemSummary }
+    | { kind: 'title'; item: CosmeticItemSummary };
 
 const props = defineProps<{
   rpgStatus: RpgStatus | null;
@@ -24,22 +29,60 @@ const unlockPercent = computed(() =>
     : 0,
 );
 
-const isUnlocked = (level: number) => currentLevel.value >= level;
+const rewardRows = (reward: LevelReward): RewardRow[] => {
+  const rows: RewardRow[] = [];
+  if (reward.currencyReward) {
+    rows.push({
+      kind: 'currency',
+      amount: reward.currencyReward,
+      name: reward.currencyName || '钻石',
+    });
+  }
+  if (reward.avatarFrame?.name) rows.push({ kind: 'frame', item: reward.avatarFrame });
+  if (reward.title?.name) rows.push({ kind: 'title', item: reward.title });
+  return rows;
+};
 
-const hasAnyReward = (reward: LevelReward) =>
-  !!(reward.currencyReward || reward.avatarFrame?.name || reward.title?.name);
+const KIND_LABEL: Record<RewardRow['kind'], string> = {
+  title: '称号',
+  frame: '头像框',
+  currency: '货币',
+};
+
+const rowName = (row: RewardRow) =>
+  row.kind === 'currency' ? `${row.amount} ${row.name}` : row.item.name;
+
+/** 卡片展示模型：主奖励（大图标）+ 次奖励清单行 */
+const rewardCards = computed(() =>
+  props.levelRewards.map((reward) => {
+    const rows = rewardRows(reward);
+    const primary
+      = rows.find(r => r.kind === 'title')
+        || rows.find(r => r.kind === 'frame')
+        || rows[0]
+        || null;
+    return {
+      level: reward.level,
+      unlocked: currentLevel.value >= reward.level,
+      remaining: Math.max(0, reward.level - currentLevel.value),
+      primary,
+      secondary: primary ? rows.filter(r => r !== primary) : [],
+      empty: rows.length === 0,
+    };
+  }),
+);
 </script>
 
 <template>
   <div class="level-rewards-panel">
     <div class="panel-header">
       <div class="panel-summary">
-        <div class="summary-count">
-          <span class="summary-num">{{ unlockedCount }}</span>
-          <span class="summary-total">/{{ levelRewards.length }}</span>
+        <div class="summary-title">
+          <img class="rc-title-art" src="/rpg/icons/books.png" alt="" loading="lazy"> 冒险征程
         </div>
         <div class="summary-label">
-          已解锁等级奖励
+          已解锁 <strong class="summary-num">{{ unlockedCount }}</strong> /
+          {{ levelRewards.length }} 个等级奖励
         </div>
       </div>
       <div class="summary-ring">
@@ -69,52 +112,75 @@ const hasAnyReward = (reward: LevelReward) =>
     <div v-else-if="levelRewards.length === 0" class="empty">
       暂无等级奖励配置
     </div>
-    <div v-else class="rpg-loot-grid rpg-loot-grid--compact reward-grid">
+    <div v-else class="reward-grid">
       <div
-        v-for="reward in levelRewards"
-        :key="reward.level"
-        class="rpg-loot-card rpg-loot-card--reward"
+        v-for="card in rewardCards"
+        :key="card.level"
+        class="rpg-loot-card reward-card"
         :class="{
-          'rpg-loot-card--gold': isUnlocked(reward.level),
-          'rpg-loot-card--locked': !isUnlocked(reward.level),
+          'reward-card--unlocked': card.unlocked,
+          'reward-card--locked': !card.unlocked,
         }"
       >
-        <div class="rpg-loot-card-head">
-          <span class="lv-badge">LV{{ reward.level }}</span>
-          <span v-if="isUnlocked(reward.level)" class="rpg-loot-status rpg-loot-status--done">✓ 已达成</span>
-          <span v-else class="rpg-loot-status rpg-loot-status--locked">🔒 未解锁</span>
-        </div>
-
-        <div class="rpg-loot-name">
-          等级 {{ reward.level }} 奖励
-        </div>
-
-        <div class="reward-tags">
+        <!-- 头部：等级金币印章 + 状态 -->
+        <div class="rc-head">
+          <div class="rc-medal" :class="{ 'rc-medal--on': card.unlocked }">
+            <span class="rc-medal-lv">LV</span>
+            <span class="rc-medal-num">{{ card.level }}</span>
+            <span v-if="card.unlocked" class="rc-medal-check">✓</span>
+          </div>
           <span
-            v-if="reward.currencyReward"
-            class="rpg-loot-reward-chip rpg-loot-reward-chip--diamond"
-          >
-            💎 {{ reward.currencyReward }} {{ reward.currencyName || '钻石' }}
+            v-if="card.unlocked"
+            class="rpg-loot-status rpg-loot-status--done rpg-loot-status--corner"
+          >已达成</span>
+          <span v-else class="rpg-loot-status rpg-loot-status--pending rpg-loot-status--corner">
+            还差 {{ card.remaining }} 级
           </span>
-          <span
-            v-if="reward.avatarFrame?.name"
-            class="reward-tag frame"
-            :style="{ borderColor: reward.avatarFrame.color || '#ccc' }"
-          >
-            {{ resolveRpgItemEmoji(reward.avatarFrame) }} {{ reward.avatarFrame.name }}
-          </span>
-          <span v-if="reward.title?.name" class="rpg-loot-reward-chip rpg-loot-reward-chip--exp">
-            {{ resolveRpgItemEmoji(reward.title) }} {{ reward.title.name }}
-          </span>
-          <span v-if="!hasAnyReward(reward)" class="rpg-loot-status rpg-loot-status--pending">暂无奖励</span>
         </div>
 
-        <div class="rpg-loot-footer">
-          <div class="rpg-loot-meta">
-            <span v-if="isUnlocked(reward.level)" class="rpg-loot-status rpg-loot-status--done">奖励已解锁</span>
-            <span v-else class="rpg-loot-status rpg-loot-status--pending">
-              还需 {{ reward.level - currentLevel }} 级
+        <!-- 主奖励：大图标为主视觉 -->
+        <div v-if="card.primary" class="rc-main">
+          <RpgItemIcon
+            v-if="card.primary.kind !== 'currency'"
+            size="lg"
+            :icon="card.primary.item.icon"
+            :rarity-color="card.primary.item.color"
+            :frame-color="card.primary.item.color"
+            :tinted="false"
+          />
+          <div v-else class="rc-gem-icon">
+            <img src="/rpg/icons/gem.png" alt="" loading="lazy">
+          </div>
+          <div class="rc-main-info">
+            <span class="rc-type" :class="`rc-type--${card.primary.kind}`">
+              {{ KIND_LABEL[card.primary.kind] }}
             </span>
+            <span class="rc-name">{{ rowName(card.primary) }}</span>
+          </div>
+        </div>
+        <div v-else class="rc-none">
+          旅途暂无奖励
+        </div>
+
+        <!-- 次奖励清单行 -->
+        <div v-if="card.secondary.length" class="rc-sub">
+          <div v-for="(row, i) in card.secondary" :key="i" class="rc-sub-row">
+            <RpgItemIcon
+              v-if="row.kind !== 'currency'"
+              class="rc-sub-icon"
+              size="sm"
+              :icon="row.item.icon"
+              :rarity-color="row.item.color"
+              :frame-color="row.item.color"
+              :tinted="false"
+            />
+            <img
+              v-else class="rc-sub-gem" src="/rpg/icons/gem.png"
+              alt=""
+              loading="lazy"
+            >
+            <span class="rc-sub-name">{{ rowName(row) }}</span>
+            <span class="rc-sub-kind">{{ KIND_LABEL[row.kind] }}</span>
           </div>
         </div>
       </div>
@@ -137,23 +203,19 @@ const hasAnyReward = (reward: LevelReward) =>
   .panel-summary {
     display: flex;
     flex-direction: column;
-  }
-
-  .summary-count {
-    display: flex;
-    align-items: baseline;
     gap: 2px;
   }
 
-  .summary-num {
-    font-size: 24px;
-    font-weight: 900;
-    color: var(--rpg-amber);
+  .summary-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--rpg-text-heading);
   }
 
-  .summary-total {
-    font-size: 14px;
-    color: var(--rpg-text-muted);
+  .summary-num {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--rpg-amber);
   }
 
   .summary-label {
@@ -192,39 +254,254 @@ const hasAnyReward = (reward: LevelReward) =>
     border: 1px dashed var(--rpg-empty-border);
   }
 
-  .reward-grid .rpg-loot-card {
-    min-height: 140px;
+  /* ── 奖励网格 ── */
+  .reward-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(218px, 1fr));
+    gap: 10px;
   }
 
-  .lv-badge {
-    font-weight: 800;
-    font-size: 13px;
-    color: var(--rpg-amber-dark);
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: var(--rpg-amber-bg-faint);
-    border: 1px solid var(--rpg-amber-border);
+  .reward-card {
+    gap: 10px;
+    padding: 12px;
+    min-height: 128px;
   }
 
-  .reward-tags {
+  /* 未解锁：目标感改版——不压灰，描金虚线框 + 图标轻微去色（能看清目标） */
+  .reward-card--locked {
+    border-style: dashed;
+    border-color: color-mix(
+      in oklch,
+      var(--rpg-art-gold, #d9a13c) 48%,
+      var(--rpg-border-subtle)
+    ) !important;
+  }
+
+  .reward-card--locked :deep(img),
+  .reward-card--locked .rc-gem-icon img,
+  .reward-card--locked .rc-sub-gem {
+    filter: grayscale(0.32) saturate(0.92);
+  }
+
+  /* 未解锁的「还差 N 级」胶囊：琥珀金，营造目标感 */
+  .reward-card--locked .rpg-loot-status--pending {
+    color: var(--rpg-amber-dark, #8a5a12);
+    background: var(--rpg-amber-bg-faint, rgb(217 161 60 / 0.12));
+    border-color: var(--rpg-amber-border, rgb(217 161 60 / 0.45));
+  }
+
+  /* ── 等级金币印章 ── */
+  .rc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .rc-medal {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    /* 未达成态：金色虚线目标环（对齐墙卡 is-medal-progress 语言） */
+    color: var(--rpg-amber-dark, #8a5a12);
+    background:
+      radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.45), transparent 46%),
+      var(--rpg-amber-bg-faint, var(--rpg-track));
+    border: 2px dashed color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 55%, transparent);
+    box-shadow: var(--rpg-loot-icon-shadow);
+  }
+
+  .rc-medal--on {
+    color: var(--rpg-amber-dark);
+    background:
+      radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.75), transparent 48%),
+      var(--rpg-amber-bg-gradient);
+    border-color: var(--rpg-amber-border);
+    box-shadow:
+      var(--rpg-loot-icon-shadow),
+      0 0 0 3px color-mix(in oklch, var(--rpg-amber) 12%, transparent);
+  }
+
+  .rc-medal-lv {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    opacity: 0.8;
+  }
+
+  .rc-medal-num {
+    font-size: 17px;
+    font-weight: 900;
+  }
+
+  .rc-medal-check {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 900;
+    color: #fff;
+    background: var(--rpg-success, #3fae6a);
+    border: 1.5px solid rgb(255 255 255 / 0.85);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  }
+
+  /* ── 主奖励 ── */
+  .rc-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     flex: 1;
   }
 
-  .reward-tag.frame {
-    padding: 3px 8px;
-    border-radius: 999px;
+  .rc-main-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .rc-type {
+    align-self: flex-start;
     font-size: 10px;
-    font-weight: 600;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    font-weight: 700;
+    line-height: 1;
+    padding: 3px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    background: var(--rpg-violet-bg);
+    color: var(--rpg-violet-light);
+    border: 1px solid color-mix(in oklch, var(--rpg-violet) 28%, transparent);
+  }
+
+  .rc-type--frame {
+    background: var(--rpg-amber-bg-faint);
+    color: var(--rpg-amber-dark);
+    border-color: var(--rpg-amber-border);
+  }
+
+  .rc-type--title {
+    background: color-mix(in oklch, var(--rpg-gold, #e8b64c) 16%, transparent);
+    color: var(--rpg-amber-dark);
+    border-color: var(--rpg-amber-border);
+  }
+
+  .rc-type--currency {
     background: var(--rpg-surface);
-    border: 1.5px solid;
-    color: var(--rpg-text-label);
+    color: var(--rpg-text-secondary);
+    border-color: var(--rpg-border-subtle);
+  }
+
+  .rc-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--rpg-text-heading);
+    line-height: 1.35;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* 货币主奖励的兜底大图标（与 RpgItemIcon lg 对齐） */
+  .rc-gem-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--rpg-loot-icon-bg);
+    border: 2px solid color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 34%, transparent);
+    box-shadow:
+      var(--rpg-loot-icon-shadow),
+      0 0 0 3px color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 9%, transparent);
+  }
+
+  .rc-gem-icon img {
+    width: 92%;
+    height: 92%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  .rc-none {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: var(--rpg-text-muted);
+  }
+
+  /* ── 次奖励清单 ── */
+  .rc-sub {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--rpg-border-subtle);
+  }
+
+  .rc-sub-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .rc-sub-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .rc-sub-icon :deep(img.rpg-loot-icon__img) {
+    width: 96%;
+    height: 96%;
+  }
+
+  .rc-sub-gem {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin: 0 3px;
+  }
+
+  .rc-sub-name {
+    flex: 1;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--rpg-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .rc-sub-kind {
+    flex-shrink: 0;
+    font-size: 10px;
+    color: var(--rpg-text-muted);
+  }
+  /* v6/G：标题美术小图 */
+  .rc-title-art {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    vertical-align: -2px;
+    margin-right: 4px;
   }
 </style>

@@ -1,5 +1,11 @@
 import { useState } from '#app';
-import { buildThemeBootScript, getRpgTone, isDarkTheme } from '~/constants/theme-tone';
+import { getRpgTone, isDarkTheme } from '~/constants/theme-tone';
+import {
+  ensureExtraThemesCss,
+  ensureThemeCssFor,
+  isCriticalTheme,
+} from '~/composables/use-extra-themes-css';
+import { applyThemeToDocument } from '~/utils/theme-dom';
 
 export { isDarkTheme, getRpgTone };
 
@@ -23,34 +29,36 @@ export function useMdEditorTheme() {
 
 export const useTheme = () => useState('theme', () => 'cyber');
 
-// 主题相关逻辑提取
+/** 主题相关逻辑：首屏 cyber 两套内嵌，其余主题 CSS 延后加载 */
 export function useThemeActions() {
   const theme = useTheme();
   let mediaMatch: MediaQueryList | null = null;
 
-  // 设置主题
-  const setTheme = () => {
-    const type: string = theme.value;
-    document.documentElement.className = type;
-    document.documentElement.setAttribute('data-theme', type);
-    document.documentElement.classList.add('tech-shell');
-    document.documentElement.setAttribute('data-rpg-tone', getRpgTone(type));
-    localStorage.setItem('theme', type);
+  /** 写入 DOM / localStorage；延后包主题须先 await ensureThemeCssFor */
+  const applyThemeDom = (type: string) => {
+    applyThemeToDocument(type);
   };
 
-  // 跟随系统主题
+  /**
+   * 设置当前主题；非 cyber 时先拉取 themes-extra.css，再改 data-theme（避免无样式空窗）。
+   * 副作用：可能触发一次异步 CSS 请求。
+   */
+  const setTheme = async () => {
+    const type = theme.value;
+    await ensureThemeCssFor(type);
+    // 等样式表生效一帧再写 DOM，减少「主题已切、变量未到」的闪一下
+    await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+    applyThemeDom(type);
+  };
+
+  /** 跟随系统：映射到内置 dark / light（延后包），先加载 CSS 再应用 */
   const followOs = () => {
-    const bool = matchMedia('(prefers-color-scheme: dark)').matches;
-    if (bool) {
-      theme.value = 'dark';
-    }
-    else {
-      theme.value = 'light';
-    }
-    setTheme();
+    const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
+    theme.value = prefersDark ? 'dark' : 'light';
+    void setTheme();
   };
 
-  // 点击 icon：cyber 深色 ↔ cyber-light 浅色
+  /** 点击 icon：cyber 深色 ↔ cyber-light 浅色（均已在首屏 CSS） */
   const clickIcon = () => {
     if (theme.value === 'cyber') {
       theme.value = 'cyber-light';
@@ -61,25 +69,26 @@ export function useThemeActions() {
     else {
       theme.value = 'cyber';
     }
-    setTheme();
+    void setTheme();
   };
 
-  // 初始化和监听
+  /** 初始化本地主题；非 cyber 尽早拉 extra CSS，cyber 等主题面板再预取 */
   const initTheme = () => {
-    if (import.meta.client) {
-      // 监听系统主题变化
-      mediaMatch = matchMedia('(prefers-color-scheme: dark)');
-      mediaMatch.addEventListener('change', followOs);
-      // 初始化本地主题
-      const localTheme = localStorage.getItem('theme');
-      if (localTheme) {
-        theme.value = localTheme;
+    if (!import.meta.client) return;
+
+    mediaMatch = matchMedia('(prefers-color-scheme: dark)');
+    mediaMatch.addEventListener('change', followOs);
+
+    const localTheme = localStorage.getItem('theme');
+    theme.value = localTheme || 'cyber';
+
+    void (async () => {
+      // 仅非 cyber 才拉 themes-extra；cyber 用户打开主题面板时再预取（见 theme/index.vue）
+      if (!isCriticalTheme(theme.value)) {
+        await ensureExtraThemesCss();
       }
-      else {
-        theme.value = 'cyber';
-      }
-      setTheme();
-    }
+      applyThemeDom(theme.value);
+    })();
   };
 
   const disposeTheme = () => {

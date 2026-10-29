@@ -2,7 +2,9 @@
 # Usage: npm run deploy
 
 param(
-  [string]$EnvFileName = 'deploy.local.env'
+  [string]$EnvFileName = 'deploy.local.env',
+  # Windows 下 lightningcss 等原生模块偶发被占用导致 npm ci EPERM 时可跳过
+  [switch]$SkipNpmCi
 )
 
 $ErrorActionPreference = 'Stop'
@@ -107,10 +109,15 @@ Write-Host "==> Build env: .env.production (project root)"
 
 Write-Host '==> [1/5] Local build'
 Push-Location $Root
-npm ci --ignore-scripts
-if ($LASTEXITCODE -ne 0) {
-  Pop-Location
-  throw "npm ci failed (exit $LASTEXITCODE)"
+if ($SkipNpmCi) {
+  Write-Host '==> Skip npm ci (-SkipNpmCi)'
+}
+else {
+  npm ci --ignore-scripts
+  if ($LASTEXITCODE -ne 0) {
+    Pop-Location
+    throw "npm ci failed (exit $LASTEXITCODE)"
+  }
 }
 npm run build
 if ($LASTEXITCODE -ne 0) {

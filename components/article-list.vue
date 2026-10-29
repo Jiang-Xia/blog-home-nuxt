@@ -21,7 +21,7 @@ import { debounce } from '~~/utils';
 import { messageDanger } from '@/utils/toast';
 import { isDarkTheme, useTheme } from '@/composables/use-home';
 import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels';
-import { coverAspectRatio } from '@/utils/image-compress';
+import { coverAspectRatio } from '@/utils/cover-aspect';
 
 const props = withDefaults(
   defineProps<{
@@ -300,6 +300,7 @@ const categoryMouseenter = (e: any, item: any) => {
 const categoryMouseleave = (e: any) => {
   e.target.style.backgroundColor = '';
 };
+  /** 侧栏静态天气装饰图（保留原卡片，与实时时钟天气卡并存） */
 const weatherUrl
   = 'https://jiang-xia.top/x-api/blog-server/static/uploads/2026-06/7647b28bf00d49c5915d27aa1cafa9ef.webp';
 
@@ -784,11 +785,11 @@ watch(articleList, syncAuthorLevels, { immediate: true });
     <!-- 右边筛选卡片 -->
     <aside v-if="!hideSidebar" class="info-tool">
       <base-card icon="blog-filter" title="关键字" min-height="110px" class="mx-4 mb-4">
-        <div class="join w-full mt-2">
+        <div class="join w-full min-w-0 mt-2">
           <button
             :title="queryPrams.sort === 'ASC' ? '升序' : '降序'"
             type="button"
-            class="join-item btn cyber-btn-secondary btn-square w-10 btn-sm text-xs"
+            class="join-item btn cyber-btn-secondary btn-square w-10 shrink-0 btn-sm text-xs"
             :disabled="listLoading"
             @click="changeSort"
           >
@@ -820,13 +821,13 @@ watch(articleList, syncAuthorLevels, { immediate: true });
             type="search"
             placeholder="输入标题或者摘要"
             aria-label="搜索文章"
-            class="join-item input input-bordered input-sm max-w-xs"
+            class="join-item input input-bordered input-sm min-w-0 flex-1 w-full"
             :disabled="listLoading"
             @keyup.enter="onSearchHandle"
           >
           <button
             type="button"
-            class="join-item btn cyber-btn-secondary btn-square w-10 btn-sm"
+            class="join-item btn cyber-btn-secondary btn-square w-10 shrink-0 btn-sm"
             :disabled="listLoading"
             @click="onSearchClick"
           >
@@ -847,6 +848,7 @@ watch(articleList, syncAuthorLevels, { immediate: true });
           </button>
         </div>
       </base-card>
+      <!-- 侧栏：原静态天气图卡（保留） -->
       <base-card
         class="weather-card mx-4 mb-4"
         icon=""
@@ -856,16 +858,10 @@ watch(articleList, syncAuthorLevels, { immediate: true });
       >
         <img v-lazyImg="weatherUrl" alt="天气预报" class="rounded-lg load-img">
       </base-card>
-      <!-- 天气 -->
-      <base-card
-        icon="" title="" min-height="110px"
-        :no-padding="false"
-        class="mx-4 mb-4"
-      >
-        <div class="icon-wrap">
-          <xia-clock />
-        </div>
-      </base-card>
+      <!-- 侧栏：时钟 + 实时天气合一卡（mx-4 与关键字卡同宽） -->
+      <div class="mx-4 mb-4">
+        <HomeTimeWeatherCard />
+      </div>
 
       <base-card icon="blog-liuyanban3" title="最新评论" class="mx-4 mb-4" :no-padding="false">
         <ul class="list border border-tech bg-[var(--tech-input-bg)] rounded-box text-tech">
@@ -1128,10 +1124,19 @@ watch(articleList, syncAuthorLevels, { immediate: true });
       // top: 20px;
       // width: 340px;
       flex-basis: 340px;
+      // 防止关键字 join 等内容 min-width 把侧栏撑宽，导致与天气/时钟卡视觉不等宽
+      min-width: 0;
+      max-width: 340px;
       transition: all 0.5s;
       // transform: translateX(300%);
       display: none;
-      // 天气卡片
+
+      > .mx-4 {
+        box-sizing: border-box;
+        max-width: 100%;
+      }
+
+      // 原静态天气图卡
       .weather-card {
         min-height: 180px;
         img {

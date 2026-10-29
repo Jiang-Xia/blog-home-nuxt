@@ -53,18 +53,19 @@ const badgeText = computed(() => {
   }
 });
 
-const icon = computed(() => {
+/** 美术图 icon 键（public/rpg/icons），空则回退 emoji */
+const artKey = computed(() => {
   switch (props.data?.kind) {
     case 'cheer':
-      return '💪';
+      return 'hands';
     case 'egg':
-      return '🥚';
+      return 'egg';
     case 'flower':
-      return '🌸';
+      return 'flower';
     case 'tip':
-      return '💎';
+      return 'gem';
     default:
-      return '✨';
+      return 'sparkle';
   }
 });
 
@@ -128,7 +129,7 @@ const themeClass = computed(() => {
       <div v-if="visible && data" class="social-feedback-overlay" @click="handleClose">
         <div class="social-feedback-modal" :class="themeClass" @click.stop>
           <div class="feedback-icon">
-            {{ icon }}
+            <img class="feedback-icon__art" :src="`/rpg/icons/${artKey}.png`" alt="">
           </div>
           <div class="feedback-badge">
             {{ badgeText }}
@@ -185,9 +186,17 @@ const themeClass = computed(() => {
   }
 
   .feedback-icon {
-    font-size: 48px;
+    display: flex;
+    justify-content: center;
     margin-bottom: 8px;
     animation: bounce 0.8s ease infinite;
+  }
+
+  .feedback-icon__art {
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.25));
   }
 
   .feedback-badge {

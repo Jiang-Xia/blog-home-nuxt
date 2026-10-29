@@ -49,7 +49,7 @@ const handleClose = () => {
             处罚
           </div>
           <div class="ban-icon">
-            🔇
+            <img class="ban-icon__art" src="/rpg/icons/megaphone.png" alt="">
           </div>
           <h2 class="ban-title">
             您已被禁言
@@ -150,11 +150,19 @@ const handleClose = () => {
   }
 
   .ban-icon {
-    font-size: 56px;
-    line-height: 1;
-    margin-bottom: 10px;
-    filter: grayscale(0.2) drop-shadow(0 4px 12px rgb(0 0 0 / 0.45));
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 10px;
+    display: grid;
+    place-items: center;
     animation: iconMute 1.4s ease-in-out infinite;
+  }
+
+  .ban-icon__art {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    filter: grayscale(0.2) drop-shadow(0 4px 12px rgb(0 0 0 / 0.45));
   }
 
   .ban-title {

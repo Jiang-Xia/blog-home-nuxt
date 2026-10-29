@@ -20,18 +20,24 @@ import { getRarityFallbackColor, getRarityGlowByCode } from '~~/utils/rpg-rarity
 
 const { playSfx, playSfxLoop, stopSfx } = useRpgAudio();
 
-const props = defineProps<{
-  visible: boolean;
-  phase: LotteryDrawPhase;
-  pool: LotteryPoolItem[];
-  results: DrawResult[];
-  drawCount: number;
-}>();
-
 const emit = defineEmits<{
   skip: [];
   close: [];
+  redraw: [];
 }>();
+
+const props = withDefaults(
+  defineProps<{
+    visible: boolean;
+    phase: LotteryDrawPhase;
+    pool: LotteryPoolItem[];
+    results: DrawResult[];
+    drawCount: number;
+    /** 是否可再连一次（由父层按余额判定，控制「再来五连」可用态） */
+    canRedraw?: boolean;
+  }>(),
+  { canRedraw: false },
+);
 
 const reelsLanded = ref(0);
 const revealReady = ref(false);
@@ -54,6 +60,15 @@ const safeEmitSkip = () => {
 
 const isMulti = computed(() => props.drawCount > 1);
 
+/** 五连固定单行 5 格布局 */
+const isFive = computed(() => props.results.length === 5);
+
+/** 传说/SSR 结果卡打金框 + 皇冠角标 */
+const isLegendResult = (result: DrawResult) => {
+  const r = (result.item.rarity || '').toLowerCase();
+  return r === 'legendary' || r === 'ssr';
+};
+
 /** 滚轮动画时长（与 Reel spinDurationMs 一致，用于对齐 lotterySpin 循环音） */
 const activeSpinDurationMs = computed(() => {
   if (!isMulti.value) return LOTTERY_SPIN_MS;
@@ -74,7 +89,7 @@ const phaseTitle = computed(() => {
   const map: Record<LotteryDrawPhase, string> = {
     charging: '宝箱开启中…',
     spinning: isMulti.value
-      ? `五连开启中 (${reelsLanded.value}/${props.drawCount})`
+      ? `${props.drawCount} 连开启中 (${reelsLanded.value}/${props.drawCount})`
       : '好运滚动中…',
     reveal: '恭喜获得',
     summary: '本轮收获',
@@ -192,6 +207,11 @@ const handleOverlayClick = () => {
 const handleConfirm = () => {
   emit('close');
 };
+
+/** 「再来五连」：收下本轮并通知父层立刻重抽 */
+const handleRedraw = () => {
+  emit('redraw');
+};
 </script>
 
 <template>
@@ -227,7 +247,7 @@ const handleConfirm = () => {
           <div v-if="phase === 'charging'" class="charging-stage">
             <div class="charging-chest">
               <span class="chest-glow" />
-              <span class="chest-emoji">🎁</span>
+              <img class="chest-art" src="/rpg/icons/gift.png" alt="">
             </div>
             <div class="charging-rings">
               <span /><span /><span />
@@ -271,7 +291,8 @@ const handleConfirm = () => {
               :style="{ '--rarity-glow': getRarityGlow(currentResult.item.rarity) }"
             >
               <div class="reveal-banner">
-                ✨ 恭喜获得 ✨
+                <img class="banner-art" src="/rpg/icons/sparkle.png" alt=""> 恭喜获得
+                <img class="banner-art" src="/rpg/icons/sparkle.png" alt="">
               </div>
               <RpgRarityBadge
                 class="reveal-rarity"
@@ -306,16 +327,20 @@ const handleConfirm = () => {
 
           <!-- 多连汇总 -->
           <div v-else-if="phase === 'summary'" class="summary-stage">
-            <div class="summary-grid">
+            <div class="summary-grid" :class="{ 'summary-grid--five': isFive }">
               <div
                 v-for="(result, idx) in results"
                 :key="`${result.item.code}-${idx}`"
                 class="summary-card"
+                :class="{ 'summary-card--legend': isLegendResult(result) }"
                 :style="{
                   borderColor: result.item.rarityColor || getRarityFallbackColor(),
                   animationDelay: `${idx * 0.08}s`,
                 }"
               >
+                <span v-if="isLegendResult(result)" class="summary-crown">
+                  <img src="/rpg/icons/crown.png" alt="">
+                </span>
                 <RpgItemIcon
                   class="summary-item-icon"
                   :icon="result.item.icon"
@@ -337,9 +362,14 @@ const handleConfirm = () => {
                 </span>
               </div>
             </div>
-            <button type="button" class="confirm-btn" @click="handleConfirm">
-              全部收下
-            </button>
+            <div class="summary-actions">
+              <button type="button" class="redraw-btn" :disabled="!canRedraw" @click="handleRedraw">
+                <img class="redraw-art" src="/rpg/icons/ticket.png" alt=""> 再来五连
+              </button>
+              <button type="button" class="confirm-btn" @click="handleConfirm">
+                全部收下
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -475,9 +505,11 @@ const handleConfirm = () => {
     animation: chestGlow 1.1s ease-in-out infinite;
   }
 
-  .chest-emoji {
+  .chest-art {
     position: relative;
-    font-size: 52px;
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
     animation: chestShake 0.12s infinite alternate;
     filter: drop-shadow(0 0 16px rgb(251 191 36 / 0.6));
   }
@@ -561,12 +593,21 @@ const handleConfirm = () => {
   }
 
   .reveal-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 13px;
     font-weight: 800;
     color: var(--rpg-amber);
     margin-bottom: 12px;
     letter-spacing: 0.08em;
     animation: bannerFlash 1.2s ease-in-out infinite;
+  }
+
+  .banner-art {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
   }
 
   .reveal-rarity {
@@ -613,7 +654,20 @@ const handleConfirm = () => {
     margin-bottom: 16px;
   }
 
+  /* B 方案：五连固定单行 5 格；小屏 3+2 */
+  .summary-grid--five {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  @media (max-width: 639px) {
+    .summary-grid--five {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
   .summary-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -623,6 +677,76 @@ const handleConfirm = () => {
     border: 1.5px solid;
     background: var(--rpg-surface);
     animation: cardPop 0.4s cubic-bezier(0.22, 1.1, 0.36, 1) both;
+  }
+
+  /* 传说/SSR 金框光晕 + 皇冠角标 */
+  .summary-card--legend {
+    background:
+      linear-gradient(160deg, rgb(217 161 60 / 0.18), rgb(217 161 60 / 0.04)), var(--rpg-surface);
+    box-shadow:
+      0 0 0 2px rgb(217 161 60 / 0.35),
+      0 0 18px rgb(251 191 36 / 0.3);
+  }
+
+  .summary-crown {
+    position: absolute;
+    top: -9px;
+    right: -7px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: linear-gradient(160deg, #fff8e6, #f0d9a0);
+    border: 1.5px solid var(--rpg-amber, #f59e0b);
+    box-shadow: 0 2px 8px rgb(217 161 60 / 0.5);
+    z-index: 1;
+  }
+
+  .summary-crown img {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+  }
+
+  .summary-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .redraw-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 0;
+    border: 1.5px solid var(--rpg-amber-border, rgb(217 161 60 / 0.55));
+    border-radius: 10px;
+    background: var(--rpg-art-gold-soft, rgb(217 161 60 / 0.12));
+    color: var(--rpg-amber, #fbbf24);
+    font-weight: 800;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition:
+      opacity 0.2s,
+      transform 0.2s;
+  }
+
+  .redraw-btn:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgb(217 161 60 / 0.3);
+  }
+
+  .redraw-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .redraw-art {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
   }
 
   .summary-name {
@@ -640,7 +764,7 @@ const handleConfirm = () => {
   }
 
   .confirm-btn {
-    width: 100%;
+    flex: 1;
     padding: 10px 0;
     border: none;
     border-radius: 10px;

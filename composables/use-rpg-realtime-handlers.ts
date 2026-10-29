@@ -36,17 +36,14 @@ import type { RpgSocialFeedbackData } from '~~/types/rpg';
 import { shouldShowItemRevealCelebration } from '~~/utils/rpg-rarity';
 import { shouldShowCurrencyGainFx, formatRpgCurrencyReasonLabel } from '~~/utils/rpg-currency';
 import { messageInfo, messageSuccess, messageWarning } from '@/utils/toast';
+import { ACHIEVEMENT_CATEGORY_ICON_FALLBACK, ACHIEVEMENT_ICON_MAP } from '~~/types/rpg';
 
 /** 前端 expGain 二次防抖窗口（与后端 8s 互补） */
 const EXP_TOAST_DEBOUNCE_MS = 5000;
 
 /** 短暂全屏脉冲特效类型（RpgScreenPulseFx） */
 export type RpgScreenPulseKind
-  = | 'lifeDeduct'
-    | 'lifeRecover'
-    | 'shield'
-    | 'buffGrant'
-    | 'buffExpire';
+  = 'lifeDeduct' | 'lifeRecover' | 'shield' | 'buffGrant' | 'buffExpire';
 
 /**
  * 全站 RPG 实时事件处理（仅由 RpgGlobalInit 调用一次）
@@ -58,6 +55,7 @@ export function useRpgRealtimeHandlers() {
   const {
     rpgStatus,
     banStatus,
+    achievements,
     fetchStatus,
     fetchQuests,
     fetchBanStatus,
@@ -78,6 +76,8 @@ export function useRpgRealtimeHandlers() {
   const achievementRarityColor = ref('');
   const achievementRarityLabel = ref('');
   const achievementRarityIcon = ref('');
+  /** v6/G：成就美术图 key（由 payload.code 反查成就列表 icon 映射） */
+  const achievementIconKey = ref('');
 
   const masterpieceVisible = ref(false);
   const masterpieceData = ref<RpgMasterpiecePayload | null>(null);
@@ -217,6 +217,13 @@ export function useRpgRealtimeHandlers() {
       achievementRarityColor.value = payload.rarityColor || '';
       achievementRarityLabel.value = payload.rarityLabel || '';
       achievementRarityIcon.value = payload.rarityIcon || '';
+      // v6/G：按 code 反查成就 icon → 美术图 key（列表未命中时留空走 rarityIcon/ trophy 兑底）
+      const matched = (achievements.value || []).find(a => a.code === payload.code);
+      achievementIconKey.value = matched
+        ? ACHIEVEMENT_ICON_MAP[matched.icon]
+        || ACHIEVEMENT_CATEGORY_ICON_FALLBACK[matched.category]
+        || ''
+        : '';
       achievementVisible.value = true;
     });
   });
@@ -521,6 +528,7 @@ export function useRpgRealtimeHandlers() {
     achievementRarityColor.value = '';
     achievementRarityLabel.value = '';
     achievementRarityIcon.value = '';
+    achievementIconKey.value = '';
   };
 
   /** 关闭神作全屏弹窗 */
@@ -592,6 +600,7 @@ export function useRpgRealtimeHandlers() {
     achievementRarityColor,
     achievementRarityLabel,
     achievementRarityIcon,
+    achievementIconKey,
     masterpieceVisible,
     masterpieceData,
     socialFeedbackVisible,

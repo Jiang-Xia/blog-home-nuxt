@@ -70,7 +70,7 @@ onUnmounted(clearDismissTimer);
         role="status"
         @click="dismiss"
       >
-        <span class="banner-icon">🎪</span>
+        <img class="banner-icon" src="/rpg/icons/starburst.png" alt="">
         <div class="banner-body">
           <p class="rpg-notify-panel__kicker">
             活动开始
@@ -112,10 +112,12 @@ onUnmounted(clearDismissTimer);
   }
 
   .banner-icon {
-    font-size: 28px;
-    line-height: 1;
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
     flex-shrink: 0;
     animation: bannerPulse 1.2s ease infinite;
+    filter: drop-shadow(0 2px 6px rgb(0 0 0 / 0.3));
   }
 
   .banner-body {

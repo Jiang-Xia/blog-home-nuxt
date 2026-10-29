@@ -19,6 +19,8 @@ alwaysApply: false
 | `VITE_NUXT_API_PREFIX` | API 前缀（如 `/x-blog/api/v1`） |
 | `VITE_NUXT_PREFIX_PATH` | 本地代理前缀（默认 `/api`） |
 | `VITE_NUXT_OPEN_ENCRYPT` | 是否开启请求加密 |
+| `VITE_NUXT_GATEWAY_CRYPTO` | 网关套件 `aes` \| `gm` |
+| `VITE_NUXT_GATEWAY_CRYPTO_LOG` | 开发态加解密耗时日志（`true` 才打印） |
 | `VITE_ENV` | 环境标识 |
 
 开发代理：`nuxt.config` → `nitro.devProxy[prefixPath]` → `originUrl + apiPrefix`。

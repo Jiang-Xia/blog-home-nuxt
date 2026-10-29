@@ -59,7 +59,7 @@ onUnmounted(clearDismissTimer);
         role="status"
         @click="dismiss"
       >
-        <span class="badge-icon">📈</span>
+        <img class="badge-icon" src="/rpg/icons/level-up.png" alt="">
         <div class="badge-body">
           <p class="rpg-notify-panel__kicker">
             文章升级
@@ -92,9 +92,11 @@ onUnmounted(clearDismissTimer);
   }
 
   .badge-icon {
-    font-size: 28px;
-    line-height: 1;
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
     animation: iconRise 0.7s ease infinite alternate;
+    filter: drop-shadow(0 2px 5px rgb(217 161 60 / 0.4));
   }
 
   .badge-body {

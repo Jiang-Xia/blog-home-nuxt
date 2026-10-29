@@ -4,11 +4,7 @@
    * lifeChange / shieldUsed / buffGranted / buffExpired
    */
 export type RpgScreenPulseKind
-  = | 'lifeDeduct'
-    | 'lifeRecover'
-    | 'shield'
-    | 'buffGrant'
-    | 'buffExpire';
+  = 'lifeDeduct' | 'lifeRecover' | 'shield' | 'buffGrant' | 'buffExpire';
 
 const props = defineProps<{
   /** 递增以重复触发同类特效 */
@@ -85,13 +81,13 @@ const showCenter = computed(
 
 const centerLabel = computed(() => {
   if (props.kind === 'shield') {
-    return props.label ? `🛡️ ${props.label}` : '🛡️ 护盾生效';
+    return props.label || '护盾生效';
   }
   if (props.kind === 'buffGrant') {
-    return props.label ? `✨ ${props.label}` : '✨ 获得增益';
+    return props.label || '获得增益';
   }
   if (props.kind === 'buffExpire') {
-    return props.label ? `⏰ ${props.label}` : '⏰ 增益过期';
+    return props.label || '增益过期';
   }
   return '';
 });

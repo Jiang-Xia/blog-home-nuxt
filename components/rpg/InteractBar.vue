@@ -51,7 +51,8 @@ const activeQuestHints = computed(() => {
       </div>
       <div class="interact-quests">
         <NuxtLink to="/rpg" class="quest-link">
-          <span class="quest-badge">⚔️ 冒险</span>
+          <span class="quest-badge"><img class="quest-badge__art" src="/rpg/icons/dice.png" alt="" loading="lazy">
+            冒险</span>
           <span class="quest-progress">任务 {{ questProgressText }}</span>
           <span v-if="claimableQuests.length" class="claim-dot">{{ claimableQuests.length }} 可领</span>
         </NuxtLink>
@@ -118,7 +119,16 @@ const activeQuestHints = computed(() => {
   }
 
   .quest-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
     font-weight: 600;
+  }
+
+  .quest-badge__art {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
   }
 
   .quest-progress {

@@ -36,6 +36,7 @@ Blog Home Nuxt 是一个基于现代前端技术栈构建的个人博客系统�
 - **搜索功能**：全文搜索（`/search`）、标签/分类落地页（`/tag/[id]`、`/category/[id]`）
 - **归档系统**：按时间归档文章
 - **RSS 订阅**：`/feed.xml`（Nitro 路由）
+- **按 IP 查天气（试验）**：`GET /api/weather-by-ip`（Nitro：ip-api → Open-Meteo）；首页侧栏保留原 `weatherUrl` 静态天气图卡，并另有 `HomeTimeWeatherCard` 合一时钟与实时天气（可用 `?ip=` / `?city=` / `?lat=&lon=` 覆盖）
 - **SEO**：JSON-LD 结构化数据、canonical、 sitemap
 - **用户中心**：个人资料、前台文章创作、评论收件箱、创作数据看板
 - **通知**：导航栏站内通知铃铛（评论提醒）；详见 `docs/home-features-2026-06.md`
@@ -57,12 +58,14 @@ Blog Home Nuxt 是一个基于现代前端技术栈构建的个人博客系统�
 - **音视频工具**：音频可视化、WebRTC 视频聊天
 - **文件处理**：PDF 查看、文件上传切片
 - **AI 工具**：集成 AI 对话功能
+- **抽奖示例**：lucky-canvas 大转盘 / 九宫格 / 老虎机完整演示（仅学习，禁止商用与赌博用途）
 - **开发工具**：截图、延迟测试、UniApp 测试
 
 ### 🚀 技术特性
 - **SSR/SSG**：支持服务端渲染和静态生成
 - **SEO 优化**：自动生成 sitemap，优化搜索引擎收录
 - **性能优化**：图片懒加载、代码分割、缓存策略；`useAsyncData` 同 key 合并重复请求（见 [页面开发规范 §2.4](./docs/page-development-guide.md#24-useasyncdata-与请求去重)）；生产包 esbuild `drop` 剔除 `console` / `debugger`；头像/封面/文章图上传前在 module worker 中缩放并用 `@jsquash/webp` 编码；水印全分辨率导出在 module worker（OffscreenCanvas 叠字 + `@jsquash/jpeg`），失败回退主线程；摄影边框导出 JPEG 同用 mozjpeg WASM；批量 ZIP 使用 `fflate`；分片上传整文件指纹使用 `hash-wasm`（WASM MD5，失败回退 SparkMD5）
+- **首屏策略**：`main.css` 仅内嵌 `cyber` / `cyber-light`，其余 DaisyUI 主题经 `themes-extra.css` 异步加载（非 cyber 本地主题 early plugin 拉取；面板打开预取）；`md-editor-v3` 勿在 `app.vue` 静态引入，RAG Fab / MdPreview 异步拆分，由详情/编辑/RAG 调用 `ensureEditorConfig()`；游客首页不挂 `RpgGlobalInit`；列表封面宽高比走 `utils/cover-aspect.ts`（避免拉入压缩 worker）；图片占位默认 `public/img/loading3-min.gif` / `load-failed.svg`（public 路径，避免静态 import 进 modulepreload）
 - **控制台彩蛋**：打开 DevTools 打印命令菜单（`help` / `about` / `go`），见 `plugins/console-egg.client.ts`
 - **开发体验**：热重载、TypeScript 支持、ESLint 规范
 
@@ -183,11 +186,13 @@ VITE_NUXT_ADMIN_URL=https://admin.jiang-xia.top/login
 VITE_NUXT_OPEN_ENCRYPT=false
 # 网关套件：aes（AES/RSA）| gm（SM4/SM2），须与 Nest app_gatewayCrypto 一致
 VITE_NUXT_GATEWAY_CRYPTO=aes
+# 开发态加解密耗时日志（[gateway-crypto]）；生产无效
+VITE_NUXT_GATEWAY_CRYPTO_LOG=false
 ```
 
 开发模式下，前端 `baseUrl` 为 `/blog-api`，由 `nuxt.config.ts` 代理到 `http://localhost:5000/api/v1`（手机/LAN 调试与 PC 一致，勿直连 `localhost:5000`）。
 
-开启 `VITE_NUXT_OPEN_ENCRYPT=true` 时，请求走 `/encrypt` 网关：每请求随机对称密钥（RSA/SM2 封装）+ 随机 IV + HMAC；客户端实现见 `utils/gateway-crypto/`（与 Nest 同构 suite 拆分），协议见 [blog-server README 加密网关](../blog-server/README.md)。`utils/crypto.ts` 静态 AES 仅用于工具页（如 AI 摘要），与网关无关。
+开启 `VITE_NUXT_OPEN_ENCRYPT=true` 时，请求走 `/encrypt` 网关：每请求随机对称密钥（RSA/SM2 封装）+ 随机 IV + HMAC；客户端实现见 `utils/gateway-crypto/`（与 Nest 同构 suite 拆分），协议见 [blog-server README 加密网关](../blog-server/README.md)。`utils/crypto.ts` 静态 AES 仅用于工具页（如 AI 摘要），与网关无关。排查加解密性能时把 `VITE_NUXT_GATEWAY_CRYPTO_LOG=true` 后重启 `dev`。
 
 ### 安装依赖
 
@@ -249,6 +254,7 @@ yarn dev:ip
 | `/tool/des` | 对称加密（AES/DES/RC4/Rabbit/TripleDES/SM4） |
 | `/tool/sm` | 国密 SM2 加解密与密钥生成 |
 | `/tool/rsa` | RSA 加解密与密钥生成 |
+| `/tool/lucky-canvas` | lucky-canvas 抽奖示例（大转盘 / 九宫格 / 老虎机，共 15 套；仅学习演示，禁止商用与赌博用途） |
 
 ### 生产构建
 

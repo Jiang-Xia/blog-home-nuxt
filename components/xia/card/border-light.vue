@@ -12,8 +12,7 @@
 
 <script setup>
 import { onMounted, watch } from 'vue';
-import loadingImg from '@/assets/images/gif/loading3-min.gif';
-import errorImg from '@/assets/images/common/LoadFailed.svg';
+import { PLACEHOLDER_FAILED, PLACEHOLDER_LOADING } from '@/utils/placeholder-images';
 
 const props = defineProps({
   pic: {
@@ -22,9 +21,11 @@ const props = defineProps({
   },
   failImg: {
     type: String,
-    default: errorImg,
+    default: PLACEHOLDER_FAILED,
   },
 });
+  /** 加载中占位（public GIF，与 xia-image 一致） */
+const loadingImg = PLACEHOLDER_LOADING;
 const cardContainer = ref();
 const cardFilter = ref();
 const cardImg = ref();

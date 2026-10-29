@@ -1,8 +1,9 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
 @import './rpg-theme.css';
+/* 首屏仅自定义 cyber / cyber-light；其余内置主题见 themes-extra.css 异步加载 */
 @plugin "daisyui" {
-  themes: all;
+  themes: false;
 }
 
 /* ── 深色科技 cyber ── */

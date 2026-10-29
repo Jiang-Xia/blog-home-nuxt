@@ -8,6 +8,7 @@ import {
   compressAndHashInWorker,
   type MediaCompressConfig,
 } from '@/utils/media-compress-client';
+import { COVER_IMAGE } from '@/utils/cover-aspect';
 
 export type ImageCompressPreset = 'avatar' | 'cover' | 'article';
 
@@ -17,15 +18,6 @@ interface PresetConfig {
   quality: number;
   fit: 'cover' | 'inside';
 }
-
-/** 封面压缩输出尺寸（Open Graph 分享图标准 1200×630），也是各端封面展示宽高比的唯一来源 */
-export const COVER_IMAGE = {
-  maxWidth: 1200,
-  maxHeight: 630,
-} as const;
-
-/** 供 CSS `aspect-ratio: v-bind(...)` 使用 */
-export const coverAspectRatio = `${COVER_IMAGE.maxWidth} / ${COVER_IMAGE.maxHeight}`;
 
 const PRESET_MAP: Record<ImageCompressPreset, PresetConfig> = {
   avatar: { maxWidth: 400, maxHeight: 400, quality: 0.82, fit: 'cover' },
