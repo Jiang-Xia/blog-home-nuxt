@@ -111,6 +111,10 @@ export interface AvatarFrameInfo {
   code?: string;
   name?: string;
   color?: string | null;
+  /** 装扮物品的 icon 键（如 frame-gold），命中本地资产时渲染为图片框 */
+  icon?: string | null;
+  /** 管理端上传的框图 URL，优先于本地 icon 资产 */
+  iconUrl?: string | null;
 }
 
 /** 敏感词命中记录 */

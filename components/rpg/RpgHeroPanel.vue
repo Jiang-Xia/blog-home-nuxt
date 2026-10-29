@@ -56,6 +56,19 @@ const myAvatar = computed(() => {
   return a ? resolveStaticUrl(a) : '';
 });
 
+/** 已穿戴头像框信息（交给 AvatarWithFrame 渲染，art 开启图片框） */
+const heroFrameInfo = computed(() => {
+  const f = props.loadout?.avatarFrame;
+  if (!f) return null;
+  return {
+    code: f.code ?? '',
+    name: f.name ?? '',
+    color: f.color ?? null,
+    icon: f.icon ?? null,
+    iconUrl: (f as { iconUrl?: string | null }).iconUrl ?? null,
+  };
+});
+
 interface TodoChip {
   key: 'sign' | 'quests' | 'hatch' | 'lottery' | 'hp';
   icon: string;
@@ -105,10 +118,20 @@ const onTodo = (key: TodoChip['key']) => {
 <template>
   <div class="rpg-hero">
     <div class="rpg-hero__top">
-      <img v-if="myAvatar" class="rpg-hero__avatar" :src="myAvatar" alt="">
-      <span v-else class="rpg-hero__avatar rpg-hero__avatar--fallback">{{
-        (userInfo?.nickname || '冒').charAt(0)
-      }}</span>
+      <CommonAvatarWithFrame
+        class="rpg-hero__avatar-box"
+        :avatar="myAvatar"
+        :alt="userInfo?.nickname || '冒险者'"
+        :size="64"
+        :frame="heroFrameInfo"
+        art
+      >
+        <template #fallback>
+          <span class="rpg-hero__avatar-fallback">{{
+            (userInfo?.nickname || '冒').charAt(0)
+          }}</span>
+        </template>
+      </CommonAvatarWithFrame>
       <div class="rpg-hero__title">
         <b>
           {{ userInfo?.nickname || '冒险者' }}
@@ -194,21 +217,15 @@ const onTodo = (key: TodoChip['key']) => {
     padding: 22px 22px 16px;
   }
 
-  .rpg-hero__avatar {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--rpg-art-gold, #d9a13c);
-    box-shadow:
-      0 0 0 3px rgb(0 0 0 / 0.25),
-      0 8px 20px rgb(217 161 60 / 0.35);
+  .rpg-hero__avatar-box {
     flex-shrink: 0;
   }
 
-  .rpg-hero__avatar--fallback {
+  .rpg-hero__avatar-fallback {
     display: grid;
     place-items: center;
+    width: 100%;
+    height: 100%;
     font-size: 24px;
     font-weight: 800;
     background: linear-gradient(135deg, #7c5cf0, #5b3fd6);

@@ -7,6 +7,7 @@ import { coverAspectRatio } from '@/utils/cover-aspect';
 import { resolveRpgItemEmoji } from '~~/utils/rpg-item-icon';
 import { isNotFoundError } from '@/utils/api-error';
 import { getRarityBadgePresentation } from '~~/utils/rpg-rarity';
+import { resolvePublicAvatarFrame } from '~~/composables/use-avatar-frame';
 
 const route = useRoute();
 const uid = computed(() => route.params.uid as string);
@@ -115,18 +116,11 @@ const avatarSrc = computed(() => {
   return av ? resolveStaticUrl(av) : '/assets/images/animal/qie.svg';
 });
 
-const publicAvatarFrame = computed(() => {
-  const frame = profile.value?.loadout?.avatarFrame as
-    | { code?: string; name?: string; color?: string | null; effectJson?: { color?: string } }
-    | null
-    | undefined;
-  if (!frame) return null;
-  return {
-    code: frame.code,
-    name: frame.name,
-    color: frame.color ?? frame.effectJson?.color ?? null,
-  };
-});
+const publicAvatarFrame = computed(() =>
+  resolvePublicAvatarFrame(
+    profile.value?.loadout?.avatarFrame as Parameters<typeof resolvePublicAvatarFrame>[0],
+  ),
+);
 
 const pageDescription = computed(() => {
   const intro = profile.value?.intro?.trim();
