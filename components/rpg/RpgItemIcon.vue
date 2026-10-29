@@ -23,13 +23,10 @@ const props = withDefaults(
     rarityColor?: string | null;
     frameColor?: string | null;
     tinted?: boolean;
-    /** 稀有度宝石角标（v5 方案 C）：稀有以上显示在右下角，普通银色不显示 */
-    rarityGem?: boolean;
     size?: 'sm' | 'md' | 'lg' | 'xl';
   }>(),
   {
     tinted: true,
-    rarityGem: true,
     size: 'md',
   },
 );
@@ -98,14 +95,6 @@ const isTinted = computed(
   () => props.tinted && (!!containerStyle.value || isSilverTint.value) && !props.bgUrl,
 );
 
-/** 稀有度宝石角标：非 tinted 且颜色非普通银色时展示 */
-const gemColor = computed(() => {
-  if (!props.rarityGem || isTinted.value) return null;
-  const color = props.rarityColor || props.frameColor;
-  if (!color || isSilverRarityColor(color)) return null;
-  return color;
-});
-
 /** 当前候选加载失败，尝试下一格式或回退 emoji */
 const onImgError = () => {
   if (candidateIndex.value < assetCandidates.value.length - 1) {
@@ -139,47 +128,13 @@ const onImgError = () => {
       alt=""
       @error="onImgError"
     >
-    <span v-if="gemColor" class="rpg-loot-icon__gem" :style="{ background: gemColor }" />
-    <template v-else-if="!currentSrc">
+    <template v-else>
       {{ emoji }}
     </template>
   </div>
 </template>
 
 <style scoped>
-  .rpg-loot-icon {
-    position: relative;
-  }
-
-  .rpg-loot-icon__gem {
-    position: absolute;
-    right: -2px;
-    bottom: -2px;
-    width: 13px;
-    height: 13px;
-    transform: rotate(45deg);
-    border-radius: 3px;
-    box-shadow: 0 0 0 2px var(--rpg-surface, #fff);
-    pointer-events: none;
-  }
-
-  .rpg-loot-icon--sm .rpg-loot-icon__gem {
-    width: 10px;
-    height: 10px;
-    right: -1px;
-    bottom: -1px;
-  }
-
-  .rpg-loot-icon--lg .rpg-loot-icon__gem {
-    width: 15px;
-    height: 15px;
-  }
-
-  .rpg-loot-icon--xl .rpg-loot-icon__gem {
-    width: 17px;
-    height: 17px;
-  }
-
   .rpg-loot-icon--asset {
     color: #fff;
   }
