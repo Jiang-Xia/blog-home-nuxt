@@ -114,7 +114,7 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
         <span
           class="daily-ring"
           :style="{
-            background: `conic-gradient(var(--rpg-art-violet, #7c5cf0) 0 ${progressPercent}%, var(--rpg-track, #efeaf9) ${progressPercent}% 100%)`,
+            background: `conic-gradient(var(--rpg-daily-ring-fill, var(--rpg-art-violet, #7c5cf0)) 0 ${progressPercent}%, var(--rpg-daily-ring-track, var(--rpg-track, #efeaf9)) ${progressPercent}% 100%)`,
           }"
         >
           <i class="daily-ring__num">{{ totalCompleted }}/{{ currentQuests.length }}</i>
@@ -247,7 +247,7 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
     background: var(--rpg-art-violet-grad, linear-gradient(90deg, #7c5cf0, #a78bfa));
   }
 
-  /* 每日圆环 */
+  /* 每日圆环（cyber 下走 --rpg-daily-ring-*，避免暗底看不清） */
   .daily-ring {
     display: grid;
     place-items: center;
@@ -255,19 +255,20 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
     height: 40px;
     border-radius: 50%;
     flex-shrink: 0;
+    box-shadow: 0 0 0 1px var(--rpg-border-subtle, rgb(255 255 255 / 0.1));
   }
 
   .daily-ring__num {
     width: 31px;
     height: 31px;
     border-radius: 50%;
-    background: var(--rpg-surface, #fff);
+    background: var(--rpg-daily-ring-center, var(--rpg-surface, #fff));
     display: grid;
     place-items: center;
     font-style: normal;
     font-size: 10.5px;
     font-weight: 800;
-    color: var(--rpg-art-violet-deep, #5b3fd6);
+    color: var(--rpg-daily-ring-text, var(--rpg-art-violet, #7c5cf0));
   }
 
   .quest-panel {

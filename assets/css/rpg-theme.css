@@ -380,6 +380,12 @@ html.tech-shell[data-theme='cyber'] {
   --rpg-art-rare: #a795f7;
   --rpg-art-epic: #d9a95c;
 
+  /* 每日任务饼图：暗底上提高轨/填充/中心/数字对比 */
+  --rpg-daily-ring-track: rgb(255 255 255 / 0.28);
+  --rpg-daily-ring-fill: #a78bfa;
+  --rpg-daily-ring-center: #1e293b;
+  --rpg-daily-ring-text: #c4b5fd;
+
   --rpg-rarity-badge-common-bg: linear-gradient(145deg, #475569, #94a3b8);
   --rpg-rarity-badge-common-text: #f1f5f9;
   --rpg-rarity-badge-common-border: #64748b;
