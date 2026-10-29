@@ -2,11 +2,16 @@
 /**
    * 成就展示面板 - 分类展示用户成就进度（纯展示）
    */
-import { ACHIEVEMENT_CATEGORY_MAP, ACHIEVEMENT_ICON_MAP } from '~~/types/rpg';
+import {
+  ACHIEVEMENT_CATEGORY_ICON_FALLBACK,
+  ACHIEVEMENT_CATEGORY_MAP,
+  ACHIEVEMENT_ICON_MAP,
+} from '~~/types/rpg';
 import type { UserAchievementProgress } from '~~/types/rpg';
 
 /** 成就图标：emoji → 美术图（v4），无资产 key 时回退 emoji */
-const achArtKey = (ach: UserAchievementProgress) => ACHIEVEMENT_ICON_MAP[ach.icon] || null;
+const achArtKey = (ach: UserAchievementProgress) =>
+  ACHIEVEMENT_ICON_MAP[ach.icon] || ACHIEVEMENT_CATEGORY_ICON_FALLBACK[ach.category] || null;
 
 const props = defineProps<{
   achievements: UserAchievementProgress[];

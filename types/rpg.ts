@@ -230,7 +230,7 @@ export const ACHIEVEMENT_CATEGORY_MAP: Record<string, string> = {
 };
 
 /** 成就图标映射 */
-/** 成就图标 → /rpg/icons/{key}.png（美术改版 v4：emoji → 美术图，缺失 key 回退 🏆） */
+/** 成就图标 → /rpg/icons/{key}.png（美术改版 v4：emoji → 美术图；v5 补全后端全部 icon key，未收录走分类兜底） */
 export const ACHIEVEMENT_ICON_MAP: Record<string, string> = {
   'pen': 'pen',
   'books': 'books',
@@ -252,6 +252,46 @@ export const ACHIEVEMENT_ICON_MAP: Record<string, string> = {
   'star': 'star',
   'stars': 'stars',
   'crown-star': 'crown-star',
+  'share': 'share',
+  'gem': 'gem',
+  'gems': 'gems',
+  'gift': 'gift',
+  'crown-gem': 'crown-gem',
+  'dice': 'dice',
+  'slot': 'slot',
+  'sparkle': 'sparkle',
+  'hand': 'hand',
+  'hands': 'hands',
+  'flower': 'flower',
+  'bouquet': 'bouquet',
+  'egg': 'egg',
+  'paw': 'paw',
+  'paws': 'paws',
+  'dragon-pet': 'dragon-pet',
+  'shield': 'shield',
+  'banner': 'banner',
+  'masterpiece': 'masterpiece',
+  'library-star': 'library-star',
+  'level-up': 'level-up',
+  'star-half': 'star-half',
+  'star-full': 'star-full',
+  'legend': 'legend',
+  'heart-star': 'heart-star',
+  'chat-star': 'chat-star',
+};
+
+/** 成就分类 → 兜底美术图（icon key 未收录或后端未下发 icon 时使用，替代奖杯 emoji） */
+export const ACHIEVEMENT_CATEGORY_ICON_FALLBACK: Record<string, string> = {
+  creation: 'pen',
+  social: 'chat',
+  exploration: 'scroll',
+  sign: 'calendar-check',
+  special: 'sparkle',
+  economy: 'gem',
+  lottery: 'dice',
+  pet: 'paw',
+  guild: 'shield',
+  author: 'quill',
 };
 
 /** 每日任务定义 */
