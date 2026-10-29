@@ -1117,7 +1117,8 @@ const previewPoster = (activity: RpgActivitySummary) => {
     font-size: 10.5px;
     font-weight: 700;
     letter-spacing: 0.08em;
-    opacity: 0.85;
+    /* 横幅底是深色渐变，固定浅色，避免亮色主题继承页面深色文字看不清 */
+    color: rgb(255 255 255 / 0.92);
   }
 
   .flip-card {
@@ -1142,6 +1143,7 @@ const previewPoster = (activity: RpgActivitySummary) => {
 
   .flip-card small {
     font-size: 9px;
+    color: rgb(255 255 255 / 0.8);
     opacity: 0.75;
   }
 

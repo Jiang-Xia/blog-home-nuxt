@@ -163,10 +163,6 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
             class="rpg-loot-status rpg-loot-status--done rpg-loot-status--corner"
           >✓ 已领</span>
           <span
-            v-else-if="quest.completed"
-            class="rpg-loot-status rpg-loot-status--corner quest-corner-claim"
-          >可领取</span>
-          <span
             v-else-if="quest.progress > 0"
             class="rpg-loot-status rpg-loot-status--pending rpg-loot-status--corner"
           >进行中</span>
@@ -244,14 +240,6 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
     margin-top: -2px;
   }
 
-  /* v6/A2：可领取角标（金底，区别于绿色完成章） */
-  .quest-corner-claim {
-    color: var(--rpg-art-gold-ink, #3a2408);
-    background: var(--rpg-art-gold-grad, linear-gradient(160deg, #f5c76a, #d9a13c));
-    border-color: var(--rpg-art-gold, #d9a13c);
-    box-shadow: 0 2px 8px rgb(217 161 60 / 0.35);
-  }
-
   /* 每日圆环（cyber 下走 --rpg-daily-ring-*，避免暗底看不清） */
   .daily-ring {
     display: grid;
@@ -327,8 +315,13 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
     min-height: 148px;
   }
 
+  /* v6：任务墙对齐原型 wall-grid —— 桌面 3 列/移动 2 列的紧凑竖卡，高度随内容 */
+  .quest-list {
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  }
+
   .quest-list .rpg-loot-card {
-    min-height: 156px;
+    min-height: 0;
   }
 
   .quest-all-done {

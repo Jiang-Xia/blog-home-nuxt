@@ -393,25 +393,37 @@ onMounted(async () => {
   }
 
   .sign-btn {
-    padding: 8px 20px;
-    border-radius: 8px;
-    background: var(--rpg-primary-gradient);
-    color: white;
-    font-weight: 700;
+    padding: 9px 28px;
+    border-radius: 999px;
+    /* 对齐全局领取按钮（rpg-loot-claim-btn）的金渐变胶囊语言 */
+    background: var(--rpg-level-badge-gradient);
+    color: #fff;
+    font-weight: 800;
     font-size: 14px;
+    letter-spacing: 0.02em;
     border: none;
     cursor: pointer;
-    transition: opacity 0.2s;
+    box-shadow: 0 4px 14px var(--rpg-level-shadow);
+    transition:
+      transform 0.15s ease,
+      filter 0.15s ease;
     margin-bottom: 8px;
   }
 
   .sign-btn:disabled {
     background: var(--rpg-disabled);
+    box-shadow: none;
     cursor: not-allowed;
   }
 
   .sign-btn:not(:disabled):hover {
-    opacity: 0.9;
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+  }
+
+  .sign-btn:not(:disabled):active {
+    transform: translateY(0);
+    filter: brightness(0.97);
   }
 
   .sign-stats {

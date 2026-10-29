@@ -325,7 +325,7 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
         <h4 class="rpg-section-heading">
           钻石兑换 <small class="rpg-section-sub">没有蛋了？钻石直购宠物 · pets/exchange</small>
         </h4>
-        <div class="rpg-loot-grid">
+        <div class="rpg-loot-grid rpg-exchange-grid">
           <div
             v-for="c in exchangeCatalog"
             :key="c.code"
@@ -341,10 +341,6 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
                   :item-type-icon="c.itemTypeIcon"
                   :rarity-color="c.rarityColor"
                 />
-                <span
-                  v-if="isOwned(c.code)"
-                  class="rpg-loot-status rpg-loot-status--done rpg-loot-status--corner"
-                >已兑换</span>
               </div>
               <div
                 v-if="c.rarityLabel"
@@ -420,6 +416,15 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
 <style scoped>
   .pet-panel .rpg-loot-card {
     min-height: 128px;
+  }
+
+  /* v6：兑换墙对齐原型 wall-grid —— 紧凑竖卡（宠物仓库小卡不受影响） */
+  .rpg-exchange-grid {
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  }
+
+  .rpg-exchange-grid .rpg-loot-card {
+    min-height: 0;
   }
 
   /* ── 兑换墙卡：稀有度标注 + 加成 chips（对齐成就奖章 / 原型 .chip）── */

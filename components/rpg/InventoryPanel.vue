@@ -270,8 +270,13 @@ const rarityClass = (item: InventoryItem) => {
 </template>
 
 <style scoped>
+  /* v6：背包墙对齐原型 wall-grid —— 紧凑竖卡，高度随内容 */
+  .inventory-grid {
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  }
+
   .inventory-grid .rpg-loot-card {
-    min-height: 118px;
+    min-height: 0;
   }
 
   .equip-dot {
@@ -309,10 +314,14 @@ const rarityClass = (item: InventoryItem) => {
     top: 7px;
     padding: 1px 6px;
     border-radius: 999px;
-    background: color-mix(in oklch, var(--rpg-text-heading, #2b2440) 85%, transparent);
-    color: #fff;
+    /* 固定深底 + 描边，不跟主题文字色走：亮/暗主题下都醒目 */
+    background: rgb(24 17 43 / 0.92);
+    color: #ffe4a8;
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    border: 1px solid rgb(255 228 168 / 0.35);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
     z-index: 2;
   }
 

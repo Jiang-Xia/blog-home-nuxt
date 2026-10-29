@@ -267,15 +267,27 @@ const rewardCards = computed(() =>
     min-height: 128px;
   }
 
-  /* 未解锁：整体压灰 + 图标去色 */
+  /* 未解锁：目标感改版——不压灰，描金虚线框 + 图标轻微去色（能看清目标） */
   .reward-card--locked {
-    opacity: 0.82;
+    border-style: dashed;
+    border-color: color-mix(
+      in oklch,
+      var(--rpg-art-gold, #d9a13c) 48%,
+      var(--rpg-border-subtle)
+    ) !important;
   }
 
   .reward-card--locked :deep(img),
   .reward-card--locked .rc-gem-icon img,
   .reward-card--locked .rc-sub-gem {
-    filter: grayscale(0.92) opacity(0.75);
+    filter: grayscale(0.32) saturate(0.92);
+  }
+
+  /* 未解锁的「还差 N 级」胶囊：琥珀金，营造目标感 */
+  .reward-card--locked .rpg-loot-status--pending {
+    color: var(--rpg-amber-dark, #8a5a12);
+    background: var(--rpg-amber-bg-faint, rgb(217 161 60 / 0.12));
+    border-color: var(--rpg-amber-border, rgb(217 161 60 / 0.45));
   }
 
   /* ── 等级金币印章 ── */
@@ -296,10 +308,12 @@ const rewardCards = computed(() =>
     align-items: center;
     justify-content: center;
     line-height: 1;
-    color: var(--rpg-text-muted);
+    /* 未达成态：金色虚线目标环（对齐墙卡 is-medal-progress 语言） */
+    color: var(--rpg-amber-dark, #8a5a12);
     background:
-      radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.5), transparent 46%), var(--rpg-track);
-    border: 2px solid var(--rpg-border-subtle);
+      radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.45), transparent 46%),
+      var(--rpg-amber-bg-faint, var(--rpg-track));
+    border: 2px dashed color-mix(in oklch, var(--rpg-art-gold, #d9a13c) 55%, transparent);
     box-shadow: var(--rpg-loot-icon-shadow);
   }
 
