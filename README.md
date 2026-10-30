@@ -245,7 +245,7 @@ yarn dev:ip
 | `/about` | 关于作者（正文 + 支付宝赞赏流水） |
 | `/projects` | 项目展示（顶部目录 + 问题→方案→Demo→文章；Welcome/详情经 `#slug` 锚点互链） |
 | `/open-source` | 开源范围、后端闭源说明与付费套餐 |
-| `/login` | 登录注册 |
+| `/login` | 登录（账号：进页随机；字符图内嵌，滑动/点选点登录后弹窗；邮箱验证码） |
 | `/tool/watermark` | 批量图片水印（旋转/颜色/格式、追加选图、单张或 ZIP；导出走 Worker） |
 | `/tool/webrtc` | WebRTC 调试（媒体采集、本页回环、双 Tab P2P） |
 | `/tool/ai-summary` | AI 文章摘要（Nitro SSE 代理 DeepSeek，需 `AI_SUMMARY_API_KEY`） |
