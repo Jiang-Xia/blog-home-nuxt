@@ -2,6 +2,7 @@
 /** 公会面板：已加入视角（信息+统计+成员列表）/ 未加入视角（空态+公会列表）；头像/昵称可跳转用户主页 */
 import { getGuildRoleLabel } from '~~/types/rpg';
 import { resolveStaticUrl } from '@/utils/static-url';
+import { messageError } from '~~/utils/toast';
 
 const props = defineProps<{
   myGuild: any;
@@ -37,6 +38,22 @@ const GUILD_ICONS = ['hands', 'shield'] as const;
 
 const guildTone = (id: number) => GUILD_TONES[(Number(id) || 0) % GUILD_TONES.length];
 const guildIcon = (id: number) => GUILD_ICONS[(Number(id) || 0) % GUILD_ICONS.length];
+
+/** P0-2：创建公会前端校验——空名不发请求；确认弹窗由父页 onCreateGuild 二次把关 */
+const GUILD_NAME_MAX = 20;
+const handleCreate = () => {
+  const name = guildName.value.trim();
+  if (!name) {
+    messageError('请先输入公会名称');
+    return;
+  }
+  if (name.length > GUILD_NAME_MAX) {
+    messageError(`公会名称最长 ${GUILD_NAME_MAX} 个字符`);
+    return;
+  }
+  emit('create', name);
+  guildName.value = '';
+};
 </script>
 
 <template>
@@ -137,13 +154,7 @@ const guildIcon = (id: number) => GUILD_ICONS[(Number(id) || 0) % GUILD_ICONS.le
             placeholder="输入公会名称"
             maxlength="20"
           >
-          <button
-            class="rpg-pet-btn rpg-pet-btn--primary"
-            @click="
-              emit('create', guildName);
-              guildName = '';
-            "
-          >
+          <button class="rpg-pet-btn rpg-pet-btn--primary" @click="handleCreate">
             创建公会
           </button>
         </div>

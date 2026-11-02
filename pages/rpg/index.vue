@@ -11,12 +11,18 @@ import { useRealtimeSocket } from '~~/composables/use-realtime-socket';
 import { ensureLoggedIn, useAuthSession } from '@/composables/use-common';
 import type { DrawResult } from '~~/types/rpg';
 import { triggerMockAfterLotteryDraw } from '~~/utils/rpg-dev-mock';
+import { useRpg } from '~~/composables/use-rpg';
+import { useRpgModal } from '~~/composables/use-rpg-modal';
 
 const route = useRoute();
 const router = useRouter();
 const { playBgm, stopBgm, initAudio, playSfx, muted, bgmVolume, sfxVolume, toggleMute }
   = useRpgAudio();
-const profileCardRef = ref<{ setSignInResult: (_result: any) => void } | null>(null);
+const profileCardRef = ref<{
+  setSignInResult: (_result: any) => void;
+  /** P1-4：强制切换 ProfileCard 内部 Tab（英雄面板「任务」chip 用） */
+  setTab: (_tab: 'quests' | 'achievements' | 'buffs') => void;
+} | null>(null);
 const lotteryBoxRef = ref<{
   showDrawResults: (_results: any[]) => void;
   cancelDrawAnimation: () => void;
@@ -49,6 +55,9 @@ const {
   lotteryPool,
   lotteryTickets,
   lotteryHistory,
+  lotteryHistoryTotal,
+  lotteryHistoryPage,
+  lotteryHistoryLoading,
   hitRecords,
   hitRecordsTotal,
   activityOverview,
@@ -69,6 +78,7 @@ const {
   petLoading,
   guildLoading,
   leaderboardLoading,
+  statusError,
   signingIn,
   drawing,
   leaderboardType,
@@ -97,11 +107,21 @@ const {
   handleSocketRefresh,
 } = useRpgPage();
 
+/** P1-1：全局 useRpg（useState 共享态）的任务刷新方法，领奖后同步 HUD 徽章 */
+const { fetchQuests } = useRpg();
+/** P0-2：公会危险操作确认弹窗 */
+const { confirm: confirmModal } = useRpgModal();
+
 /** 宠物 Tab 红点：宠物蛋仓库或背包里有蛋未孵化 */
 const petTabDot = computed(
   () =>
     petEggs.value.length > 0
     || inventoryItems.value.some(i => (i.itemCode || '').toLowerCase().includes('egg')),
+);
+
+/** P1-2：底部 Tab「冒险状态」红点——有可领任务或今日未签到 */
+const statusTabDot = computed(
+  () => questClaimable.value > 0 || signInfo.value?.signedToday === false,
 );
 
 /** 今日可领取任务数（全任务组聚合，英雄面板「今日待办」用） */
@@ -114,7 +134,7 @@ const questClaimable = computed(() => {
 });
 
 /** 英雄面板「今日待办」点击跳转：同 Tab 锚点滚动，跨 Tab 切换 */
-const onHeroTodo = (key: 'sign' | 'quests' | 'hatch' | 'lottery' | 'hp') => {
+const onHeroTodo = (key: 'sign' | 'quests' | 'hatch' | 'lottery' | 'hp' | 'pity') => {
   if (key === 'hatch') {
     switchTab('pet');
     return;
@@ -125,7 +145,9 @@ const onHeroTodo = (key: 'sign' | 'quests' | 'hatch' | 'lottery' | 'hp') => {
   }
   if (activeTab.value !== 'status') switchTab('status');
   nextTick(() => {
-    const anchor = key === 'lottery' ? 'rpg-sec-lottery' : 'rpg-sec-profile';
+    // P1-4：「任务」chip 滚动前先把 ProfileCard 内部 Tab 切到任务页
+    if (key === 'quests') profileCardRef.value?.setTab('quests');
+    const anchor = key === 'lottery' || key === 'pity' ? 'rpg-sec-lottery' : 'rpg-sec-profile';
     document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 };
@@ -195,16 +217,20 @@ const switchTab = (tab: typeof activeTab.value) => {
   router.replace({ query: q });
 };
 
-/** 空态卡「行动按钮」跳转：lottery → 状态页抽奖区锚点，其余回状态页 */
-const onPanelGoto = (target: 'status' | 'lottery' | 'quests') => {
+/** 空态卡「行动按钮」跳转：lottery → 抽奖区锚点，sign → 个人卡签到区锚点，其余回状态页 */
+const onPanelGoto = (target: 'status' | 'lottery' | 'quests' | 'sign') => {
   if (activeTab.value !== 'status') switchTab('status');
-  if (target === 'lottery') {
+  if (target === 'lottery' || target === 'sign') {
     nextTick(() => {
-      document
-        .getElementById('rpg-sec-lottery')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const anchor = target === 'lottery' ? 'rpg-sec-lottery' : 'rpg-sec-profile';
+      document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
+};
+
+/** P0-3：错误卡「重试」——重新走状态 Tab 完整加载 */
+const retryStatus = () => {
+  void loadTab('status');
 };
 
 /** 排行榜筛选变更时重新拉榜（仅在已登录且排行 Tab 激活时） */
@@ -230,10 +256,12 @@ const onSignIn = async () => {
   }
 };
 
-/** 领取任务奖励：Toast 由 WebSocket questReward 统一反馈 */
+/** 领取任务奖励：WS 动画保留，另补本地成功 Toast 兜底；并同步全局 useRpg 任务态（P1-1） */
 const onClaimQuest = async (questCode: string) => {
   try {
     await handleClaimQuest(questCode);
+    void fetchQuests();
+    messageSuccess('奖励已到账');
   }
   catch (e: any) {
     messageError(e?.message || '领取失败');
@@ -257,6 +285,7 @@ const onUnequipLoadout = async (slot: 'title' | 'avatar_frame') => {
   try {
     await handleUnequipLoadout(slot);
     void playSfx('unequip');
+    messageSuccess('已卸下');
   }
   catch (e: any) {
     messageError(e?.message || '卸下失败');
@@ -266,6 +295,31 @@ const onUnequipLoadout = async (slot: 'title' | 'avatar_frame') => {
 /** 抽奖动画结束后按结果增量刷新 */
 const onDrawFinished = (results: DrawResult[]) => {
   void refreshAfterDraw(results);
+};
+
+/** P2-2：抽奖历史「加载更多」——父级持有分页状态，追加下一页 */
+const onLoadMoreLotteryHistory = () => {
+  void loadLotteryHistory(lotteryHistoryPage.value + 1);
+};
+
+/** P2-1：抽奖结果 CTA——切 Tab / 滚动到对应区域 */
+const onLotteryCta = (target: 'inventory' | 'pet' | 'buff') => {
+  if (target === 'inventory') {
+    switchTab('inventory');
+    return;
+  }
+  if (target === 'pet') {
+    switchTab('pet');
+    return;
+  }
+  // Buff：切回状态页，ProfileCard 内部切到「增益」Tab 并滚动到个人卡
+  if (activeTab.value !== 'status') switchTab('status');
+  nextTick(() => {
+    profileCardRef.value?.setTab('buffs');
+    document
+      .getElementById('rpg-sec-profile')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 };
 
 /** 抽奖：API 完成后把结果交给 LotteryBox 展示动画 */
@@ -315,6 +369,7 @@ const onInventoryUnequip = async (slot: string) => {
   try {
     await handleInventoryUnequip(slot);
     void playSfx('unequip');
+    messageSuccess('已卸下');
   }
   catch (e: any) {
     messageError(e?.message || '卸下失败');
@@ -373,14 +428,21 @@ const onRenamePet = async (id: number, nickname: string) => {
   try {
     await handleRenamePet(id, nickname);
     void playSfx('petRename');
+    messageSuccess('改名成功');
   }
   catch (e: any) {
     messageError(e?.message || '改名失败');
   }
 };
 
-/** 公会 Tab：创建 */
+/** 公会 Tab：创建（P0-2：创建前二次确认） */
 const onCreateGuild = async (name: string) => {
+  const ok = await confirmModal({
+    title: '创建公会',
+    description: `确定使用「${name}」创建公会吗？创建后你将成为会长。`,
+    confirmLabel: '确认创建',
+  });
+  if (!ok) return;
   try {
     await handleCreateGuild(name);
     void playSfx('guildCreate');
@@ -403,8 +465,15 @@ const onJoinGuild = async (guildId: number) => {
   }
 };
 
-/** 公会 Tab：退出 */
+/** 公会 Tab：退出（P0-2：不可逆操作，error 色确认弹窗） */
 const onLeaveGuild = async () => {
+  const ok = await confirmModal({
+    title: '退出公会',
+    description: '退出后将失去公会加成，此操作不可逆。确定要退出当前公会吗？',
+    confirmLabel: '确认退出',
+    confirmColor: 'error',
+  });
+  if (!ok) return;
   try {
     await handleLeaveGuild();
     void playSfx('guildLeave');
@@ -518,6 +587,8 @@ const onLeaveGuild = async () => {
           <img :src="`/rpg/icons/${t.icon}.png`" alt="" loading="lazy">
           {{ t.label }}
           <span v-if="t.key === 'pet' && petTabDot" class="rpg-bottom-tab__dot" />
+          <!-- P1-2：冒险状态红点——有可领任务或今日未签到 -->
+          <span v-else-if="t.key === 'status' && statusTabDot" class="rpg-bottom-tab__dot" />
         </button>
       </nav>
 
@@ -531,6 +602,15 @@ const onLeaveGuild = async () => {
 
         <template v-else>
           <div v-if="activeTab === 'status'">
+            <!-- P0-3：核心数据加载失败错误卡（rpg-empty-card 三段式规范，danger 色） -->
+            <div v-if="statusError && !statusLoading && !rpgStatus" class="rpg-error-card mb-5">
+              <img class="rpg-error-card__art" src="/rpg/icons/shield.png" alt="" loading="lazy">
+              <b>冒险数据加载失败</b>
+              <p>网络似乎开小差了，核心冒险数据没有取回来，请重试。</p>
+              <button type="button" class="rpg-error-card__btn" @click="retryStatus">
+                重试
+              </button>
+            </div>
             <!-- v3 ① 英雄面板：三轴数值 + 今日待办 -->
             <div v-if="!statusLoading && rpgStatus" class="mb-5">
               <RpgHeroPanel
@@ -568,14 +648,15 @@ const onLeaveGuild = async () => {
                   :hit-records="hitRecords"
                   :hit-records-total="hitRecordsTotal"
                   :signing-in="signingIn"
+                  :claim-quest="onClaimQuest"
                   @sign-in="onSignIn"
                   @equip="onEquipLoadout"
                   @unequip="onUnequipLoadout"
-                  @claim-quest="onClaimQuest"
+                  @goto="onPanelGoto"
                   @load-hit-records="loadHitRecords"
                   @toggle-buff="onToggleBuff"
                 />
-                <RpgPanelLoading v-else compact />
+                <RpgPanelLoading v-else-if="statusLoading" compact />
               </div>
             </div>
             <div class="rpg-page-section mt-5 p-3 sm:p-5">
@@ -597,10 +678,14 @@ const onLeaveGuild = async () => {
                   :lottery-tickets="lotteryTickets"
                   :rpg-status="rpgStatus"
                   :lottery-history="lotteryHistory"
+                  :lottery-history-total="lotteryHistoryTotal"
+                  :lottery-history-loading="lotteryHistoryLoading"
                   :drawing="drawing"
                   @draw="onDraw"
                   @finished="onDrawFinished"
                   @load-history="loadLotteryHistory"
+                  @load-more="onLoadMoreLotteryHistory"
+                  @cta="onLotteryCta"
                 />
               </div>
             </div>
@@ -670,6 +755,7 @@ const onLeaveGuild = async () => {
                   v-model:active-period="leaderboardPeriod"
                   :leaderboard="leaderboard"
                   :rpg-status="rpgStatus"
+                  :my-rank="myRank"
                   :loading="leaderboardLoading"
                   @goto="onPanelGoto"
                 />
@@ -683,6 +769,48 @@ const onLeaveGuild = async () => {
 </template>
 
 <style scoped>
+  /* P0-3：核心数据加载失败错误卡（沿用 rpg-empty-card 三段式规范，danger 色） */
+  .rpg-error-card {
+    text-align: center;
+    padding: 28px 16px;
+    border: 1.5px dashed var(--rpg-danger-border, #fecaca);
+    border-radius: 16px;
+    background: var(--rpg-danger-bg, #fef2f2);
+  }
+
+  .rpg-error-card__art {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    opacity: 0.9;
+  }
+
+  .rpg-error-card b {
+    display: block;
+    font-size: 13px;
+    margin: 8px 0 4px;
+    color: var(--rpg-danger-text, #991b1b);
+  }
+
+  .rpg-error-card p {
+    font-size: 11.5px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.6));
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .rpg-error-card__btn {
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 7px 18px;
+    border-radius: 10px;
+    background: var(--rpg-art-violet-grad, linear-gradient(135deg, #7c5cf0, #5b3fd6));
+    color: #fff;
+    box-shadow: 0 4px 12px rgb(92 63 214 / 0.3);
+  }
+
   .rpg-page-toolbar {
     display: flex;
     flex-wrap: nowrap;

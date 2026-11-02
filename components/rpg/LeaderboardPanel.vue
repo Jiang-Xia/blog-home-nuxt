@@ -10,6 +10,8 @@ const props = defineProps<{
   leaderboard: any[];
   rpgStatus: any | null;
   loading: boolean;
+  /** P1-7：服务端「我的排名」（exp/total 维度；未上榜 rank 为 null） */
+  myRank?: { rank: number | null; score: number } | null;
 }>();
 
 const emit = defineEmits<{
@@ -134,8 +136,15 @@ const gapInfo = computed(() => {
   };
 });
 
+/** P1-7：myRank 仅在 exp/total 维度与服务端口径一致，其他维度不使用 */
+const canUseServerRank = computed(
+  () => activeType.value === 'exp' && activePeriod.value === 'total' && !!props.myRank,
+);
+
 const myRankText = computed(() => {
   if (myEntry.value) return `#${myEntry.value.rank}`;
+  // 榜单只展示 Top50，服务端排名仍可精确到具体名次
+  if (canUseServerRank.value && props.myRank?.rank != null) return `#${props.myRank.rank}`;
   return props.rpgStatus ? '未上榜' : '';
 });
 
@@ -157,6 +166,19 @@ const myScoreText = computed(() => {
     default:
       return '';
   }
+});
+
+/** P1-7：未上榜时的量化提示（服务端名次 / 榜单末位 EXP 差值，均不可算则回退通用文案） */
+const offBoardTip = computed<string | null>(() => {
+  if (myEntry.value) return null;
+  const rank = props.myRank?.rank;
+  if (rank != null) return `暂未上榜，目前排在第 ${rank} 名`;
+  if (activeType.value === 'exp' && props.leaderboard.length > 0 && props.rpgStatus) {
+    const lastScore = getScoreNum(props.leaderboard[props.leaderboard.length - 1]);
+    const diff = lastScore - (props.rpgStatus.exp ?? 0) + 1;
+    if (diff > 0) return `暂未上榜，再得 ${diff.toLocaleString()} EXP 即可上榜`;
+  }
+  return null;
 });
 
 /** 我的头像（ me-bar 用；空值时隐藏 img） */
@@ -277,7 +299,9 @@ const myAvatar = computed(() => {
           </div>
         </div>
         <div v-else class="me-bar__tip">
-          {{ myEntry ? '进入 TopN · 保持冒险节奏' : '继续冒险，冲进 Top50 就能上榜' }}
+          {{
+            myEntry ? '进入 TopN · 保持冒险节奏' : offBoardTip || '继续冒险，冲进 Top50 就能上榜'
+          }}
         </div>
       </div>
     </template>

@@ -321,24 +321,32 @@ onMounted(() => {
       </label>
     </div>
 
-    <!-- 滑动/点选/旋转：登录后弹窗 -->
+    <!-- 滑动/点选/旋转：登录后弹窗（cyber 风格，与 CyberCard 一致） -->
     <ClientOnly>
       <Teleport to="body">
         <div
           v-if="modalVisible && isBehaviorMode"
-          class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
+          class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
           @click.self="onModalClose"
         >
           <div
-            class="w-full max-w-[400px] rounded-xl bg-base-100 p-4 shadow-xl"
+            class="acct-captcha-pop w-full max-w-[420px]"
             role="dialog"
             aria-modal="true"
             :aria-label="captchaModeLabel(mode)"
           >
             <div class="mb-3 flex items-center justify-between gap-2">
-              <span class="font-medium">{{ captchaModeLabel(mode) }}</span>
-              <button type="button" class="btn btn-ghost btn-xs" @click="onModalClose">
-                关闭
+              <div class="flex items-center gap-2">
+                <span class="acct-captcha-pop__dot" />
+                <span class="acct-captcha-pop__label">{{ captchaModeLabel(mode) }}</span>
+              </div>
+              <button
+                type="button"
+                class="acct-captcha-pop__close"
+                aria-label="关闭"
+                @click="onModalClose"
+              >
+                ✕
               </button>
             </div>
             <div class="flex min-h-[180px] justify-center">
@@ -390,3 +398,100 @@ onMounted(() => {
     </ClientOnly>
   </div>
 </template>
+
+<style>
+  /* 弹窗 Teleport 到 body，scoped 作用域不可靠，这里用唯一类名的全局样式 */
+  .acct-captcha-pop {
+    --acct-captcha-accent: var(--tech-section-label, #22d3ee);
+    border-radius: 1.25rem;
+    border: 1px solid var(--tech-border, rgb(255 255 255 / 0.1));
+    background-color: var(--tech-dropdown-bg, rgb(17 24 39 / 0.96));
+    color: var(--tech-fg, #fff);
+    padding: 1rem;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow:
+      0 24px 70px -24px var(--tech-glow-cyan, rgb(34 211 238 / 0.16)),
+      0 0 0 1px rgb(255 255 255 / 0.02);
+  }
+
+  .acct-captcha-pop__dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: var(--acct-captcha-accent);
+    box-shadow: 0 0 10px var(--acct-captcha-accent);
+  }
+
+  .acct-captcha-pop__label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    color: var(--tech-fg, #fff);
+  }
+
+  .acct-captcha-pop__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    border: 1px solid var(--tech-border, rgb(255 255 255 / 0.1));
+    background: transparent;
+    color: var(--tech-fg-muted, rgb(255 255 255 / 0.55));
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      color 0.2s,
+      border-color 0.2s;
+  }
+
+  .acct-captcha-pop__close:hover {
+    color: var(--acct-captcha-accent);
+    border-color: var(--acct-captcha-accent);
+  }
+
+  /* go-captcha 组件用 CSS 变量换肤：跟随 cyber 主题令牌，cyber / cyber-light 自动适配 */
+  .acct-captcha-pop .go-captcha {
+    --go-captcha-theme-text-color: var(--tech-fg-muted, rgb(255 255 255 / 0.55));
+    --go-captcha-theme-bg-color: transparent;
+    --go-captcha-theme-btn-color: #ffffff;
+    --go-captcha-theme-btn-disabled-color: color-mix(
+      in srgb,
+      var(--acct-captcha-accent) 45%,
+      transparent
+    );
+    --go-captcha-theme-btn-bg-color: var(--acct-captcha-accent);
+    --go-captcha-theme-btn-border-color: var(--acct-captcha-accent);
+    --go-captcha-theme-active-color: var(--acct-captcha-accent);
+    --go-captcha-theme-border-color: var(--tech-border, rgb(255 255 255 / 0.1));
+    --go-captcha-theme-icon-color: var(--tech-fg-muted, rgb(255 255 255 / 0.55));
+    --go-captcha-theme-drag-bar-color: rgb(255 255 255 / 0.35);
+    --go-captcha-theme-drag-bg-color: var(--acct-captcha-accent);
+    --go-captcha-theme-drag-icon-color: #ffffff;
+    --go-captcha-theme-round-color: var(--tech-border, rgb(255 255 255 / 0.1));
+    --go-captcha-theme-loading-icon-color: var(--acct-captcha-accent);
+    --go-captcha-theme-dot-color: #ffffff;
+    --go-captcha-theme-dot-bg-color: var(--acct-captcha-accent);
+    --go-captcha-theme-dot-border-color: rgb(255 255 255 / 0.8);
+    --go-captcha-theme-default-color: var(--acct-captcha-accent);
+    --go-captcha-theme-default-bg-color: color-mix(
+      in srgb,
+      var(--acct-captcha-accent) 12%,
+      transparent
+    );
+    --go-captcha-theme-default-border-color: color-mix(
+      in srgb,
+      var(--acct-captcha-accent) 45%,
+      transparent
+    );
+    --go-captcha-theme-default-hover-color: color-mix(
+      in srgb,
+      var(--acct-captcha-accent) 20%,
+      transparent
+    );
+  }
+</style>

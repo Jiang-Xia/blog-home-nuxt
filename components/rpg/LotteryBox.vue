@@ -19,12 +19,20 @@ const props = defineProps<{
   rpgStatus: RpgStatus | null;
   lotteryHistory: LotteryRecord[];
   drawing: boolean;
+  /** P2-2：抽奖历史总数（接口 pagination.total，用于「加载更多」显隐） */
+  lotteryHistoryTotal?: number;
+  /** P2-2：抽奖历史加载中 */
+  lotteryHistoryLoading?: boolean;
 }>();
 
 const emit = defineEmits<{
   draw: [count: number, currency: 'ticket' | 'currency'];
   loadHistory: [];
+  /** P2-2：追加加载下一页历史 */
+  loadMore: [];
   finished: [results: DrawResult[]];
+  /** P2-1：结果引导按钮（去背包 / 去孵化 / 查看 Buff），由父页负责切换 Tab 或滚动 */
+  cta: [target: 'inventory' | 'pet' | 'buff'];
 }>();
 
 const drawCurrency = ref<'ticket' | 'currency'>('currency');
@@ -147,6 +155,44 @@ const toggleHistory = () => {
   if (showHistory.value && props.lotteryHistory.length === 0) {
     emit('loadHistory');
   }
+};
+
+/* ── P2-1：结果引导 CTA —— 按本轮奖品类型给出下一步动作，浮于 DrawOverlay 之上 ── */
+type CtaTarget = 'inventory' | 'pet' | 'buff';
+
+/** 结果阶段（单抽揭晓 / 多连汇总）才显示 CTA */
+const isResultPhase = computed(
+  () => drawPhase.value === 'reveal' || drawPhase.value === 'summary',
+);
+
+const ctaActions = computed<{ target: CtaTarget; label: string; icon: string }[]>(() => {
+  if (!isResultPhase.value) return [];
+  const types = new Set(drawResults.value.map(r => r.item.type));
+  const actions: { target: CtaTarget; label: string; icon: string }[] = [];
+  // 称号 / 头像框 / 装扮 / 物品 → 背包装备
+  if (
+    types.has('title')
+    || types.has('avatar_frame')
+    || types.has('cosmetic')
+    || types.has('item')
+  ) {
+    actions.push({ target: 'inventory', label: '去背包装备', icon: 'library' });
+  }
+  // 宠物蛋 → 宠物页孵化
+  if (types.has('pet')) {
+    actions.push({ target: 'pet', label: '去孵化', icon: 'paw' });
+  }
+  // Buff → 冒险状态页 Buff 面板
+  if (types.has('buff')) {
+    actions.push({ target: 'buff', label: '查看 Buff', icon: 'sparkle' });
+  }
+  return actions;
+});
+
+/** 点击 CTA：先收下本轮（关闭 DrawOverlay），再交给父页导航 */
+const onCta = (target: CtaTarget) => {
+  finishDrawAnimation();
+  emit('cta', target);
 };
 </script>
 
@@ -293,6 +339,20 @@ const toggleHistory = () => {
       @redraw="onOverlayRedraw"
     />
 
+    <!-- P2-1：结果引导 CTA（浮于 DrawOverlay 之上，原关闭按钮与点击收下逻辑保留） -->
+    <div v-if="ctaActions.length" class="draw-cta-bar" role="group" aria-label="结果引导">
+      <button
+        v-for="a in ctaActions"
+        :key="a.target"
+        type="button"
+        class="draw-cta-btn"
+        @click="onCta(a.target)"
+      >
+        <img class="draw-cta-btn__art" :src="`/rpg/icons/${a.icon}.png`" alt="" loading="lazy">
+        {{ a.label }}
+      </button>
+    </div>
+
     <div class="pool-preview">
       <div class="pool-title">
         奖池一览 <span class="pool-title__sub">probability 直出</span>
@@ -329,10 +389,11 @@ const toggleHistory = () => {
     </div>
 
     <div class="history-toggle">
-      <div class="history-btn" @click="toggleHistory">
+      <!-- P2-10：a11y——折叠按钮改用原生 button -->
+      <button type="button" class="history-btn" :aria-expanded="showHistory" @click="toggleHistory">
         <img class="history-art" src="/rpg/icons/scroll.png" alt=""> 抽奖记录
         <span class="toggle-chevron" :class="{ 'toggle-chevron--open': showHistory }" />
-      </div>
+      </button>
       <div v-if="showHistory" class="history-list">
         <div v-if="lotteryHistory.length === 0" class="rpg-empty-inline !py-2">
           暂无记录
@@ -360,6 +421,20 @@ const toggleHistory = () => {
           <span class="history-name">{{ record.poolName }}</span>
           <span class="history-time">{{ formactDate(record.createTime) }}</span>
         </div>
+        <!-- P2-2：追加加载下一页（父级持有分页状态） -->
+        <button
+          v-if="lotteryHistory.length < (lotteryHistoryTotal ?? lotteryHistory.length)"
+          type="button"
+          class="history-more-btn"
+          :disabled="lotteryHistoryLoading"
+          @click="emit('loadMore')"
+        >
+          {{
+            lotteryHistoryLoading
+              ? '加载中…'
+              : `加载更多（${lotteryHistory.length}/${lotteryHistoryTotal}）`
+          }}
+        </button>
       </div>
     </div>
   </div>
@@ -453,8 +528,34 @@ const toggleHistory = () => {
     box-shadow: 0 0 32px rgb(251 191 36 / 0.45);
   }
 
+  /* P2-13：spinning 态增强——抖动 + 金紫光轨旋转（单循环 1.1s，结束后交给 reveal 动画） */
   .chest.spinning {
-    box-shadow: 0 0 24px rgb(139 92 246 / 0.35);
+    animation: chestSpinShake 0.5s ease-in-out infinite;
+    box-shadow:
+      0 0 24px rgb(139 92 246 / 0.35),
+      0 0 0 2px rgb(139 92 246 / 0.15);
+  }
+
+  .chest.spinning::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    border-radius: 24px;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgb(139 92 246 / 0.4) 40deg,
+      transparent 95deg,
+      transparent 180deg,
+      rgb(217 161 60 / 0.4) 220deg,
+      transparent 275deg
+    );
+    animation: chestTrail 1.1s linear infinite;
+    pointer-events: none;
+  }
+
+  .chest.spinning .chest-icon {
+    animation: iconPulse 0.8s ease-in-out infinite;
   }
 
   .chest.disabled {
@@ -614,6 +715,7 @@ const toggleHistory = () => {
     margin-top: 8px;
   }
 
+  /* P2-10：改原生 button 后补齐 reset，外观不变 */
   .history-btn {
     display: inline-flex;
     align-items: center;
@@ -624,6 +726,9 @@ const toggleHistory = () => {
     cursor: pointer;
     user-select: none;
     margin-bottom: 6px;
+    background: transparent;
+    border: none;
+    padding: 0;
   }
 
   .history-art {
@@ -687,12 +792,99 @@ const toggleHistory = () => {
     font-variant-numeric: tabular-nums;
   }
 
+  /* P2-2：加载更多按钮 */
+  .history-more-btn {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 6px 10px;
+    border: 1px dashed var(--rpg-border-subtle, oklch(var(--b3)));
+    border-radius: 8px;
+    background: transparent;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--rpg-text-secondary);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .history-more-btn:hover:not(:disabled) {
+    color: var(--rpg-text-body);
+    border-color: var(--rpg-border);
+  }
+
+  .history-more-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  /* P2-1：结果引导 CTA（浮于 DrawOverlay z-index 10060 之上） */
+  .draw-cta-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%);
+    z-index: 10070;
+    display: flex;
+    gap: 10px;
+  }
+
+  .draw-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border: 1px solid rgb(255 255 255 / 0.2);
+    border-radius: 999px;
+    background: var(--rpg-art-violet-grad, linear-gradient(135deg, #7c5cf0, #5b3fd6));
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+    transition:
+      transform 0.15s ease,
+      filter 0.15s ease;
+  }
+
+  .draw-cta-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+  }
+
+  .draw-cta-btn__art {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: rgb(255 255 255 / 0.16);
+  }
+
   @keyframes chestCharge {
     from {
       transform: rotate(-2deg) scale(1.03);
     }
     to {
       transform: rotate(2deg) scale(1.06);
+    }
+  }
+
+  /* P2-13：spinning 抖动 + 光轨旋转 */
+  @keyframes chestSpinShake {
+    0%,
+    100% {
+      transform: rotate(-2deg) scale(1.02);
+    }
+    50% {
+      transform: rotate(2deg) scale(1.05);
+    }
+  }
+
+  @keyframes chestTrail {
+    to {
+      transform: rotate(360deg);
     }
   }
 
@@ -777,15 +969,21 @@ const toggleHistory = () => {
     overflow: hidden;
   }
 
+  /* P2-12：令牌化（原 #a78bfa→#7c5cf0 无同值令牌，改用 violet 主色梯度并保留原值兜底） */
   .pity-row__track i {
     display: block;
     height: 100%;
-    background: linear-gradient(90deg, #a78bfa, #7c5cf0);
+    background: linear-gradient(
+      90deg,
+      var(--rpg-art-violet, #a78bfa),
+      var(--rpg-art-violet-deep, #7c5cf0)
+    );
     border-radius: 999px;
     transition: width 0.4s ease;
   }
 
+  /* P2-12：金色系换 --rpg-art-gold-grad（值相同，纯改写法） */
   .pity-row__track--gold i {
-    background: linear-gradient(90deg, #e8b04b, #d9a13c);
+    background: var(--rpg-art-gold-grad, linear-gradient(90deg, #e8b04b, #d9a13c));
   }
 </style>

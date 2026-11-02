@@ -35,13 +35,19 @@ const props = defineProps<{
   hitRecords: SensitiveHitRecord[];
   hitRecordsTotal: number;
   signingIn: boolean;
+  /**
+     * P0-1：领取任务奖励的异步回调（父页传入，向下透传给 QuestPanel）。
+     * promise 未决期间 QuestPanel 按钮保持 loading。
+     */
+  claimQuest: (questCode: string) => Promise<void>;
 }>();
 
 const emit = defineEmits<{
   signIn: [];
   equip: [slot: 'title' | 'avatar_frame', code: string];
   unequip: [slot: 'title' | 'avatar_frame'];
-  claimQuest: [questCode: string];
+  /** P2-3：QuestPanel 空态行动按钮跳转 */
+  goto: [target: 'sign' | 'lottery'];
   loadHitRecords: [];
   toggleBuff: [buff: UserBuff & { triggerMode?: string; isActive?: boolean }];
 }>();
@@ -96,10 +102,31 @@ const signMilestoneStates = computed(() => {
 
 const lastSignInResult = ref<SignInResult | null>(null);
 
+/** P1-6：已签到后的「明日预告」——基础 10 EXP + 里程碑阶梯（与 signMilestones 同源） */
+const SIGN_MILESTONE_BONUS: Record<number, number> = { 3: 5, 7: 15, 14: 25, 30: 50 };
+const tomorrowPreview = computed(() => {
+  const streak = props.signInfo?.consecutiveSignDays ?? 0;
+  const nextStreak = streak + 1;
+  const bonus = SIGN_MILESTONE_BONUS[nextStreak] ?? 0;
+  return { exp: 10 + bonus, streak: nextStreak };
+});
+
+/** P2-6：最近完成的成就（按 completedAt 倒序取 3 条） */
+const recentAchievements = computed(() =>
+  props.achievements
+    .filter(a => a.completed && a.completedAt)
+    .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime())
+    .slice(0, 3),
+);
+
 /** 暴露给父组件：签到成功后回填结果（升级弹窗由 RpgGlobalInit 统一处理） */
 defineExpose({
   setSignInResult: (result: SignInResult | null) => {
     lastSignInResult.value = result;
+  },
+  /** P1-4：父组件强制切换本卡内部 Tab（英雄面板「任务」chip 滚动前先切到任务页） */
+  setTab: (tab: RpgTab) => {
+    activeTab.value = tab;
   },
 });
 
@@ -183,6 +210,11 @@ const hitWordList = (raw: string) =>
           </span>
         </div>
       </div>
+      <!-- P1-6：已签到后展示明日预告（基础 10 EXP + 里程碑阶梯，连续天数按真实字段推算） -->
+      <div v-if="signInfo?.signedToday" class="sign-next" aria-label="明日签到预告">
+        <img class="tip-art" src="/rpg/icons/calendar-check.png" alt="">
+        明日签到预告：+{{ tomorrowPreview.exp }} EXP · 连续 {{ tomorrowPreview.streak }} 天
+      </div>
       <div
         v-if="lastSignInResult?.bonusExp || lastSignInResult?.lifeRecovered"
         class="sign-result-tip"
@@ -261,7 +293,11 @@ const hitWordList = (raw: string) =>
     <!-- Tab 内容 -->
     <div class="rpg-panels">
       <div v-show="activeTab === 'quests'" class="rpg-panel" role="tabpanel">
-        <RpgQuestPanel :quest-groups="questGroups" @claim="emit('claimQuest', $event)" />
+        <RpgQuestPanel
+          :quest-groups="questGroups"
+          :claim-handler="claimQuest"
+          @goto="emit('goto', $event)"
+        />
       </div>
       <div v-show="activeTab === 'achievements'" class="rpg-panel" role="tabpanel">
         <RpgAchievementPanel :achievements="achievements" />
@@ -269,6 +305,19 @@ const hitWordList = (raw: string) =>
       <div v-show="activeTab === 'buffs'" class="rpg-panel" role="tabpanel">
         <RpgBuffList :buffs="buffs" @toggle="emit('toggleBuff', $event)" />
       </div>
+    </div>
+
+    <!-- P2-6：最近成就（最近完成的 3 条，数据来自父页 achievements 聚合） -->
+    <div v-if="recentAchievements.length" class="recent-achv">
+      <span class="recent-achv__label">
+        <img class="label-art" src="/rpg/icons/trophy.png" alt=""> 最近成就
+      </span>
+      <span
+        v-for="a in recentAchievements"
+        :key="a.id"
+        class="recent-achv__chip"
+        :title="a.description"
+      >{{ a.name }}</span>
     </div>
 
     <!-- 头像框 & 称号 -->
@@ -501,6 +550,20 @@ const hitWordList = (raw: string) =>
     animation: fadeInTip 0.4s ease;
   }
 
+  /* P1-6：明日签到预告行 */
+  .sign-next {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--rpg-amber-text-soft, oklch(var(--bc) / 0.72));
+    background: var(--rpg-amber-bg, #fdf6e4);
+    border-radius: 8px;
+    padding: 3px 10px;
+  }
+
   .bonus-tip {
     color: var(--rpg-amber-dark);
     font-weight: 600;
@@ -642,6 +705,37 @@ const hitWordList = (raw: string) =>
   /* Collections */
   .collections {
     margin-bottom: 10px;
+  }
+
+  /* P2-6：最近成就行 */
+  .recent-achv {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .recent-achv__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--rpg-text-secondary);
+    white-space: nowrap;
+  }
+
+  .recent-achv__chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--rpg-art-gold-ink, #3a2408);
+    background: var(--rpg-art-gold-soft, rgb(217 161 60 / 0.14));
+    border: 1px solid var(--rpg-amber-border, rgb(217 161 60 / 0.4));
+    white-space: nowrap;
   }
 
   .collection-row {

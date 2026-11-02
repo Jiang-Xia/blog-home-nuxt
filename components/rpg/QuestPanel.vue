@@ -12,10 +12,17 @@ const props = defineProps<{
     weekly: UserQuestProgress[];
     special: UserQuestProgress[];
   };
+  /**
+     * P0-1：领取奖励的异步回调（由父级传入）。
+     * promise 未决期间按钮保持 loading，避免 emit 后立即清 loading 导致反馈丢失。
+     */
+  claimHandler?: (questCode: string) => Promise<unknown>;
 }>();
 
 const emit = defineEmits<{
   claim: [questCode: string];
+  /** P2-3：空态行动按钮，交由父级引导去签到/抽奖区 */
+  goto: [target: 'sign' | 'lottery'];
 }>();
 
 const { playSfx } = useRpgAudio();
@@ -35,9 +42,16 @@ const currentQuests = computed(() => props.questGroups[activeTab.value] || []);
 const claimingCode = ref<string | null>(null);
 
 const handleClaim = async (questCode: string) => {
+  if (claimingCode.value) return;
   claimingCode.value = questCode;
   try {
-    emit('claim', questCode);
+    if (props.claimHandler) {
+      // P0-1：走异步回调 prop，await 期间按钮保持 loading
+      await props.claimHandler(questCode);
+    }
+    else {
+      emit('claim', questCode);
+    }
   }
   finally {
     claimingCode.value = null;
@@ -127,8 +141,13 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
       </div>
     </div>
 
-    <div v-if="currentQuests.length === 0" class="quest-empty">
-      暂无任务
+    <div v-if="currentQuests.length === 0" class="rpg-empty-card quest-empty-card">
+      <img class="rpg-empty-card__art" src="/rpg/icons/scroll.png" alt="" loading="lazy">
+      <b>暂无任务</b>
+      <p>任务清单暂时空空如也，先去签到或抽个奖，回来看看有没有新任务。</p>
+      <button type="button" class="rpg-empty-card__btn" @click="emit('goto', 'sign')">
+        去签到赚 EXP
+      </button>
     </div>
 
     <div v-else class="rpg-loot-grid quest-list">
@@ -207,7 +226,7 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
       class="quest-all-done"
     >
       <img class="quest-all-done-art" src="/rpg/icons/sparkle.png" alt="" loading="lazy">
-      今日任务已全部完成！
+      今日任务全部完成！全勤奖励 +2 抽奖券已到账
     </div>
   </div>
 </template>
@@ -304,11 +323,48 @@ const hiddenCompletedCount = computed(() => currentQuests.value.filter(q => q.cl
     border-radius: 4px;
   }
 
-  .quest-empty {
+  /* P2-3：空态改用 rpg-empty-card 三段式规范（与排行榜/背包空态同款） */
+  .quest-empty-card {
     text-align: center;
-    color: var(--rpg-text-muted);
+    padding: 24px 16px;
+    border: 1.5px dashed var(--rpg-border, #e8e3f2);
+    border-radius: 16px;
+    background: var(--rpg-surface, #fbfaff);
+  }
+
+  .quest-empty-card__art,
+  .rpg-empty-card__art {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: contain;
+    opacity: 0.9;
+  }
+
+  .rpg-empty-card b {
+    display: block;
+    font-size: 13px;
+    margin: 8px 0 4px;
+    color: var(--rpg-text-heading, oklch(var(--bc)));
+  }
+
+  .rpg-empty-card p {
+    font-size: 11.5px;
+    color: var(--rpg-text-muted, oklch(var(--bc) / 0.6));
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .rpg-empty-card__btn {
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
     font-size: 12px;
-    padding: 24px;
+    padding: 7px 16px;
+    border-radius: 10px;
+    background: var(--rpg-art-violet-grad, linear-gradient(135deg, #7c5cf0, #5b3fd6));
+    color: #fff;
+    box-shadow: 0 4px 12px rgb(92 63 214 / 0.3);
   }
 
   .quest-list {

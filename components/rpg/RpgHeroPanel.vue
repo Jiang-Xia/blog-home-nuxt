@@ -6,6 +6,10 @@
    */
 import type { RpgStatus, SignInfo } from '~~/types/rpg';
 import { resolveStaticUrl } from '@/utils/static-url';
+import {
+  LOTTERY_EPIC_PITY_THRESHOLD,
+  LOTTERY_LEGENDARY_PITY_THRESHOLD,
+} from '@/utils/rpg-economy';
 
 const props = defineProps<{
   rpgStatus: RpgStatus;
@@ -17,7 +21,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  todo: [key: 'sign' | 'quests' | 'hatch' | 'lottery' | 'hp'];
+  todo: [key: 'sign' | 'quests' | 'hatch' | 'lottery' | 'hp' | 'pity'];
 }>();
 
 const { playSfx } = useRpgAudio();
@@ -70,12 +74,24 @@ const heroFrameInfo = computed(() => {
 });
 
 interface TodoChip {
-  key: 'sign' | 'quests' | 'hatch' | 'lottery' | 'hp';
+  key: 'sign' | 'quests' | 'hatch' | 'lottery' | 'hp' | 'pity';
   icon: string;
   label: string;
   badge?: string;
   done?: boolean;
 }
+
+/** P1-3：保底数据（epic 90 / legendary 180 双计数，取距离最近的硬保底） */
+const pityInfo = computed(() => {
+  const remainEpic = LOTTERY_EPIC_PITY_THRESHOLD - (props.rpgStatus.lotteryPityCounter ?? 0);
+  const remainLegend
+    = LOTTERY_LEGENDARY_PITY_THRESHOLD - (props.rpgStatus.lotteryLegendaryPityCounter ?? 0);
+  const candidates = [remainEpic, remainLegend].filter(n => n > 0);
+  if (!candidates.length) return null;
+  const remain = Math.min(...candidates);
+  // 距离保底 ≤10 抽时才亮 chip
+  return remain <= 10 ? { remain } : null;
+});
 
 const todoChips = computed<TodoChip[]>(() => {
   const chips: TodoChip[] = [
@@ -103,6 +119,14 @@ const todoChips = computed<TodoChip[]>(() => {
     label: '抽奖',
     badge: props.lotteryTickets > 0 ? `券 ×${props.lotteryTickets}` : undefined,
   });
+  if (pityInfo.value) {
+    chips.push({
+      key: 'pity',
+      icon: 'dice',
+      label: '保底',
+      badge: `差 ${pityInfo.value.remain} 抽必得`,
+    });
+  }
   if (hpLow.value) {
     chips.push({ key: 'hp', icon: 'heart', label: '恢复 HP', badge: '偏低' });
   }
@@ -228,7 +252,7 @@ const onTodo = (key: TodoChip['key']) => {
     height: 100%;
     font-size: 24px;
     font-weight: 800;
-    background: linear-gradient(135deg, #7c5cf0, #5b3fd6);
+    background: var(--rpg-art-violet-grad, linear-gradient(135deg, #7c5cf0, #5b3fd6));
   }
 
   .rpg-hero__title {
@@ -246,8 +270,8 @@ const onTodo = (key: TodoChip['key']) => {
   .rpg-hero__lv {
     font-size: 12px;
     font-weight: 800;
-    background: linear-gradient(135deg, #e8b04b, #d9a13c);
-    color: #3a2408;
+    background: var(--rpg-art-gold-grad, linear-gradient(135deg, #e8b04b, #d9a13c));
+    color: var(--rpg-art-gold-ink, #3a2408);
     border-radius: 999px;
     padding: 2px 10px;
   }
@@ -338,15 +362,16 @@ const onTodo = (key: TodoChip['key']) => {
   }
 
   .rpg-hbar--exp .rpg-hbar__track i {
-    background: linear-gradient(90deg, #a78bfa, #7c5cf0);
+    background: var(--rpg-art-violet-grad, linear-gradient(90deg, #a78bfa, #7c5cf0));
   }
 
+  /* HP 条：无现成双色令牌，改用 --rpg-life-danger 语义色（原 #ff8a8a→#e05555 渐变） */
   .rpg-hbar--hp .rpg-hbar__track i {
-    background: linear-gradient(90deg, #ff8a8a, #e05555);
+    background: var(--rpg-life-danger, #e05555);
   }
 
   .rpg-hbar--sign .rpg-hbar__track i {
-    background: linear-gradient(90deg, #e8b04b, #d9a13c);
+    background: var(--rpg-art-gold-grad, linear-gradient(90deg, #e8b04b, #d9a13c));
   }
 
   .rpg-hero__todos {
@@ -384,7 +409,7 @@ const onTodo = (key: TodoChip['key']) => {
   }
 
   .rpg-todo__n {
-    background: #e05555;
+    background: var(--rpg-danger, #e05555);
     color: #fff;
     font-size: 10px;
     font-weight: 800;
@@ -398,7 +423,7 @@ const onTodo = (key: TodoChip['key']) => {
 
   .rpg-todo--done::after {
     content: '✓';
-    color: #7de3a8;
+    color: var(--rpg-life-ok, #7de3a8);
     font-weight: 800;
   }
 

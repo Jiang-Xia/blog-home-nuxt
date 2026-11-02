@@ -383,7 +383,7 @@ const socialActions = [
       />
       <CyberCard class="mb-4 !p-4">
         <ul class="space-y-2 text-sm text-tech-muted">
-          <li>单次可 1~10 连抽</li>
+          <li>单次可 ×1 / ×5 连抽</li>
           <li><strong class="text-tech">抽奖券</strong>：1 张/次（签到、全勤、抽奖回流获得）</li>
           <li><strong class="text-tech">钻石</strong>：10/次</li>
           <li>史诗保底：累计 90 次未出史诗/传说，第 90 次强制史诗池</li>

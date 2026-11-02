@@ -30,6 +30,19 @@ const collectLoading = ref(false);
 const showTipModal = ref(false);
 const isLiked = ref(false);
 const fabOpen = ref(false);
+/** P2-8：展开时记录锚点滚动位置，滚动偏移超过阈值自动收起 */
+const fabOpenScrollY = ref(0);
+
+const openFab = () => {
+  fabOpenScrollY.value = scrollY.value;
+  fabOpen.value = true;
+};
+
+watch(scrollY, (y) => {
+  if (fabOpen.value && Math.abs(y - fabOpenScrollY.value) > 200) {
+    fabOpen.value = false;
+  }
+});
 
 const { y: scrollY } = useScroll(window);
 const showBackTop = computed(() => {
@@ -133,7 +146,7 @@ watch(
           tabindex="0"
           role="button"
           class="btn btn-circle btn-primary text-xl shadow-lg ring-2 ring-[var(--rpg-amber-border)]"
-          @click="fabOpen = true"
+          @click="openFab"
         >
           <img class="fab-art" src="/rpg/icons/dice.png" alt="">
         </div>

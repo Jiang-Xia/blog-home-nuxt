@@ -98,6 +98,8 @@ export function useRpgPage() {
   const leaderboard = ref<any[]>([]);
 
   const statusLoading = ref(false);
+  /** P0-3：冒险状态 Tab 核心数据加载失败标记（页面据此渲染错误卡与重试按钮） */
+  const statusError = ref(false);
   const inventoryLoading = ref(false);
   const petLoading = ref(false);
   const guildLoading = ref(false);
@@ -135,6 +137,7 @@ export function useRpgPage() {
     if (loadedTabs.value.has('status')) return;
 
     statusLoading.value = true;
+    statusError.value = false;
     try {
       // 合并并发，避免 ProfileCard / LotteryBox / SeasonBanner / HeroPanel 等子组件重复打相同接口
       const [
@@ -191,6 +194,12 @@ export function useRpgPage() {
       equippedPetId.value = loRes?.petId ?? null;
       loadedTabs.value.add('status');
       loadedTabs.value.add('pet');
+    }
+    catch (e) {
+      // P0-3：核心请求（getRpgStatus/getSignInfo 等）失败时置错误态；
+      // 不标记 loadedTabs，保证「重试」能再次走完整加载流程
+      console.error('[useRpgPage] loadStatusTab failed:', e);
+      statusError.value = true;
     }
     finally {
       statusLoading.value = false;
@@ -250,10 +259,25 @@ export function useRpgPage() {
     hitRecordsTotal.value = res.pagination?.total ?? 0;
   };
 
-  /** 懒加载抽奖历史（用户展开记录面板时触发） */
-  const loadLotteryHistory = async () => {
-    const res = await getLotteryHistory(1);
-    lotteryHistory.value = res.list || [];
+  /** P2-2：抽奖历史分页状态（追加加载，total 来自接口 pagination） */
+  const lotteryHistoryTotal = ref(0);
+  const lotteryHistoryPage = ref(0);
+  const lotteryHistoryLoading = ref(false);
+  const LOTTERY_HISTORY_PAGE_SIZE = 20;
+
+  /** 懒加载抽奖历史（用户展开记录面板时触发；page>1 为追加模式） */
+  const loadLotteryHistory = async (page = 1) => {
+    lotteryHistoryLoading.value = true;
+    try {
+      const res = await getLotteryHistory(page, LOTTERY_HISTORY_PAGE_SIZE);
+      const list = res.list || [];
+      lotteryHistory.value = page > 1 ? [...lotteryHistory.value, ...list] : list;
+      lotteryHistoryPage.value = page;
+      lotteryHistoryTotal.value = res.pagination?.total ?? lotteryHistoryTotal.value;
+    }
+    finally {
+      lotteryHistoryLoading.value = false;
+    }
   };
 
   /**
@@ -586,6 +610,9 @@ export function useRpgPage() {
     lotteryPool,
     lotteryTickets,
     lotteryHistory,
+    lotteryHistoryTotal,
+    lotteryHistoryPage,
+    lotteryHistoryLoading,
     hitRecords,
     hitRecordsTotal,
     activityOverview,
@@ -606,6 +633,7 @@ export function useRpgPage() {
     petLoading,
     guildLoading,
     leaderboardLoading,
+    statusError,
     signingIn,
     drawing,
     leaderboardType,
