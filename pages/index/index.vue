@@ -12,7 +12,7 @@ const { data: gushiciData } = await useAsyncData('gushici_Get', () => gushici(),
   default: () => null,
 });
 
-/** 与 ArticleList 默认 asyncDataKey 共用，避免首页再打一遍 list 只为取 total */
+/** 与 ArticleList 默认 asyncDataKey 共用：SSR 载荷共享不重复请求，为首屏数据行取 total */
 const { data: indexArticleData } = await useAsyncData('index_GetList', () =>
   getArticleList({
     page: 1,
@@ -27,10 +27,10 @@ const { data: indexArticleData } = await useAsyncData('index_GetList', () =>
   }),
 );
 
-const articleTotal = computed(() => indexArticleData.value?.pagination?.total ?? 0);
-const articleTotalLabel = computed(() =>
-  articleTotal.value > 0 ? `${articleTotal.value}+` : '100+',
-);
+const articleTotalLabel = computed(() => {
+  const total = indexArticleData.value?.pagination?.total ?? 0;
+  return total > 0 ? `${total}+` : '100+';
+});
 const toolCountLabel = `${TOOL_LINKS.length}+`;
 
 const poetryContent = computed(() => gushiciData.value?.content?.trim() || '每日诗词');
@@ -51,9 +51,9 @@ const scrollToArticles = () => {
 };
 
 const heroStats = computed(() => [
-  { value: articleTotalLabel.value, label: '技术文章', gradient: false },
-  { value: toolCountLabel, label: '实用工具', gradient: false },
-  { value: '8 大', label: 'RPG 冒险玩法', gradient: true },
+  { value: articleTotalLabel.value, label: '技术文章' },
+  { value: toolCountLabel, label: '实用工具' },
+  { value: '8 大', label: 'RPG 冒险玩法' },
 ]);
 </script>
 
@@ -63,10 +63,11 @@ const heroStats = computed(() => [
       首页 - {{ SiteTitle }}
     </h1>
 
-    <!-- 首屏：桌面锁定视口；移动端自然流式，Banner 仅展示至主按钮 -->
+    <!-- 首屏：桌面锁定视口；移动端自然流式 -->
     <div class="home-first-screen mx-auto max-w-6xl px-4">
       <section class="home-hero">
         <div class="home-hero-inner mx-auto flex w-full max-w-6xl flex-col min-h-0">
+          <!-- 顶部：品牌胶囊，轻量锚点 -->
           <div class="home-hero-brand flex shrink-0 justify-center">
             <div class="home-hero-brand-chip inline-flex max-w-full items-center gap-2">
               <div
@@ -79,14 +80,17 @@ const heroStats = computed(() => [
                 class="flex min-w-0 items-center gap-2 pr-0.5 text-sm leading-snug text-tech-muted md:text-base"
               >
                 <span class="home-hero-status-dot h-1.5 w-1.5 shrink-0 rounded-full bg-success" />
-                <span>Blog × RPG · 签到 · 任务 · 抽奖 · 排行榜</span>
+                <span>Blog × RPG · 文字冒险世界</span>
               </div>
             </div>
           </div>
 
-          <!-- 视觉中心：每日诗词独占舞台区 -->
-          <div class="home-hero-stage flex min-h-0 flex-1 items-center justify-center">
-            <div class="home-hero-focus relative w-full max-w-3xl text-center">
+          <!-- 主簇：诗词 + 简介 + 按钮 + 数据，围绕视觉中心聚拢，避免悬空虚白 -->
+          <div
+            class="home-hero-main flex min-h-0 flex-1 flex-col items-center justify-center text-center"
+          >
+            <!-- 视觉中心：每日诗词独占舞台区 -->
+            <div class="home-hero-focus relative w-full max-w-3xl">
               <div class="poetry-typewriter home-hero-poetry relative z-[1] w-full">
                 <h2 class="home-hero-poetry-title font-bold leading-relaxed">
                   <span class="cyber-gradient-text">{{ displayedContent }}</span>
@@ -98,56 +102,54 @@ const heroStats = computed(() => [
                 </p>
               </div>
             </div>
-          </div>
 
-          <!-- 次要操作区：简介 + 按钮 + 数据 -->
-          <div
-            class="home-hero-cta mx-auto flex w-full max-w-3xl shrink-0 flex-col items-center text-center"
-          >
-            <p class="home-hero-tagline max-w-2xl text-sm text-tech-muted md:text-base">
-              技术博客，也是冒险世界
-              <span class="mx-1.5 text-tech-subtle">·</span>
-              读文章 · 做任务 · 冲排行榜
-            </p>
+            <!-- 次要操作区：简介 + 按钮 + 数据行 -->
+            <div class="home-hero-cta flex w-full max-w-3xl flex-col items-center text-center">
+              <p class="home-hero-tagline max-w-2xl text-sm text-tech-muted md:text-base">
+                <span class="home-hero-tagline-rule" aria-hidden="true" />
+                技术博客，也是冒险世界
+                <span
+                  class="home-hero-tagline-rule home-hero-tagline-rule--end"
+                  aria-hidden="true"
+                />
+              </p>
 
-            <div class="home-hero-buttons flex flex-wrap items-center justify-center gap-3">
-              <CyberButton
-                variant="primary"
-                to="/rpg"
-                class="home-hero-btn !border-[var(--rpg-amber-border)]"
+              <div class="home-hero-buttons flex flex-wrap items-center justify-center gap-3">
+                <CyberButton variant="primary" to="/rpg" class="home-hero-btn">
+                  开始冒险
+                </CyberButton>
+                <CyberButton variant="secondary" class="home-hero-btn" @click="scrollToArticles">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 4H20v16H6.5a2.5 2.5 0 0 1 0-5H20" />
+                  </svg>
+                  浏览文章
+                </CyberButton>
+              </div>
+
+              <div
+                class="home-hero-stats flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:gap-x-5"
               >
-                ⚔️ 开始冒险
-              </CyberButton>
-              <CyberButton variant="secondary" class="home-hero-btn" @click="scrollToArticles">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 4H20v16H6.5a2.5 2.5 0 0 1 0-5H20" />
-                </svg>
-                浏览文章
-              </CyberButton>
-              <CyberButton variant="secondary" to="/tool" class="home-hero-btn">
-                查看工具
-              </CyberButton>
-            </div>
-
-            <div class="home-hero-stats flex flex-wrap items-center justify-center gap-6 md:gap-10">
-              <div v-for="stat in heroStats" :key="stat.label" class="text-center">
-                <div
-                  class="home-hero-stat-value font-bold"
-                  :class="stat.gradient ? 'home-hero-gradient-text' : 'text-primary'"
-                >
-                  {{ stat.value }}
-                </div>
-                <div class="mt-1 text-xs text-tech-subtle md:text-sm">
-                  {{ stat.label }}
-                </div>
+                <template v-for="(stat, index) in heroStats" :key="stat.label">
+                  <span
+                    v-if="index > 0"
+                    class="home-hero-stat-divider h-3.5 w-px"
+                    aria-hidden="true"
+                  />
+                  <div class="flex items-baseline gap-1.5">
+                    <span class="home-hero-stat-value font-bold text-primary">{{
+                      stat.value
+                    }}</span>
+                    <span class="text-xs text-tech-subtle md:text-sm">{{ stat.label }}</span>
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -185,7 +187,7 @@ const heroStats = computed(() => [
     }
   }
 
-  /* Hero 占满 Banner 以上空间，诗词居中为视觉焦点 */
+  /* Hero 占满 Banner 以上空间，主簇整体居中 */
   .home-hero {
     flex: 1 1 0;
     min-height: 0;
@@ -199,7 +201,7 @@ const heroStats = computed(() => [
   }
 
   .home-hero-brand {
-    margin-bottom: clamp(0.75rem, 2vh, 1.25rem);
+    margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
   }
 
   .home-hero-brand-chip {
@@ -248,10 +250,9 @@ const heroStats = computed(() => [
     }
   }
 
-  .home-hero-stage {
-    padding: clamp(0.25rem, 1.5vh, 1rem) 0;
-    overflow-x: clip;
-    overflow-y: visible;
+  /* 主簇内部垂直节奏：诗词与操作区之间用稳定间距聚拢 */
+  .home-hero-main {
+    gap: clamp(1.25rem, 3.5vh, 2rem);
   }
 
   .home-hero-focus {
@@ -284,9 +285,9 @@ const heroStats = computed(() => [
     overflow-y: visible;
   }
 
-  /* 随视口宽度平滑缩放，等同 text-2xl ↔ md:text-4xl */
+  /* 随视口宽度平滑缩放，等同 text-2xl ↔ md:text-5xl */
   .home-hero-poetry-title {
-    font-size: clamp(1.5rem, 1.35vw + 1rem, 2.5rem);
+    font-size: clamp(1.5rem, 1.35vw + 1rem, 2.75rem);
     margin-bottom: clamp(0.5rem, 1.2vh, 0.875rem);
     text-wrap: balance;
   }
@@ -298,21 +299,43 @@ const heroStats = computed(() => [
 
   .home-hero-cta {
     gap: clamp(1rem, 2.5vh, 1.5rem);
-    padding-bottom: clamp(0.25rem, 1.5vh, 0.75rem);
   }
 
+  /* 简介行两侧细线装饰，收束视线、填充横向留白 */
   .home-hero-tagline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.875rem;
     margin-bottom: 0;
+  }
+
+  .home-hero-tagline-rule {
+    width: clamp(1.5rem, 5vw, 3.5rem);
+    height: 1px;
+    flex-shrink: 0;
+    background: linear-gradient(to right, transparent, var(--tech-border));
+  }
+
+  .home-hero-tagline-rule--end {
+    transform: scaleX(-1);
   }
 
   .home-hero-buttons {
     margin-bottom: 0;
   }
 
+  /* 数据行：单行内联 + 细分隔线，统一主色去除色彩噪声 */
   .home-hero-stats {
     margin-top: 0;
-    gap: clamp(1.5rem, 4vw, 2.5rem);
-    opacity: 0.92;
+  }
+
+  .home-hero-stat-divider {
+    background: var(--tech-border);
+    opacity: 0.7;
+  }
+
+  .home-hero-stat-value {
+    font-size: clamp(1rem, 0.35vw + 0.875rem, 1.1875rem);
   }
 
   .home-hero-btn {
@@ -320,36 +343,19 @@ const heroStats = computed(() => [
     font-size: 0.875rem;
   }
 
-  .home-hero-stat-value {
-    font-size: clamp(0.9375rem, 0.45vw + 0.75rem, 1.25rem);
-  }
-
   .home-first-screen-banner {
     flex: 0 0 auto;
     margin-top: auto;
   }
 
-  .home-hero-gradient-text {
-    background: linear-gradient(
-      to right,
-      var(--tech-gradient-from),
-      var(--rpg-amber-light),
-      var(--tech-gradient-to)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-  }
-
-  /* 大屏：舞台区更突出 */
+  /* 大屏：主簇间距更舒展 */
   @media (min-height: 960px) {
     .home-hero-brand {
       margin-bottom: 1rem;
     }
 
-    .home-hero-focus {
-      padding: 1.75rem 1.5rem;
+    .home-hero-main {
+      gap: 2rem;
     }
 
     .home-hero-cta {
@@ -357,10 +363,14 @@ const heroStats = computed(() => [
     }
   }
 
-  /* 视口较矮时收紧次要区，保留诗词舞台 */
+  /* 视口较矮时收紧间距，保住首屏不溢出 */
   @media (max-height: 900px) {
     .home-hero-brand {
       margin-bottom: 0.5rem;
+    }
+
+    .home-hero-main {
+      gap: 1rem;
     }
 
     .home-hero-focus {
@@ -411,10 +421,10 @@ const heroStats = computed(() => [
       margin-bottom: 0.875rem;
     }
 
-    .home-hero-stage {
+    .home-hero-main {
       flex: none;
       min-height: auto;
-      padding: 0.5rem 0 0.875rem;
+      gap: 1.125rem;
     }
 
     .home-hero-focus {
@@ -438,14 +448,17 @@ const heroStats = computed(() => [
       left: -10%;
     }
 
+    .home-hero-cta {
+      gap: 1rem;
+    }
+
     .home-hero-tagline {
       font-size: 0.9375rem;
       line-height: 1.6;
     }
 
-    .home-hero-cta {
-      gap: 1rem;
-      padding-bottom: 0;
+    .home-hero-tagline-rule {
+      width: 1.25rem;
     }
 
     .home-hero-btn {
@@ -454,11 +467,7 @@ const heroStats = computed(() => [
     }
 
     .home-hero-stat-value {
-      font-size: 1.125rem;
-    }
-
-    .home-hero-stats {
-      gap: 1.5rem;
+      font-size: 1.0625rem;
     }
 
     .home-first-screen-banner {

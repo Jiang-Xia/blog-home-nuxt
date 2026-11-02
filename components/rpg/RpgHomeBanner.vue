@@ -97,8 +97,11 @@ const previewDense = computed(() => props.firstScreen && isLgUp.value);
             class="leading-relaxed text-[var(--rpg-text-secondary)]"
             :class="firstScreen ? 'mb-3 text-sm lg:text-base' : 'mb-4 text-sm md:text-base'"
           >
-            不只是阅读——签到升级、做任务、抽卡开宝箱、养宠物、冲排行榜。
-            每一次互动都在推进你的冒险进度。
+            {{
+              firstScreen
+                ? '签到 · 任务 · 抽卡 · 排行榜，互动即推进冒险进度。'
+                : '不只是阅读——签到升级、做任务、抽卡开宝箱、养宠物、冲排行榜。每一次互动都在推进你的冒险进度。'
+            }}
           </p>
 
           <div
@@ -126,9 +129,10 @@ const previewDense = computed(() => props.firstScreen && isLgUp.value);
               <img class="cta-art" src="/rpg/icons/dice.png" alt=""> {{ ctaText }}
             </CyberButton>
             <CyberButton
+              v-if="!firstScreen"
               variant="secondary"
               to="/rpg?tab=leaderboard"
-              :class="firstScreen ? '!px-5 !py-2.5 text-sm' : '!px-6 !py-3'"
+              class="!px-6 !py-3"
             >
               查看排行榜
             </CyberButton>
