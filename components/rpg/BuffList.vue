@@ -161,9 +161,7 @@ const getEffectText = (buff: UserBuff): string => {
               alt=""
               loading="lazy"
             >
-            <template v-else>
-              {{ BUFF_TYPE_MAP[buff.buffType]?.icon || '✨' }}
-            </template>
+            <img v-else class="buff-fallback" src="/rpg/icons/sparkle.png" alt="">
           </div>
           <span class="rpg-loot-status rpg-loot-status--corner" :class="getStatusClass(buff)">
             {{ getStatusText(buff) }}
@@ -251,6 +249,13 @@ const getEffectText = (buff: UserBuff): string => {
   .buff-art {
     width: 90%;
     height: 90%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.25));
+  }
+
+  .buff-fallback {
+    width: 70%;
+    height: 70%;
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.25));
   }

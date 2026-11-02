@@ -162,7 +162,7 @@ const categories = computed(() => {
             alt=""
             loading="lazy"
           >
-          <span v-else class="medal-fallback">🏆</span>
+          <img v-else class="medal-fallback" src="/rpg/icons/trophy.png" alt="">
         </div>
         <div class="medal-rn">
           {{ ach.rarityLabel || '成就' }}
@@ -323,7 +323,9 @@ const categories = computed(() => {
   }
 
   .medal-fallback {
-    font-size: 24px;
+    width: 62%;
+    height: 62%;
+    object-fit: contain;
     filter: grayscale(0.25) opacity(0.82);
   }
 

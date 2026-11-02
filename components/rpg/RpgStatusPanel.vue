@@ -146,7 +146,8 @@ onMounted(async () => {
         />
       </div>
       <div v-if="isBanned" class="ban-inline">
-        🔇 禁言中 · 剩余 {{ banRemainingText }}
+        <img class="inline-ico" src="/rpg/icons/volume-off.png" alt=""> 禁言中 · 剩余
+        {{ banRemainingText }}
       </div>
     </div>
 
@@ -162,7 +163,8 @@ onMounted(async () => {
       <div class="sign-stats">
         <span>累计 {{ signInfo?.totalSignDays ?? 0 }} 天</span>
         <span v-if="signInfo?.consecutiveSignDays" class="consecutive-badge">
-          🔥 连续 {{ signInfo.consecutiveSignDays }} 天
+          <img class="inline-ico" src="/rpg/icons/fire.png" alt=""> 连续
+          {{ signInfo.consecutiveSignDays }} 天
         </span>
       </div>
       <!-- 下一个连续奖励提示 -->
@@ -174,8 +176,12 @@ onMounted(async () => {
         v-if="lastSignInResult?.bonusExp || lastSignInResult?.lifeRecovered"
         class="sign-result-tip"
       >
-        <span v-if="lastSignInResult.bonusExp" class="bonus-tip">🎁 {{ lastSignInResult.bonusLabel }} +{{ lastSignInResult.bonusExp }}经验</span>
-        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip">❤️ +{{ lastSignInResult.lifeRecovered }} 生命</span>
+        <span v-if="lastSignInResult.bonusExp" class="bonus-tip"><img class="inline-ico" src="/rpg/icons/gift.png" alt="">
+          {{ lastSignInResult.bonusLabel }} +{{ lastSignInResult.bonusExp }}经验</span>
+        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip"><img class="inline-ico" src="/rpg/icons/heart.png" alt=""> +{{
+          lastSignInResult.lifeRecovered
+        }}
+          生命</span>
       </div>
     </div>
 
@@ -382,10 +388,20 @@ onMounted(async () => {
   }
 
   .ban-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     margin-top: 6px;
     font-size: 12px;
     color: var(--rpg-danger);
     font-weight: 600;
+  }
+
+  .inline-ico {
+    width: 1em;
+    height: 1em;
+    object-fit: contain;
+    flex-shrink: 0;
   }
 
   .sign-section {

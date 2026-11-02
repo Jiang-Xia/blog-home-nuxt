@@ -455,7 +455,7 @@ const onLeaveGuild = async () => {
           :aria-label="muted ? '开启音效' : '静音'"
           @click="toggleMute"
         >
-          <img :src="muted ? '/rpg/icons/star-half.png' : '/rpg/icons/star-full.png'" alt="">
+          <img :src="muted ? '/rpg/icons/volume-off.png' : '/rpg/icons/volume-on.png'" alt="">
         </button>
         <template v-if="!muted">
           <label class="rpg-page-toolbar__vol">
