@@ -32,6 +32,7 @@ const isLiked = ref(false);
 const fabOpen = ref(false);
 /** P2-8：展开时记录锚点滚动位置，滚动偏移超过阈值自动收起 */
 const fabOpenScrollY = ref(0);
+const { y: scrollY } = useScroll(window);
 
 const openFab = () => {
   fabOpenScrollY.value = scrollY.value;
@@ -44,7 +45,6 @@ watch(scrollY, (y) => {
   }
 });
 
-const { y: scrollY } = useScroll(window);
 const showBackTop = computed(() => {
   if (!import.meta.client) return false;
   return scrollY.value > document.documentElement.clientHeight - 400;
