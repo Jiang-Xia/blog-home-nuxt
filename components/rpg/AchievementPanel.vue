@@ -90,6 +90,11 @@ const categories = computed(() => {
 
 <template>
   <div class="achievement-panel">
+    <RpgPanelHero icon="medal-gold" title="成就殿堂" subtitle="集齐奖章 · 见证冒险足迹" tone="gold">
+      <template #extra>
+        <span class="ach-hero-count">{{ completedCount }}<small> / {{ totalCount }}</small></span>
+      </template>
+    </RpgPanelHero>
     <!-- 总览 -->
     <div class="ach-overview">
       <div class="ach-summary">
@@ -228,6 +233,21 @@ const categories = computed(() => {
     display: flex;
     align-items: baseline;
     gap: 2px;
+  }
+
+  /* v8：头图右侧收集计数（白字，叠在金渐变上） */
+  .ach-hero-count {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  }
+
+  .ach-hero-count small {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.85;
   }
 
   .ach-num {

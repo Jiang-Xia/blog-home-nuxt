@@ -4,7 +4,7 @@
  */
 
 import AES from 'crypto-js/aes';
-import Core from 'crypto-js/core';
+import * as CoreNS from 'crypto-js/core';
 import Hex from 'crypto-js/enc-hex';
 import Utf8 from 'crypto-js/enc-utf8';
 import Pkcs7 from 'crypto-js/pad-pkcs7';
@@ -13,6 +13,8 @@ import { rsaEncrypt } from '~~/utils/jsencrypt';
 import { hmacSha256Hex } from './hmac';
 import { logTimingSince } from './log';
 import type { GatewayCryptoSuite } from './types';
+// Nitro dev SSR 对 CJS 互操作会把默认导入包成 { default }；归一化兼容 dev/prod
+const Core: any = (CoreNS as any).default ?? CoreNS;
 
 /**
  * RSA 公钥加密明文（symKey Hex 或登录密码），输出 Hex 小写。

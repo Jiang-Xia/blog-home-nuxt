@@ -10,7 +10,7 @@
  * 读代码顺序建议：types 数据流 → createGatewayEnvelope → openGatewayEnvelope → suite-*
  */
 
-import Core from 'crypto-js/core';
+import * as CoreNS from 'crypto-js/core';
 import Hex from 'crypto-js/enc-hex';
 import { bodyCanonical, keyOnlyCanonical, timingSafeEqualHex } from './hmac';
 import { logTimingSince } from './log';
@@ -24,6 +24,8 @@ import type {
   GatewaySession,
 } from './types';
 import { GATEWAY_HEADER } from './types';
+// Nitro dev SSR 对 CJS 互操作会把默认导入包成 { default }；归一化兼容 dev/prod
+const Core: any = (CoreNS as any).default ?? CoreNS;
 
 export { GATEWAY_HEADER };
 export type { GatewayAlg, GatewayRequestEnvelope, GatewayResponseEnvelope, GatewaySession };

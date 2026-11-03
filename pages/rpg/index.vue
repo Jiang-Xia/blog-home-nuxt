@@ -494,6 +494,15 @@ const onLeaveGuild = async () => {
     back-label="返回个人中心"
   >
     <div class="rpg-theme">
+      <!-- v8 分层舞台背景：L1 主题底色渐变 / L2 星点纹理 / L3 顶部插画带（CSS 渐隐占位，
+             正式美术规格见 docs）/ L4 暗角。全部走 --rpg-stage-* 令牌（rpg-theme.css），
+             换季皮肤 = 换令牌指向，组件零改动 -->
+      <div class="rpg-stage-bg" aria-hidden="true">
+        <span class="rpg-stage-bg__top" />
+        <span class="rpg-stage-bg__tex" />
+        <span class="rpg-stage-bg__vignette" />
+      </div>
+
       <RpgOnboarding ref="onboardingRef" />
 
       <div v-if="!isLoggedIn" class="mb-6 space-y-4">
@@ -969,6 +978,8 @@ const onLeaveGuild = async () => {
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+    /* 图标恒定全彩，选中态靠底色/描边区分（灰度双态观感差，已弃用） */
+    transition: box-shadow 0.2s;
   }
 
   .rpg-page-tab__dot {
@@ -1046,6 +1057,61 @@ const onLeaveGuild = async () => {
     }
   }
 
+  /* ── v8：平板 / 横屏手机（640~1023 且触屏）同样启用底部拇指 Tab ──
+     桌面指针的小窗口不启用，避免鼠标场景出现拇指 UI */
+  @media (min-width: 640px) and (max-width: 1023px) and (pointer: coarse) {
+    .rpg-page-tabs {
+      display: none;
+    }
+
+    .rpg-bottom-tabs {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+      display: flex;
+      justify-content: space-around;
+      gap: 2px;
+      padding: 7px 6px calc(9px + env(safe-area-inset-bottom, 0px));
+      background: color-mix(in srgb, var(--rpg-surface, #fff) 94%, transparent);
+      border-top: 1px solid var(--rpg-border, #e8e3f2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 -6px 20px rgb(60 40 110 / 0.14);
+    }
+
+    .rpg-bottom-tab {
+      flex: 1;
+      min-width: auto;
+      padding: 6px 2px;
+      font-size: 10px;
+      gap: 0;
+    }
+
+    .rpg-bottom-tab img {
+      width: 30px;
+      height: 30px;
+    }
+
+    .rpg-theme {
+      padding-bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  /* ── v8：平板中间档（640~1023）顶部 Tab 收紧一档 ── */
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .rpg-page-tabs {
+      gap: 6px;
+      padding: 7px;
+    }
+
+    .rpg-page-tab {
+      padding: 8px 13px;
+      font-size: 12.5px;
+    }
+  }
+
   .rpg-bottom-tab {
     position: relative;
     display: flex;
@@ -1070,7 +1136,10 @@ const onLeaveGuild = async () => {
     height: 32px;
     border-radius: 50%;
     object-fit: cover;
-    transition: box-shadow 0.2s;
+    /* 图标恒定全彩，选中态靠紫环 + 微放大区分（灰度双态观感差，已弃用） */
+    transition:
+      box-shadow 0.2s,
+      transform 0.2s;
   }
 
   .rpg-bottom-tab.active {
@@ -1079,6 +1148,7 @@ const onLeaveGuild = async () => {
 
   .rpg-bottom-tab.active img {
     box-shadow: 0 0 0 2.5px var(--rpg-art-violet, #7c5cf0);
+    transform: scale(1.06);
   }
 
   .rpg-bottom-tab__dot {
@@ -1114,5 +1184,76 @@ const onLeaveGuild = async () => {
   :global(html.tech-shell[data-theme='cyber-light']) .rpg-page-tab:not(.active):hover {
     background: var(--rpg-art-violet-soft, #f1edfb);
     color: var(--rpg-art-violet-deep, #5b3fd6);
+  }
+
+  /* ══ v8 分层舞台背景 ════════════════════════════════════════════
+     结构：.rpg-stage-bg（absolute，随页滚动）内含 L3 顶部带 / L2 星点纹理 /
+     L4 暗角（fixed 贴视口）；L1 底色渐变直接涂在容器上。
+     内容层通过下方兄弟选择器抬到 z-index:1，卡片实底自然压住纹理。
+     注意：新增 .rpg-theme 直接子元素若为 fixed 定位（弹窗等），
+     必须加入 :not() 排除链，否则会被改成 relative 破坏定位 */
+  /* 只对页面容器 div 生效——RpgOnboarding 的根 <dialog class="modal rpg-theme">
+     也带 rpg-theme class，不限元素类型会把它的 DaisyUI fixed 定位顶成 relative，
+     变成占布局的隐形大块（第一屏 390px 空白的元凶） */
+  div.rpg-theme {
+    position: relative;
+    /* 顶出呼吸感：内容与舞台顶边（圆角带）留一拍，不贴着工具条 */
+    padding-top: 6px;
+  }
+
+  .rpg-theme > :not(.rpg-stage-bg):not(dialog):not(.rpg-bottom-tabs) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .rpg-stage-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    /* 顶部圆角与卡片体系一致（16px），底边随页面收尾保持齐平 */
+    border-radius: 16px 16px 0 0;
+    background: var(--rpg-stage-base, transparent);
+  }
+
+  /* L3 顶部插画带 — 当前为渐隐占位；正式美术把 --rpg-stage-top-image
+     换成 url() 即可（1920×600 webp，底边融到透明），mask 已就位 */
+  .rpg-stage-bg__top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: clamp(300px, 44vh, 560px);
+    background: var(--rpg-stage-top-image, transparent);
+    -webkit-mask-image: linear-gradient(180deg, #000 28%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 28%, transparent 100%);
+  }
+
+  /* L2 星点纹理 — 140px 无缝 tile，整体透明度由令牌控制 */
+  .rpg-stage-bg__tex {
+    position: absolute;
+    inset: 0;
+    background-image: var(--rpg-stage-tex-image, none);
+    background-size: 140px 140px;
+    opacity: var(--rpg-stage-tex-opacity, 0.5);
+  }
+
+  /* L4 暗角 — fixed 贴视口；若祖先带 transform/filter 会退化为贴容器，可接受 */
+  .rpg-stage-bg__vignette {
+    position: fixed;
+    inset: 0;
+    background: var(--rpg-stage-vignette, none);
+  }
+
+  /* 移动端降级：L3 收短、L4 关闭（省合成层，纹理底色保留） */
+  @media (max-width: 639px) {
+    .rpg-stage-bg__top {
+      height: clamp(200px, 30vh, 300px);
+    }
+
+    .rpg-stage-bg__vignette {
+      display: none;
+    }
   }
 </style>

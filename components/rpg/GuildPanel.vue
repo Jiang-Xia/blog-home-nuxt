@@ -58,6 +58,11 @@ const handleCreate = () => {
 
 <template>
   <div class="guild-panel">
+    <RpgPanelHero
+      :icon="myGuild ? 'shield' : 'megaphone'"
+      :title="myGuild ? '我的公会' : '公会大厅'"
+      :subtitle="myGuild ? '集结冒险者 · 共享荣光' : '加入或创建公会，和冒险者并肩作战'"
+    />
     <RpgPanelLoading v-if="loading" compact />
 
     <!-- ① 已加入视角：徽章 + 公告 + 统计 + 成员列表 -->

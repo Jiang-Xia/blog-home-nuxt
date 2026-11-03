@@ -168,12 +168,15 @@ const myScoreText = computed(() => {
   }
 });
 
-/** P1-7：未上榜时的量化提示（服务端名次 / 榜单末位 EXP 差值，均不可算则回退通用文案） */
+/** P1-7：未上榜时的量化提示。服务端名次与 EXP 差值均只在 exp/total 维度可算
+    （myRank 是 exp/total 口径；周/月/赛季榜的分数字段口径也不同），
+    其他维度回退通用文案，避免拿错维度数据误导用户 */
 const offBoardTip = computed<string | null>(() => {
   if (myEntry.value) return null;
-  const rank = props.myRank?.rank;
-  if (rank != null) return `暂未上榜，目前排在第 ${rank} 名`;
-  if (activeType.value === 'exp' && props.leaderboard.length > 0 && props.rpgStatus) {
+  if (canUseServerRank.value && props.myRank?.rank != null) {
+    return `暂未上榜，目前排在第 ${props.myRank.rank} 名`;
+  }
+  if (canUseServerRank.value && props.leaderboard.length > 0 && props.rpgStatus) {
     const lastScore = getScoreNum(props.leaderboard[props.leaderboard.length - 1]);
     const diff = lastScore - (props.rpgStatus.exp ?? 0) + 1;
     if (diff > 0) return `暂未上榜，再得 ${diff.toLocaleString()} EXP 即可上榜`;
