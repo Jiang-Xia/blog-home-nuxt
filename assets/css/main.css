@@ -35,6 +35,12 @@
   --radius-box: 1rem;
   --radius-field: 0.5rem;
   --radius-selector: 0.5rem;
+  /* daisyUI 组件依赖：缺 --border 时 badge/btn 边框声明整体失效 */
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
 }
 
 /* ── 浅色科技 cyber-light ── */
@@ -66,6 +72,11 @@
   --radius-box: 1rem;
   --radius-field: 0.5rem;
   --radius-selector: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
 }
 
 /* 任意 DaisyUI 主题：壳层令牌跟随当前主题色，布局始终 cyber 风格

@@ -26,8 +26,23 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  /** daisyUI 按钮尺寸：xs / sm；默认中等 */
+  size: {
+    type: String as () => '' | 'xs' | 'sm',
+    default: '',
+  },
 });
 const totalPages = computed(() => Math.ceil(props.total / props.pageSize));
+/** join 按钮尺寸 class */
+const sizeClass = computed(() => {
+  if (props.size === 'xs') return 'btn-xs';
+  if (props.size === 'sm') return 'btn-sm';
+  return '';
+});
+  /** 翻页箭头随尺寸缩小 */
+const iconClass = computed(() =>
+  props.size === 'xs' ? 'h-3.5 w-3.5' : props.size === 'sm' ? 'h-4 w-4' : 'h-6 w-6',
+);
 const emits = defineEmits(['change']);
 const current = ref(props.currentPage);
 const currentChange = (v: number) => {
@@ -76,11 +91,12 @@ export default {
     <button
       v-if="prev"
       class="btn cyber-btn-secondary join-item"
+      :class="sizeClass"
       @click="currentChange(current - 1)"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        class="h-6 w-6"
+        :class="iconClass"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -93,11 +109,14 @@ export default {
       v-for="item of startEnd.end"
       v-show="item >= startEnd.start"
       class="btn join-item"
-      :class="{
-        'btn-active': current === item,
-        'btn-primary': current === item,
-        'cyber-btn-secondary': current !== item,
-      }"
+      :class="[
+        sizeClass,
+        {
+          'btn-active': current === item,
+          'btn-primary': current === item,
+          'cyber-btn-secondary': current !== item,
+        },
+      ]"
       @click="currentChange(item)"
     >
       {{ item }}
@@ -105,11 +124,12 @@ export default {
     <button
       v-if="next"
       class="btn cyber-btn-secondary join-item"
+      :class="sizeClass"
       @click="currentChange(current + 1)"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        class="h-6 w-6"
+        :class="iconClass"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
