@@ -2,6 +2,10 @@
 #!/usr/bin/env sh
 
 echo "pre-commit"
-# ESLint 依赖 .nuxt/eslint.config.mjs（不在 git 中），提交前确保已生成
-npx nuxt prepare >/dev/null 2>&1
+# ESLint 依赖 .nuxt/eslint.config.mjs（不在 git 中），提交前确保已生成。
+# 勿吞掉 stderr：prepare 失败时否则只会看到 husky code 1，无法排查。
+if ! npx nuxt prepare; then
+  echo "husky: nuxt prepare 失败，无法生成 .nuxt/eslint.config.mjs，已中止提交"
+  exit 1
+fi
 npm run lint-staged
