@@ -230,11 +230,18 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
         </button>
       </div>
 
-      <!-- v3 ④ 宠物图鉴：收集进度 + 未拥有灰化剪影 -->
+      <!-- v3 ④ 宠物图鉴：收集进度 + 未拥有灰化剪影（v8 头图化标题） -->
       <div v-if="dexEntries.length">
-        <h4 class="rpg-section-heading">
-          宠物图鉴 <small class="rpg-section-sub">收集全图鉴 → 解锁隐藏成就「万物有灵」</small>
-        </h4>
+        <RpgPanelHero
+          icon="books"
+          title="宠物图鉴"
+          subtitle="收集全图鉴 → 解锁隐藏成就「万物有灵」"
+          tone="gold"
+        >
+          <template #extra>
+            <span class="rpg-dex-hero-count">{{ dexOwnedCount }}<small> / {{ dexEntries.length }}</small></span>
+          </template>
+        </RpgPanelHero>
         <div class="rpg-dex-bar">
           <b>{{ dexOwnedCount }}<small> / {{ dexEntries.length }} 图鉴</small></b>
           <div class="rpg-dex-bar__track">
@@ -502,6 +509,8 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
       0 0 0 3px var(--rpg-surface, #fff),
       0 0 0 5px var(--rpg-art-gold, #d9a13c),
       0 10px 22px rgb(217 161 60 / 0.3) !important;
+    /* v8：出战宠物呼吸动效（scale 微缩放，与 halo 脉动错拍） */
+    animation: rpgPetBreathe 2.8s ease-in-out infinite;
   }
 
   .rpg-pet-stage__deploy {
@@ -771,6 +780,56 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
     }
   }
 
+  /* v8：呼吸（scale 1→1.035）— 出战大图与仓库格共用；
+     仓库格用负 delay 错峰，避免整排宠物同步起伏的机械感 */
+  @keyframes rpgPetBreathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.035);
+    }
+  }
+
+  /* v8：孵化前兆 — 蛋左右轻摆，暗示"可以孵了" */
+  @keyframes rpgEggWiggle {
+    0%,
+    86%,
+    100% {
+      transform: rotate(0deg);
+    }
+    89% {
+      transform: rotate(-2.4deg);
+    }
+    92% {
+      transform: rotate(2.2deg);
+    }
+    95% {
+      transform: rotate(-1.2deg);
+    }
+  }
+
+  .rpg-pet-grid .rpg-pet-card__icon {
+    animation: rpgPetBreathe 3.2s ease-in-out infinite;
+  }
+
+  .rpg-pet-grid > :nth-child(3n + 2) .rpg-pet-card__icon {
+    animation-delay: -1.1s;
+  }
+
+  .rpg-pet-grid > :nth-child(3n) .rpg-pet-card__icon {
+    animation-delay: -2.2s;
+  }
+
+  .rpg-egg-card__icon {
+    animation: rpgEggWiggle 3.4s ease-in-out infinite;
+  }
+
+  .rpg-egg-grid > :nth-child(2n) .rpg-egg-card__icon {
+    animation-delay: -1.7s;
+  }
+
   @keyframes rpgPetHalo {
     0%,
     100% {
@@ -804,6 +863,21 @@ const handleBuy = async (catalogItem: ItemConfigView) => {
   }
 
   /* ── v3 ④ 宠物图鉴 ── */
+  /* v8：头图右侧收集计数（白字，叠在金渐变上） */
+  .rpg-dex-hero-count {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  }
+
+  .rpg-dex-hero-count small {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.85;
+  }
+
   .rpg-dex-bar {
     display: flex;
     align-items: center;

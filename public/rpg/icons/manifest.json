@@ -46,10 +46,10 @@
   "level-up",
   "library",
   "library-star",
+  "masterpiece",
   "medal-bronze",
   "medal-gold",
   "medal-silver",
-  "masterpiece",
   "megaphone",
   "moon",
   "owl",
@@ -67,11 +67,13 @@
   "slot",
   "sparkle",
   "star",
-  "starburst",
   "star-full",
   "star-half",
+  "starburst",
   "stars",
   "sun",
   "ticket",
-  "trophy"
+  "trophy",
+  "volume-off",
+  "volume-on"
 ]

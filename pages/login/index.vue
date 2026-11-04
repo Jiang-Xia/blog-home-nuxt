@@ -2,11 +2,11 @@
 /**
    * 登录页
    * - 账号/邮箱登录；成功后 resolveRedirectPath 回跳（防 open redirect）
+   * - 账号登录人机：进页随机四种；graphic 内嵌，slide/click/rotate 点登录后弹窗（与 admin 一致）
    */
 import { reactive } from 'vue';
 import request, { resetAuthRefreshState } from '~~/api/request.js';
 import { messageDanger, messageSuccess, messageInfo } from '~~/utils/toast';
-import { debounce } from '~~/utils/index';
 import { baseUrl } from '~~/config';
 import { isPC } from '~/utils/common';
 import { setToken, TokenKey, RefreshTokenKey } from '@/utils/cookie';
@@ -14,15 +14,15 @@ import { encryptLoginPassword } from '~~/utils/gateway-crypto';
 import { shouldRefreshGraphicCaptcha } from '~~/utils/graphic-captcha-error';
 import {
   createEmailVerificationCodeInputBinding,
-  createGraphicCaptchaInputBinding,
   emailVerificationCodeNativeInputAttrs,
-  graphicCaptchaNativeInputAttrs,
 } from '~~/utils/captcha-input';
 import { LOGIN_ACCOUNT_MAX_LENGTH, validateUsernameForLogin } from '~~/utils/username';
+import type { HumanCheckPayload } from '~~/composables/useCaptchaConfig';
 
-const authCodeUrl = ref('');
-const authCodeLoadError = ref(false);
-const captchaId = ref('');
+const humanCheckRef = ref<{
+  ensureReady: () => Promise<HumanCheckPayload | null>;
+  reset: () => Promise<void>;
+} | null>(null);
 const token = useToken();
 const route = useRoute();
 const submitting = ref(false);
@@ -47,22 +47,14 @@ interface formState extends StringKey {
   username: string;
   email: string;
   password: string;
-  authCode: string;
   verificationCode: string;
 }
 const form: formState = reactive({
   username: '',
   email: '',
   password: '',
-  authCode: '',
   verificationCode: '',
 });
-const graphicCaptchaInput = createGraphicCaptchaInputBinding(
-  () => form.authCode,
-  (value) => {
-    form.authCode = value;
-  },
-);
 const emailVerificationCodeInput = createEmailVerificationCodeInputBinding(
   () => form.verificationCode,
   (value) => {
@@ -75,15 +67,12 @@ const okHandle = async () => {
     return;
   }
   const requiredFields
-    = loginType.value === 'account'
-      ? ['username', 'password', 'authCode']
-      : ['email', 'verificationCode'];
+    = loginType.value === 'account' ? ['username', 'password'] : ['email', 'verificationCode'];
 
   const msg: StringKey = {
     username: '填写用户名',
     email: '填写邮箱',
     password: '填写密码',
-    authCode: '填写验证码',
     verificationCode: '填写邮箱验证码',
   };
 
@@ -94,10 +83,16 @@ const okHandle = async () => {
     }
   }
 
+  let humanPayload: HumanCheckPayload | null = null;
   if (loginType.value === 'account') {
     const usernameErr = validateUsernameForLogin(form.username);
     if (usernameErr) {
       messageDanger(usernameErr);
+      return;
+    }
+    // slide/click：此处弹窗；取消则中断登录
+    humanPayload = (await humanCheckRef.value?.ensureReady()) || null;
+    if (!humanPayload) {
       return;
     }
   }
@@ -112,8 +107,13 @@ const okHandle = async () => {
       params.username = form.username;
       // 按 VITE_NUXT_GATEWAY_CRYPTO：aes→RSA（npm jsencrypt），gm→SM2
       params.password = encryptLoginPassword(form.password);
-      params.authCode = form.authCode;
-      params.captchaId = captchaId.value;
+      if (humanPayload?.captchaVerification) {
+        params.captchaVerification = humanPayload.captchaVerification;
+      }
+      else {
+        params.authCode = humanPayload?.authCode;
+        params.captchaId = humanPayload?.captchaId;
+      }
     }
     else {
       params.email = form.email;
@@ -132,39 +132,13 @@ const okHandle = async () => {
   catch (err: any) {
     console.error(err);
     if (loginType.value === 'account' && shouldRefreshGraphicCaptcha(err?.bizCode)) {
-      form.authCode = '';
-      captchaId.value = '';
-      void changeAuthCode();
+      void humanCheckRef.value?.reset();
     }
   }
   finally {
     submitting.value = false;
   }
 };
-  // 更换验证码
-const changeAuthCode = async () => {
-  try {
-    // request.get 已解出 ApiResponse.data；开启加密时需 RSA 封 key（现用 npm jsencrypt，无 CDN 竞态）
-    const res = await request.get('/user/authCode', { t: Date.now() });
-    if (!res?.captchaBase64) {
-      throw new Error('captcha payload missing captchaBase64');
-    }
-    authCodeUrl.value = `data:image/svg+xml;base64,${res.captchaBase64}`;
-    captchaId.value = res.captchaId || '';
-    authCodeLoadError.value = false;
-  }
-  catch (err) {
-    console.error('[login] authCode failed', err);
-    authCodeUrl.value = '';
-    captchaId.value = '';
-    authCodeLoadError.value = true;
-    // 错误提示由 request 拦截器统一处理
-  }
-};
-const changeAuthCodeDebounced = debounce(() => {
-  void changeAuthCode();
-}, 300);
-void changeAuthCode();
 
 // 发送邮箱验证码
 const emailCodeLoading = ref(false);
@@ -327,39 +301,7 @@ onMounted(() => {
               >
             </label>
           </div>
-          <div class="form-control">
-            <label class="login-label">
-              <span class="login-label-text">验证码</span>
-            </label>
-            <label class="login-input input">
-              <xia-icon icon="blog-yanzhengma" />
-              <input
-                :value="form.authCode"
-                name="login_auth_code"
-                placeholder="验证码"
-                v-bind="graphicCaptchaNativeInputAttrs"
-                v-on="graphicCaptchaInput"
-              >
-              <ClientOnly>
-                <img
-                  v-if="authCodeUrl && !authCodeLoadError"
-                  class="h-8 cursor-pointer rounded select-none"
-                  :src="authCodeUrl"
-                  alt="验证码"
-                  @click="changeAuthCodeDebounced"
-                  @error="authCodeLoadError = true"
-                >
-                <button
-                  v-else
-                  type="button"
-                  class="btn btn-ghost btn-xs opacity-80"
-                  @click="changeAuthCodeDebounced"
-                >
-                  点击获取
-                </button>
-              </ClientOnly>
-            </label>
-          </div>
+          <CaptchaAccountHumanCheck ref="humanCheckRef" />
         </template>
 
         <template v-else>

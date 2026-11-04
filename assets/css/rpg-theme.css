@@ -24,6 +24,22 @@ html.tech-shell {
   --rpg-overlay: color-mix(in oklch, var(--color-base-content) 55%, transparent);
   --rpg-modal-surface: var(--color-base-100);
 
+  /* 庆祝类全屏弹框（LevelUp / Achievement，Teleport 到 body 不在 .rpg-theme 内）—
+     面板表面/描边/主文本统一以全局令牌管理，亮色值在此、暗色覆盖见 [data-theme='cyber'] 块。
+     暗色目标：不透明深底 + 金紫提亮描边，避免「半透明底 + 深色遮罩」叠加发浑 */
+  --rpg-celebration-overlay: rgb(0 0 0 / 0.88);
+  --rpg-celebration-modal-bg: linear-gradient(
+    165deg,
+    var(--rpg-art-gold-soft) 0%,
+    #faf3de 45%,
+    var(--rpg-art-violet-soft) 100%
+  );
+  --rpg-celebration-modal-border: var(--rpg-art-gold);
+  --rpg-celebration-modal-text: var(--rpg-art-violet-deep);
+  --rpg-celebration-modal-bg-amber: var(--rpg-amber-bg-gradient);
+  --rpg-celebration-modal-border-amber: var(--rpg-amber-border);
+  --rpg-celebration-modal-accent-amber: var(--rpg-amber-dark);
+
   /* 语义色 — 两主题共用，保证状态识别一致 */
   --rpg-amber: #f59e0b;
   --rpg-amber-light: #fbbf24;
@@ -124,6 +140,22 @@ html.tech-shell {
   --rpg-art-epic: #b8842c;
   --rpg-art-epic-glow: rgb(217 161 60 / 0.25);
 
+  /* 动效令牌 — RPG 模块内动画/过渡时长与缓动统一取值
+     （FX 组件「结果型一次性动画」如升级弹窗可引用；配合文件末尾 reduced-motion 兜底） */
+  --rpg-anim-fast: 0.15s;
+  --rpg-anim-base: 0.24s;
+  --rpg-anim-slow: 0.45s;
+  --rpg-anim-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* 字阶令牌 — RPG 模块文本最小可读基线（11px 下限），
+     新增/改版组件的 scoped 字号请优先引用，存量组件逐步迁移 */
+  --rpg-fs-2xs: 9px;
+  --rpg-fs-xs: 10px;
+  --rpg-fs-sm: 11px;
+  --rpg-fs-base: 12px;
+  --rpg-fs-md: 13px;
+  --rpg-fs-lg: 14px;
+
   --rpg-banner-bg: color-mix(in oklch, var(--color-secondary) 12%, var(--color-base-100));
   --rpg-banner-border: color-mix(in oklch, var(--color-secondary) 28%, var(--color-base-100));
   --rpg-banner-label: var(--color-secondary);
@@ -180,6 +212,31 @@ html.tech-shell {
   --rpg-notify-error-sub: #ef4444;
   --rpg-notify-error-glow: rgb(239 68 68 / 0.1);
   --rpg-notify-error-icon: #dc2626;
+
+  /* ═══ v8 RPG 主页分层舞台背景（亮色）═══
+     L1 底色渐变 / L2 星点纹理 / L3 顶部插画带 / L4 暗角。
+     L3 正式美术上线：把 --rpg-stage-top-image 换成 url(...)（1920×600 webp ≤300KB，
+     底边渐隐到透明，明暗各一张），mask 在组件侧已就位，无需改布局。
+     换季皮肤：仅替换本组令牌即可，组件零改动 */
+  --rpg-stage-base: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--color-secondary) 8%, var(--color-base-100)) 0%,
+    var(--color-base-100) 46%,
+    color-mix(in oklch, var(--color-secondary) 4%, var(--color-base-100)) 100%
+  );
+  --rpg-stage-tex-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><g fill='%237c5cf0'><circle cx='16' cy='24' r='1'/><circle cx='94' cy='12' r='1.3'/><circle cx='66' cy='62' r='.9'/><circle cx='118' cy='88' r='1.1'/><circle cx='32' cy='104' r='1'/><circle cx='104' cy='44' r='.8'/><circle cx='10' cy='76' r='.9'/><circle cx='58' cy='128' r='1.1'/></g></svg>");
+  --rpg-stage-tex-opacity: 0.4;
+  --rpg-stage-top-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--rpg-art-violet, #7c5cf0) 15%, transparent),
+    color-mix(in srgb, var(--rpg-art-violet, #7c5cf0) 7%, transparent) 55%,
+    transparent
+  );
+  --rpg-stage-vignette: radial-gradient(
+    ellipse 120% 90% at 50% 40%,
+    transparent 62%,
+    rgb(60 40 110 / 0.07) 100%
+  );
 }
 
 /* 任务 / 成就卡片 — 暗色（cyber 及所有 DaisyUI 暗色主题） */
@@ -374,11 +431,58 @@ html.tech-shell[data-theme='cyber'] {
   --rpg-life-track: rgb(255 255 255 / 0.12);
   --rpg-life-track-bg: rgb(255 255 255 / 0.06);
 
-  /* 美术改版 v2 令牌 — 暗色适配：soft 底半透明化 */
+  /* 美术改版 v2 令牌 — 暗色适配：soft 底半透明化、稀有度提亮、
+     渐变提亮一档、投影转「深色底 + 主题色微光」、halo 提高可见度 */
   --rpg-art-violet-soft: rgb(124 92 240 / 0.16);
   --rpg-art-gold-soft: rgb(217 161 60 / 0.14);
   --rpg-art-rare: #a795f7;
   --rpg-art-epic: #d9a95c;
+  --rpg-art-violet-grad: linear-gradient(135deg, #8b6cf5, #6a4ce0);
+  --rpg-art-gold-grad: linear-gradient(135deg, #edbc5e, #d9a13c);
+  --rpg-art-shadow-violet: 0 6px 18px rgb(0 0 0 / 0.5), 0 0 18px rgb(124 92 240 / 0.3);
+  --rpg-art-shadow-gold: 0 6px 18px rgb(0 0 0 / 0.5), 0 0 18px rgb(217 161 60 / 0.26);
+  --rpg-art-halo: radial-gradient(closest-side, rgb(217 161 60 / 0.34), transparent 72%);
+
+  /* ═══ v8 RPG 主页分层舞台背景（暗色 cyber）═══
+     暗色策略：底色为透明紫雾叠加（不遮页面深底），星点换白色提亮，暗角加深 */
+  --rpg-stage-base: linear-gradient(
+    180deg,
+    rgb(124 92 240 / 0.1) 0%,
+    transparent 42%,
+    rgb(124 92 240 / 0.05) 100%
+  );
+  --rpg-stage-tex-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><g fill='%23ffffff'><circle cx='16' cy='24' r='1'/><circle cx='94' cy='12' r='1.3'/><circle cx='66' cy='62' r='.9'/><circle cx='118' cy='88' r='1.1'/><circle cx='32' cy='104' r='1'/><circle cx='104' cy='44' r='.8'/><circle cx='10' cy='76' r='.9'/><circle cx='58' cy='128' r='1.1'/></g></svg>");
+  --rpg-stage-tex-opacity: 0.4;
+  --rpg-stage-top-image: linear-gradient(
+    180deg,
+    rgb(124 92 240 / 0.22) 0%,
+    rgb(124 92 240 / 0.1) 55%,
+    transparent
+  );
+  --rpg-stage-vignette: radial-gradient(
+    ellipse 120% 90% at 50% 40%,
+    transparent 62%,
+    rgb(0 0 0 / 0.3) 100%
+  );
+
+  /* 庆祝类全屏弹框 — 暗色：不透明深底（金暖 → 紫冷），遮罩收浅衬托面板，
+     文本换浅紫高对比；与亮色同一组 --rpg-celebration-* 令牌 */
+  --rpg-celebration-overlay: rgb(0 0 0 / 0.72);
+  --rpg-celebration-modal-bg: linear-gradient(
+    165deg,
+    color-mix(in oklch, var(--rpg-art-gold) 16%, #221d2f) 0%,
+    #221d2f 48%,
+    color-mix(in oklch, var(--rpg-art-violet) 20%, #221d2f) 100%
+  );
+  --rpg-celebration-modal-border: color-mix(in oklch, var(--rpg-art-gold) 60%, #221d2f);
+  --rpg-celebration-modal-text: #c4b5fd;
+  --rpg-celebration-modal-bg-amber: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--rpg-amber) 14%, #2a2114) 0%,
+    color-mix(in oklch, var(--rpg-amber) 8%, #251f22) 100%
+  );
+  --rpg-celebration-modal-border-amber: rgb(251 191 36 / 0.55);
+  --rpg-celebration-modal-accent-amber: #fbbf24;
 
   /* 每日任务饼图：暗底上提高轨/填充/中心/数字对比 */
   --rpg-daily-ring-track: rgb(255 255 255 / 0.28);
@@ -606,6 +710,22 @@ html.tech-shell[data-theme='cyber-light'] {
 @layer components {
   .rpg-theme {
     color: var(--rpg-text);
+  }
+
+  /* 键盘焦点可见性（可访问性）— 仅 focus-visible 触发，不影响鼠标点击；
+     覆盖按钮 / ARIA 按钮角色 / 页面与底部 Tab / 面板 Tab / 领取与折叠条 */
+  .rpg-theme
+    :is(
+      button,
+      [role='button'],
+      .rpg-page-tab,
+      .rpg-bottom-tab,
+      .rpg-panel-tab,
+      .rpg-loot-claim-btn,
+      .rpg-loot-card-strip
+    ):focus-visible {
+    outline: 2px solid var(--rpg-art-violet, #7c5cf0);
+    outline-offset: 2px;
   }
 
   .rpg-banner {
@@ -1963,5 +2083,21 @@ html.tech-shell[data-theme='cyber-light'] {
   .rpg-pool-chip__name {
     font-size: 10px;
     line-height: 1.3;
+  }
+}
+
+/* ── 可访问性：prefers-reduced-motion 全局兜底（仅 .rpg-theme 作用域，不波及博客正文）──
+   写法对齐 SeasonBanner.vue 的既有样板：动画时长压到 0.01ms、过渡大幅缩短。
+   FX 组件的「结果型一次性动画」（如升级弹窗单次入场）如需豁免，
+   后续可引入 --rpg-anim-duration-multiplier 机制按组件单独放开；本次以简单可靠为准。 */
+@media (prefers-reduced-motion: reduce) {
+  .rpg-theme,
+  .rpg-theme *,
+  .rpg-theme *::before,
+  .rpg-theme *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

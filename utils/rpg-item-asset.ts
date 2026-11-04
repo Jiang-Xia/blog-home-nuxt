@@ -82,6 +82,8 @@ export const RPG_ICON_ASSET_KEYS = new Set([
   'sun',
   'ticket',
   'trophy',
+  'volume-off',
+  'volume-on',
 ]);
 
 const RASTER_EXT = ['png', 'webp'] as const;
@@ -165,7 +167,13 @@ export const RPG_ICON_RASTER_KEYS = new Set<string>([
   'star-full',
   'star-half',
   'stars',
+  'sun',
   'trophy',
+  'volume-off',
+  'volume-on',
+  // 2026-11 v7 批次：音量状态对 + sun/rainbow/moon 补 PNG（SVG 占位已全部移除）
+  'moon',
+  'rainbow',
 ]);
 
 export interface RpgItemAssetOptions {

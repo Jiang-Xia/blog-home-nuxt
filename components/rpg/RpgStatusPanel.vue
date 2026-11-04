@@ -102,7 +102,7 @@ onMounted(async () => {
       class="role-badge"
       :style="{ borderColor: roleReward.avatarFrameColor || '#ccc' }"
     >
-      <span class="role-frame" :style="{ color: roleReward.avatarFrameColor || '#ccc' }">🛡</span>
+      <img class="inline-ico" src="/rpg/icons/shield.png" alt="">
       <span class="role-title">{{ roleReward.titleName }}</span>
       <span class="role-frame-name">{{
         roleReward.avatarFrameName || roleReward.avatarFrame
@@ -146,7 +146,8 @@ onMounted(async () => {
         />
       </div>
       <div v-if="isBanned" class="ban-inline">
-        🔇 禁言中 · 剩余 {{ banRemainingText }}
+        <img class="inline-ico" src="/rpg/icons/volume-off.png" alt=""> 禁言中 · 剩余
+        {{ banRemainingText }}
       </div>
     </div>
 
@@ -162,7 +163,8 @@ onMounted(async () => {
       <div class="sign-stats">
         <span>累计 {{ signInfo?.totalSignDays ?? 0 }} 天</span>
         <span v-if="signInfo?.consecutiveSignDays" class="consecutive-badge">
-          🔥 连续 {{ signInfo.consecutiveSignDays }} 天
+          <img class="inline-ico" src="/rpg/icons/fire.png" alt=""> 连续
+          {{ signInfo.consecutiveSignDays }} 天
         </span>
       </div>
       <!-- 下一个连续奖励提示 -->
@@ -174,8 +176,12 @@ onMounted(async () => {
         v-if="lastSignInResult?.bonusExp || lastSignInResult?.lifeRecovered"
         class="sign-result-tip"
       >
-        <span v-if="lastSignInResult.bonusExp" class="bonus-tip">🎁 {{ lastSignInResult.bonusLabel }} +{{ lastSignInResult.bonusExp }}经验</span>
-        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip">❤️ +{{ lastSignInResult.lifeRecovered }} 生命</span>
+        <span v-if="lastSignInResult.bonusExp" class="bonus-tip"><img class="inline-ico" src="/rpg/icons/gift.png" alt="">
+          {{ lastSignInResult.bonusLabel }} +{{ lastSignInResult.bonusExp }}经验</span>
+        <span v-if="lastSignInResult.lifeRecovered" class="hp-tip"><img class="inline-ico" src="/rpg/icons/heart.png" alt=""> +{{
+          lastSignInResult.lifeRecovered
+        }}
+          生命</span>
       </div>
     </div>
 
@@ -220,11 +226,17 @@ onMounted(async () => {
 
     <!-- 敏感词命中记录 -->
     <div class="hits-section">
-      <div class="section-title clickable" @click="toggleHitRecords">
+      <button
+        type="button"
+        class="section-title clickable hits-toggle"
+        :aria-expanded="showHitRecords"
+        aria-controls="rpg-hit-records-list"
+        @click="toggleHitRecords"
+      >
         敏感词记录 ({{ hitRecordsTotal }}次)
-        <span class="toggle-icon">{{ showHitRecords ? '▼' : '▶' }}</span>
-      </div>
-      <div v-if="showHitRecords" class="hits-list">
+        <span class="toggle-icon" aria-hidden="true">{{ showHitRecords ? '▼' : '▶' }}</span>
+      </button>
+      <div v-if="showHitRecords" id="rpg-hit-records-list" class="hits-list">
         <div v-if="hitRecords.length === 0" class="hits-empty">
           暂无记录
         </div>
@@ -272,10 +284,6 @@ onMounted(async () => {
     margin-bottom: 12px;
   }
 
-  .role-frame {
-    font-size: 18px;
-  }
-
   .role-title {
     font-weight: 800;
     font-size: 14px;
@@ -295,30 +303,50 @@ onMounted(async () => {
     margin-bottom: 16px;
   }
 
+  /* v2 圆徽章：金渐变 + 金环 + halo 光环 + 弥散影（对齐 RpgLevelBadge / 页面 Tab 图标语言） */
   .level-badge {
+    position: relative;
     flex-shrink: 0;
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: var(--rpg-level-badge-gradient);
+    background: var(--rpg-art-gold-grad, linear-gradient(135deg, #e8b04b, #d9a13c));
+    border: 2.5px solid var(--rpg-art-gold, #d9a13c);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: white;
-    box-shadow: 0 4px 12px var(--rpg-level-shadow);
+    color: var(--rpg-art-gold-ink, #3a2408);
+    box-shadow:
+      var(--rpg-art-shadow-gold, 0 6px 16px rgb(217 161 60 / 0.32)),
+      0 0 0 3px rgb(217 161 60 / 0.14);
+  }
+
+  .level-badge::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    border-radius: 50%;
+    background: var(
+      --rpg-art-halo,
+      radial-gradient(closest-side, rgb(217 161 60 / 0.28), transparent 72%)
+    );
+    pointer-events: none;
   }
 
   .lv-text {
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
     letter-spacing: 1px;
+    color: var(--rpg-art-gold-ink, #3a2408);
+    opacity: 0.82;
   }
 
   .lv-num {
     font-size: 20px;
     font-weight: 900;
     line-height: 1;
+    color: var(--rpg-art-gold-ink, #3a2408);
   }
 
   .exp-section {
@@ -382,10 +410,20 @@ onMounted(async () => {
   }
 
   .ban-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     margin-top: 6px;
     font-size: 12px;
     color: var(--rpg-danger);
     font-weight: 600;
+  }
+
+  .inline-ico {
+    width: 1em;
+    height: 1em;
+    object-fit: contain;
+    flex-shrink: 0;
   }
 
   .sign-section {
@@ -435,11 +473,12 @@ onMounted(async () => {
   }
 
   .consecutive-badge {
-    background: var(--rpg-amber-bg);
+    /* v2 鎏金语言：soft 金底 + epic 金棕文字（暗色下令牌自动切换为浅金，对比度安全） */
+    background: var(--rpg-art-gold-soft);
     padding: 2px 8px;
     border-radius: 4px;
     font-weight: 600;
-    color: var(--rpg-amber-text-soft);
+    color: var(--rpg-art-epic, #b8842c);
     font-size: 12px;
   }
 
@@ -489,6 +528,17 @@ onMounted(async () => {
   .clickable {
     cursor: pointer;
     user-select: none;
+  }
+
+  /* 折叠触发器由 div 升级为 button：重置按钮默认样式，继承 section-title 外观 */
+  .hits-toggle {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    font-family: inherit;
+    text-align: left;
   }
 
   .toggle-icon {
@@ -566,7 +616,7 @@ onMounted(async () => {
   }
 
   .hit-time {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--rpg-text-muted);
     margin-top: 2px;
   }

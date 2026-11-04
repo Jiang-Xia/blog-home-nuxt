@@ -74,10 +74,18 @@ const handleClose = () => {
               解锁奖励
             </div>
             <div v-for="r in rewards" :key="r.level" class="reward-item">
-              <span v-if="r.currencyReward" class="reward-diamond"><img class="reward-art" src="/rpg/icons/gem.png" alt=""> {{ r.currencyReward }}
-                {{ r.currencyName }}</span>
-              <span v-if="r.frameName" class="reward-frame">{{ r.frameEmoji }} {{ r.frameName }}</span>
-              <span v-if="r.titleName" class="reward-title">{{ r.titleEmoji }} {{ r.titleName }}</span>
+              <span v-if="r.currencyReward" class="reward-diamond">
+                <img class="reward-art" src="/rpg/icons/gem.png" alt="">
+                <span class="reward-text">{{ r.currencyReward }} {{ r.currencyName }}</span>
+              </span>
+              <span v-if="r.frameName" class="reward-frame">
+                <span class="reward-emoji" aria-hidden="true">{{ r.frameEmoji }}</span>
+                <span class="reward-text">{{ r.frameName }}</span>
+              </span>
+              <span v-if="r.titleName" class="reward-title">
+                <span class="reward-emoji" aria-hidden="true">{{ r.titleEmoji }}</span>
+                <span class="reward-text">{{ r.titleName }}</span>
+              </span>
             </div>
           </div>
           <button class="close-btn" @click="handleClose">
@@ -93,7 +101,7 @@ const handleClose = () => {
   .level-up-overlay {
     position: fixed;
     inset: 0;
-    background: rgb(0 0 0 / 0.88);
+    background: var(--rpg-celebration-overlay, rgb(0 0 0 / 0.88));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -103,14 +111,19 @@ const handleClose = () => {
 
   .level-up-modal {
     position: relative;
-    background: linear-gradient(160deg, #fffbeb 0%, #fef3c7 42%, #fde68a 100%);
-    border: 2px solid #fbbf24;
+    /* v2 紫金语言：表面/描边/主文本走 --rpg-celebration-* 令牌（rpg-theme.css 统一管理明暗），
+       暗色下为不透明深底 + 金紫提亮描边，避免半透明底叠深色遮罩发浑 */
+    background: var(
+      --rpg-celebration-modal-bg,
+      linear-gradient(165deg, #fdf6e4 0%, #faf3de 45%, #f1edfb 100%)
+    );
+    border: 2px solid var(--rpg-celebration-modal-border, var(--rpg-art-gold, #d9a13c));
     border-radius: 20px;
     padding: 28px 48px 32px;
     text-align: center;
     box-shadow:
       0 20px 60px rgb(0 0 0 / 0.45),
-      0 0 40px rgb(245 158 11 / 0.35);
+      0 0 42px rgb(217 161 60 / 0.32);
     min-width: 280px;
     max-width: min(92vw, 380px);
     overflow: hidden;
@@ -122,7 +135,7 @@ const handleClose = () => {
     justify-content: center;
     margin-bottom: 6px;
     animation: iconBounce 0.85s ease infinite;
-    filter: drop-shadow(0 4px 10px rgba(217, 119, 6, 0.3));
+    filter: drop-shadow(0 4px 10px rgb(217 161 60 / 0.35));
   }
 
   .level-up-art {
@@ -135,7 +148,7 @@ const handleClose = () => {
     font-size: 14px;
     font-weight: 800;
     letter-spacing: 4px;
-    color: #92400e;
+    color: var(--rpg-celebration-modal-text, var(--rpg-art-violet-deep, #5b3fd6));
     margin-bottom: 12px;
   }
 
@@ -147,25 +160,25 @@ const handleClose = () => {
     align-items: center;
     justify-content: center;
     gap: 4px;
-    color: #78350f;
+    color: var(--rpg-celebration-modal-text, var(--rpg-art-violet-deep, #5b3fd6));
   }
 
   .old-level {
-    color: #a16207;
+    color: var(--rpg-art-rare, #8d7bf5);
     text-decoration: line-through;
-    opacity: 0.72;
+    opacity: 0.78;
   }
 
   .arrow {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #d97706;
+    color: var(--rpg-art-gold, #d9a13c);
     margin: 0 6px;
   }
 
   .new-level {
-    color: #b45309;
+    color: var(--rpg-celebration-modal-text, var(--rpg-art-violet-deep, #5b3fd6));
   }
 
   .level-up-rewards {
@@ -175,7 +188,7 @@ const handleClose = () => {
   .rewards-title {
     font-size: 14px;
     font-weight: 600;
-    color: #92400e;
+    color: var(--rpg-celebration-modal-text, var(--rpg-art-violet-deep, #5b3fd6));
     margin-bottom: 8px;
   }
 
@@ -184,27 +197,54 @@ const handleClose = () => {
     flex-wrap: wrap;
     gap: 12px;
     justify-content: center;
+    align-items: center;
     margin-bottom: 4px;
     font-size: 14px;
-    color: #b45309;
+    color: var(--rpg-celebration-modal-text, var(--rpg-art-violet-deep, #5b3fd6));
+  }
+
+  /* 奖励项 = 图标 + 文本 的不可拆分 chip：内部不再在空格处断行，
+     图标（img/emoji）与文本通过 flex align-items:center 对齐同一中线 */
+  .reward-diamond,
+  .reward-frame,
+  .reward-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  /* 长称号名例外：允许在称号文本内部优雅换行（emoji 固定在首行行首），
+     避免移动端用 ellipsis 截断奖励信息 */
+  .reward-title {
+    white-space: normal;
+    flex-wrap: wrap;
+  }
+
+  .reward-emoji {
+    line-height: 1;
   }
 
   .close-btn {
     padding: 8px 32px;
-    border-radius: 8px;
-    background: #d97706;
-    color: white;
+    border-radius: 999px;
+    background: var(--rpg-art-gold-grad, linear-gradient(135deg, #e8b04b, #d9a13c));
+    color: var(--rpg-art-gold-ink, #3a2408);
     font-weight: 700;
     border: none;
     cursor: pointer;
+    box-shadow: var(--rpg-art-shadow-gold, 0 6px 16px rgb(217 161 60 / 0.32));
     transition:
-      background 0.2s,
-      transform 0.2s;
+      filter var(--rpg-anim-fast, 0.15s) ease,
+      transform var(--rpg-anim-fast, 0.15s) ease,
+      box-shadow var(--rpg-anim-fast, 0.15s) ease;
   }
 
   .close-btn:hover {
-    background: #b45309;
+    filter: brightness(1.06);
     transform: scale(1.03);
+    box-shadow: 0 8px 20px rgb(217 161 60 / 0.4);
   }
 
   @keyframes iconBounce {
@@ -222,25 +262,34 @@ const handleClose = () => {
     100% {
       box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.3),
-        0 0 32px rgba(245, 158, 11, 0.22);
+        0 0 32px rgb(217 161 60 / 0.24);
     }
     50% {
       box-shadow:
         0 24px 64px rgba(0, 0, 0, 0.35),
-        0 0 52px rgba(245, 158, 11, 0.42);
+        0 0 52px rgb(217 161 60 / 0.42);
+    }
+  }
+
+  /* 可访问性：全局兜底无法覆盖本组件（Teleport 到 body，不在 .rpg-theme 内），
+     此处对无限循环装饰动画单独豁免；入场/退场过渡交由 transition 压缩到令牌时长 */
+  @media (prefers-reduced-motion: reduce) {
+    .level-up-modal,
+    .level-up-icon {
+      animation: none;
     }
   }
 
   .level-up-enter-active,
   .level-up-leave-active {
-    transition: opacity 0.24s ease;
+    transition: opacity var(--rpg-anim-base, 0.24s) ease;
   }
 
   .level-up-enter-active .level-up-modal,
   .level-up-leave-active .level-up-modal {
     transition:
-      transform 0.24s ease,
-      opacity 0.24s ease;
+      transform var(--rpg-anim-base, 0.24s) var(--rpg-anim-ease-out, ease),
+      opacity var(--rpg-anim-base, 0.24s) ease;
   }
 
   .level-up-enter-from,
@@ -253,12 +302,13 @@ const handleClose = () => {
     opacity: 0;
     transform: scale(0.92);
   }
-  /* v6/G：货币奖励美术小图 */
+  /* v6/G：货币奖励美术小图。
+     改为 flex 布局对齐后不再需要 vertical-align 手调基线；
+     flex: none 防止 chip 换行时小图被压缩 */
   .reward-art {
     width: 14px;
     height: 14px;
     object-fit: contain;
-    vertical-align: -2px;
-    margin-right: 2px;
+    flex: none;
   }
 </style>

@@ -101,8 +101,10 @@ const handleClose = () => {
     text-align: center;
     min-width: 280px;
     max-width: 380px;
-    background: var(--rpg-amber-bg-gradient);
-    border: 1px solid var(--rpg-amber-border);
+    /* 表面/描边走 --rpg-celebration-*-amber 令牌（rpg-theme.css 统一管理明暗）：
+       亮色保持 amber 米黄底，暗色为不透明暖深底，避免半透明 amber 洗色叠深色遮罩发浑 */
+    background: var(--rpg-celebration-modal-bg-amber, var(--rpg-amber-bg-gradient));
+    border: 1px solid var(--rpg-celebration-modal-border-amber, var(--rpg-amber-border));
     box-shadow:
       0 20px 60px rgb(15 23 42 / 0.28),
       0 0 40px rgb(245 158 11 / 0.18);
@@ -147,7 +149,7 @@ const handleClose = () => {
   .achievement-reward {
     font-size: 17px;
     font-weight: 800;
-    color: var(--rpg-amber-dark);
+    color: var(--rpg-celebration-modal-accent-amber, var(--rpg-amber-dark));
     margin-bottom: 22px;
     animation: rewardPulse 1.6s ease-in-out infinite;
   }
@@ -239,6 +241,18 @@ const handleClose = () => {
     to {
       opacity: 1;
       transform: scale(1);
+    }
+  }
+
+  /* 可访问性：全局兜底无法覆盖本组件（Teleport 到 body，不在 .rpg-theme 内），
+     此处对无限循环装饰动画单独豁免；入场/退场过渡交由 transition 压缩到令牌时长 */
+  @media (prefers-reduced-motion: reduce) {
+    .achievement-modal,
+    .achievement-icon,
+    .achievement-badge,
+    .achievement-name,
+    .achievement-reward {
+      animation: none;
     }
   }
 </style>

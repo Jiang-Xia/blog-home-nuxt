@@ -82,7 +82,7 @@ const onRun = (scenario: (typeof RPG_MOCK_SCENARIOS)[number]) => {
           class="btn btn-xs btn-outline panel-btn btn-accent"
           @click="openRechargeModal"
         >
-          <span class="panel-btn-icon">💎</span>
+          <img class="panel-btn-icon" src="/rpg/icons/diamond.png" alt="">
           钻石充值（动态码）
         </button>
       </div>
@@ -183,6 +183,9 @@ const onRun = (scenario: (typeof RPG_MOCK_SCENARIOS)[number]) => {
   }
 
   .panel-btn-icon {
-    line-height: 1;
+    width: 1rem;
+    height: 1rem;
+    object-fit: contain;
+    vertical-align: -2px;
   }
 </style>

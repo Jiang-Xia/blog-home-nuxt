@@ -17,10 +17,10 @@ const demoQuestTotal = 4;
 const demoPhase = ref(0);
 
 const phases = [
-  { icon: '📅', text: '每日签到 +10 EXP' },
-  { icon: '💬', text: '评论文章推进任务' },
-  { icon: '🎁', text: '领取奖励升级' },
-  { icon: '🎰', text: '抽奖开宝箱' },
+  { icon: 'calendar', text: '每日签到 +10 EXP' },
+  { icon: 'chat', text: '评论文章推进任务' },
+  { icon: 'gift', text: '领取奖励升级' },
+  { icon: 'dice', text: '抽奖开宝箱' },
 ];
 
 let timer: ReturnType<typeof setInterval> | null = null;
@@ -64,10 +64,10 @@ onUnmounted(() => {
 
     <div class="flex items-center gap-3" :class="dense ? 'mb-2.5' : 'mb-4'">
       <div
-        class="flex items-center justify-center rounded-xl bg-[var(--rpg-amber-bg-faint)] text-2xl"
-        :class="dense ? 'h-10 w-10 text-xl' : 'h-12 w-12'"
+        class="flex items-center justify-center rounded-xl bg-[var(--rpg-amber-bg-faint)]"
+        :class="dense ? 'h-10 w-10' : 'h-12 w-12'"
       >
-        🧙
+        <img src="/rpg/icons/shield.png" class="h-2/3 w-2/3 object-contain" alt="头像框">
       </div>
       <div class="min-w-0 flex-1">
         <div class="mb-1 flex items-center gap-2">
@@ -112,7 +112,12 @@ onUnmounted(() => {
         class="flex items-center gap-2 rounded-lg bg-[var(--rpg-amber-bg-faint)] text-[var(--rpg-amber-text)]"
         :class="dense ? 'px-2.5 py-1.5 text-xs' : 'px-3 py-2 text-sm'"
       >
-        <span :class="dense ? 'text-base' : 'text-lg'">{{ phases[demoPhase].icon }}</span>
+        <img
+          :src="`/rpg/icons/${phases[demoPhase].icon}.png`"
+          class="inline-block align-middle"
+          :class="dense ? 'h-4 w-4' : 'h-5 w-5'"
+          alt=""
+        >
         <span>{{ phases[demoPhase].text }}</span>
       </div>
     </Transition>
@@ -122,8 +127,8 @@ onUnmounted(() => {
       :class="dense ? 'mt-2.5' : 'mt-4'"
     >
       <div class="rounded-lg bg-[var(--rpg-empty-bg)]" :class="dense ? 'py-1.5' : 'py-2'">
-        <div class="text-base">
-          💎
+        <div :class="dense ? 'py-0.5' : 'py-1'" class="flex justify-center">
+          <img src="/rpg/icons/diamond.png" class="h-5 w-5 object-contain" alt="">
         </div>
         <div>打赏</div>
       </div>
@@ -134,8 +139,8 @@ onUnmounted(() => {
         <div>宠物</div>
       </div>
       <div class="rounded-lg bg-[var(--rpg-empty-bg)]" :class="dense ? 'py-1.5' : 'py-2'">
-        <div class="text-base">
-          🏆
+        <div :class="dense ? 'py-0.5' : 'py-1'" class="flex justify-center">
+          <img src="/rpg/icons/trophy.png" class="h-5 w-5 object-contain" alt="">
         </div>
         <div>排行</div>
       </div>

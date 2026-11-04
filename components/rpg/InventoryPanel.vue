@@ -88,20 +88,19 @@ const equippedPet = computed(
   () => (props.pets || []).find(p => p.id === props.equippedPetId) || null,
 );
 
-/** 稀有度描边 class：rare 紫晶 / epic+ 鎏金（美术改版 v2） */
+/** 稀有度描边 class：rare 紫晶 / epic 鎏金 / legendary+ 传说流光（v8） */
 const rarityClass = (item: InventoryItem) => {
   const r = (item.config?.rarity || '').toLowerCase();
   if (r === 'rare') return 'inv-cell--rare';
-  if (r === 'epic' || r === 'legendary' || r === 'ssr') return 'inv-cell--epic';
+  if (r === 'epic') return 'inv-cell--epic';
+  if (r === 'legendary' || r === 'ssr') return 'inv-cell--legend';
   return '';
 };
 </script>
 
 <template>
   <div class="inventory-panel">
-    <div class="rpg-section-heading">
-      背包
-    </div>
+    <RpgPanelHero icon="board" title="冒险背包" subtitle="称号 · 头像框 · 宠物 · 道具仓库" />
     <RpgPanelLoading v-if="loading" compact />
     <div v-else-if="!items.length" class="rpg-empty-card">
       <img class="rpg-empty-card__art" src="/rpg/icons/library.png" alt="" loading="lazy">
@@ -306,6 +305,39 @@ const rarityClass = (item: InventoryItem) => {
   .inv-cell--epic {
     border-color: var(--rpg-art-epic, #b8842c) !important;
     box-shadow: 0 0 0 3px var(--rpg-art-epic-glow, rgb(217 161 60 / 0.25));
+  }
+
+  /* ── v8：legendary/SSR 传说流光 — 鎏金描边 + 绕行扫光（纯 CSS，零新增资产）──
+     光束用 ::before（z-index:0），内容层 .rpg-loot-card > * 已有 z-index:1 兜底不受遮挡；
+     reduced-motion 由 rpg-theme.css 全局兜底压停 */
+  .inv-cell--legend {
+    border-color: var(--rpg-art-epic, #b8842c) !important;
+    box-shadow:
+      0 0 0 3px var(--rpg-art-epic-glow, rgb(217 161 60 / 0.25)),
+      0 0 18px rgb(251 191 36 / 0.32);
+    overflow: hidden;
+  }
+
+  .inv-cell--legend::before {
+    content: '';
+    position: absolute;
+    inset: -60%;
+    z-index: 0;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0 70%,
+      rgb(251 191 36 / 0.38) 84%,
+      rgb(255 236 179 / 0.55) 88%,
+      transparent 96%
+    );
+    animation: rpgLegendSweep 3.2s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes rpgLegendSweep {
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .inv-cell__qty {

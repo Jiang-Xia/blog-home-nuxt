@@ -287,7 +287,10 @@ const handleRedraw = () => {
           <div v-else-if="phase === 'reveal' && currentResult" class="reveal-stage">
             <div
               class="reveal-card"
-              :class="{ ready: revealReady }"
+              :class="{
+                'ready': revealReady,
+                'reveal-card--legend': isLegendResult(currentResult),
+              }"
               :style="{ '--rarity-glow': getRarityGlow(currentResult.item.rarity) }"
             >
               <div class="reveal-banner">
@@ -686,6 +689,36 @@ const handleRedraw = () => {
     box-shadow:
       0 0 0 2px rgb(217 161 60 / 0.35),
       0 0 18px rgb(251 191 36 / 0.3);
+  }
+
+  /* v8：传说/SSR 绕行流光（summary/reveal 共用同一套光束参数）
+     ::before 光束 z-index:0，卡内内容均为定位元素可正常盖在其上 */
+  .summary-card--legend::before,
+  .reveal-card--legend::before {
+    content: '';
+    position: absolute;
+    inset: -60%;
+    z-index: 0;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0 70%,
+      rgb(251 191 36 / 0.4) 84%,
+      rgb(255 236 179 / 0.6) 88%,
+      transparent 96%
+    );
+    animation: rpgLegendSweep 3.2s linear infinite;
+    pointer-events: none;
+  }
+
+  .summary-card--legend,
+  .reveal-card--legend {
+    overflow: hidden;
+  }
+
+  @keyframes rpgLegendSweep {
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .summary-crown {

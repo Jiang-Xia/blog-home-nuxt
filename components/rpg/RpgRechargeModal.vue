@@ -30,7 +30,7 @@ const handleClose = () => {
       <div v-if="visible" class="recharge-overlay" @click="handleClose">
         <div class="recharge-modal rpg-theme" @click.stop>
           <div class="recharge-badge">
-            💎 钻石不足
+            <img class="recharge-badge__art" src="/rpg/icons/diamond.png" alt=""> 钻石不足
           </div>
           <p class="recharge-desc">
             余额不足请先充值 · {{ RPG_RECHARGE_RATE_TEXT }}
@@ -82,10 +82,21 @@ const handleClose = () => {
   }
 
   .recharge-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
     font-size: 16px;
     font-weight: 800;
     color: oklch(var(--wa));
     margin-bottom: 6px;
+  }
+
+  .recharge-badge__art {
+    width: 1.25rem;
+    height: 1.25rem;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 3px rgb(0 0 0 / 0.3));
   }
 
   .recharge-desc {

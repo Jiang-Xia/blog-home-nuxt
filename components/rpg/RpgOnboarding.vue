@@ -32,7 +32,7 @@ const steps = [
     icon: 'library',
     title: '背包 · 抽奖 · 宠物',
     desc: '升级解锁头像框与称号；抽奖池可开出 Buff、钻石、成就；宠物出战提供被动 EXP 加成。',
-    tip: '顶部 Tab 可切换背包、宠物、公会。',
+    tip: 'Tab 栏可切换背包、宠物、公会。',
   },
   {
     icon: 'trophy',
@@ -42,8 +42,18 @@ const steps = [
   },
 ];
 
-const current = computed(() => steps[step.value]);
+const current = computed(() => {
+  const base = steps[step.value];
+  // P2-7：第 4 步「Tab 栏」按断点动态措辞——移动端底部拇指 Tab，桌面顶部 Tab
+  if (step.value === 3) {
+    return { ...base, tip: `${isNarrow.value ? '底部' : '顶部'} Tab 可切换背包、宠物、公会。` };
+  }
+  return base;
+});
 const isLast = computed(() => step.value >= steps.length - 1);
+
+/** P2-7：是否窄屏（<640px 与底部 Tab 栏断点一致） */
+const isNarrow = ref(false);
 
 const open = () => {
   visible.value = true;
@@ -76,6 +86,12 @@ const skip = () => close(true);
 
 onMounted(() => {
   if (!import.meta.client) return;
+  // P2-7：监听窄屏断点，动态切换引导文案
+  const mq = window.matchMedia('(max-width: 639px)');
+  isNarrow.value = mq.matches;
+  mq.addEventListener('change', (e) => {
+    isNarrow.value = e.matches;
+  });
   if (route.query.onboarding === '1') {
     open();
     return;

@@ -9,12 +9,15 @@
 文件名 = `rpg_item_config.icon` + 扩展名：
 
 ```
-{icon}.png   ← 你的美术图（优先）
+{icon}.png   ← 美术成图（主力，当前 72 张全量覆盖）
 {icon}.webp  ← 可选
-{icon}.svg   ← 当前占位矢量
+{icon}.svg   ← 仅兜底：只在 key 无 png 时保留（现存 moon / rainbow / sun 三张）
 ```
 
-示例：DB 里 `icon = 'dragon'` → 放 `dragon.png` 并在 `utils/rpg-item-asset.ts` 的 `RPG_ICON_RASTER_KEYS` 登记 `'dragon'`，即可优先走 raster；可删掉 `dragon.svg`。
+> 2026-11-02 清理：与 png 同名的 44 张 svg 已删除（加载链 png 优先，svg 永远轮不到）。
+> 新增图标请直接给 png，**不要再放同 key 的 svg 占位**。
+
+示例：DB 里 `icon = 'dragon'` → 放 `dragon.png` 并在 `utils/rpg-item-asset.ts` 的 `RPG_ICON_RASTER_KEYS` 登记 `'dragon'`。
 
 ## 加载顺序
 

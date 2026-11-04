@@ -91,7 +91,8 @@ tar -xzf "${DEPLOY_TAR_PATH}" -C "$release_path"
 
 cd "$release_path"
 echo "==> npm ci --omit=dev"
-npm ci --omit=dev --ignore-scripts
+# tip-tap peer（y-tiptap/yjs）未写入 lock 时，无 legacy 会 EUSAGE；与本地安装策略对齐
+npm ci --omit=dev --ignore-scripts --legacy-peer-deps
 
 echo "==> activate release (zero-downtime reload)"
 release_switch "$release_path"

@@ -134,7 +134,14 @@ export default defineNuxtConfig({
     },
     // 优化依赖预构建
     optimizeDeps: {
-      include: ['md-editor-v3', 'crypto-js'],
+      include: [
+        'md-editor-v3',
+        'crypto-js',
+        'echarts/core',
+        'echarts/charts',
+        'echarts/components',
+        'echarts/renderers',
+      ],
       // jSquash / hash-wasm 的 WASM 不可被预构建，否则路径解析失败
       exclude: ['@jsquash/webp', '@jsquash/jpeg', 'hash-wasm'],
     },

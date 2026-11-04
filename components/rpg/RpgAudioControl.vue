@@ -18,40 +18,20 @@ onMounted(() => {
     :aria-label="muted ? '开启音效' : '静音'"
     @click="toggleMute"
   >
-    <svg
+    <img
       v-if="muted"
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      class="rpg-audio-nav-trigger__art"
+      src="/rpg/icons/volume-off.png"
+      alt=""
       aria-hidden="true"
     >
-      <path d="M11 5 6 9H2v6h4l5 4V5z" />
-      <line x1="23" y1="9" x2="17" y2="15" />
-      <line x1="17" y1="9" x2="23" y2="15" />
-    </svg>
-    <svg
+    <img
       v-else
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      class="rpg-audio-nav-trigger__art"
+      src="/rpg/icons/volume-on.png"
+      alt=""
       aria-hidden="true"
     >
-      <path d="M11 5 6 9H2v6h4l5 4V5z" />
-      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-    </svg>
   </button>
 </template>
 
@@ -71,6 +51,13 @@ onMounted(() => {
       color 0.2s,
       border-color 0.2s,
       background-color 0.2s;
+  }
+
+  .rpg-audio-nav-trigger__art {
+    width: 1.25rem;
+    height: 1.25rem;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.2));
   }
 
   .rpg-audio-nav-trigger:hover {
