@@ -169,7 +169,7 @@ function themeColors() {
 function buildOption(animate: boolean) {
   const { fg, muted, faint, border, primary, success, base100, tooltipBg, light } = themeColors();
   const { dates, weights } = seriesPoints.value;
-  const categories = dates.map(d => d.slice(5));
+  // 类目用完整 YYYY-MM-DD，tooltip 才能带年份；轴标签再截成 MM-DD 省空间
   // 亮色 tip 加强描边与阴影，避免白底贴在浅色画布上看不清
   const tipBorder = light
     ? resolveCssColor(
@@ -239,7 +239,7 @@ function buildOption(animate: boolean) {
     },
     xAxis: {
       type: 'category' as const,
-      data: categories,
+      data: dates,
       boundaryGap: false,
       axisLine: { lineStyle: { color: border, width: 1 } },
       axisLabel: {
@@ -247,6 +247,9 @@ function buildOption(animate: boolean) {
         fontSize: 11,
         hideOverlap: true,
         margin: 10,
+        // 轴上仍显示 MM-DD，完整日期留给 tooltip
+        formatter: (value: string) =>
+          typeof value === 'string' && value.length >= 10 ? value.slice(5) : value,
       },
       axisTick: { show: false },
       splitLine: { show: false },
