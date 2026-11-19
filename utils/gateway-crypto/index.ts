@@ -2,7 +2,7 @@
  * HTTP 加密网关客户端入口（与 Nest gateway-crypto 协议对齐）。
  *
  * - 开关：VITE_NUXT_OPEN_ENCRYPT（是否走 /encrypt）
- * - 套件：VITE_NUXT_GATEWAY_CRYPTO=aes|gm（须与 Nest app_gatewayCrypto 一致）
+ * - 套件：VITE_NUXT_GATEWAY_CRYPTO=aes|gm（本仓约定 aes；Nest=both 时按端分套件）
  * - 耗时日志：VITE_NUXT_GATEWAY_CRYPTO_LOG=true（仅开发）
  * - 密文 / IV / encKey / sign 等 Hex 统一小写
  * - 遗留静态 AES（utils/crypto.ts）仅供 AI 摘要等工具，勿与本模块混用

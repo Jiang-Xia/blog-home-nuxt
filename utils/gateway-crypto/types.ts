@@ -1,8 +1,9 @@
 /**
  * 加密网关客户端协议类型（与 Nest `utils/gateway-crypto` 对齐）。
+ * 本仓约定 alg=aes（Nest both；admin 为 gm）。
  *
  * 数据流（单次 HTTP）：
- * 1. 前端随机 symKey + 请求 iv → AES/SM4 加密 body → RSA/SM2 封成 encKey → HMAC 签名
+ * 1. 前端随机 symKey + 请求 iv → AES 加密 body → RSA 封成 encKey → HMAC-SHA256
  * 2. 本地保留 session={ alg, symKeyHex }（响应不再回传 encKey）
  * 3. 后端解开 encKey 得同一 symKey，业务明文处理后用新 iv 封响应
  * 4. 前端用 session.symKeyHex + 响应 payload.iv 验签并解密
